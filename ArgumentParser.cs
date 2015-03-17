@@ -12,7 +12,9 @@ namespace CommandLineParsing
         private TryParse<T> parser;
 
         private Func<string, Message> typeValidator;
-        private List<Func<T,Message>> validator;
+        private List<Func<T, Message>> validator;
+
+        private Message required;
 
         private Action<T> callback;
         private T defaultValue;
@@ -24,6 +26,8 @@ namespace CommandLineParsing
 
             this.typeValidator = null;
             this.validator = new List<Func<T, Message>>();
+
+            this.required = Message.NoError;
 
             this.callback = null;
             this.defaultValue = default(T);
@@ -91,6 +95,17 @@ namespace CommandLineParsing
         public ArgumentParser<T> Validate(Func<T, bool> validator, Message errorMessage)
         {
             return Validate(x => validator(x) ? errorMessage : Message.NoError);
+        }
+
+        public ArgumentParser<T> Required()
+        {
+            return Required("You must specify the \"" + name + "\" argument to execute this command.");
+        }
+        public ArgumentParser<T> Required(Message errorMessage)
+        {
+            this.required = errorMessage;
+
+            return this;
         }
     }
 }
