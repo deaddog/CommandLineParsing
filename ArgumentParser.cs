@@ -17,6 +17,7 @@ namespace CommandLineParsing
         private Message required;
 
         private Action<T> callback;
+        private bool defaultSet;
         private T defaultValue;
 
         internal ArgumentParser(string name, TryParse<T> parser)
@@ -30,6 +31,7 @@ namespace CommandLineParsing
             this.required = Message.NoError;
 
             this.callback = null;
+            this.defaultSet = false;
             this.defaultValue = default(T);
         }
 
@@ -64,6 +66,10 @@ namespace CommandLineParsing
 
         public ArgumentParser<T> DefaultValue(T value)
         {
+            if (required != Message.NoError)
+                throw new InvalidOperationException("An argument cannot be required and have a default value at the same time.");
+
+            this.defaultSet = true;
             this.defaultValue = value;
 
             return this;
@@ -103,6 +109,9 @@ namespace CommandLineParsing
         }
         public ArgumentParser<T> Required(Message errorMessage)
         {
+            if (defaultSet)
+                throw new InvalidOperationException("An argument cannot be required and have a default value at the same time.");
+
             this.required = errorMessage;
 
             return this;
