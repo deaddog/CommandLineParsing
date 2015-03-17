@@ -8,5 +8,17 @@ namespace CommandLineParsing
 {
     public class Message
     {
+        private string message;
+
+        public Message(string message)
+        {
+            this.message = message;
+        }
+
+
+        public static implicit operator Message(string message)
+        {
+            return new Message(message);
+        }
     }
 }
