@@ -11,11 +11,13 @@ namespace CommandLineParsing
         private Func<string, Message> typeValidator;
 
         private Action<T> callback;
+        private T defaultValue;
 
         internal ArgumentParser()
         {
             this.typeValidator = null;
             this.callback = null;
+            this.defaultValue = default(T);
         }
 
         public ArgumentParser<T> Callback(Action<T> callback)
@@ -24,6 +26,13 @@ namespace CommandLineParsing
                 this.callback = callback;
             else
                 this.callback += callback;
+
+            return this;
+        }
+
+        public ArgumentParser<T> DefaultValue(T value, bool useForTypeErrors)
+        {
+            this.defaultValue = value;
 
             return this;
         }
