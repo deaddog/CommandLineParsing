@@ -8,19 +8,42 @@ namespace CommandLineParsing
 {
     public class ArgumentParser<T>
     {
+        private TryParse<T> parser;
+
         private Func<string, Message> typeValidator;
         private List<Func<T,Message>> validator;
 
         private Action<T> callback;
         private T defaultValue;
 
-        internal ArgumentParser()
+        internal ArgumentParser(TryParse<T> parser)
         {
+            this.parser = parser;
+
             this.typeValidator = null;
             this.validator = new List<Func<T, Message>>();
 
             this.callback = null;
             this.defaultValue = default(T);
+        }
+
+        internal Message Handle(string input)
+        {
+            T value;
+
+            if (!parser(input, out value))
+                return typeValidator(input);
+
+            for (int i = 0; i < validator.Count; i++)
+            {
+                var msg = validator[i](value);
+                if (msg != Message.NoError)
+                    return msg;
+            }
+
+            callback(value);
+
+            return Message.NoError;
         }
 
         public ArgumentParser<T> Callback(Action<T> callback)
