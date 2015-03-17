@@ -20,5 +20,10 @@ namespace CommandLineParsing
         {
             return new Message(message);
         }
+
+        public static Message NoError
+        {
+            get { return null; }
+        }
     }
 }
