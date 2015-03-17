@@ -8,6 +8,7 @@ namespace CommandLineParsing
 {
     public class ArgumentParser<T>
     {
+        private string name;
         private TryParse<T> parser;
 
         private Func<string, Message> typeValidator;
@@ -16,8 +17,9 @@ namespace CommandLineParsing
         private Action<T> callback;
         private T defaultValue;
 
-        internal ArgumentParser(TryParse<T> parser)
+        internal ArgumentParser(string name, TryParse<T> parser)
         {
+            this.name = name;
             this.parser = parser;
 
             this.typeValidator = null;
@@ -65,7 +67,7 @@ namespace CommandLineParsing
 
         public ArgumentParser<T> ValidateType()
         {
-            return ValidateType(x => ("Argument " + x + "could not be parsed to a value of type " + typeof(T).Name + "."));
+            return ValidateType(x => ("Argument \"" + name + "\" with value \"" + x + "\" could not be parsed to a value of type " + typeof(T).Name + "."));
         }
         public ArgumentParser<T> ValidateType(Message errorMessage)
         {
