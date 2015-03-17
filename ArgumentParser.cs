@@ -54,6 +54,11 @@ namespace CommandLineParsing
             return Message.NoError;
         }
 
+        internal Message RequiredMessage
+        {
+            get { return required; }
+        }
+
         public ArgumentParser<T> Callback(Action<T> callback)
         {
             if (this.callback == null)
