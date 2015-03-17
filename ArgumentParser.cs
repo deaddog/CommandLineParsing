@@ -9,6 +9,7 @@ namespace CommandLineParsing
     public class ArgumentParser<T>
     {
         private Func<string, Message> typeValidator;
+        private List<Func<T,Message>> validator;
 
         private Action<T> callback;
         private T defaultValue;
@@ -16,6 +17,8 @@ namespace CommandLineParsing
         internal ArgumentParser()
         {
             this.typeValidator = null;
+            this.validator = new List<Func<T, Message>>();
+
             this.callback = null;
             this.defaultValue = default(T);
         }
@@ -30,7 +33,7 @@ namespace CommandLineParsing
             return this;
         }
 
-        public ArgumentParser<T> DefaultValue(T value, bool useForTypeErrors)
+        public ArgumentParser<T> DefaultValue(T value)
         {
             this.defaultValue = value;
 
@@ -52,6 +55,17 @@ namespace CommandLineParsing
 
             this.typeValidator = errorMessage;
             return this;
+        }
+
+        public ArgumentParser<T> Validate(Func<T, Message> validator)
+        {
+            this.validator.Add(validator);
+
+            return this;
+        }
+        public ArgumentParser<T> Validate(Func<T, bool> validator, Message errorMessage)
+        {
+            return Validate(x => validator(x) ? errorMessage : Message.NoError);
         }
     }
 }
