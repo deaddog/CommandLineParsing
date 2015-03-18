@@ -45,6 +45,7 @@
     <Compile Include="Command.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RegexLookup.cs" />
     <Compile Include="SingleArgumentParser.cs" />
     <Compile Include="TryParse.cs" />
   </ItemGroup>
