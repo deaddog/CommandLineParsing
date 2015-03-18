@@ -43,6 +43,7 @@
     <Compile Include="ArgumentParser.cs" />
     <Compile Include="ArrayArgumentParser.cs" />
     <Compile Include="Command.cs" />
+    <Compile Include="EditDistanceExtension.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegexLookup.cs" />
