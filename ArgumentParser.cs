@@ -32,7 +32,8 @@ namespace CommandLineParsing
                     return msg;
             }
 
-            callback(value);
+            if (callback != null)
+                callback(value);
 
             return Message.NoError;
         }
