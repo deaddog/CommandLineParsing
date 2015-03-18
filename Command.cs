@@ -17,30 +17,33 @@ namespace CommandLineParsing
 
         public SingleArgumentParser<T> Argument<T>(string name)
         {
-            var parser = getParser<T>(name);
+            var parser = new SingleArgumentParser<T>(name, getTryParse<T>().Parser);
             arguments.Add(name, parser);
             return parser;
         }
-        private SingleArgumentParser<T> getParser<T>(string name)
-        {
-            if (typeof(T) == typeof(int))
-                return new SingleArgumentParser<int>(name, int.TryParse) as SingleArgumentParser<T>;
-
-            throw new NotSupportedException("The type " + typeof(T) + " is not supported.");
-        }
-
         public ArrayArgumentParser<T> ArrayArgument<T>(string name)
         {
-            var parser = getArrayParser<T>(name);
+            var parser = new ArrayArgumentParser<T>(name, getTryParse<T>().Parser);
             arguments.Add(name, parser);
             return parser;
         }
-        public ArrayArgumentParser<T> getArrayParser<T>(string name)
+
+        private ParseWrapper<T> getTryParse<T>()
         {
             if (typeof(T) == typeof(int))
-                return new ArrayArgumentParser<int>(name, int.TryParse) as ArrayArgumentParser<T>;
+                return new ParseWrapper<int>(int.TryParse) as ParseWrapper<T>;
 
             throw new NotSupportedException("The type " + typeof(T) + " is not supported.");
+        }
+
+        private class ParseWrapper<T>
+        {
+            public readonly TryParse<T> Parser;
+
+            public ParseWrapper(TryParse<T> parser)
+            {
+                this.Parser = parser;
+            }
         }
     }
 }
