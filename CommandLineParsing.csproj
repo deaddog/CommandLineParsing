@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Argument.cs" />
     <Compile Include="ArgumentParser.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Message.cs" />
