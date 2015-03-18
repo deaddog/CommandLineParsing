@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
-    public abstract class ArgumentParser<T>
+    public abstract class ArgumentParser<T, TParser> where TParser : class
     {
         private string name;
 
@@ -62,17 +62,17 @@ namespace CommandLineParsing
             get { return required; }
         }
 
-        public ArgumentParser<T> Callback(Action<T> callback)
+        public TParser Callback(Action<T> callback)
         {
             if (this.callback == null)
                 this.callback = callback;
             else
                 this.callback += callback;
 
-            return this;
+            return this as TParser;
         }
 
-        public ArgumentParser<T> DefaultValue(T value)
+        public TParser DefaultValue(T value)
         {
             if (required != Message.NoError)
                 throw new InvalidOperationException("An argument cannot be required and have a default value at the same time.");
@@ -80,49 +80,49 @@ namespace CommandLineParsing
             this.defaultSet = true;
             this.defaultValue = value;
 
-            return this;
+            return this as TParser;
         }
 
-        public ArgumentParser<T> ValidateType()
+        public TParser ValidateType()
         {
             return ValidateType(x => ("Argument \"" + name + "\" with value \"" + x + "\" could not be parsed to a value of type " + typeof(T).Name + "."));
         }
-        public ArgumentParser<T> ValidateType(Message errorMessage)
+        public TParser ValidateType(Message errorMessage)
         {
             return ValidateType(x => errorMessage);
         }
-        public ArgumentParser<T> ValidateType(Func<string, Message> errorMessage)
+        public TParser ValidateType(Func<string, Message> errorMessage)
         {
             if (this.typeValidator != null)
                 throw new InvalidOperationException("Type validation can only be applied to " + this.GetType().Name + " once.");
 
             this.typeValidator = errorMessage;
-            return this;
+            return this as TParser;
         }
 
-        public ArgumentParser<T> Validate(Func<T, Message> validator)
+        public TParser Validate(Func<T, Message> validator)
         {
             this.validator.Add(validator);
 
-            return this;
+            return this as TParser;
         }
-        public ArgumentParser<T> Validate(Func<T, bool> validator, Message errorMessage)
+        public TParser Validate(Func<T, bool> validator, Message errorMessage)
         {
             return Validate(x => validator(x) ? Message.NoError : errorMessage);
         }
 
-        public ArgumentParser<T> Required()
+        public TParser Required()
         {
             return Required("You must specify the \"" + name + "\" argument to execute this command.");
         }
-        public ArgumentParser<T> Required(Message errorMessage)
+        public TParser Required(Message errorMessage)
         {
             if (defaultSet)
                 throw new InvalidOperationException("An argument cannot be required and have a default value at the same time.");
 
             this.required = errorMessage;
 
-            return this;
+            return this as TParser;
         }
     }
 }

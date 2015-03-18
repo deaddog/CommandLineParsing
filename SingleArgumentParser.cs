@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
-    public class SingleArgumentParser<T> : ArgumentParser<T>
+    public class SingleArgumentParser<T> : ArgumentParser<T, SingleArgumentParser<T>>
     {
         private TryParse<T> parser;
 
