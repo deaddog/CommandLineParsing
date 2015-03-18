@@ -9,7 +9,6 @@ namespace CommandLineParsing
     public abstract class ArgumentParser<T>
     {
         private string name;
-        private TryParse<T> parser;
 
         private Func<string, Message> typeValidator;
         private List<Func<T, Message>> validator;
@@ -38,10 +37,9 @@ namespace CommandLineParsing
             return Message.NoError;
         }
 
-        internal ArgumentParser(string name, TryParse<T> parser)
+        internal ArgumentParser(string name)
         {
             this.name = name;
-            this.parser = parser;
 
             this.typeValidator = null;
             this.validator = new List<Func<T, Message>>();

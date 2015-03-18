@@ -10,8 +10,8 @@ namespace CommandLineParsing
     {
         private TryParse<T> parser;
 
-        public ArrayArgumentParser(string name, TryParse<T> parser)
-            : base(name, null)
+        internal ArrayArgumentParser(string name, TryParse<T> parser)
+            : base(name)
         {
             this.parser = parser;
         }
