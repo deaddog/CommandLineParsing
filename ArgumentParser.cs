@@ -8,6 +8,17 @@ namespace CommandLineParsing
 {
     public abstract class ArgumentParser
     {
+        private string name;
+        internal string Name
+        {
+            get { return name; }
+        }
+
+        internal ArgumentParser(string name)
+        {
+            this.name = name;
+        }
+
         internal abstract bool IsRequired
         {
             get;
@@ -20,8 +31,6 @@ namespace CommandLineParsing
     }
     public abstract class ArgumentParser<T, TParser> : ArgumentParser where TParser : class
     {
-        private string name;
-
         private Func<string, Message> typeValidator;
         private List<Func<T, Message>> validator;
 
@@ -51,9 +60,8 @@ namespace CommandLineParsing
         }
 
         internal ArgumentParser(string name)
+            : base(name)
         {
-            this.name = name;
-
             this.typeValidator = null;
             this.validator = new List<Func<T, Message>>();
 
@@ -96,7 +104,7 @@ namespace CommandLineParsing
 
         public TParser ValidateType()
         {
-            return ValidateType(x => ("Argument \"" + name + "\" with value \"" + x + "\" could not be parsed to a value of type " + typeof(T).Name + "."));
+            return ValidateType(x => ("Argument \"" + Name + "\" with value \"" + x + "\" could not be parsed to a value of type " + typeof(T).Name + "."));
         }
         public TParser ValidateType(Message errorMessage)
         {
@@ -128,7 +136,7 @@ namespace CommandLineParsing
 
         public TParser Required()
         {
-            return Required("You must specify the \"" + name + "\" argument to execute this command.");
+            return Required("You must specify the \"" + Name + "\" argument to execute this command.");
         }
         public TParser Required(Message errorMessage)
         {
