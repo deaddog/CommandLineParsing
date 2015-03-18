@@ -105,7 +105,7 @@ namespace CommandLineParsing
         }
         public ArgumentParser<T> Validate(Func<T, bool> validator, Message errorMessage)
         {
-            return Validate(x => validator(x) ? errorMessage : Message.NoError);
+            return Validate(x => validator(x) ? Message.NoError : errorMessage);
         }
 
         public ArgumentParser<T> Required()
