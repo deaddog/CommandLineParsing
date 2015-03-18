@@ -19,10 +19,12 @@ namespace CommandLineParsing
 
             foreach (var a in args)
             {
-                if (key == null && !a.StartsWith("-"))
+                bool isKey = RegexLookup.ArgumentName.IsMatch(a);
+
+                if (key == null && !isKey)
                     yield return new Argument(a, new string[0]);
 
-                else if (a.StartsWith("-"))
+                else if (isKey)
                 {
                     if (key != null)
                     {
