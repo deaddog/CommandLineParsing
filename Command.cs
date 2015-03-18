@@ -11,10 +11,27 @@ namespace CommandLineParsing
         private Dictionary<string, ArgumentParser> arguments;
         private List<ArgumentParser> parsers;
 
+        private List<Func<Message>> validators;
+        private Action executor;
+
         public Command()
         {
             this.arguments = new Dictionary<string, ArgumentParser>();
             this.parsers = new List<ArgumentParser>();
+
+            this.validators = new List<Func<Message>>();
+            this.executor = null;
+        }
+
+        public Command Validate(Func<Message> validator)
+        {
+            validators.Add(validator);
+            return this;
+        }
+        public Command Execute(Action executor)
+        {
+            this.executor += executor;
+            return this;
         }
 
         public SingleArgumentParser<T> Argument<T>(string name, params string[] alternatives)
@@ -89,7 +106,6 @@ namespace CommandLineParsing
         private class ParseWrapper<T>
         {
             public readonly TryParse<T> Parser;
-
             public ParseWrapper(TryParse<T> parser)
             {
                 this.Parser = parser;
