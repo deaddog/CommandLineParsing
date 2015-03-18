@@ -28,7 +28,7 @@ namespace CommandLineParsing
             for (int i = 0; i < validator.Count; i++)
             {
                 var msg = validator[i](value);
-                if (msg != Message.NoError)
+                if (msg.IsError)
                     return msg;
             }
 
@@ -55,7 +55,7 @@ namespace CommandLineParsing
 
         internal bool IsRequired
         {
-            get { return required != Message.NoError; }
+            get { return !required.IsError; }
         }
         internal Message RequiredMessage
         {
@@ -74,7 +74,7 @@ namespace CommandLineParsing
 
         public TParser DefaultValue(T value)
         {
-            if (required != Message.NoError)
+            if (required.IsError)
                 throw new InvalidOperationException("An argument cannot be required and have a default value at the same time.");
 
             this.defaultSet = true;

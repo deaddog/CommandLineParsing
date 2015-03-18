@@ -8,22 +8,51 @@ namespace CommandLineParsing
 {
     public class Message
     {
-        private string message;
-
-        public Message(string message)
+        private static Message noError = new Message(false);
+        public static Message NoError
         {
-            this.message = message;
+            get { return noError; }
+        }
+
+        private bool isError;
+        public bool IsError
+        {
+            get { return isError; }
+        }
+
+        private Message(bool isError)
+        {
+            this.isError = isError;
+        }
+        protected Message()
+            : this(true)
+        {
+        }
+
+        public virtual string GetMessage()
+        {
+            return "";
         }
 
 
         public static implicit operator Message(string message)
         {
-            return new Message(message);
+            return new SimpleMessage(message);
         }
 
-        public static Message NoError
+        private class SimpleMessage : Message
         {
-            get { return null; }
+            private string message;
+
+            public SimpleMessage(string message)
+            {
+                this.message = message;
+            }
+
+            public override string GetMessage()
+            {
+                return message;
+            }
         }
     }
 }

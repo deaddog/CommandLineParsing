@@ -36,7 +36,7 @@ namespace CommandLineParsing
                     for (int i = 0; i < x.Length; i++)
                     {
                         var msg = validator(x[i]);
-                        if (msg != Message.NoError)
+                        if (msg.IsError)
                             return msg;
                     }
                     return Message.NoError;
