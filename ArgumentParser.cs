@@ -14,6 +14,11 @@ namespace CommandLineParsing
             get { return name; }
         }
 
+        internal abstract string Description
+        {
+            get;
+        }
+
         internal ArgumentParser(string name)
         {
             this.name = name;
@@ -31,6 +36,8 @@ namespace CommandLineParsing
     }
     public abstract class ArgumentParser<T, TParser> : ArgumentParser where TParser : class
     {
+        private string description;
+
         private Func<string, Message> typeValidator;
         private List<Func<T, Message>> validator;
 
@@ -62,6 +69,8 @@ namespace CommandLineParsing
         internal ArgumentParser(string name)
             : base(name)
         {
+            this.description = null;
+
             this.typeValidator = null;
             this.validator = new List<Func<T, Message>>();
 
@@ -70,6 +79,17 @@ namespace CommandLineParsing
             this.callback = null;
             this.defaultSet = false;
             this.defaultValue = default(T);
+        }
+
+        internal override string Description
+        {
+            get { return description; }
+        }
+
+        public TParser WithDescription(string description)
+        {
+            this.description = description;
+            return this as TParser;
         }
 
         public TParser Callback(Action<T> callback)
