@@ -34,6 +34,22 @@ namespace CommandLineParsing
             return this;
         }
 
+        public virtual Message Validate()
+        {
+            for (int i = 0; i < validators.Count; i++)
+            {
+                var msg = validators[i]();
+                if (msg.IsError)
+                    return msg;
+            }
+
+            return Message.NoError;
+        }
+        public virtual void Execute()
+        {
+            executor();
+        }
+
         public SingleArgumentParser<T> Argument<T>(string name, params string[] alternatives)
         {
             var parser = new SingleArgumentParser<T>(name, getTryParse<T>().Parser);
