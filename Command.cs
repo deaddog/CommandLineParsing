@@ -9,16 +9,19 @@ namespace CommandLineParsing
     public class Command
     {
         private Dictionary<string, ArgumentParser> arguments;
+        private List<ArgumentParser> parsers;
 
         public Command()
         {
             this.arguments = new Dictionary<string, ArgumentParser>();
+            this.parsers = new List<ArgumentParser>();
         }
 
         public SingleArgumentParser<T> Argument<T>(string name, params string[] alternatives)
         {
             var parser = new SingleArgumentParser<T>(name, getTryParse<T>().Parser);
 
+            parsers.Add(parser);
             arguments.Add(name, parser);
             foreach (var a in alternatives)
                 arguments.Add(a, parser);
@@ -29,6 +32,7 @@ namespace CommandLineParsing
         {
             var parser = new ArrayArgumentParser<T>(name, getTryParse<T>().Parser);
 
+            parsers.Add(parser);
             arguments.Add(name, parser);
             foreach (var a in alternatives)
                 arguments.Add(a, parser);
