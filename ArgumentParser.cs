@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
-    public class ArgumentParser<T>
+    public abstract class ArgumentParser<T>
     {
         private string name;
         private TryParse<T> parser;
@@ -19,6 +19,24 @@ namespace CommandLineParsing
         private Action<T> callback;
         private bool defaultSet;
         private T defaultValue;
+
+        internal Message doTypeValidation(string value)
+        {
+            return typeValidator(value);
+        }
+        internal Message doValidationAndCallback(T value)
+        {
+            for (int i = 0; i < validator.Count; i++)
+            {
+                var msg = validator[i](value);
+                if (msg != Message.NoError)
+                    return msg;
+            }
+
+            callback(value);
+
+            return Message.NoError;
+        }
 
         internal ArgumentParser(string name, TryParse<T> parser)
         {
@@ -35,24 +53,7 @@ namespace CommandLineParsing
             this.defaultValue = default(T);
         }
 
-        internal Message Handle(string input)
-        {
-            T value;
-
-            if (!parser(input, out value))
-                return typeValidator(input);
-
-            for (int i = 0; i < validator.Count; i++)
-            {
-                var msg = validator[i](value);
-                if (msg != Message.NoError)
-                    return msg;
-            }
-
-            callback(value);
-
-            return Message.NoError;
-        }
+        internal abstract Message Handle(Argument argument);
 
         internal bool IsRequired
         {
