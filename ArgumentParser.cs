@@ -6,7 +6,19 @@ using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
-    public abstract class ArgumentParser<T, TParser> where TParser : class
+    public abstract class ArgumentParser
+    {
+        internal abstract bool IsRequired
+        {
+            get;
+        }
+        internal abstract Message RequiredMessage
+        {
+            get;
+        }
+        internal abstract Message Handle(Argument argument);
+    }
+    public abstract class ArgumentParser<T, TParser> : ArgumentParser where TParser : class
     {
         private string name;
 
@@ -52,13 +64,11 @@ namespace CommandLineParsing
             this.defaultValue = default(T);
         }
 
-        internal abstract Message Handle(Argument argument);
-
-        internal bool IsRequired
+        internal override bool IsRequired
         {
             get { return !required.IsError; }
         }
-        internal Message RequiredMessage
+        internal override Message RequiredMessage
         {
             get { return required; }
         }
