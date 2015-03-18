@@ -106,6 +106,10 @@ namespace CommandLineParsing
 
             return this as TParser;
         }
+        public TParser Validate(Func<T, bool> validator, Func<T, Message> errorMessage)
+        {
+            return Validate(x => validator(x) ? Message.NoError : errorMessage(x));
+        }
         public TParser Validate(Func<T, bool> validator, Message errorMessage)
         {
             return Validate(x => validator(x) ? Message.NoError : errorMessage);
