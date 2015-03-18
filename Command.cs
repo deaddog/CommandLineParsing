@@ -15,16 +15,24 @@ namespace CommandLineParsing
             this.arguments = new Dictionary<string, ArgumentParser>();
         }
 
-        public SingleArgumentParser<T> Argument<T>(string name)
+        public SingleArgumentParser<T> Argument<T>(string name, params string[] alternatives)
         {
             var parser = new SingleArgumentParser<T>(name, getTryParse<T>().Parser);
+
             arguments.Add(name, parser);
+            foreach (var a in alternatives)
+                arguments.Add(a, parser);
+
             return parser;
         }
-        public ArrayArgumentParser<T> ArrayArgument<T>(string name)
+        public ArrayArgumentParser<T> ArrayArgument<T>(string name, params string[] alternatives)
         {
             var parser = new ArrayArgumentParser<T>(name, getTryParse<T>().Parser);
+
             arguments.Add(name, parser);
+            foreach (var a in alternatives)
+                arguments.Add(a, parser);
+
             return parser;
         }
 
