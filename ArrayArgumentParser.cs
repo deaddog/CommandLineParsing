@@ -28,5 +28,29 @@ namespace CommandLineParsing
 
             return doValidationAndCallback(values);
         }
+
+        public ArrayArgumentParser<T> ValidateEach(Func<T, Message> validator)
+        {
+            this.Validate(x =>
+                {
+                    for (int i = 0; i < x.Length; i++)
+                    {
+                        var msg = validator(x[i]);
+                        if (msg != Message.NoError)
+                            return msg;
+                    }
+                    return Message.NoError;
+                });
+
+            return this;
+        }
+        public ArrayArgumentParser<T> ValidateEach(Func<T, bool> validator, Func<T, Message> errorMessage)
+        {
+            return ValidateEach(x => validator(x) ? Message.NoError : errorMessage(x));
+        }
+        public ArrayArgumentParser<T> ValidateEach(Func<T, bool> validator, Message errorMessage)
+        {
+            return ValidateEach(x => validator(x) ? Message.NoError : errorMessage);
+        }
     }
 }
