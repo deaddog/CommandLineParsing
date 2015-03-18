@@ -72,15 +72,6 @@ namespace CommandLineParsing
             this.defaultValue = default(T);
         }
 
-        internal override bool IsRequired
-        {
-            get { return !required.IsError; }
-        }
-        internal override Message RequiredMessage
-        {
-            get { return required; }
-        }
-
         public TParser Callback(Action<T> callback)
         {
             if (this.callback == null)
@@ -132,6 +123,15 @@ namespace CommandLineParsing
         public TParser Validate(Func<T, bool> validator, Message errorMessage)
         {
             return Validate(x => validator(x) ? Message.NoError : errorMessage);
+        }
+
+        internal override bool IsRequired
+        {
+            get { return !required.IsError; }
+        }
+        internal override Message RequiredMessage
+        {
+            get { return required; }
         }
 
         public TParser Required()
