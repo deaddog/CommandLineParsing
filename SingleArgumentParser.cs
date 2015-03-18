@@ -21,9 +21,9 @@ namespace CommandLineParsing
             T value;
 
             if (argument.Count == 0)
-                return new Message("No value provided for argument \"" + argument + "\".");
+                return new Message("No value provided for argument \"" + argument.Key + "\".");
             else if (argument.Count > 1)
-                return new Message("Only one value can be provided for argument \"" + argument + "\".");
+                return new Message("Only one value can be provided for argument \"" + argument.Key + "\".");
             else if (!parser(argument[0], out value))
                 return doTypeValidation(argument[0]);
 
