@@ -50,6 +50,35 @@ namespace CommandLineParsing
             executor();
         }
 
+        public Message ParseAndExecute(string[] args)
+        {
+            var unusedParsers = new List<ArgumentParser>(parsers.Where(x => x.IsRequired));
+            var argumentStack = CommandLineParsing.Argument.Parse(args);
+
+            while (argumentStack.Count > 0)
+            {
+                var arg = argumentStack.Pop();
+                var parser = arguments[arg.Key];
+
+                unusedParsers.Remove(parser);
+                var msg = parser.Handle(arg);
+
+                if (msg.IsError)
+                    return msg;
+            }
+
+            if (unusedParsers.Count > 0)
+                return unusedParsers[0].RequiredMessage;
+
+            var validMessage = Validate();
+            if (validMessage.IsError)
+                return validMessage;
+
+            Execute();
+
+            return Message.NoError;
+        }
+
         public SingleArgumentParser<T> Argument<T>(string name, params string[] alternatives)
         {
             var parser = new SingleArgumentParser<T>(name, getTryParse<T>().Parser);
