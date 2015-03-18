@@ -54,6 +54,10 @@ namespace CommandLineParsing
             return Message.NoError;
         }
 
+        internal bool IsRequired
+        {
+            get { return required != Message.NoError; }
+        }
         internal Message RequiredMessage
         {
             get { return required; }
