@@ -8,5 +8,9 @@ namespace CommandLineParsing
 {
     public class FlagArgumentParser : ArgumentParser
     {
+        public FlagArgumentParser(string name)
+            : base(name)
+        {
+        }
     }
 }
