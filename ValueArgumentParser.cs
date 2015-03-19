@@ -7,6 +7,7 @@ namespace CommandLineParsing
     {
         private string description;
 
+        private bool typeValidatorSet;
         private Func<string, Message> typeValidator;
         private List<Func<TValue, Message>> validator;
 
@@ -40,7 +41,8 @@ namespace CommandLineParsing
         {
             this.description = null;
 
-            this.typeValidator = null;
+            this.typeValidatorSet = false;
+            this.typeValidator = x => ("Argument \"" + Name + "\" with value \"" + x + "\" could not be parsed to a value of type " + typeof(TValue).Name + ".");
             this.validator = new List<Func<TValue, Message>>();
 
             this.required = Message.NoError;
@@ -82,19 +84,16 @@ namespace CommandLineParsing
             return this as TParser;
         }
 
-        public TParser ValidateType()
-        {
-            return ValidateType(x => ("Argument \"" + Name + "\" with value \"" + x + "\" could not be parsed to a value of type " + typeof(TValue).Name + "."));
-        }
         public TParser ValidateType(Message errorMessage)
         {
             return ValidateType(x => errorMessage);
         }
         public TParser ValidateType(Func<string, Message> errorMessage)
         {
-            if (this.typeValidator != null)
+            if (this.typeValidator != null && typeValidatorSet)
                 throw new InvalidOperationException("Type validation can only be applied to " + this.GetType().Name + " once.");
 
+            this.typeValidatorSet = true;
             this.typeValidator = errorMessage;
             return this as TParser;
         }
