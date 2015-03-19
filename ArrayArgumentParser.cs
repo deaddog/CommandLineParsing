@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
-    public class ArrayArgumentParser<T> : ArgumentParser<T[], ArrayArgumentParser<T>>
+    public class ArrayArgumentParser<T> : ValueArgumentParser<T[], ArrayArgumentParser<T>>
     {
         private TryParse<T> parser;
 
