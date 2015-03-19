@@ -15,16 +15,16 @@ namespace CommandLineParsing
             colorRegex = new Regex(@"\[\[:(?<color>" + namesRegex + @"):(?<content>([^\]]|\][^\]])*)\]\]");
         }
 
-        public static void ToConsole(this string format, params object[] args)
+        public static void ToConsole(this string format, bool allowcolor, params object[] args)
         {
-            handle(string.Format(format, args), false);
+            handle(string.Format(format, args), allowcolor, false);
         }
-        public static void ToConsoleLine(this string format, params object[] args)
+        public static void ToConsoleLine(this string format, bool allowcolor, params object[] args)
         {
-            handle(string.Format(format, args), true);
+            handle(string.Format(format, args), allowcolor, true);
         }
 
-        private static void handle(string input, bool newline)
+        private static void handle(string input, bool allowcolor, bool newline)
         {
             var m = colorRegex.Match(input);
             if (m.Success)
@@ -33,17 +33,20 @@ namespace CommandLineParsing
                 string post = input.Substring(m.Index + m.Length);
 
                 string content = m.Groups["content"].Value;
-                ConsoleColor color = getColor(m.Groups["color"].Value);
-
-                Console.Write(pre);
-                if (content.Length > 0)
+                if (!allowcolor)
+                    Console.WriteLine(pre + content);
+                else
                 {
-                    Console.ForegroundColor = color;
-                    Console.Write(content);
-                    Console.ResetColor();
+                    Console.Write(pre);
+                    if (content.Length > 0)
+                    {
+                        Console.ForegroundColor = getColor(m.Groups["color"].Value);
+                        Console.Write(content);
+                        Console.ResetColor();
+                    }
                 }
 
-                handle(post, newline);
+                handle(post, allowcolor, newline);
             }
             else if (newline)
                 Console.WriteLine(input);
