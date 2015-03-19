@@ -88,7 +88,7 @@ namespace CommandLineParsing
 
         public SingleArgumentParser<T> Argument<T>(string name, params string[] alternatives)
         {
-            var parser = new SingleArgumentParser<T>(name, getTryParse<T>().Parser);
+            var parser = new SingleArgumentParser<T>(name, getParser<T>());
             parsers.Add(parser);
 
             if (!RegexLookup.ArgumentName.IsMatch(name))
@@ -106,7 +106,7 @@ namespace CommandLineParsing
         }
         public ArrayArgumentParser<T> ArrayArgument<T>(string name, params string[] alternatives)
         {
-            var parser = new ArrayArgumentParser<T>(name, getTryParse<T>().Parser);
+            var parser = new ArrayArgumentParser<T>(name, getParser<T>());
             parsers.Add(parser);
 
             if (!RegexLookup.ArgumentName.IsMatch(name))
@@ -123,44 +123,38 @@ namespace CommandLineParsing
             return parser;
         }
 
-        private ParseWrapper<T> getTryParse<T>()
+
+
+        private TryParse<T> getParser<T>()
         {
-            if (typeof(T) == typeof(byte))
-                return new ParseWrapper<byte>(byte.TryParse) as ParseWrapper<T>;
-            if (typeof(T) == typeof(sbyte))
-                return new ParseWrapper<sbyte>(sbyte.TryParse) as ParseWrapper<T>;
-            if (typeof(T) == typeof(short))
-                return new ParseWrapper<short>(short.TryParse) as ParseWrapper<T>;
-            if (typeof(T) == typeof(ushort))
-                return new ParseWrapper<ushort>(ushort.TryParse) as ParseWrapper<T>;
-            if (typeof(T) == typeof(int))
-                return new ParseWrapper<int>(int.TryParse) as ParseWrapper<T>;
-            if (typeof(T) == typeof(uint))
-                return new ParseWrapper<uint>(uint.TryParse) as ParseWrapper<T>;
-            if (typeof(T) == typeof(long))
-                return new ParseWrapper<long>(long.TryParse) as ParseWrapper<T>;
-            if (typeof(T) == typeof(ulong))
-                return new ParseWrapper<ulong>(ulong.TryParse) as ParseWrapper<T>;
-
-            if (typeof(T) == typeof(float))
-                return new ParseWrapper<float>(float.TryParse) as ParseWrapper<T>;
-            if (typeof(T) == typeof(double))
-                return new ParseWrapper<double>(double.TryParse) as ParseWrapper<T>;
-            if (typeof(T) == typeof(decimal))
-                return new ParseWrapper<decimal>(decimal.TryParse) as ParseWrapper<T>;
-
-            if (typeof(T) == typeof(bool))
-                return new ParseWrapper<bool>(bool.TryParse) as ParseWrapper<T>;
-
-            if (typeof(T) == typeof(DateTime))
-                return new ParseWrapper<DateTime>(DateTime.TryParse) as ParseWrapper<T>;
-
-            if (typeof(T) == typeof(char))
-                return new ParseWrapper<char>(char.TryParse) as ParseWrapper<T>;
             if (typeof(T) == typeof(string))
-                return new ParseWrapper<string>(tryParseString) as ParseWrapper<T>;
+                return wrapParser<string, T>(tryParseString);
 
-            throw new NotSupportedException("The type " + typeof(T) + " is not supported.");
+            var type = typeof(T);
+            if (type.IsEnum)
+                return getParserEnum<T>();
+
+            var refType = type.MakeByRefType();
+
+            var methods = from m in type.GetMethods()
+                          where m.Name == "TryParse" && m.IsStatic && !m.IsGenericMethod && m.ReturnType == typeof(bool)
+                          let par = m.GetParameters()
+                          where par.Length == 2 && par[0].ParameterType == typeof(string) && par[1].IsOut && par[1].ParameterType == refType
+                          select m;
+
+            var method = methods.FirstOrDefault();
+            if (method == null)
+                throw new NotSupportedException("The type " + typeof(T) + " is not supported. It must provide a static non-generic implementation of the TryParse delegate.");
+            else
+                return method.CreateDelegate(typeof(TryParse<T>)) as TryParse<T>;
+        }
+        private static TryParse<T> getParserEnum<T>()
+        {
+            var methods = from m in typeof(Enum).GetMethods()
+                          where m.Name == "TryParse" && m.IsGenericMethod
+                          select m;
+
+            return methods.First().MakeGenericMethod(typeof(T)).CreateDelegate(typeof(TryParse<T>)) as TryParse<T>;
         }
 
         private bool tryParseString(string s, out string result)
@@ -169,13 +163,9 @@ namespace CommandLineParsing
             return true;
         }
 
-        private class ParseWrapper<T>
+        private static TryParse<TTo> wrapParser<TFrom, TTo>(TryParse<TFrom> parser)
         {
-            public readonly TryParse<T> Parser;
-            public ParseWrapper(TryParse<T> parser)
-            {
-                this.Parser = parser;
-            }
+            return parser as TryParse<TTo>;
         }
     }
 }
