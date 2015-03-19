@@ -3,24 +3,24 @@ using System.Collections.Generic;
 
 namespace CommandLineParsing
 {
-    public abstract class ValueArgumentParser<T, TParser> : ArgumentParser where TParser : ArgumentParser
+    public abstract class ValueArgumentParser<TValue, TParser> : ArgumentParser where TParser : ArgumentParser
     {
         private string description;
 
         private Func<string, Message> typeValidator;
-        private List<Func<T, Message>> validator;
+        private List<Func<TValue, Message>> validator;
 
         private Message required;
 
-        private Action<T> callback;
+        private Action<TValue> callback;
         private bool defaultSet;
-        private T defaultValue;
+        private TValue defaultValue;
 
         internal Message doTypeValidation(string value)
         {
             return typeValidator(value);
         }
-        internal Message doValidationAndCallback(T value)
+        internal Message doValidationAndCallback(TValue value)
         {
             for (int i = 0; i < validator.Count; i++)
             {
@@ -41,13 +41,13 @@ namespace CommandLineParsing
             this.description = null;
 
             this.typeValidator = null;
-            this.validator = new List<Func<T, Message>>();
+            this.validator = new List<Func<TValue, Message>>();
 
             this.required = Message.NoError;
 
             this.callback = null;
             this.defaultSet = false;
-            this.defaultValue = default(T);
+            this.defaultValue = default(TValue);
         }
 
         internal override string Description
@@ -61,7 +61,7 @@ namespace CommandLineParsing
             return this as TParser;
         }
 
-        public TParser Callback(Action<T> callback)
+        public TParser Callback(Action<TValue> callback)
         {
             if (this.callback == null)
                 this.callback = callback;
@@ -71,7 +71,7 @@ namespace CommandLineParsing
             return this as TParser;
         }
 
-        public TParser DefaultValue(T value)
+        public TParser DefaultValue(TValue value)
         {
             if (required.IsError)
                 throw new InvalidOperationException("An argument cannot be required and have a default value at the same time.");
@@ -84,7 +84,7 @@ namespace CommandLineParsing
 
         public TParser ValidateType()
         {
-            return ValidateType(x => ("Argument \"" + Name + "\" with value \"" + x + "\" could not be parsed to a value of type " + typeof(T).Name + "."));
+            return ValidateType(x => ("Argument \"" + Name + "\" with value \"" + x + "\" could not be parsed to a value of type " + typeof(TValue).Name + "."));
         }
         public TParser ValidateType(Message errorMessage)
         {
@@ -99,17 +99,17 @@ namespace CommandLineParsing
             return this as TParser;
         }
 
-        public TParser Validate(Func<T, Message> validator)
+        public TParser Validate(Func<TValue, Message> validator)
         {
             this.validator.Add(validator);
 
             return this as TParser;
         }
-        public TParser Validate(Func<T, bool> validator, Func<T, Message> errorMessage)
+        public TParser Validate(Func<TValue, bool> validator, Func<TValue, Message> errorMessage)
         {
             return Validate(x => validator(x) ? Message.NoError : errorMessage(x));
         }
-        public TParser Validate(Func<T, bool> validator, Message errorMessage)
+        public TParser Validate(Func<TValue, bool> validator, Message errorMessage)
         {
             return Validate(x => validator(x) ? Message.NoError : errorMessage);
         }
