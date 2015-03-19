@@ -58,7 +58,14 @@ namespace CommandLineParsing
             while (argumentStack.Count > 0)
             {
                 var arg = argumentStack.Pop();
-                var parser = arguments[arg.Key];
+                ArgumentParser parser;
+                if (!arguments.TryGetValue(arg.Key, out parser))
+                {
+                    UnknownArgumentMessage unknown = new UnknownArgumentMessage(arg.Key);
+                    foreach (var a in arguments.Keys)
+                        unknown.AddAlternative(a, arguments[a].Description);
+                    return unknown;
+                }
 
                 unusedParsers.Remove(parser);
                 var msg = parser.Handle(arg);
