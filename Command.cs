@@ -82,22 +82,36 @@ namespace CommandLineParsing
         public SingleArgumentParser<T> Argument<T>(string name, params string[] alternatives)
         {
             var parser = new SingleArgumentParser<T>(name, getTryParse<T>().Parser);
-
             parsers.Add(parser);
+
+            if (!RegexLookup.ArgumentName.IsMatch(name))
+                throw new ArgumentException("Argument name is illformed.", "name");
+
             arguments.Add(name, parser);
             foreach (var a in alternatives)
+            {
+                if (!RegexLookup.ArgumentName.IsMatch(a))
+                    throw new ArgumentException("Argument name is illformed.", "alternatives");
                 arguments.Add(a, parser);
+            }
 
             return parser;
         }
         public ArrayArgumentParser<T> ArrayArgument<T>(string name, params string[] alternatives)
         {
             var parser = new ArrayArgumentParser<T>(name, getTryParse<T>().Parser);
-
             parsers.Add(parser);
+
+            if (!RegexLookup.ArgumentName.IsMatch(name))
+                throw new ArgumentException("Argument name is illformed.", "name");
             arguments.Add(name, parser);
+
             foreach (var a in alternatives)
+            {
+                if (!RegexLookup.ArgumentName.IsMatch(a))
+                    throw new ArgumentException("Argument name is illformed.", "alternatives");
                 arguments.Add(a, parser);
+            }
 
             return parser;
         }
