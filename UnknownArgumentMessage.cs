@@ -30,7 +30,7 @@ namespace CommandLineParsing
             var strLen = list.Max(x => x.Length);
 
             foreach (var a in list)
-                message += "\n  " + a.PadRight(strLen + 4) + alternativeArguments[a];
+                message += "\n  " + a.PadRight(strLen + 2) + alternativeArguments[a];
             return message;
         }
     }
