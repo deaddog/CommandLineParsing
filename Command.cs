@@ -122,6 +122,23 @@ namespace CommandLineParsing
 
             return parser;
         }
+        public FlagArgumentParser FlagArgument(string name, params string[] alternatives)
+        {
+            var parser = new FlagArgumentParser(name);
+
+            if (!RegexLookup.ArgumentName.IsMatch(name))
+                throw new ArgumentException("Argument name is illformed.", "name");
+
+            arguments.Add(name, parser);
+            foreach (var a in alternatives)
+            {
+                if (!RegexLookup.ArgumentName.IsMatch(a))
+                    throw new ArgumentException("Argument name is illformed.", "alternatives");
+                arguments.Add(a, parser);
+            }
+
+            return parser;
+        }
 
         private static ParserDictionary parserTable = new ParserDictionary();
         #region Implementation of parser retrievel
