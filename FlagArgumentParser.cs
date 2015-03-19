@@ -25,5 +25,14 @@ namespace CommandLineParsing
             this.description = description;
             return this;
         }
+
+        internal override bool IsRequired
+        {
+            get { return false; }
+        }
+        internal override Message RequiredMessage
+        {
+            get { return Message.NoError; }
+        }
     }
 }
