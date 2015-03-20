@@ -23,6 +23,11 @@ namespace CommandLineParsing
                 this.alternativeArguments.Add(alternative, description);
         }
 
+        public void AddAlternative(string[] alternatives, string description)
+        {
+            AddAlternative(alternatives.OrderByDistance(argument).First().Item1, description);
+        }
+
         public override string GetMessage()
         {
             string message = string.Format("Argument [[:Yellow:{0}]] was not recognized. Did you mean any of the following:", argument);

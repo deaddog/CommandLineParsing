@@ -62,8 +62,9 @@ namespace CommandLineParsing
                 if (!arguments.TryGetValue(arg.Key, out parser))
                 {
                     UnknownArgumentMessage unknown = new UnknownArgumentMessage(arg.Key);
-                    foreach (var a in arguments.Keys)
-                        unknown.AddAlternative(a, arguments[a].Description);
+                    var g = arguments.GroupBy(x => x.Value, x => x.Key).Select(x => x.ToArray());
+                    foreach (var a in g)
+                        unknown.AddAlternative(a, arguments[a[0]].Description);
                     return unknown;
                 }
 
