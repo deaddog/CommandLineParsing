@@ -115,7 +115,7 @@ namespace CommandLineParsing
 
         internal override bool IsRequired
         {
-            get { return !required.IsError; }
+            get { return required.IsError; }
         }
         internal override Message RequiredMessage
         {
