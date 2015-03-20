@@ -34,7 +34,7 @@ namespace CommandLineParsing
             return this;
         }
 
-        public virtual Message Validate()
+        protected virtual Message Validate()
         {
             for (int i = 0; i < validators.Count; i++)
             {
@@ -45,7 +45,7 @@ namespace CommandLineParsing
 
             return Message.NoError;
         }
-        public virtual void Execute()
+        protected virtual void Execute()
         {
             executor();
         }
