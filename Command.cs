@@ -28,6 +28,10 @@ namespace CommandLineParsing
             validators.Add(validator);
             return this;
         }
+        public Command Validate(Func<bool> validator, Message errorMessage)
+        {
+            return Validate(() => validator() ? Message.NoError : errorMessage);
+        }
         public Command Execute(Action executor)
         {
             this.executor += executor;
