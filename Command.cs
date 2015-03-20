@@ -47,7 +47,8 @@ namespace CommandLineParsing
         }
         protected virtual void Execute()
         {
-            executor();
+            if (executor != null)
+                executor();
         }
 
         public Message ParseAndExecute(string[] args)
