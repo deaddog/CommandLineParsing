@@ -34,7 +34,7 @@ namespace CommandLineParsing
 
                 string content = m.Groups["content"].Value;
                 if (!allowcolor)
-                    Console.WriteLine(pre + content);
+                    Console.Write(pre + content);
                 else
                 {
                     Console.Write(pre);
