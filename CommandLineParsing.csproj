@@ -42,6 +42,7 @@
     <Compile Include="Argument.cs" />
     <Compile Include="ArgumentParser.cs" />
     <Compile Include="ArrayArgumentParser.cs" />
+    <Compile Include="ArrayParameter.cs" />
     <Compile Include="ColorConsole.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Command.Reflection.cs" />
