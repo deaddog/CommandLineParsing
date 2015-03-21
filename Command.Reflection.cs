@@ -18,9 +18,10 @@ namespace CommandLineParsing
                 var ctr = f.FieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance, null, new Type[] { typeof(string), typeof(string) }, null);
 
                 var nameAtt = f.GetCustomAttribute<Name>();
+                var descAtt = f.GetCustomAttribute<Description>();
 
                 string name = nameAtt != null ? nameAtt.names[0] : "--" + f.Name;
-                string description = string.Empty;
+                string description = descAtt != null ? descAtt.description : string.Empty;
 
                 var obj = ctr.Invoke(new object[] { name, description });
 
