@@ -12,18 +12,21 @@ namespace CommandLineParsing
         private void initializeParameters()
         {
             var fields = getParameterFields();
+            Type[] typeArgs = new Type[] { typeof(string), typeof(string), typeof(Message) };
 
             foreach (var f in fields)
             {
-                var ctr = f.FieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance, null, new Type[] { typeof(string), typeof(string) }, null);
+                var ctr = f.FieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance, null, typeArgs, null);
 
                 var nameAtt = f.GetCustomAttribute<Name>();
                 var descAtt = f.GetCustomAttribute<Description>();
+                var reqAtt = f.GetCustomAttribute<Required>();
 
                 string name = nameAtt != null ? nameAtt.names[0] : "--" + f.Name;
                 string description = descAtt != null ? descAtt.description : string.Empty;
+                Message required = reqAtt != null ? reqAtt.message ?? Required.defaultMessage(name) : Message.NoError;
 
-                var obj = ctr.Invoke(new object[] { name, description });
+                var obj = ctr.Invoke(new object[] { name, description, required });
 
                 f.SetValue(this, obj);
             }
