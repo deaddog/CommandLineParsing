@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
-    public class Parameter
+    public abstract class Parameter
     {
         private string name;
         private string description;
@@ -16,6 +16,8 @@ namespace CommandLineParsing
             this.name = name;
             this.description = description;
         }
+
+        internal abstract Message Handle(Argument argument);
 
         public string Name
         {

@@ -12,5 +12,10 @@ namespace CommandLineParsing
             : base(name, description)
         {
         }
+
+        internal override Message Handle(Argument argument)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
