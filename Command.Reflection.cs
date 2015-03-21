@@ -12,7 +12,20 @@ namespace CommandLineParsing
         private void initializeParameters()
         {
             var fields = getParameterFields();
+
+            foreach (var f in fields)
+            {
+                var ctr = f.FieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance, null, new Type[] { typeof(string), typeof(string) }, null);
+
+                string name = "--" + f.Name;
+                string description = string.Empty;
+
+                var obj = ctr.Invoke(new object[] { name, description });
+
+                f.SetValue(this, obj);
+            }
         }
+
         private FieldInfo[] getParameterFields()
         {
             var fields = this.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
