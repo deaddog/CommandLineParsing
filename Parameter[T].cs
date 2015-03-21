@@ -8,9 +8,17 @@ namespace CommandLineParsing
 {
     public class Parameter<T> : Parameter
     {
+        protected T value;
+
         internal Parameter(string name, string description, Message required)
             : base(name, description, required)
         {
+            this.value = default(T);
+        }
+
+        public virtual T Value
+        {
+            get { return value; }
         }
 
         internal override Message Handle(Argument argument)
