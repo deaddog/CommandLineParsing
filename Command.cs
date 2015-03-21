@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
-    public abstract class Command
+    public abstract partial class Command
     {
         private Dictionary<string, ArgumentParser> arguments;
         private List<ArgumentParser> parsers;
@@ -15,6 +15,8 @@ namespace CommandLineParsing
         {
             this.arguments = new Dictionary<string, ArgumentParser>();
             this.parsers = new List<ArgumentParser>();
+
+            this.initializeParameters();
         }
 
         protected virtual Message Validate()

@@ -44,6 +44,7 @@
     <Compile Include="ArrayArgumentParser.cs" />
     <Compile Include="ColorConsole.cs" />
     <Compile Include="Command.cs" />
+    <Compile Include="Command.Reflection.cs" />
     <Compile Include="EditDistanceExtension.cs" />
     <Compile Include="FlagArgumentParser.cs" />
     <Compile Include="FlagParameter.cs" />
