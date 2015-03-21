@@ -9,11 +9,13 @@ namespace CommandLineParsing
     public class Parameter<T> : Parameter
     {
         protected T value;
+        private TryParse<T> parser;
 
         internal Parameter(string name, string description, Message required)
             : base(name, description, required)
         {
             this.value = default(T);
+            this.parser = null;
         }
 
         public virtual T Value
@@ -23,7 +25,10 @@ namespace CommandLineParsing
 
         internal override Message Handle(Argument argument)
         {
-            throw new NotImplementedException();
+            if (parser == null)
+                parser = ParserLookup.Table.GetParser<T>();
+
+            return Message.NoError;
         }
     }
 }
