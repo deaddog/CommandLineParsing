@@ -53,6 +53,7 @@
     <Compile Include="Name.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="Parameter[T].cs" />
+    <Compile Include="ParserLookup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RegexLookup.cs" />
     <Compile Include="Required.cs" />
