@@ -8,13 +8,13 @@ namespace CommandLineParsing
 {
     public abstract partial class Command
     {
-        private Dictionary<string, ArgumentParser> arguments;
-        private List<ArgumentParser> parsers;
+        private Dictionary<string, Parameter> parameters;
+        private List<Parameter> parsers;
 
         public Command()
         {
-            this.arguments = new Dictionary<string, ArgumentParser>();
-            this.parsers = new List<ArgumentParser>();
+            this.parameters = new Dictionary<string, Parameter>();
+            this.parsers = new List<Parameter>();
 
             this.initializeParameters();
         }
@@ -29,24 +29,24 @@ namespace CommandLineParsing
 
         public Message ParseAndExecute(string[] args)
         {
-            var unusedParsers = new List<ArgumentParser>(parsers.Where(x => x.IsRequired));
+            var unusedParsers = new List<Parameter>(parsers.Where(x => x.IsRequired));
             var argumentStack = CommandLineParsing.Argument.Parse(args);
 
             while (argumentStack.Count > 0)
             {
                 var arg = argumentStack.Pop();
-                ArgumentParser parser;
-                if (!arguments.TryGetValue(arg.Key, out parser))
+                Parameter parameter;
+                if (!parameters.TryGetValue(arg.Key, out parameter))
                 {
                     UnknownArgumentMessage unknown = new UnknownArgumentMessage(arg.Key);
-                    var g = arguments.GroupBy(x => x.Value, x => x.Key).Select(x => x.ToArray());
+                    var g = parameters.GroupBy(x => x.Value, x => x.Key).Select(x => x.ToArray());
                     foreach (var a in g)
-                        unknown.AddAlternative(a, arguments[a[0]].Description);
+                        unknown.AddAlternative(a, parameters[a[0]].Description);
                     return unknown;
                 }
 
-                unusedParsers.Remove(parser);
-                var msg = parser.Handle(arg);
+                unusedParsers.Remove(parameter);
+                var msg = parameter.Handle(arg);
 
                 if (msg.IsError)
                     return msg;
