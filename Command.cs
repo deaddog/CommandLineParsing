@@ -11,48 +11,18 @@ namespace CommandLineParsing
         private Dictionary<string, ArgumentParser> arguments;
         private List<ArgumentParser> parsers;
 
-        private List<Func<Message>> validators;
-        private Action executor;
-
         public Command()
         {
             this.arguments = new Dictionary<string, ArgumentParser>();
             this.parsers = new List<ArgumentParser>();
-
-            this.validators = new List<Func<Message>>();
-            this.executor = null;
-        }
-
-        public Command Validate(Func<Message> validator)
-        {
-            validators.Add(validator);
-            return this;
-        }
-        public Command Validate(Func<bool> validator, Message errorMessage)
-        {
-            return Validate(() => validator() ? Message.NoError : errorMessage);
-        }
-        public Command Execute(Action executor)
-        {
-            this.executor += executor;
-            return this;
         }
 
         protected virtual Message Validate()
         {
-            for (int i = 0; i < validators.Count; i++)
-            {
-                var msg = validators[i]();
-                if (msg.IsError)
-                    return msg;
-            }
-
             return Message.NoError;
         }
         protected virtual void Execute()
         {
-            if (executor != null)
-                executor();
         }
 
         public Message ParseAndExecute(string[] args)
