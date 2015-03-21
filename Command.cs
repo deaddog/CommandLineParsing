@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
-    public class Command
+    public abstract class Command
     {
         private Dictionary<string, ArgumentParser> arguments;
         private List<ArgumentParser> parsers;
