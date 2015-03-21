@@ -49,6 +49,7 @@
     <Compile Include="FlagArgumentParser.cs" />
     <Compile Include="FlagParameter.cs" />
     <Compile Include="Message.cs" />
+    <Compile Include="Name.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="Parameter[T].cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
