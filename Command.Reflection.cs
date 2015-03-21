@@ -19,7 +19,7 @@ namespace CommandLineParsing
 
                 var nameAtt = f.GetCustomAttribute<Name>();
 
-                string name = nameAtt != null ? nameAtt.Names[0] : "--" + f.Name;
+                string name = nameAtt != null ? nameAtt.names[0] : "--" + f.Name;
                 string description = string.Empty;
 
                 var obj = ctr.Invoke(new object[] { name, description });
