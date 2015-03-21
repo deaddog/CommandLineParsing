@@ -27,6 +27,22 @@ namespace CommandLineParsing
                 Message required = reqAtt != null ? reqAtt.message ?? Required.defaultMessage(name) : Message.NoError;
 
                 var obj = ctr.Invoke(new object[] { name, description, required });
+                Parameter par = obj as Parameter;
+
+                parsers.Add(par);
+                if (nameAtt == null)
+                {
+                    if (!RegexLookup.ArgumentName.IsMatch(name))
+                        throw new ArgumentException("Argument name is illformed.", "alternatives");
+                    parameters.Add(name, par);
+                }
+                else
+                    foreach (var n in nameAtt.names)
+                    {
+                        if (!RegexLookup.ArgumentName.IsMatch(n))
+                            throw new ArgumentException("Argument name is illformed.", "alternatives");
+                        parameters.Add(n, par);
+                    }
 
                 f.SetValue(this, obj);
             }
