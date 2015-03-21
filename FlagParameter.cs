@@ -8,8 +8,8 @@ namespace CommandLineParsing
 {
     public class FlagParameter : Parameter
     {
-        internal FlagParameter(string name, string description)
-            : base(name, description)
+        internal FlagParameter(string name, string description, Message required)
+            : base(name, description, required)
         {
         }
 

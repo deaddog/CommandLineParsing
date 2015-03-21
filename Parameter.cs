@@ -11,10 +11,13 @@ namespace CommandLineParsing
         private string name;
         private string description;
 
-        internal Parameter(string name, string description)
+        private Message required;
+
+        internal Parameter(string name, string description, Message required)
         {
             this.name = name;
             this.description = description;
+            this.required = required;
         }
 
         internal abstract Message Handle(Argument argument);

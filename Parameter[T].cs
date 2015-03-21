@@ -8,8 +8,8 @@ namespace CommandLineParsing
 {
     public class Parameter<T> : Parameter
     {
-        internal Parameter(string name, string description)
-            : base(name, description)
+        internal Parameter(string name, string description, Message required)
+            : base(name, description, required)
         {
         }
 
