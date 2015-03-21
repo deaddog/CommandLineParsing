@@ -30,5 +30,14 @@ namespace CommandLineParsing
         {
             get { return description; }
         }
+
+        internal bool IsRequired
+        {
+            get { return required.IsError; }
+        }
+        internal Message RequiredMessage
+        {
+            get { return required; }
+        }
     }
 }
