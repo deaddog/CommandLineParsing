@@ -13,6 +13,13 @@ namespace CommandLineParsing
 
         private Message required;
 
+        private Action callback;
+        protected void doCallback()
+        {
+            if (callback != null)
+                callback();
+        }
+
         internal Parameter(string name, string description, Message required)
         {
             this.name = name;
@@ -21,6 +28,12 @@ namespace CommandLineParsing
         }
 
         internal abstract Message Handle(Argument argument);
+
+        public event Action Callback
+        {
+            add { this.callback += value; }
+            remove { this.callback -= value; }
+        }
 
         public string Name
         {
