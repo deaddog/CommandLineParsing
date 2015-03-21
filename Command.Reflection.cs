@@ -16,7 +16,7 @@ namespace CommandLineParsing
 
             foreach (var f in fields)
             {
-                var ctr = f.FieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance, null, typeArgs, null);
+                var ctr = getConstructor(f.FieldType, typeArgs);
 
                 var nameAtt = f.GetCustomAttribute<Name>();
                 var descAtt = f.GetCustomAttribute<Description>();
@@ -46,6 +46,16 @@ namespace CommandLineParsing
 
                 f.SetValue(this, obj);
             }
+        }
+
+        private ConstructorInfo getConstructor(Type fieldType, Type[] typeArgs)
+        {
+            if (fieldType.IsGenericType && fieldType.GetGenericArguments()[0].IsArray)
+            {
+                var arrayType = fieldType.GetGenericArguments()[0].GetElementType();
+                fieldType = typeof(ArrayParameter<>).MakeGenericType(arrayType);
+            }
+            return fieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance, null, typeArgs, null);
         }
 
         private FieldInfo[] getParameterFields()
