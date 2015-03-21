@@ -34,7 +34,13 @@ namespace CommandLineParsing
 
         internal override Message Handle(Argument argument)
         {
-            throw new NotImplementedException();
+            if (argument.Count > 0)
+                return hasValueMessage;
+
+            isset = true;
+            doCallback();
+
+            return Message.NoError;
         }
     }
 }
