@@ -20,16 +20,18 @@ namespace CommandLineParsing
                 var nameAtt = f.GetCustomAttribute<Name>();
                 var descAtt = f.GetCustomAttribute<Description>();
                 var reqAtt = f.GetCustomAttribute<Required>();
+                var ignAtt = f.GetCustomAttribute<IgnoreCase>();
 
                 string name = nameAtt != null ? nameAtt.names[0] : "--" + f.Name;
                 string description = descAtt != null ? descAtt.description : string.Empty;
                 Message required = reqAtt != null ? reqAtt.message ?? Required.defaultMessage(name) : Message.NoError;
+                bool ignore = ignAtt != null;
 
                 Parameter par;
                 if (f.FieldType == typeof(FlagParameter))
                     par = ctr.Invoke(new object[] { name, description, required }) as Parameter;
                 else if (f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>))
-                    par = ctr.Invoke(new object[] { name, description, required }) as Parameter;
+                    par = ctr.Invoke(new object[] { name, description, required, ignore }) as Parameter;
                 else
                     throw new InvalidOperationException("Unknown parameter type: " + f.FieldType);
 
@@ -69,7 +71,7 @@ namespace CommandLineParsing
                 }
                 return fieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance,
                     null,
-                    new Type[] { typeof(string), typeof(string), typeof(Message) },
+                    new Type[] { typeof(string), typeof(string), typeof(Message), typeof(bool) },
                     null);
             }
 
