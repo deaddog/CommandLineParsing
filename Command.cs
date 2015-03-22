@@ -23,6 +23,48 @@ namespace CommandLineParsing
             this.initializeParameters();
         }
 
+        public static void SimulateREPL(Func<Command> command, string exit)
+        {
+            if (exit == null)
+                throw new ArgumentNullException("exit");
+
+            exit = exit.Trim();
+            if (exit.Length == 0)
+                throw new ArgumentException("To end the REPL an exit command must be supplied.", "exit");
+
+            while (true)
+            {
+                Console.Write("Input command (or \"{0}\" to quit): ", exit);
+
+                string input = Console.ReadLine();
+
+                if (input.Trim() == exit)
+                    return;
+
+                var msg = command().ParseAndExecute(simulateParse(input));
+
+                if (msg.IsError)
+                    ColorConsole.WriteLine(msg.GetMessage());
+
+                Console.ResetColor();
+                Console.WriteLine();
+            }
+        }
+        private static string[] simulateParse(string input)
+        {
+            input = input.Trim();
+
+            var matches = System.Text.RegularExpressions.Regex.Matches(input, "[^ \"]+|\"[^\"]+\"");
+            string[] inputArr = new string[matches.Count];
+            for (int i = 0; i < inputArr.Length; i++)
+            {
+                inputArr[i] = matches[i].Value;
+                if (inputArr[i][0] == '\"' && inputArr[i][inputArr[i].Length - 1] == '\"')
+                    inputArr[i] = inputArr[i].Substring(1, inputArr[i].Length - 2);
+            }
+            return inputArr;
+        }
+
         public SubCommandCollection SubCommands
         {
             get { return subcommands; }
