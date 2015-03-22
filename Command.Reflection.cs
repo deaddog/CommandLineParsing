@@ -12,11 +12,10 @@ namespace CommandLineParsing
         private void initializeParameters()
         {
             var fields = getParameterFields();
-            Type[] typeArgs = new Type[] { typeof(string), typeof(string), typeof(Message) };
 
             foreach (var f in fields)
             {
-                var ctr = getConstructor(f.FieldType, typeArgs);
+                var ctr = getConstructor(f.FieldType);
 
                 var nameAtt = f.GetCustomAttribute<Name>();
                 var descAtt = f.GetCustomAttribute<Description>();
@@ -48,14 +47,28 @@ namespace CommandLineParsing
             }
         }
 
-        private ConstructorInfo getConstructor(Type fieldType, Type[] typeArgs)
+        private ConstructorInfo getConstructor(Type fieldType)
         {
-            if (fieldType.IsGenericType && fieldType.GetGenericArguments()[0].IsArray)
+            if (fieldType == typeof(FlagParameter))
+                return fieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance,
+                    null,
+                    new Type[] { typeof(string), typeof(string), typeof(Message) },
+                    null);
+
+            if (fieldType.GetGenericTypeDefinition() == typeof(Parameter<>))
             {
-                var arrayType = fieldType.GetGenericArguments()[0].GetElementType();
-                fieldType = typeof(ArrayParameter<>).MakeGenericType(arrayType);
+                if (fieldType.GetGenericArguments()[0].IsArray)
+                {
+                    var arrayType = fieldType.GetGenericArguments()[0].GetElementType();
+                    fieldType = typeof(ArrayParameter<>).MakeGenericType(arrayType);
+                }
+                return fieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance,
+                    null,
+                    new Type[] { typeof(string), typeof(string), typeof(Message) },
+                    null);
             }
-            return fieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance, null, typeArgs, null);
+
+            throw new InvalidOperationException("Unknown parameter type: " + fieldType);
         }
 
         private FieldInfo[] getParameterFields()
