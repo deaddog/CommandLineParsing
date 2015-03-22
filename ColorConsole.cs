@@ -15,13 +15,22 @@ namespace CommandLineParsing
             colorRegex = new Regex(@"\[\[:(?<color>" + namesRegex + @"):(?<content>([^\]]|\][^\]])*)\]\]");
         }
 
-        public static void ToConsole(this string format, bool allowcolor, params object[] args)
+        public static void Write(string format, params object[] args)
         {
-            handle(string.Format(format, args), allowcolor, false);
+            handle(string.Format(format, args), true, false);
         }
-        public static void ToConsoleLine(this string format, bool allowcolor, params object[] args)
+        public static void WriteLine(string format, params object[] args)
         {
-            handle(string.Format(format, args), allowcolor, true);
+            handle(string.Format(format, args), true, true);
+        }
+
+        public static void WriteNoColor(string format, params object[] args)
+        {
+            handle(string.Format(format, args), false, false);
+        }
+        public static void WriteLineNoColor(string format, params object[] args)
+        {
+            handle(string.Format(format, args), false, true);
         }
 
         private static void handle(string input, bool allowcolor, bool newline)
