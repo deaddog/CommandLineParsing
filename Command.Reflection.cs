@@ -25,8 +25,13 @@ namespace CommandLineParsing
                 string description = descAtt != null ? descAtt.description : string.Empty;
                 Message required = reqAtt != null ? reqAtt.message ?? Required.defaultMessage(name) : Message.NoError;
 
-                var obj = ctr.Invoke(new object[] { name, description, required });
-                Parameter par = obj as Parameter;
+                Parameter par;
+                if (f.FieldType == typeof(FlagParameter))
+                    par = ctr.Invoke(new object[] { name, description, required }) as Parameter;
+                else if (f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>))
+                    par = ctr.Invoke(new object[] { name, description, required }) as Parameter;
+                else
+                    throw new InvalidOperationException("Unknown parameter type: " + f.FieldType);
 
                 parsers.Add(par);
                 if (nameAtt == null)
@@ -43,7 +48,7 @@ namespace CommandLineParsing
                         parameters.Add(n, par);
                     }
 
-                f.SetValue(this, obj);
+                f.SetValue(this, par);
             }
         }
 
