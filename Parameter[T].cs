@@ -117,5 +117,10 @@ namespace CommandLineParsing
 
             return Message.NoError;
         }
+
+        public override string ToString()
+        {
+            return string.Format("{0}[{1}] = {2}", Name, typeof(T).Name, Object.ReferenceEquals(value, null) ? "<null>" : value.ToString());
+        }
     }
 }
