@@ -44,15 +44,19 @@ namespace CommandLineParsing
         }
         private Message execute(Stack<Argument> argumentStack)
         {
-            if (argumentStack.Count > 0)
+            if (argumentStack.Count > 0 && !argumentStack.Peek().Key.StartsWith("-"))
             {
-                var first = argumentStack.Peek();
+                var first = argumentStack.Pop();
                 Command cmd;
 
                 if (subcommands.TryGetCommand(first.Key, out cmd))
-                {
-                    argumentStack.Pop();
                     return cmd.execute(argumentStack);
+                else
+                {
+                    UnknownArgumentMessage unknown = new UnknownArgumentMessage(first.Key, UnknownArgumentMessage.ArgumentType.SubCommand);
+                    foreach (var n in subcommands.CommandNames)
+                        unknown.AddAlternative(n, "N/A - Commands have no description.");
+                    return unknown;
                 }
             }
 
@@ -63,7 +67,7 @@ namespace CommandLineParsing
                 Parameter parameter;
                 if (!parameters.TryGetValue(arg.Key, out parameter))
                 {
-                    UnknownArgumentMessage unknown = new UnknownArgumentMessage(arg.Key);
+                    UnknownArgumentMessage unknown = new UnknownArgumentMessage(arg.Key, UnknownArgumentMessage.ArgumentType.Parameter);
                     var g = parameters.GroupBy(x => x.Value, x => x.Key).Select(x => x.ToArray());
                     foreach (var a in g)
                         unknown.AddAlternative(a, parameters[a[0]].Description);
