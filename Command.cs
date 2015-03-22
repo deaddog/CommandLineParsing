@@ -42,9 +42,20 @@ namespace CommandLineParsing
 
             return execute(argumentStack);
         }
-
         private Message execute(Stack<Argument> argumentStack)
         {
+            if (argumentStack.Count > 0)
+            {
+                var first = argumentStack.Peek();
+                Command cmd;
+
+                if (subcommands.TryGetCommand(first.Key, out cmd))
+                {
+                    argumentStack.Pop();
+                    return cmd.execute(argumentStack);
+                }
+            }
+
             var unusedParsers = new List<Parameter>(parsers.Where(x => x.IsRequired));
             while (argumentStack.Count > 0)
             {
