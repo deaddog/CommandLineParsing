@@ -61,6 +61,7 @@
     <Compile Include="SingleArgumentParser.cs" />
     <Compile Include="TryParse.cs" />
     <Compile Include="UnknownArgumentMessage.cs" />
+    <Compile Include="ValidationExtension.cs" />
     <Compile Include="ValueArgumentParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
