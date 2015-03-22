@@ -14,31 +14,44 @@ namespace CommandLineParsing
 
 
         private Dictionary<Type, Delegate> known;
+        private Dictionary<Type, Delegate> knownIgnore;
 
         private ParserLookup()
         {
             known = new Dictionary<Type, Delegate>();
+            knownIgnore = new Dictionary<Type, Delegate>();
         }
 
-        public TryParse<T> GetParser<T>()
+        public TryParse<T> GetParser<T>(bool enumIgnore)
         {
             Delegate parser;
-            if (!known.TryGetValue(typeof(T), out parser))
+            if (enumIgnore)
             {
-                parser = getParser<T>();
-                known.Add(typeof(T), parser);
+                if (!knownIgnore.TryGetValue(typeof(T), out parser))
+                {
+                    parser = getParser<T>(enumIgnore);
+                    knownIgnore.Add(typeof(T), parser);
+                }
+            }
+            else
+            {
+                if (!known.TryGetValue(typeof(T), out parser))
+                {
+                    parser = getParser<T>(enumIgnore);
+                    known.Add(typeof(T), parser);
+                }
             }
             return parser as TryParse<T>;
         }
 
-        private static TryParse<T> getParser<T>()
+        private static TryParse<T> getParser<T>(bool enumIgnore)
         {
             if (typeof(T) == typeof(string))
                 return wrapParser<string, T>(tryParseString);
 
             var type = typeof(T);
             if (type.IsEnum)
-                return getParserEnum<T>(false);
+                return getParserEnum<T>(enumIgnore);
 
             var refType = type.MakeByRefType();
 
