@@ -47,6 +47,7 @@
     <Compile Include="Description.cs" />
     <Compile Include="EditDistanceExtension.cs" />
     <Compile Include="FlagParameter.cs" />
+    <Compile Include="IgnoreCase.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Name.cs" />
     <Compile Include="Parameter.cs" />
