@@ -23,6 +23,14 @@ namespace CommandLineParsing
             this.initializeParameters();
         }
 
+        public static void RunCommand(Command command, string[] args)
+        {
+            var msg = command.ParseAndExecute(args);
+
+            if (msg.IsError)
+                ColorConsole.WriteLine(msg.GetMessage());
+        }
+
         public static void SimulateREPL(Func<Command> command, string exit)
         {
             if (exit == null)
