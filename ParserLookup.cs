@@ -38,7 +38,7 @@ namespace CommandLineParsing
 
             var type = typeof(T);
             if (type.IsEnum)
-                return getParserEnum<T>();
+                return getParserEnum<T>(false);
 
             var refType = type.MakeByRefType();
 
@@ -54,13 +54,23 @@ namespace CommandLineParsing
             else
                 return method.CreateDelegate(typeof(TryParse<T>)) as TryParse<T>;
         }
-        private static TryParse<T> getParserEnum<T>()
+        private static TryParse<T> getParserEnum<T>(bool ignoreCase)
         {
-            var methods = from m in typeof(Enum).GetMethods()
-                          where m.Name == "TryParse" && m.IsGenericMethod
-                          select m;
+            System.Reflection.MethodInfo method;
 
-            return methods.First().MakeGenericMethod(typeof(T)).CreateDelegate(typeof(TryParse<T>)) as TryParse<T>;
+            if (!ignoreCase)
+                method = (from m in typeof(Enum).GetMethods()
+                          where m.Name == "TryParse" && m.IsGenericMethod
+                          select m).First();
+            else
+                method = typeof(ParserLookup).GetMethod("TryParseEnumNoCase", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
+
+            return method.MakeGenericMethod(typeof(T)).CreateDelegate(typeof(TryParse<T>)) as TryParse<T>;
+        }
+
+        private static bool TryParseEnumNoCase<T>(string value, out T result) where T : struct
+        {
+            return Enum.TryParse<T>(value, true, out result);
         }
 
         private static bool tryParseString(string s, out string result)
