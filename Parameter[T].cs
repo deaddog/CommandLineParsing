@@ -15,6 +15,19 @@ namespace CommandLineParsing
         private Message noValueMessage;
         private Message multipleValuesMessage;
 
+        private List<Func<T, Message>> validators;
+        protected Message doValidation(T value)
+        {
+            for (int i = 0; i < validators.Count; i++)
+            {
+                var msg = validators[i](value);
+                if (msg.IsError)
+                    return msg;
+            }
+
+            return Message.NoError;
+        }
+
         internal Parameter(string name, string description, Message required)
             : base(name, description, required)
         {
@@ -24,6 +37,8 @@ namespace CommandLineParsing
             this.typeErrorMessage = x => string.Format("Argument \"{0}\" with value \"{1}\" could not be parsed to a value of type {2}.", name, x, typeof(T).Name);
             this.noValueMessage = "No value provided for argument \"" + name + "\".";
             this.multipleValuesMessage = "Only one value can be provided for argument \"" + name + "\".";
+
+            this.validators = new List<Func<T, Message>>();
         }
 
         public virtual T Value
@@ -69,6 +84,14 @@ namespace CommandLineParsing
             }
         }
 
+        public void Validate(Func<T, Message> validator)
+        {
+            if (validator == null)
+                throw new ArgumentNullException("validator");
+
+            this.validators.Add(validator);
+        }
+
         internal override Message Handle(Argument argument)
         {
             if (parser == null)
@@ -82,6 +105,10 @@ namespace CommandLineParsing
                 return multipleValuesMessage;
             else if (!parser(argument[0], out temp))
                 return typeErrorMessage(argument[0]);
+
+            var msg = doValidation(temp);
+            if (msg.IsError)
+                return msg;
 
             value = temp;
             doCallback();
