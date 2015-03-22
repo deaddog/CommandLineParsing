@@ -11,12 +11,21 @@ namespace CommandLineParsing
         private Dictionary<string, Parameter> parameters;
         private List<Parameter> parsers;
 
+        private SubCommandCollection subcommands;
+
         public Command()
         {
             this.parameters = new Dictionary<string, Parameter>();
             this.parsers = new List<Parameter>();
 
+            this.subcommands = new SubCommandCollection();
+
             this.initializeParameters();
+        }
+
+        public SubCommandCollection SubCommands
+        {
+            get { return subcommands; }
         }
 
         protected virtual Message Validate()
@@ -67,6 +76,31 @@ namespace CommandLineParsing
             Execute();
 
             return Message.NoError;
+        }
+
+        public class SubCommandCollection
+        {
+            private Dictionary<string, Command> commands;
+
+            public SubCommandCollection()
+            {
+                this.commands = new Dictionary<string, Command>();
+            }
+
+            internal string[] CommandNames
+            {
+                get { return commands.Keys.ToArray(); }
+            }
+
+            internal bool TryGetCommand(string name, out Command command)
+            {
+                return commands.TryGetValue(name, out command);
+            }
+
+            public void Add(string name, Command command)
+            {
+                this.commands.Add(name, command);
+            }
         }
     }
 }
