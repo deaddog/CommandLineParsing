@@ -22,6 +22,16 @@ namespace CommandLineParsing
                 var reqAtt = f.GetCustomAttribute<Required>();
                 var ignAtt = f.GetCustomAttribute<IgnoreCase>();
 
+                if (ignAtt != null)
+                {
+                    if (f.FieldType == typeof(FlagParameter))
+                        throw new TypeAccessException("A " + typeof(FlagParameter).Name + " cannot be marked with the " + typeof(IgnoreCase).Name + " attribute.");
+                    if (f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>) &&
+                        !(f.FieldType.GetGenericArguments()[0].IsEnum ||
+                         (f.FieldType.GetGenericArguments()[0].IsArray && f.FieldType.GetGenericArguments()[0].GetElementType().IsEnum)))
+                        throw new TypeAccessException("The " + typeof(IgnoreCase).Name + " attribute only applies to enumerations.");
+                }
+
                 string name = nameAtt != null ? nameAtt.names[0] : "--" + f.Name;
                 string description = descAtt != null ? descAtt.description : string.Empty;
                 Message required = reqAtt != null ? reqAtt.message ?? Required.defaultMessage(name) : Message.NoError;
