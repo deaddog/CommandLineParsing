@@ -10,8 +10,8 @@ namespace CommandLineParsing
     {
         private TryParse<T> parser;
 
-        internal ArrayParameter(string name, string description, Message required)
-            : base(name, description, required)
+        internal ArrayParameter(string name, string description, Message required, bool enumIgnore)
+            : base(name, description, required, enumIgnore)
         {
             this.parser = null;
         }
@@ -24,7 +24,7 @@ namespace CommandLineParsing
         internal override Message Handle(Argument argument)
         {
             if (parser == null) 
-                parser = ParserLookup.Table.GetParser<T>();
+                parser = ParserLookup.Table.GetParser<T>(enumIgnore);
 
             T[] temp = new T[argument.Count];
 

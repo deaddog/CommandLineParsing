@@ -9,6 +9,7 @@ namespace CommandLineParsing
     public class Parameter<T> : Parameter
     {
         protected T value;
+        protected readonly bool enumIgnore;
         private TryParse<T> parser;
 
         private Func<string, Message> typeErrorMessage;
@@ -28,10 +29,11 @@ namespace CommandLineParsing
             return Message.NoError;
         }
 
-        internal Parameter(string name, string description, Message required)
+        internal Parameter(string name, string description, Message required, bool enumIgnore)
             : base(name, description, required)
         {
             this.value = default(T);
+            this.enumIgnore = enumIgnore;
             this.parser = null;
 
             this.typeErrorMessage = x => string.Format("Argument \"{0}\" with value \"{1}\" could not be parsed to a value of type {2}.", name, x, typeof(T).Name);
@@ -95,7 +97,7 @@ namespace CommandLineParsing
         internal override Message Handle(Argument argument)
         {
             if (parser == null)
-                parser = ParserLookup.Table.GetParser<T>();
+                parser = ParserLookup.Table.GetParser<T>(enumIgnore);
 
             T temp;
 
