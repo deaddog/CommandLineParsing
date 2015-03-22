@@ -8,12 +8,30 @@ namespace CommandLineParsing
 {
     public class UnknownArgumentMessage : Message
     {
+        public enum ArgumentType
+        {
+            SubCommand,
+            Parameter
+        }
+        private static string argumentTypeString(ArgumentType arg)
+        {
+            switch (arg)
+            {
+                case ArgumentType.SubCommand: return "subcommand";
+                case ArgumentType.Parameter: return "parameter";
+                default:
+                    throw new ArgumentOutOfRangeException("arg");
+            }
+        }
+
         private string argument;
+        private ArgumentType argumentType;
         private Dictionary<string, string> alternativeArguments;
 
-        public UnknownArgumentMessage(string argument)
+        public UnknownArgumentMessage(string argument, ArgumentType argumentType)
         {
             this.argument = argument;
+            this.argumentType = argumentType;
             this.alternativeArguments = new Dictionary<string, string>();
         }
 
@@ -30,8 +48,8 @@ namespace CommandLineParsing
 
         public override string GetMessage()
         {
-            string message = string.Format("Argument [[:Yellow:{0}]] was not recognized. Did you mean any of the following:", argument);
-            var list = alternativeArguments.Keys.OrderByDistance(argument).TakeWhile((arg, i) => i == 0 || arg.Item2 < 5).Select(x=>x.Item1).ToArray();
+            string message = string.Format("{0} [[:Yellow:{1}]] was not recognized. Did you mean any of the following:", argumentTypeString(argumentType), argument);
+            var list = alternativeArguments.Keys.OrderByDistance(argument).TakeWhile((arg, i) => i == 0 || arg.Item2 < 5).Select(x => x.Item1).ToArray();
             var strLen = list.Max(x => x.Length);
 
             foreach (var a in list)
