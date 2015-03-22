@@ -29,9 +29,14 @@ namespace CommandLineParsing
 
         public Message ParseAndExecute(string[] args)
         {
-            var unusedParsers = new List<Parameter>(parsers.Where(x => x.IsRequired));
             var argumentStack = CommandLineParsing.Argument.Parse(args);
 
+            return execute(argumentStack);
+        }
+
+        private Message execute(Stack<Argument> argumentStack)
+        {
+            var unusedParsers = new List<Parameter>(parsers.Where(x => x.IsRequired));
             while (argumentStack.Count > 0)
             {
                 var arg = argumentStack.Pop();
