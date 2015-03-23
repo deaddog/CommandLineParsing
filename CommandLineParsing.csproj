@@ -45,6 +45,7 @@
     <Compile Include="ColorConsole.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Command.Reflection.cs" />
+    <Compile Include="Default.cs" />
     <Compile Include="Description.cs" />
     <Compile Include="EditDistanceExtension.cs" />
     <Compile Include="FlagParameter.cs" />
