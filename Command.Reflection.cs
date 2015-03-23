@@ -21,6 +21,7 @@ namespace CommandLineParsing
                 var descAtt = f.GetCustomAttribute<Description>();
                 var reqAtt = f.GetCustomAttribute<Required>();
                 var ignAtt = f.GetCustomAttribute<IgnoreCase>();
+                var defAtt = f.GetCustomAttribute<Default>();
 
                 if (ignAtt != null)
                 {
@@ -32,10 +33,17 @@ namespace CommandLineParsing
                         throw new TypeAccessException("The " + typeof(IgnoreCase).Name + " attribute only applies to enumerations.");
                 }
 
+                if (defAtt != null)
+                {
+                    if (f.FieldType == typeof(FlagParameter))
+                        throw new TypeAccessException("A " + typeof(FlagParameter).Name + " cannot have a default value.");
+                }
+
                 string name = nameAtt != null ? nameAtt.names[0] : "--" + f.Name;
                 string description = descAtt != null ? descAtt.description : string.Empty;
                 Message required = reqAtt != null ? reqAtt.message ?? Required.defaultMessage(name) : Message.NoError;
                 bool ignore = ignAtt != null;
+                object defaultValue = defAtt != null ? defAtt.Value : null;
 
                 Parameter par;
                 if (f.FieldType == typeof(FlagParameter))
@@ -44,6 +52,9 @@ namespace CommandLineParsing
                     par = ctr.Invoke(new object[] { name, description, required, ignore }) as Parameter;
                 else
                     throw new InvalidOperationException("Unknown parameter type: " + f.FieldType);
+
+                if (defAtt != null)
+                    f.FieldType.GetMethod("SetDefault").Invoke(par, new object[] { defaultValue });
 
                 parsers.Add(par);
                 if (nameAtt == null)
