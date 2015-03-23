@@ -9,6 +9,8 @@ namespace CommandLineParsing
     public class Parameter<T> : Parameter
     {
         protected T value;
+        protected bool isDefault;
+
         protected readonly bool enumIgnore;
         private TryParse<T> parser;
 
@@ -33,6 +35,8 @@ namespace CommandLineParsing
             : base(name, description, required)
         {
             this.value = default(T);
+            this.isDefault = true;
+
             this.enumIgnore = enumIgnore;
             this.parser = null;
 
@@ -46,6 +50,16 @@ namespace CommandLineParsing
         public virtual T Value
         {
             get { return value; }
+        }
+        public bool IsDefault
+        {
+            get { return isDefault; }
+        }
+
+        public void SetDefault(T value)
+        {
+            this.value = value;
+            this.isDefault = true;
         }
 
         public Func<string, Message> TypeErrorMessage
@@ -112,6 +126,7 @@ namespace CommandLineParsing
             if (msg.IsError)
                 return msg;
 
+            isDefault = false;
             value = temp;
             doCallback();
 
@@ -120,7 +135,11 @@ namespace CommandLineParsing
 
         public override string ToString()
         {
-            return string.Format("{0}[{1}] = {2}", Name, typeof(T).Name, Object.ReferenceEquals(value, null) ? "<null>" : value.ToString());
+            return string.Format("{0}[{1}] = {2}{3}",
+                Name,
+                typeof(T).Name,
+                Object.ReferenceEquals(value, null) ? "<null>" : value.ToString(),
+                isDefault ? " (default)" : "");
         }
     }
 }
