@@ -58,6 +58,9 @@ namespace CommandLineParsing
 
         public void SetDefault(T value)
         {
+            if (this.IsRequired)
+                throw new InvalidOperationException("A parameter cannot be both required and have a default value.");
+
             this.value = value;
             this.isDefault = true;
         }
