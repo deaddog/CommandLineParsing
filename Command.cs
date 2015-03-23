@@ -110,7 +110,8 @@ namespace CommandLineParsing
                 }
             }
 
-            var unusedParsers = new List<Parameter>(parsers.Where(x => x.IsRequired));
+            var unusedParsers = new List<Parameter>(parsers);
+            var required = unusedParsers.Where(x => x.IsRequired);
             while (argumentStack.Count > 0)
             {
                 var arg = argumentStack.Pop();
@@ -131,8 +132,8 @@ namespace CommandLineParsing
                     return msg;
             }
 
-            if (unusedParsers.Count > 0)
-                return unusedParsers[0].RequiredMessage;
+            if (required.Any())
+                return required.First().RequiredMessage;
 
             var validMessage = Validate();
             if (validMessage.IsError)
