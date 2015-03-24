@@ -92,6 +92,12 @@ namespace CommandLineParsing
 
             return execute(argumentStack);
         }
+        public Message ParseAndExecute(string argsAsString)
+        {
+            var argumentStack = CommandLineParsing.Argument.Parse(simulateParse(argsAsString));
+
+            return execute(argumentStack);
+        }
         private Message execute(Stack<Argument> argumentStack)
         {
             if (argumentStack.Count > 0 && !argumentStack.Peek().Key.StartsWith("-"))
