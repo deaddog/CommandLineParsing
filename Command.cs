@@ -79,6 +79,10 @@ namespace CommandLineParsing
             get { return subcommands; }
         }
 
+        protected virtual Message ValidateStart()
+        {
+            return Message.NoError;
+        }
         protected virtual Message Validate()
         {
             return Message.NoError;
@@ -116,6 +120,10 @@ namespace CommandLineParsing
                     return unknown;
                 }
             }
+
+            Message startvalid = ValidateStart();
+            if (startvalid.IsError)
+                return startvalid;
 
             var unusedParsers = new List<Parameter>(parsers);
             var required = unusedParsers.Where(x => x.IsRequired);
