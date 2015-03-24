@@ -11,14 +11,14 @@ namespace CommandLineParsing
         private Dictionary<string, Parameter> parameters;
         private List<Parameter> parsers;
 
-        private SubCommandCollection subcommands;
+        private CommandCollection subcommands;
 
         public Command()
         {
             this.parameters = new Dictionary<string, Parameter>();
             this.parsers = new List<Parameter>();
 
-            this.subcommands = new SubCommandCollection();
+            this.subcommands = new CommandCollection();
 
             this.initializeParameters();
         }
@@ -74,7 +74,7 @@ namespace CommandLineParsing
             return inputArr;
         }
 
-        public SubCommandCollection SubCommands
+        public CommandCollection SubCommands
         {
             get { return subcommands; }
         }
@@ -151,11 +151,11 @@ namespace CommandLineParsing
             return Message.NoError;
         }
 
-        public class SubCommandCollection
+        public class CommandCollection
         {
             private Dictionary<string, Command> commands;
 
-            public SubCommandCollection()
+            public CommandCollection()
             {
                 this.commands = new Dictionary<string, Command>();
             }
