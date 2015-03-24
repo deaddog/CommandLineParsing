@@ -179,6 +179,31 @@ namespace CommandLineParsing
 
                 this.commands.Add(name, command);
             }
+            public void Add(string name, Action action)
+            {
+                if (action == null)
+                    throw new ArgumentNullException("action");
+
+                Add(name, new ActionCommand(action));
+            }
+
+            private class ActionCommand : Command
+            {
+                private Action action;
+
+                public ActionCommand(Action action)
+                {
+                    if (action == null)
+                        throw new ArgumentNullException("action");
+
+                    this.action = action;
+                }
+
+                protected override void Execute()
+                {
+                    action();
+                }
+            }
         }
     }
 }
