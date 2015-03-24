@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace CommandLineParsing
@@ -41,16 +42,27 @@ namespace CommandLineParsing
 
         public static void ValidateRegex(this Parameter<string> parameter, string regex, Func<string, Message> errorMessage)
         {
-            parameter.Validate(x => System.Text.RegularExpressions.Regex.IsMatch(x, regex) ? Message.NoError : errorMessage(x));
+            ValidateRegex(parameter, new Regex(regex), errorMessage);
+        }
+        public static void ValidateRegex(this Parameter<string> parameter, Regex regex, Func<string, Message> errorMessage)
+        {
+            parameter.Validate(x => regex.IsMatch(x) ? Message.NoError : errorMessage(x));
         }
         public static void ValidateRegex(this Parameter<string> parameter, string regex, Message errorMessage)
         {
-            parameter.Validate(x => System.Text.RegularExpressions.Regex.IsMatch(x, regex) ? Message.NoError : errorMessage);
+            ValidateRegex(parameter, new Regex(regex), errorMessage);
+        }
+        public static void ValidateRegex(this Parameter<string> parameter, Regex regex, Message errorMessage)
+        {
+            parameter.Validate(x => regex.IsMatch(x) ? Message.NoError : errorMessage);
         }
         public static void ValidateRegex(this Parameter<string> parameter, string regex)
         {
-            new System.Text.RegularExpressions.Regex(regex);
-            parameter.Validate(x => System.Text.RegularExpressions.Regex.IsMatch(x, regex) ? Message.NoError : "The \"" + parameter.Name + "\" parameter must match the regex: [[:Cyan:" + regex + "]]");
+            ValidateRegex(parameter, new Regex(regex));
+        }
+        public static void ValidateRegex(this Parameter<string> parameter, Regex regex)
+        {
+            parameter.Validate(x => regex.IsMatch(x) ? Message.NoError : "The \"" + parameter.Name + "\" parameter must match the regex: [[:Cyan:" + regex + "]]");
         }
     }
 }
