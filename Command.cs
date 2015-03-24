@@ -30,6 +30,10 @@ namespace CommandLineParsing
             if (msg.IsError)
                 ColorConsole.WriteLine(msg.GetMessage());
         }
+        public static void RunCommand(Command command, string argsAsString)
+        {
+            RunCommand(command, simulateParse(argsAsString));
+        }
 
         public static void SimulateREPL(Func<Command> command, string exit)
         {
@@ -49,10 +53,7 @@ namespace CommandLineParsing
                 if (input.Trim() == exit)
                     return;
 
-                var msg = command().ParseAndExecute(simulateParse(input));
-
-                if (msg.IsError)
-                    ColorConsole.WriteLine(msg.GetMessage());
+                RunCommand(command(), input);
 
                 Console.ResetColor();
                 Console.WriteLine();
