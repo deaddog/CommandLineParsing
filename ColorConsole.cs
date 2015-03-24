@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace CommandLineParsing
@@ -31,6 +32,22 @@ namespace CommandLineParsing
         public static void WriteLineNoColor(string format, params object[] args)
         {
             handle(args.Length == 0 ? format : string.Format(format, args), false, true);
+        }
+
+        public static string ClearColors(string input)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            Match m;
+            while ((m = colorRegex.Match(input)).Success)
+            {
+                sb.Append(input.Substring(0, m.Index));
+                sb.Append(m.Groups["content"].Value);
+                input = input.Substring(m.Index + m.Length);
+            }
+            sb.Append(input);
+
+            return sb.ToString();
         }
 
         private static void handle(string input, bool allowcolor, bool newline)
