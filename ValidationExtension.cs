@@ -38,5 +38,19 @@ namespace CommandLineParsing
         {
             parameter.ValidateEach(x => validator(x) ? Message.NoError : errorMessage);
         }
+
+        public static void ValidateRegex(this Parameter<string> parameter, string regex, Func<string, Message> errorMessage)
+        {
+            parameter.Validate(x => System.Text.RegularExpressions.Regex.IsMatch(x, regex) ? Message.NoError : errorMessage(x));
+        }
+        public static void ValidateRegex(this Parameter<string> parameter, string regex, Message errorMessage)
+        {
+            parameter.Validate(x => System.Text.RegularExpressions.Regex.IsMatch(x, regex) ? Message.NoError : errorMessage);
+        }
+        public static void ValidateRegex(this Parameter<string> parameter, string regex)
+        {
+            new System.Text.RegularExpressions.Regex(regex);
+            parameter.Validate(x => System.Text.RegularExpressions.Regex.IsMatch(x, regex) ? Message.NoError : "The \"" + parameter.Name + "\" parameter must match the regex: [[:Cyan:" + regex + "]]");
+        }
     }
 }
