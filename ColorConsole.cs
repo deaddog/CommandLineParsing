@@ -17,20 +17,20 @@ namespace CommandLineParsing
 
         public static void Write(string format, params object[] args)
         {
-            handle(string.Format(format, args), true, false);
+            handle(args.Length == 0 ? format : string.Format(format, args), true, false);
         }
         public static void WriteLine(string format, params object[] args)
         {
-            handle(string.Format(format, args), true, true);
+            handle(args.Length == 0 ? format : string.Format(format, args), true, true);
         }
 
         public static void WriteNoColor(string format, params object[] args)
         {
-            handle(string.Format(format, args), false, false);
+            handle(args.Length == 0 ? format : string.Format(format, args), false, false);
         }
         public static void WriteLineNoColor(string format, params object[] args)
         {
-            handle(string.Format(format, args), false, true);
+            handle(args.Length == 0 ? format : string.Format(format, args), false, true);
         }
 
         private static void handle(string input, bool allowcolor, bool newline)
