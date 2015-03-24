@@ -165,6 +165,11 @@ namespace CommandLineParsing
 
             public void Add(string name, Command command)
             {
+                if (name == null)
+                    throw new ArgumentNullException("name");
+                if (command == null)
+                    throw new ArgumentNullException("command");
+
                 this.commands.Add(name, command);
             }
         }
