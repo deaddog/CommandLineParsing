@@ -139,7 +139,7 @@ namespace CommandLineParsing
         public override string ToString()
         {
             return string.Format("{0}[{1}] = {2}{3}",
-                Name,
+                Name ?? "<unnamed>",
                 typeof(T).Name,
                 Object.ReferenceEquals(value, null) ? "<null>" : value.ToString(),
                 isDefault ? " (default)" : "");
