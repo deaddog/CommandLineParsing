@@ -99,9 +99,7 @@ namespace CommandLineParsing
         }
         public Message ParseAndExecute(string argsAsString)
         {
-            var argumentStack = CommandLineParsing.Argument.Parse(simulateParse(argsAsString));
-
-            return execute(argumentStack);
+            return ParseAndExecute(simulateParse(argsAsString));
         }
 
         public class CommandCollection
