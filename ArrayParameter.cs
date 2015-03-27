@@ -24,7 +24,7 @@ namespace CommandLineParsing
 
         internal override Message Handle(Argument argument)
         {
-            if (parser == null) 
+            if (parser == null)
                 parser = ParserLookup.Table.GetParser<T>(enumIgnore);
 
             T[] temp = new T[argument.Count];
@@ -43,6 +43,15 @@ namespace CommandLineParsing
             doCallback();
 
             return Message.NoError;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}[{1}] = {2}{3}",
+                Name ?? "<unnamed>",
+                typeof(T).Name,
+                Object.ReferenceEquals(value, null) ? "<null>" : (typeof(T).Name + "[" + value.Length + "]"),
+                isDefault ? " (default)" : "");
         }
     }
 }
