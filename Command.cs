@@ -8,6 +8,12 @@ namespace CommandLineParsing
 {
     public abstract partial class Command
     {
+        private Parameter noName;
+        private bool hasNoName
+        {
+            get { return noName != null; }
+        }
+
         private Dictionary<string, Parameter> parameters;
         private List<Parameter> parsers;
 
