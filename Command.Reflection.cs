@@ -63,6 +63,9 @@ namespace CommandLineParsing
                         f.FieldType.GetGenericTypeDefinition() != typeof(Parameter<>) ||
                         !f.FieldType.GetGenericArguments()[0].IsArray)
                         throw new TypeAccessException(string.Format("A {0} with the {1} attribute must be defined as generic, using an array as type argument.", _PARAMETER, _NONAME));
+
+                    if (reqAtt != null)
+                        throw new TypeAccessException(string.Format("A {0} with the {1} attribute cannot have the {2} attribute.", _PARAMETER, _NONAME, _REQUIRED));
                 }
 
                 string name = nonAtt != null ? null : (nameAtt != null ? nameAtt.names[0] : "--" + f.Name);
