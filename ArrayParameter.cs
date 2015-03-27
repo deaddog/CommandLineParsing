@@ -14,6 +14,7 @@ namespace CommandLineParsing
             : base(name, description, required, enumIgnore)
         {
             this.parser = null;
+            this.value = new T[0];
         }
 
         public override T[] Value
