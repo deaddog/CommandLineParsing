@@ -42,6 +42,10 @@ namespace CommandLineParsing
 
             return Message.NoError;
         }
+        internal override bool CanHandle(string value)
+        {
+            return false;
+        }
 
         public override string ToString()
         {

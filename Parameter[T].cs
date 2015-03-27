@@ -135,6 +135,14 @@ namespace CommandLineParsing
 
             return Message.NoError;
         }
+        internal override bool CanHandle(string value)
+        {
+            if (parser == null)
+                parser = ParserLookup.Table.GetParser<T>(enumIgnore);
+
+            T temp;
+            return parser(value, out temp);
+        }
 
         public override string ToString()
         {

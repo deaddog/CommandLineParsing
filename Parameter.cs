@@ -28,6 +28,7 @@ namespace CommandLineParsing
         }
 
         internal abstract Message Handle(Argument argument);
+        internal abstract bool CanHandle(string value);
 
         public event Action Callback
         {
