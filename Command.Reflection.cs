@@ -9,6 +9,16 @@ namespace CommandLineParsing
 {
     public partial class Command
     {
+        private static readonly string _COMMAND = typeof(Command).Name;
+        private static readonly string _PARAMETER = typeof(Parameter).Name;
+        private static readonly string _FLAGPARAMETER = typeof(FlagParameter).Name;
+        private static readonly string _NAME = typeof(Name).Name;
+        private static readonly string _NONAME = typeof(NoName).Name;
+        private static readonly string _DESCRIPTION = typeof(Description).Name;
+        private static readonly string _REQUIRED = typeof(Required).Name;
+        private static readonly string _IGNORECASE = typeof(IgnoreCase).Name;
+        private static readonly string _DEFAULT = typeof(Default).Name;
+
         private void initializeParameters()
         {
             var fields = getParameterFields();
@@ -26,17 +36,17 @@ namespace CommandLineParsing
                 if (ignAtt != null)
                 {
                     if (f.FieldType == typeof(FlagParameter))
-                        throw new TypeAccessException("A " + typeof(FlagParameter).Name + " cannot be marked with the " + typeof(IgnoreCase).Name + " attribute.");
+                        throw new TypeAccessException("A " + _FLAGPARAMETER + " cannot be marked with the " + _IGNORECASE + " attribute.");
                     if (f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>) &&
                         !(f.FieldType.GetGenericArguments()[0].IsEnum ||
                          (f.FieldType.GetGenericArguments()[0].IsArray && f.FieldType.GetGenericArguments()[0].GetElementType().IsEnum)))
-                        throw new TypeAccessException("The " + typeof(IgnoreCase).Name + " attribute only applies to enumerations.");
+                        throw new TypeAccessException("The " + _IGNORECASE + " attribute only applies to enumerations.");
                 }
 
                 if (defAtt != null)
                 {
                     if (f.FieldType == typeof(FlagParameter))
-                        throw new TypeAccessException("A " + typeof(FlagParameter).Name + " cannot have a default value.");
+                        throw new TypeAccessException("A " + _FLAGPARAMETER + " cannot have a default value.");
                 }
 
                 string name = nameAtt != null ? nameAtt.names[0] : "--" + f.Name;
