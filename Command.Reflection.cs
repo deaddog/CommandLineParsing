@@ -21,6 +21,7 @@ namespace CommandLineParsing
 
         private void initializeParameters()
         {
+            Parameter noNameParam = null;
             var fields = getParameterFields();
 
             foreach (var f in fields)
@@ -28,6 +29,7 @@ namespace CommandLineParsing
                 var ctr = getConstructor(f.FieldType);
 
                 var nameAtt = f.GetCustomAttribute<Name>();
+                var nonAtt = f.GetCustomAttribute<NoName>();
                 var descAtt = f.GetCustomAttribute<Description>();
                 var reqAtt = f.GetCustomAttribute<Required>();
                 var ignAtt = f.GetCustomAttribute<IgnoreCase>();
@@ -47,6 +49,20 @@ namespace CommandLineParsing
                 {
                     if (f.FieldType == typeof(FlagParameter))
                         throw new TypeAccessException("A " + _FLAGPARAMETER + " cannot have a default value.");
+                }
+
+                if (nonAtt != null)
+                {
+                    if (nameAtt != null)
+                        throw new TypeAccessException(string.Format("A {0} cannot have the {1} and the {2} attribute simultaneously.", _PARAMETER, _NAME, _NONAME));
+
+                    if (noNameParam != null)
+                        throw new TypeAccessException(string.Format("A {0} can only support a single {1} with the {2} attribute.", _COMMAND, _PARAMETER, _NONAME));
+
+                    if (!f.FieldType.IsGenericType ||
+                        f.FieldType.GetGenericTypeDefinition() != typeof(Parameter<>) ||
+                        !f.FieldType.GetGenericArguments()[0].IsArray)
+                        throw new TypeAccessException(string.Format("A {0} with the {1} attribute must be defined as generic, using an array as type argument."));
                 }
 
                 string name = nameAtt != null ? nameAtt.names[0] : "--" + f.Name;
