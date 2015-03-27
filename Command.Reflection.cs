@@ -65,7 +65,7 @@ namespace CommandLineParsing
                         throw new TypeAccessException(string.Format("A {0} with the {1} attribute must be defined as generic, using an array as type argument."));
                 }
 
-                string name = nameAtt != null ? nameAtt.names[0] : "--" + f.Name;
+                string name = nonAtt != null ? null : (nameAtt != null ? nameAtt.names[0] : "--" + f.Name);
                 string description = descAtt != null ? descAtt.description : string.Empty;
                 Message required = reqAtt != null ? reqAtt.message ?? Required.defaultMessage(name) : Message.NoError;
                 bool ignore = ignAtt != null;
