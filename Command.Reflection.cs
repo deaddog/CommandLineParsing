@@ -21,7 +21,6 @@ namespace CommandLineParsing
 
         private void initializeParameters()
         {
-            Parameter noNameParam = null;
             var fields = getParameterFields();
 
             foreach (var f in fields)
@@ -56,7 +55,7 @@ namespace CommandLineParsing
                     if (nameAtt != null)
                         throw new TypeAccessException(string.Format("A {0} cannot have the {1} and the {2} attribute simultaneously.", _PARAMETER, _NAME, _NONAME));
 
-                    if (noNameParam != null)
+                    if (noName != null)
                         throw new TypeAccessException(string.Format("A {0} can only support a single {1} with the {2} attribute.", _COMMAND, _PARAMETER, _NONAME));
 
                     if (!f.FieldType.IsGenericType ||
@@ -85,20 +84,25 @@ namespace CommandLineParsing
                 if (defAtt != null)
                     f.FieldType.GetMethod("SetDefault").Invoke(par, new object[] { defaultValue });
 
-                parsers.Add(par);
-                if (nameAtt == null)
+                if (nonAtt == null)
                 {
-                    if (!RegexLookup.ArgumentName.IsMatch(name))
-                        throw new ArgumentException("Argument name \"" + name + "\" is illformed.", "name");
-                    parameters.Add(name, par);
+                    parsers.Add(par);
+                    if (nameAtt == null)
+                    {
+                        if (!RegexLookup.ArgumentName.IsMatch(name))
+                            throw new ArgumentException("Argument name \"" + name + "\" is illformed.", "name");
+                        parameters.Add(name, par);
+                    }
+                    else
+                        foreach (var n in nameAtt.names)
+                        {
+                            if (!RegexLookup.ArgumentName.IsMatch(n))
+                                throw new ArgumentException("Argument name \"" + n + "\" is illformed.", "alternatives");
+                            parameters.Add(n, par);
+                        }
                 }
                 else
-                    foreach (var n in nameAtt.names)
-                    {
-                        if (!RegexLookup.ArgumentName.IsMatch(n))
-                            throw new ArgumentException("Argument name \"" + n + "\" is illformed.", "alternatives");
-                        parameters.Add(n, par);
-                    }
+                    noName = par;
 
                 f.SetValue(this, par);
             }
