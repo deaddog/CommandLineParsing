@@ -63,5 +63,29 @@ namespace CommandLineParsing
 
             return Message.NoError;
         }
+
+        private class executor
+        {
+            private Command command;
+            private Stack<string> args;
+
+            private executor(IEnumerable<string> args)
+            {
+                this.command = null;
+                this.args = new Stack<string>(args.Reverse());
+            }
+
+            public static Message Execute(Command command, IEnumerable<string> args)
+            {
+                return new executor(args).execute(command);
+            }
+
+            private Message execute(Command command)
+            {
+                this.command = command;
+
+                throw new NotImplementedException();
+            }
+        }
     }
 }
