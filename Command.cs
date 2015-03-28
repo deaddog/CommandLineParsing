@@ -123,6 +123,10 @@ namespace CommandLineParsing
             {
                 get { return commands.Keys.ToArray(); }
             }
+            public bool Empty
+            {
+                get { return commands.Count == 0; }
+            }
 
             internal bool TryGetCommand(string name, out Command command)
             {
