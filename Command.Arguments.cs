@@ -92,6 +92,10 @@ namespace CommandLineParsing
                     else return executeSubCommand();
                 }
 
+                Message startvalid = command.ValidateStart();
+                if (startvalid.IsError)
+                    return startvalid;
+
                 throw new NotImplementedException();
             }
             private Message executeSubCommand()
