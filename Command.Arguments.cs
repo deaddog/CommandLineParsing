@@ -84,7 +84,26 @@ namespace CommandLineParsing
             {
                 this.command = command;
 
+                if (!RegexLookup.ArgumentName.IsMatch(args.Peek()))
+                {
+                    if (!command.subcommands.Empty) return executeSubCommand();
+                }
+
                 throw new NotImplementedException();
+            }
+            private Message executeSubCommand()
+            {
+                string a = args.Pop();
+                Command cmd;
+                if (command.subcommands.TryGetCommand(a, out cmd))
+                    return execute(cmd);
+                else
+                {
+                    UnknownArgumentMessage unknown = new UnknownArgumentMessage(a, UnknownArgumentMessage.ArgumentType.SubCommand);
+                    foreach (var n in command.subcommands.CommandNames)
+                        unknown.AddAlternative(n, "N/A - Commands have no description.");
+                    return unknown;
+                }
             }
         }
     }
