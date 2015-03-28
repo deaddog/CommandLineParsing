@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace CommandLineParsing
@@ -42,8 +43,16 @@ namespace CommandLineParsing
                 yield return new Argument(key, values);
         }
 
+        public Argument(IEnumerable<string> values)
+        {
+            this.key = null;
+            this.values = values.ToArray();
+        }
         public Argument(string key, IEnumerable<string> values)
         {
+            if (key == null)
+                throw new ArgumentNullException("key");
+
             this.key = key.ToLower();
             this.values = values.ToArray();
         }
