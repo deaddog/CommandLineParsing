@@ -24,7 +24,7 @@ namespace CommandLineParsing
             this.parameters = new Dictionary<string, Parameter>();
             this.parsers = new List<Parameter>();
 
-            this.subcommands = new CommandCollection();
+            this.subcommands = new CommandCollection(this);
 
             this.initializeParameters();
         }
@@ -110,10 +110,12 @@ namespace CommandLineParsing
 
         public class CommandCollection
         {
+            private Command owner;
             private Dictionary<string, Command> commands;
 
-            public CommandCollection()
+            internal CommandCollection(Command owner)
             {
+                this.owner = owner;
                 this.commands = new Dictionary<string, Command>();
             }
 
@@ -133,6 +135,8 @@ namespace CommandLineParsing
                     throw new ArgumentNullException("name");
                 if (command == null)
                     throw new ArgumentNullException("command");
+                if (owner.hasNoName)
+                    throw new InvalidOperationException("A " + typeof(Command).Name + " cannot contain both a " + typeof(NoName).Name + " attribute and sub commands.");
 
                 this.commands.Add(name, command);
             }
