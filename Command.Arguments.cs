@@ -68,11 +68,13 @@ namespace CommandLineParsing
         {
             private Command command;
             private Stack<string> args;
+            private List<string> nonameArgs;
 
             private executor(IEnumerable<string> args)
             {
                 this.command = null;
                 this.args = new Stack<string>(args.Reverse());
+                this.nonameArgs = new List<string>();
             }
 
             public static Message Execute(Command command, IEnumerable<string> args)
@@ -86,7 +88,8 @@ namespace CommandLineParsing
 
                 if (!RegexLookup.ArgumentName.IsMatch(args.Peek()))
                 {
-                    if (!command.subcommands.Empty) return executeSubCommand();
+                    if (command.hasNoName) nonameArgs.Add(args.Pop());
+                    else return executeSubCommand();
                 }
 
                 throw new NotImplementedException();
