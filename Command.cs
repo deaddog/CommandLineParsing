@@ -99,9 +99,7 @@ namespace CommandLineParsing
 
         public Message ParseAndExecute(string[] args)
         {
-            var argumentStack = CommandLineParsing.Argument.Parse(args);
-
-            return execute(argumentStack);
+            return executor.Execute(this, args);
         }
         public Message ParseAndExecute(string argsAsString)
         {
