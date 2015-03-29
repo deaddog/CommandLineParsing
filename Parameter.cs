@@ -38,7 +38,7 @@ namespace CommandLineParsing
 
         public string Name
         {
-            get { return name; }
+            get { return name ?? "<unnamed>"; }
         }
         public string Description
         {

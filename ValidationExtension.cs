@@ -62,7 +62,7 @@ namespace CommandLineParsing
         }
         public static void ValidateRegex(this Parameter<string> parameter, Regex regex)
         {
-            parameter.Validate(x => regex.IsMatch(x) ? Message.NoError : "The \"" + parameter.Name + "\" parameter must match the regex: [[:Cyan:" + regex + "]]");
+            parameter.Validate(x => regex.IsMatch(x) ? Message.NoError : "The \"" + parameter.Name + "\" parameter value must match the regex: [[:Cyan:" + regex + "]]");
         }
     }
 }
