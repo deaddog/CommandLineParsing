@@ -112,6 +112,34 @@ namespace CommandLineParsing
                     return unknown;
                 }
             }
+            private Message handleParameter()
+            {
+                string key = args.Pop();
+                List<string> values = new List<string>();
+
+                Parameter parameter;
+
+                if (!command.parameters.TryGetValue(key, out parameter))
+                {
+                    UnknownArgumentMessage unknown = new UnknownArgumentMessage(key, UnknownArgumentMessage.ArgumentType.Parameter);
+                    var g = command.parameters.GroupBy(x => x.Value, x => x.Key).Select(x => x.ToArray());
+                    foreach (var a in g)
+                        unknown.AddAlternative(a, command.parameters[a[0]].Description);
+                    return unknown;
+                }
+
+                while (args.Count > 0 && !RegexLookup.ArgumentName.IsMatch(args.Peek()))
+                {
+                    string value = args.Pop();
+                    if (!command.hasNoName || parameter.CanHandle(value))
+                        values.Add(value);
+                    else
+                        nonameArgs.Add(value);
+                }
+
+                unusedParsers.Remove(parameter);
+                return parameter.Handle(new Argument(key, values));
+            }
         }
     }
 }
