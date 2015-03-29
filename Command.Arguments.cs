@@ -104,13 +104,10 @@ namespace CommandLineParsing
                     return unknown;
                 }
 
-                while (args.Count > 0 && !RegexLookup.ArgumentName.IsMatch(args.Peek()))
+                while (args.Count > 0 && !RegexLookup.ArgumentName.IsMatch(args.Peek()) &&
+                    (!command.hasNoName || parameter.CanHandle(args.Peek())))
                 {
-                    string value = args.Pop();
-                    if (!command.hasNoName || parameter.CanHandle(value))
-                        values.Add(value);
-                    else
-                        nonameArgs.Add(value);
+                    values.Add(args.Pop());
                 }
 
                 unusedParsers.Remove(parameter);
