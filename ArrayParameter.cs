@@ -59,7 +59,7 @@ namespace CommandLineParsing
             return string.Format("{0}[{1}] = {2}{3}",
                 Name,
                 typeof(T).Name,
-                Object.ReferenceEquals(value, null) ? "<null>" : (typeof(T).Name + "[" + value.Length + "]"),
+                Object.ReferenceEquals(value, null) ? "<null>" : ("{" + string.Join(", ", value) + "}"),
                 isDefault ? " (default)" : "");
         }
     }
