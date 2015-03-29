@@ -67,6 +67,8 @@ namespace CommandLineParsing
         private class executor
         {
             private Command command;
+            private List<Parameter> unusedParsers;
+
             private Stack<string> args;
             private List<string> nonameArgs;
 
@@ -96,7 +98,37 @@ namespace CommandLineParsing
                 if (startvalid.IsError)
                     return startvalid;
 
-                throw new NotImplementedException();
+                unusedParsers = new List<Parameter>(command.parsers);
+                while (args.Count > 0)
+                {
+                    if (RegexLookup.ArgumentName.IsMatch(args.Peek()))
+                    {
+                        Message parMessage = handleParameter();
+                        if (parMessage.IsError)
+                            return parMessage;
+                    }
+                    else
+                        nonameArgs.Add(args.Pop());
+                }
+
+                var req = unusedParsers.FirstOrDefault(x => x.IsRequired);
+                if (req != null)
+                    return req.RequiredMessage;
+
+                if (command.hasNoName)
+                {
+                    var nonameMessage = command.noName.Handle(new Argument(nonameArgs));
+                    if (nonameMessage.IsError)
+                        return nonameMessage;
+                }
+
+                var validMessage = command.Validate();
+                if (validMessage.IsError)
+                    return validMessage;
+
+                command.Execute();
+
+                return Message.NoError;
             }
             private Message executeSubCommand()
             {
