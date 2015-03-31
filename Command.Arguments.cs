@@ -32,7 +32,7 @@ namespace CommandLineParsing
             {
                 this.command = command;
 
-                if (!RegexLookup.ArgumentName.IsMatch(args.Peek()))
+                if (args.Count > 0 && !RegexLookup.ArgumentName.IsMatch(args.Peek()))
                 {
                     if (command.hasNoName) nonameArgs.Add(args.Pop());
                     else return executeSubCommand();
