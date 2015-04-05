@@ -90,15 +90,11 @@ namespace CommandLineParsing
                     parsers.Add(par);
                     if (nameAtt == null)
                     {
-                        if (!RegexLookup.ArgumentName.IsMatch(name))
-                            throw new ArgumentException("Argument name \"" + name + "\" is illformed.", "name");
                         parameters.Add(name, par);
                     }
                     else
                         foreach (var n in nameAtt.names)
                         {
-                            if (!RegexLookup.ArgumentName.IsMatch(n))
-                                throw new ArgumentException("Argument name \"" + n + "\" is illformed.", "alternatives");
                             parameters.Add(n, par);
                         }
                 }
