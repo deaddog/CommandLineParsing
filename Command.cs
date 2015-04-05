@@ -14,6 +14,7 @@ namespace CommandLineParsing
         public Command()
         {
             this.subcommands = new CommandCollection(this);
+            this.parameters = new ParameterCollection();
 
             this.initializeParameters();
         }
