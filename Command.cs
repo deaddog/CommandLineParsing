@@ -174,7 +174,7 @@ namespace CommandLineParsing
             }
         }
 
-        public class ParameterCollection
+        public class ParameterCollection : IEnumerable<Parameter>
         {
             private Dictionary<string, Parameter> parameters;
             private List<Parameter> parsers;
@@ -183,6 +183,17 @@ namespace CommandLineParsing
             {
                 this.parameters = new Dictionary<string, Parameter>();
                 this.parsers = new List<Parameter>();
+            }
+
+            IEnumerator<Parameter> IEnumerable<Parameter>.GetEnumerator()
+            {
+                foreach (var p in parsers)
+                    yield return p;
+            }
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            {
+                foreach (var p in parsers)
+                    yield return p;
             }
         }
     }
