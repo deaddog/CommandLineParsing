@@ -8,12 +8,6 @@ namespace CommandLineParsing
 {
     public abstract partial class Command
     {
-        private Parameter noName;
-        private bool hasNoName
-        {
-            get { return noName != null; }
-        }
-
         private CommandCollection subcommands;
         private ParameterCollection parameters;
 
@@ -136,7 +130,7 @@ namespace CommandLineParsing
                     throw new ArgumentNullException("name");
                 if (command == null)
                     throw new ArgumentNullException("command");
-                if (owner.hasNoName)
+                if (owner.parameters.HasNoName)
                     throw new InvalidOperationException("A " + typeof(Command).Name + " cannot contain both a " + typeof(NoName).Name + " attribute and sub commands.");
 
                 this.commands.Add(name, command);
@@ -170,6 +164,16 @@ namespace CommandLineParsing
 
         public class ParameterCollection : IEnumerable<Parameter>
         {
+            private Parameter noName;
+            public bool HasNoName
+            {
+                get { return noName != null; }
+            }
+            public Parameter NoName
+            {
+                get { return noName; }
+            }
+
             private Dictionary<string, Parameter> parameters;
             private List<Parameter> parsers;
 

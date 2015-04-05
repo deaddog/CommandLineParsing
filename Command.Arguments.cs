@@ -34,7 +34,7 @@ namespace CommandLineParsing
 
                 if (args.Count > 0 && !RegexLookup.ArgumentName.IsMatch(args.Peek()))
                 {
-                    if (command.hasNoName) nonameArgs.Add(args.Pop());
+                    if (command.parameters.HasNoName) nonameArgs.Add(args.Pop());
                     else return executeSubCommand();
                 }
 
@@ -59,9 +59,9 @@ namespace CommandLineParsing
                 if (req != null)
                     return req.RequiredMessage;
 
-                if (command.hasNoName && nonameArgs.Count > 0)
+                if (command.parameters.HasNoName && nonameArgs.Count > 0)
                 {
-                    var nonameMessage = command.noName.Handle(new Argument(nonameArgs));
+                    var nonameMessage = command.parameters.NoName.Handle(new Argument(nonameArgs));
                     if (nonameMessage.IsError)
                         return nonameMessage;
                 }
@@ -104,7 +104,7 @@ namespace CommandLineParsing
                 }
 
                 while (args.Count > 0 && !RegexLookup.ArgumentName.IsMatch(args.Peek()) &&
-                    (!command.hasNoName || parameter.CanHandle(args.Peek())))
+                    (!command.parameters.HasNoName || parameter.CanHandle(args.Peek())))
                 {
                     values.Add(args.Pop());
                 }

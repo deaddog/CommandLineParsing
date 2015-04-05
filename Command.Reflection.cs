@@ -55,7 +55,7 @@ namespace CommandLineParsing
                     if (nameAtt != null)
                         throw new TypeAccessException(string.Format("A {0} cannot have the {1} and the {2} attribute simultaneously.", _PARAMETER, _NAME, _NONAME));
 
-                    if (noName != null)
+                    if (parameters.HasNoName)
                         throw new TypeAccessException(string.Format("A {0} can only support a single {1} with the {2} attribute.", _COMMAND, _PARAMETER, _NONAME));
 
                     if (!f.FieldType.IsGenericType ||
