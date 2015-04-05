@@ -46,6 +46,10 @@ namespace CommandLineParsing
             remove { this.callback -= value; }
         }
 
+        public bool Unnamed
+        {
+            get { return name == null; }
+        }
         public string Name
         {
             get { return name ?? "<unnamed>"; }

@@ -184,7 +184,7 @@ namespace CommandLineParsing
             }
             internal void Add(Parameter parameter)
             {
-                if (parameter.Name != null)
+                if (!parameter.Unnamed)
                 {
                     parsers.Add(parameter);
                     foreach (var name in parameter.GetNames(true))
