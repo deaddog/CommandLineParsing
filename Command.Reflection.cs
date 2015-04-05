@@ -67,7 +67,8 @@ namespace CommandLineParsing
                         throw new TypeAccessException(string.Format("A {0} with the {1} attribute cannot have the {2} attribute.", _PARAMETER, _NONAME, _REQUIRED));
                 }
 
-                string name = nonAtt != null ? null : (nameAtt != null ? nameAtt.names[0] : "--" + f.Name);
+                string name = nonAtt != null ? null : (nameAtt != null ? nameAtt.name : "--" + f.Name);
+                string[] alternatives = nameAtt != null ? nameAtt.alternatives : new string[0];
                 string description = descAtt != null ? descAtt.description : string.Empty;
                 Message required = reqAtt != null ? reqAtt.message ?? Required.defaultMessage(name) : Message.NoError;
                 bool ignore = ignAtt != null;
@@ -75,9 +76,9 @@ namespace CommandLineParsing
 
                 Parameter par;
                 if (f.FieldType == typeof(FlagParameter))
-                    par = ctr.Invoke(new object[] { name, description, required }) as Parameter;
+                    par = ctr.Invoke(new object[] { name, alternatives, description, required }) as Parameter;
                 else if (f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>))
-                    par = ctr.Invoke(new object[] { name, description, required, ignore }) as Parameter;
+                    par = ctr.Invoke(new object[] { name, alternatives, description, required, ignore }) as Parameter;
                 else
                     throw new InvalidOperationException("Unknown parameter type: " + f.FieldType);
 
@@ -113,7 +114,7 @@ namespace CommandLineParsing
             if (fieldType == typeof(FlagParameter))
                 return fieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance,
                     null,
-                    new Type[] { typeof(string), typeof(string), typeof(Message) },
+                    new Type[] { typeof(string), typeof(string[]), typeof(string), typeof(Message) },
                     null);
 
             if (fieldType.GetGenericTypeDefinition() == typeof(Parameter<>))
@@ -125,7 +126,7 @@ namespace CommandLineParsing
                 }
                 return fieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance,
                     null,
-                    new Type[] { typeof(string), typeof(string), typeof(Message), typeof(bool) },
+                    new Type[] { typeof(string), typeof(string[]), typeof(string), typeof(Message), typeof(bool) },
                     null);
             }
 

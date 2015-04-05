@@ -9,6 +9,7 @@ namespace CommandLineParsing
     public abstract class Parameter
     {
         private string name;
+        private string[] alternatives;
         private string description;
 
         private Message required;
@@ -20,9 +21,10 @@ namespace CommandLineParsing
                 callback();
         }
 
-        internal Parameter(string name, string description, Message required)
+        internal Parameter(string name, string[] alternatives, string description, Message required)
         {
             this.name = name;
+            this.alternatives = alternatives;
             this.description = description;
             this.required = required;
         }
@@ -52,6 +54,14 @@ namespace CommandLineParsing
         internal Message RequiredMessage
         {
             get { return required; }
+        }
+
+        public IEnumerable<string> GetNames(bool includeMain)
+        {
+            if (includeMain)
+                yield return name;
+            foreach (var n in alternatives)
+                yield return n;
         }
     }
 }

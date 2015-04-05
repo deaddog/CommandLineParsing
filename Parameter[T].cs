@@ -31,8 +31,8 @@ namespace CommandLineParsing
             return Message.NoError;
         }
 
-        internal Parameter(string name, string description, Message required, bool enumIgnore)
-            : base(name, description, required)
+        internal Parameter(string name, string[] alternatives, string description, Message required, bool enumIgnore)
+            : base(name, alternatives, description, required)
         {
             this.value = default(T);
             this.isDefault = true;

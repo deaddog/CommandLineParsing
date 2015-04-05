@@ -10,8 +10,8 @@ namespace CommandLineParsing
     {
         private TryParse<T> parser;
 
-        internal ArrayParameter(string name, string description, Message required, bool enumIgnore)
-            : base(name, description, required, enumIgnore)
+        internal ArrayParameter(string name, string[] alternatives, string description, Message required, bool enumIgnore)
+            : base(name, alternatives, description, required, enumIgnore)
         {
             this.parser = null;
             this.value = new T[0];
