@@ -182,6 +182,17 @@ namespace CommandLineParsing
                 this.parameters = new Dictionary<string, Parameter>();
                 this.parsers = new List<Parameter>();
             }
+            internal void Add(Parameter parameter)
+            {
+                if (parameter.Name != null)
+                {
+                    parsers.Add(parameter);
+                    foreach (var name in parameter.GetNames(true))
+                        parameters.Add(name, parameter);
+                }
+                else
+                    noName = parameter;
+            }
 
             public bool TryGetParameter(string argument, out Parameter parameter)
             {

@@ -85,22 +85,7 @@ namespace CommandLineParsing
                 if (defAtt != null)
                     f.FieldType.GetMethod("SetDefault").Invoke(par, new object[] { defaultValue });
 
-                if (nonAtt == null)
-                {
-                    parsers.Add(par);
-                    if (nameAtt == null)
-                    {
-                        parameters.Add(name, par);
-                    }
-                    else
-                        foreach (var n in nameAtt.names)
-                        {
-                            parameters.Add(n, par);
-                        }
-                }
-                else
-                    noName = par;
-
+                parameters.Add(par);
                 f.SetValue(this, par);
             }
         }
