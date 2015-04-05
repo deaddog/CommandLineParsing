@@ -14,17 +14,11 @@ namespace CommandLineParsing
             get { return noName != null; }
         }
 
-        private Dictionary<string, Parameter> parameters;
-        private List<Parameter> parsers;
-
         private CommandCollection subcommands;
         private ParameterCollection parameters;
 
         public Command()
         {
-            this.parameters = new Dictionary<string, Parameter>();
-            this.parsers = new List<Parameter>();
-
             this.subcommands = new CommandCollection(this);
 
             this.initializeParameters();
