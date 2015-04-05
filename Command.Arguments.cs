@@ -42,7 +42,7 @@ namespace CommandLineParsing
                 if (startvalid.IsError)
                     return startvalid;
 
-                unusedParsers = new List<Parameter>(command.parsers);
+                unusedParsers = new List<Parameter>(command.parameters);
                 while (args.Count > 0)
                 {
                     if (RegexLookup.ArgumentName.IsMatch(args.Peek()))
@@ -95,7 +95,7 @@ namespace CommandLineParsing
 
                 Parameter parameter;
 
-                if (!command.parameters.TryGetValue(key, out parameter))
+                if (!command.parameters.TryGetParameter(key, out parameter))
                 {
                     UnknownArgumentMessage unknown = new UnknownArgumentMessage(key, UnknownArgumentMessage.ArgumentType.Parameter);
                     var g = command.parameters.GroupBy(x => x.Value, x => x.Key).Select(x => x.ToArray());

@@ -179,6 +179,11 @@ namespace CommandLineParsing
                 this.parsers = new List<Parameter>();
             }
 
+            public bool TryGetParameter(string argument, out Parameter parameter)
+            {
+                return parameters.TryGetValue(argument, out parameter);
+            }
+
             IEnumerator<Parameter> IEnumerable<Parameter>.GetEnumerator()
             {
                 foreach (var p in parsers)
