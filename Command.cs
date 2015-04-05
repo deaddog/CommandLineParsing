@@ -18,6 +18,7 @@ namespace CommandLineParsing
         private List<Parameter> parsers;
 
         private CommandCollection subcommands;
+        private ParameterCollection parameters;
 
         public Command()
         {
@@ -83,6 +84,10 @@ namespace CommandLineParsing
         public CommandCollection SubCommands
         {
             get { return subcommands; }
+        }
+        public ParameterCollection Parameters
+        {
+            get { return parameters; }
         }
 
         protected virtual Message ValidateStart()
@@ -166,6 +171,18 @@ namespace CommandLineParsing
                 {
                     action();
                 }
+            }
+        }
+
+        public class ParameterCollection
+        {
+            private Dictionary<string, Parameter> parameters;
+            private List<Parameter> parsers;
+
+            internal ParameterCollection()
+            {
+                this.parameters = new Dictionary<string, Parameter>();
+                this.parsers = new List<Parameter>();
             }
         }
     }
