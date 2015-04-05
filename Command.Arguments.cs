@@ -59,7 +59,7 @@ namespace CommandLineParsing
                 if (req != null)
                     return req.RequiredMessage;
 
-                if (command.hasNoName)
+                if (command.hasNoName && nonameArgs.Count > 0)
                 {
                     var nonameMessage = command.noName.Handle(new Argument(nonameArgs));
                     if (nonameMessage.IsError)
