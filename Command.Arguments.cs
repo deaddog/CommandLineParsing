@@ -23,19 +23,19 @@ namespace CommandLineParsing
                 this.nonameArgs = new List<string>();
             }
 
-            public static Message Execute(Command command, IEnumerable<string> args)
+            public static Message Execute(Command command, IEnumerable<string> args, string help)
             {
-                return new executor(args).execute(command);
+                return new executor(args).execute(command, help);
             }
 
-            private Message execute(Command command)
+            private Message execute(Command command, string help)
             {
                 this.command = command;
 
                 if (args.Count > 0 && !RegexLookup.ArgumentName.IsMatch(args.Peek()))
                 {
                     if (command.parameters.HasNoName) nonameArgs.Add(args.Pop());
-                    else return executeSubCommand();
+                    else return executeSubCommand(help);
                 }
 
                 Message startvalid = command.ValidateStart();
@@ -74,12 +74,12 @@ namespace CommandLineParsing
 
                 return Message.NoError;
             }
-            private Message executeSubCommand()
+            private Message executeSubCommand(string help)
             {
                 string a = args.Pop();
                 Command cmd;
                 if (command.subcommands.TryGetCommand(a, out cmd))
-                    return execute(cmd);
+                    return execute(cmd, help);
                 else
                 {
                     UnknownArgumentMessage unknown = new UnknownArgumentMessage(a, UnknownArgumentMessage.ArgumentType.SubCommand);

@@ -19,19 +19,19 @@ namespace CommandLineParsing
             this.initializeParameters();
         }
 
-        public static void RunCommand(Command command, string[] args)
+        public static void RunCommand(Command command, string[] args, string help = null)
         {
-            var msg = command.ParseAndExecute(args);
+            var msg = command.ParseAndExecute(args, help);
 
             if (msg.IsError)
                 ColorConsole.WriteLine(msg.GetMessage());
         }
-        public static void RunCommand(Command command, string argsAsString)
+        public static void RunCommand(Command command, string argsAsString, string help = null)
         {
-            RunCommand(command, simulateParse(argsAsString));
+            RunCommand(command, simulateParse(argsAsString), help);
         }
 
-        public static void SimulateREPL(Func<Command> command, string exit)
+        public static void SimulateREPL(Func<Command> command, string exit, string help = null)
         {
             if (exit == null)
                 throw new ArgumentNullException("exit");
@@ -49,7 +49,7 @@ namespace CommandLineParsing
                 if (input.Trim() == exit)
                     return;
 
-                RunCommand(command(), input);
+                RunCommand(command(), input, help);
 
                 Console.ResetColor();
                 Console.WriteLine();
@@ -96,13 +96,13 @@ namespace CommandLineParsing
             throw new NotImplementedException();
         }
 
-        public Message ParseAndExecute(string[] args)
+        public Message ParseAndExecute(string[] args, string help = null)
         {
-            return executor.Execute(this, args);
+            return executor.Execute(this, args, help);
         }
-        public Message ParseAndExecute(string argsAsString)
+        public Message ParseAndExecute(string argsAsString, string help = null)
         {
-            return ParseAndExecute(simulateParse(argsAsString));
+            return ParseAndExecute(simulateParse(argsAsString), help);
         }
 
         public class CommandCollection : IEnumerable<KeyValuePair<string, Command>>
