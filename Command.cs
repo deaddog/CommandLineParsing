@@ -8,6 +8,8 @@ namespace CommandLineParsing
 {
     public abstract partial class Command
     {
+        private const string SUBCOMMAND_DESCRIPTION = "N/A - Commands have no description.";
+
         private CommandCollection subcommands;
         private ParameterCollection parameters;
 

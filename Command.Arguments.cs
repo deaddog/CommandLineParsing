@@ -87,7 +87,7 @@ namespace CommandLineParsing
                 {
                     UnknownArgumentMessage unknown = new UnknownArgumentMessage(a, UnknownArgumentMessage.ArgumentType.SubCommand);
                     foreach (var n in command.subcommands.CommandNames)
-                        unknown.AddAlternative(n, "N/A - Commands have no description.");
+                        unknown.AddAlternative(n, SUBCOMMAND_DESCRIPTION);
                     return unknown;
                 }
             }
