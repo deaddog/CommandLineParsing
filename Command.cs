@@ -100,7 +100,7 @@ namespace CommandLineParsing
             return ParseAndExecute(simulateParse(argsAsString));
         }
 
-        public class CommandCollection
+        public class CommandCollection : IEnumerable<KeyValuePair<string, Command>>
         {
             private Command owner;
             private Dictionary<string, Command> commands;
@@ -160,6 +160,17 @@ namespace CommandLineParsing
                 {
                     action();
                 }
+            }
+
+            IEnumerator<KeyValuePair<string, Command>> IEnumerable<KeyValuePair<string, Command>>.GetEnumerator()
+            {
+                foreach (var cmd in commands)
+                    yield return cmd;
+            }
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            {
+                foreach (var cmd in commands)
+                    yield return cmd;
             }
         }
 
