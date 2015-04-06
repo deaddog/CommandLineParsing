@@ -32,6 +32,9 @@ namespace CommandLineParsing
             {
                 this.command = command;
 
+                if (args.Count > 0 && help == args.Peek())
+                    return command.GetHelpMessage();
+
                 if (args.Count > 0 && !RegexLookup.ArgumentName.IsMatch(args.Peek()))
                 {
                     if (command.parameters.HasNoName) nonameArgs.Add(args.Pop());
