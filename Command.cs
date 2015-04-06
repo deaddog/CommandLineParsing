@@ -95,7 +95,48 @@ namespace CommandLineParsing
 
         protected virtual Message GetHelpMessage()
         {
-            throw new NotImplementedException();
+            var message = Message.NoError;
+
+            if (subcommands.Any())
+                message += "Commands:" + GetSubCommandsMessage(2);
+
+            if (parameters.Any())
+                message += "Parameters:" + GetParametersMessage(2);
+
+            return message;
+        }
+
+        protected Message GetSubCommandsMessage(int indentation)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            string indent = "".PadLeft(indentation);
+            int len = subcommands.Select(x => x.Key.Length).Max();
+
+            var commands = subcommands.ToArray();
+            for (int i = 0; i < commands.Length - 1; i++)
+                sb.AppendLine(string.Format("{2}{0}  {1}", commands[i].Key.PadRight(len), SUBCOMMAND_DESCRIPTION, indent));
+            if (commands.Length > 0)
+                sb.Append(string.Format("{2}{0}  {1}", commands[commands.Length - 1].Key.PadRight(len), SUBCOMMAND_DESCRIPTION, indent));
+
+            return sb.ToString();
+        }
+        protected Message GetParametersMessage(int indentation)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            string indent = "".PadLeft(indentation);
+            var pars = (from pp in parameters
+                        let n = string.Join(", ", pp.GetNames(true))
+                        select Tuple.Create(n, pp.Description)).ToArray();
+
+            int len = pars.Select(x => x.Item1.Length).Max();
+            for (int i = 0; i < pars.Length - 1; i++)
+                sb.AppendLine(string.Format("{2}{0}  {1}", pars[i].Item1.PadRight(len), pars[i].Item2, indent));
+            if (pars.Length > 0)
+                sb.AppendLine(string.Format("{2}{0}  {1}", pars[pars.Length - 1].Item1.PadRight(len), pars[pars.Length - 1].Item2, indent));
+
+            return sb.ToString();
         }
 
         public Message ParseAndExecute(string[] args, string help = null)
