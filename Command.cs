@@ -81,6 +81,25 @@ namespace CommandLineParsing
             get { return parameters; }
         }
 
+        protected Message ValidateEach<T>(IEnumerable<T> collection, Func<T, Message> validator)
+        {
+            foreach (var t in collection)
+            {
+                var msg = validator(t);
+                if (msg.IsError)
+                    return msg;
+            }
+            return Message.NoError;
+        }
+        protected Message ValidateEach<T>(IEnumerable<T> collection, Func<T, bool> validator, Func<T, Message> errorMessage)
+        {
+            return ValidateEach(collection, x => validator(x) ? Message.NoError : errorMessage(x));
+        }
+        protected Message ValidateEach<T>(IEnumerable<T> collection, Func<T, bool> validator, Message errorMessage)
+        {
+            return ValidateEach(collection, x => validator(x) ? Message.NoError : errorMessage);
+        }
+
         protected virtual Message ValidateStart()
         {
             return Message.NoError;
