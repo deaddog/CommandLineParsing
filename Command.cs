@@ -91,6 +91,11 @@ namespace CommandLineParsing
         {
         }
 
+        protected virtual Message GetHelpMessage()
+        {
+            throw new NotImplementedException();
+        }
+
         public Message ParseAndExecute(string[] args)
         {
             return executor.Execute(this, args);
