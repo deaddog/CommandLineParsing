@@ -37,8 +37,17 @@ namespace CommandLineParsing
 
                 if (args.Count > 0 && !RegexLookup.ArgumentName.IsMatch(args.Peek()))
                 {
-                    if (command.parameters.HasNoName) nonameArgs.Add(args.Pop());
-                    else return executeSubCommand(help);
+                    string firstArg = args.Pop();
+
+                    if(command.parameters.HasNoName)
+                    {
+                        if (command.subcommands.ContainsName(firstArg))
+                            return executeSubCommand(firstArg, help);
+                        else
+                            nonameArgs.Add(firstArg);
+                    }
+                    else
+                        return executeSubCommand(firstArg, help);
                 }
 
                 Message startvalid = command.ValidateStart();
@@ -77,15 +86,14 @@ namespace CommandLineParsing
 
                 return Message.NoError;
             }
-            private Message executeSubCommand(string help)
+            private Message executeSubCommand(string arg, string help)
             {
-                string a = args.Pop();
                 Command cmd;
-                if (command.subcommands.TryGetCommand(a, out cmd))
+                if (command.subcommands.TryGetCommand(arg, out cmd))
                     return execute(cmd, help);
                 else
                 {
-                    UnknownArgumentMessage unknown = new UnknownArgumentMessage(a, UnknownArgumentMessage.ArgumentType.SubCommand);
+                    UnknownArgumentMessage unknown = new UnknownArgumentMessage(arg, UnknownArgumentMessage.ArgumentType.SubCommand);
                     foreach (var n in command.subcommands.CommandNames)
                         unknown.AddAlternative(n, SUBCOMMAND_DESCRIPTION);
                     return unknown;

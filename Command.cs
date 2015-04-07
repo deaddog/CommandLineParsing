@@ -187,6 +187,10 @@ namespace CommandLineParsing
                 get { return commands.Count == 0; }
             }
 
+            internal bool ContainsName(string name)
+            {
+                return commands.ContainsKey(name);
+            }
             internal bool TryGetCommand(string name, out Command command)
             {
                 return commands.TryGetValue(name, out command);
@@ -198,8 +202,6 @@ namespace CommandLineParsing
                     throw new ArgumentNullException("name");
                 if (command == null)
                     throw new ArgumentNullException("command");
-                if (owner.parameters.HasNoName)
-                    throw new InvalidOperationException("A " + typeof(Command).Name + " cannot contain both a " + typeof(NoName).Name + " attribute and sub commands.");
 
                 this.commands.Add(name, command);
             }
