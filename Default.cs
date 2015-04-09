@@ -12,7 +12,7 @@ namespace CommandLineParsing
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
     public class Default : Attribute
     {
-        private readonly object value;
+        internal readonly object value;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Default"/> class.
@@ -22,11 +22,6 @@ namespace CommandLineParsing
         public Default(object value)
         {
             this.value = value;
-        }
-
-        internal object Value
-        {
-            get { return value; }
         }
     }
 }

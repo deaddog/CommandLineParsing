@@ -72,7 +72,7 @@ namespace CommandLineParsing
                 string description = descAtt != null ? descAtt.description : string.Empty;
                 Message required = reqAtt != null ? reqAtt.message ?? Required.defaultMessage(name) : Message.NoError;
                 bool ignore = ignAtt != null;
-                object defaultValue = defAtt != null ? defAtt.Value : null;
+                object defaultValue = defAtt != null ? defAtt.value : null;
 
                 Parameter par;
                 if (f.FieldType == typeof(FlagParameter))
