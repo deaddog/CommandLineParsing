@@ -52,10 +52,10 @@ namespace CommandLineParsing
             var m = colorRegex.Match(input);
             if (m.Success)
             {
-                string pre = input.Substring(0, m.Index);
+                string pre = input.Substring(0, m.Index).Replace("\\[", "[").Replace("\\]", "]");
                 string post = input.Substring(m.Index + m.Length);
 
-                string content = m.Groups["content"].Value;
+                string content = m.Groups["content"].Value.Replace("\\[", "[").Replace("\\]", "]");
                 if (!allowcolor)
                     Console.Write(pre + content);
                 else
