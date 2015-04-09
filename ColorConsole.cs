@@ -66,7 +66,9 @@ namespace CommandLineParsing
                     Console.Write(pre);
                     if (content.Length > 0)
                     {
-                        Console.ForegroundColor = getColor(m.Groups["color"].Value);
+                        var c = getColor(m.Groups["color"].Value);
+                        if (c.HasValue)
+                            Console.ForegroundColor = c.Value;
                         Console.Write(content);
                         Console.ResetColor();
                     }
@@ -80,11 +82,11 @@ namespace CommandLineParsing
                 Console.Write(input);
         }
 
-        private static ConsoleColor getColor(string color)
+        private static ConsoleColor? getColor(string color)
         {
             ConsoleColor c;
             if (!Enum.TryParse(color, out c))
-                throw new ArgumentException("Unknown console color: " + color);
+                return null;
             else
                 return c;
         }
