@@ -21,18 +21,6 @@ namespace CommandLineParsing
             this.initializeParameters();
         }
 
-        public static void RunCommand(Command command, string[] args, string help = null)
-        {
-            var msg = command.ParseAndExecute(args, help);
-
-            if (msg.IsError)
-                ColorConsole.WriteLine(msg.GetMessage());
-        }
-        public static void RunCommand(Command command, string argsAsString, string help = null)
-        {
-            RunCommand(command, simulateParse(argsAsString), help);
-        }
-
         public static void SimulateREPL(Func<Command> command, string exit, string help = null)
         {
             if (exit == null)
@@ -51,7 +39,7 @@ namespace CommandLineParsing
                 if (input.Trim() == exit)
                     return;
 
-                RunCommand(command(), input, help);
+                command().RunCommand(input, help);
 
                 Console.ResetColor();
                 Console.WriteLine();
@@ -165,6 +153,18 @@ namespace CommandLineParsing
         public Message ParseAndExecute(string argsAsString, string help = null)
         {
             return ParseAndExecute(simulateParse(argsAsString), help);
+        }
+
+        public void RunCommand(string[] args, string help = null)
+        {
+            var msg = ParseAndExecute(args, help);
+
+            if (msg.IsError)
+                ColorConsole.WriteLine(msg.GetMessage());
+        }
+        public void RunCommand(string argsAsString, string help = null)
+        {
+            RunCommand(simulateParse(argsAsString), help);
         }
 
         public class CommandCollection : IEnumerable<KeyValuePair<string, Command>>
