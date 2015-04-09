@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace CommandLineParsing
 {
-    public class Argument
+    internal class Argument
     {
         private string key;
         private string[] values;
