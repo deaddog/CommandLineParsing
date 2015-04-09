@@ -10,10 +10,7 @@ namespace CommandLineParsing
 
         static ColorConsole()
         {
-            var names = Enum.GetNames(typeof(ConsoleColor));
-            string namesRegex = string.Join("|", names);
-
-            colorRegex = new Regex(@"\[\[:(?<color>" + namesRegex + @"):(?<content>([^\]]|\][^\]])*)\]\]");
+            colorRegex = new Regex(@"(?<!\\)\[(?<color>[^:]+):(?<content>([^\\\]]|\\\])*)\]");
         }
 
         public static void Write(string format, params object[] args)
