@@ -4,6 +4,10 @@ using System.Text.RegularExpressions;
 
 namespace CommandLineParsing
 {
+    /// <summary>
+    /// Provides methods for outputting color-coded text to the console using a simple format.
+    /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.
+    /// </summary>
     public static class ColorConsole
     {
         private static readonly Regex colorRegex;
@@ -13,24 +17,52 @@ namespace CommandLineParsing
             colorRegex = new Regex(@"(?<!\\)\[(?<color>[^:]+):(?<content>([^\\\]]|\\\])*)\]");
         }
 
+        /// <summary>
+        /// Writes the specified string value to the standard output stream.
+        /// </summary>
+        /// <param name="format">The string format to write, included color information.
+        /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
+        /// <param name="args">An array of arguments used for the <paramref name="format"/> string.</param>
         public static void Write(string format, params object[] args)
         {
             handle(args.Length == 0 ? format : string.Format(format, args), true, false);
         }
+        /// <summary>
+        /// Writes the specified string value, followed by the current line terminator, to the standard output stream.
+        /// </summary>
+        /// <param name="format">The string format to write, included color information.
+        /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
+        /// <param name="args">An array of arguments used for the <paramref name="format"/> string.</param>
         public static void WriteLine(string format, params object[] args)
         {
             handle(args.Length == 0 ? format : string.Format(format, args), true, true);
         }
 
+        /// <summary>
+        /// Writes the specified string value to the standard output stream.
+        /// </summary>
+        /// <param name="format">The string format to write. Any color information is discarded.</param>
+        /// <param name="args">An array of arguments used for the <paramref name="format"/> string.</param>
         public static void WriteNoColor(string format, params object[] args)
         {
             Console.Write(ClearColors(args.Length == 0 ? format : string.Format(format, args)));
         }
+        /// <summary>
+        /// Writes the specified string value, followed by the current line terminator, to the standard output stream.
+        /// </summary>
+        /// <param name="format">The string format to write. Any color information is discarded.</param>
+        /// <param name="args">An array of arguments used for the <paramref name="format"/> string.</param>
         public static void WriteLineNoColor(string format, params object[] args)
         {
             Console.WriteLine(ClearColors(args.Length == 0 ? format : string.Format(format, args)));
         }
 
+        /// <summary>
+        /// Removes color-coding information from a string.
+        /// The string "[Color:Text]" will print Text to the console using the default color as the foreground color.
+        /// </summary>
+        /// <param name="input">The string from which color information should be removed.</param>
+        /// <returns>A new string, without any color information.</returns>
         public static string ClearColors(string input)
         {
             StringBuilder sb = new StringBuilder();
