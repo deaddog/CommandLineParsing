@@ -24,11 +24,11 @@ namespace CommandLineParsing
 
         public static void WriteNoColor(string format, params object[] args)
         {
-            handle(args.Length == 0 ? format : string.Format(format, args), false, false);
+            Console.Write(ClearColors(args.Length == 0 ? format : string.Format(format, args)));
         }
         public static void WriteLineNoColor(string format, params object[] args)
         {
-            handle(args.Length == 0 ? format : string.Format(format, args), false, true);
+            Console.WriteLine(ClearColors(args.Length == 0 ? format : string.Format(format, args)));
         }
 
         public static string ClearColors(string input)
