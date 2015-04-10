@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
@@ -210,19 +209,35 @@ namespace CommandLineParsing
                 if (action == null)
                     throw new ArgumentNullException("action");
 
-                Add(name, new ActionCommand(action));
+                Add(name, new ActionCommand(action, null));
+            }
+            public void Add(string name, Action action, Func<Message> validation)
+            {
+                if (action == null)
+                    throw new ArgumentNullException("action");
+                if (validation == null)
+                    throw new ArgumentNullException("validation");
+
+                Add(name, new ActionCommand(action, validation));
             }
 
             private class ActionCommand : Command
             {
                 private Action action;
+                private Func<Message> validation;
 
-                public ActionCommand(Action action)
+                public ActionCommand(Action action, Func<Message> validation)
                 {
-                    if (action == null)
-                        throw new ArgumentNullException("action");
-
                     this.action = action;
+                    this.validation = validation;
+                }
+
+                protected override Message Validate()
+                {
+                    if (validation != null)
+                        return validation();
+                    else
+                        return base.Validate();
                 }
 
                 protected override void Execute()
