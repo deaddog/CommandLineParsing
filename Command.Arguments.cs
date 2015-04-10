@@ -94,8 +94,8 @@ namespace CommandLineParsing
                 else
                 {
                     UnknownArgumentMessage unknown = new UnknownArgumentMessage(arg, UnknownArgumentMessage.ArgumentType.SubCommand);
-                    foreach (var n in command.subcommands.CommandNames)
-                        unknown.AddAlternative(n, SUBCOMMAND_DESCRIPTION);
+                    foreach (var n in command.subcommands)
+                        unknown.AddAlternative(n.Key, SUBCOMMAND_DESCRIPTION);
                     return unknown;
                 }
             }

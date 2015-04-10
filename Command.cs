@@ -177,10 +177,6 @@ namespace CommandLineParsing
                 this.commands = new Dictionary<string, Command>();
             }
 
-            internal string[] CommandNames
-            {
-                get { return commands.Keys.ToArray(); }
-            }
             public bool Empty
             {
                 get { return commands.Count == 0; }
