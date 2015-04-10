@@ -186,11 +186,11 @@ namespace CommandLineParsing
                 get { return commands.Count == 0; }
             }
 
-            internal bool ContainsName(string name)
+            public bool ContainsName(string name)
             {
                 return commands.ContainsKey(name);
             }
-            internal bool TryGetCommand(string name, out Command command)
+            public bool TryGetCommand(string name, out Command command)
             {
                 return commands.TryGetValue(name, out command);
             }
