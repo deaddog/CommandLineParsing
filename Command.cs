@@ -5,6 +5,12 @@ using System.Text;
 
 namespace CommandLineParsing
 {
+    /// <summary>
+    /// Provides functionality for defining commands with parameters.
+    /// Parameters are defined by declaring them in <see cref="Command"/> subtypes.
+    /// Parameters must be declared as readonly and cannot be initialized (no constructor).
+    /// Initialization is handled automatically.
+    /// </summary>
     public abstract partial class Command
     {
         private const string SUBCOMMAND_DESCRIPTION = "N/A - Commands have no description.";
@@ -12,6 +18,9 @@ namespace CommandLineParsing
         private CommandCollection subcommands;
         private ParameterCollection parameters;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Command"/> class.
+        /// </summary>
         public Command()
         {
             this.subcommands = new CommandCollection(this);
