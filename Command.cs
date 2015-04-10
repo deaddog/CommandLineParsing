@@ -166,6 +166,9 @@ namespace CommandLineParsing
             RunCommand(simulateParse(argsAsString), help);
         }
 
+        /// <summary>
+        /// Provides a collection of the subcommands included in a <see cref="Command"/>.
+        /// </summary>
         public class CommandCollection : IEnumerable<KeyValuePair<string, Command>>
         {
             private Command owner;
@@ -177,20 +180,42 @@ namespace CommandLineParsing
                 this.commands = new Dictionary<string, Command>();
             }
 
+            /// <summary>
+            /// Gets a value indicating whether this <see cref="CommandCollection"/> is empty.
+            /// </summary>
+            /// <value>
+            ///   <c>true</c> if empty; otherwise, <c>false</c>.
+            /// </value>
             public bool Empty
             {
                 get { return commands.Count == 0; }
             }
 
+            /// <summary>
+            /// Determines whether the <see cref="CommandCollection"/> contains a <see cref="Command"/> named <paramref name="name"/>.
+            /// </summary>
+            /// <param name="name">The name to search for.</param>
+            /// <returns><c>true</c> if this instance contains a <see cref="Command"/> associated with <paramref name="name"/>; otherwise, <c>false</c>.</returns>
             public bool ContainsName(string name)
             {
                 return commands.ContainsKey(name);
             }
+            /// <summary>
+            /// Gets the <see cref="Command"/> that is associated with <paramref name="name"/>.
+            /// </summary>
+            /// <param name="name">The name to search for.</param>
+            /// <param name="command">When the method returns, contains the <see cref="Command"/> associated with <paramref name="name"/>, if such a <see cref="Command"/> exists; otherwise, <c>null</c>.</param>
+            /// <returns><c>true</c> if this instance contains a <see cref="Command"/> associated with <paramref name="name"/>; otherwise, <c>false</c>.</returns>
             public bool TryGetCommand(string name, out Command command)
             {
                 return commands.TryGetValue(name, out command);
             }
 
+            /// <summary>
+            /// Adds a <see cref="Command"/> to the <see cref="CommandCollection"/>.
+            /// </summary>
+            /// <param name="name">The name that <paramref name="command"/> should be associated with as a subcommand.</param>
+            /// <param name="command">The command that is added to the <see cref="CommandCollection"/>.</param>
             public void Add(string name, Command command)
             {
                 if (name == null)
@@ -200,6 +225,11 @@ namespace CommandLineParsing
 
                 this.commands.Add(name, command);
             }
+            /// <summary>
+            /// Adds an <see cref="Action"/> to the <see cref="CommandCollection"/>, representing the <see cref="Command.Execute"/> method.
+            /// </summary>
+            /// <param name="name">The name that <paramref name="action"/> should be associated with as a subcommand.</param>
+            /// <param name="action">The method that should be executed when the subcommand is executed.</param>
             public void Add(string name, Action action)
             {
                 if (action == null)
@@ -207,6 +237,12 @@ namespace CommandLineParsing
 
                 Add(name, new ActionCommand(action, null));
             }
+            /// <summary>
+            /// Adds an <see cref="Action"/> and a <see cref="Func{Message}"/> to the <see cref="CommandCollection"/>, representing the <see cref="Command.Execute"/> and <see cref="Command.Validate"/> methods.
+            /// </summary>
+            /// <param name="name">The name that the two methods should be associated with as a subcommand.</param>
+            /// <param name="action">The method that should be executed when the subcommand is executed.</param>
+            /// <param name="validation">The method that should be executed when the subcommand is validated. Use <see cref="Message.NoError"/> to indicate validation success.</param>
             public void Add(string name, Action action, Func<Message> validation)
             {
                 if (action == null)
@@ -255,7 +291,7 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Provides a collection of the parameters included in a command.
+        /// Provides a collection of the parameters included in a <see cref="Command"/>.
         /// </summary>
         public class ParameterCollection : IEnumerable<Parameter>
         {
