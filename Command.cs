@@ -68,10 +68,16 @@ namespace CommandLineParsing
             return inputArr;
         }
 
+        /// <summary>
+        /// Gets a collection of the sub commands associated with this <see cref="Command"/>.
+        /// </summary>
         public CommandCollection SubCommands
         {
             get { return subcommands; }
         }
+        /// <summary>
+        /// Gets a collection of the parameters associated with this <see cref="Command"/>.
+        /// </summary>
         public ParameterCollection Parameters
         {
             get { return parameters; }
@@ -123,14 +129,25 @@ namespace CommandLineParsing
             return ValidateEach(collection, x => validator(x) ? Message.NoError : errorMessage);
         }
 
+        /// <summary>
+        /// When overridden in a derived class, validates the state of this <see cref="Command"/> before handling any arguments.
+        /// </summary>
+        /// <returns>A <see cref="Message"/> that is the result of the validation. Use <see cref="Message.NoError"/> to indicate validation success.</returns>
         protected virtual Message ValidateStart()
         {
             return Message.NoError;
         }
+        /// <summary>
+        /// When overridden in a derived class, validates the state of this <see cref="Command"/> after handling (and validating) all of its arguments.
+        /// </summary>
+        /// <returns>A <see cref="Message"/> that is the result of the validation. Use <see cref="Message.NoError"/> to indicate validation success.</returns>
         protected virtual Message Validate()
         {
             return Message.NoError;
         }
+        /// <summary>
+        /// When overridden in a derived class, performs any action that is associated with this <see cref="Command"/>.
+        /// </summary>
         protected virtual void Execute()
         {
         }
