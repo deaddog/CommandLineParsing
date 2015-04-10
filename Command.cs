@@ -99,6 +99,13 @@ namespace CommandLineParsing
         {
         }
 
+        /// <summary>
+        /// Gets a help message for the <see cref="Command"/>.
+        /// This method can be overridden to provide a command specific message.
+        /// See the <see cref="GetSubCommandsMessage"/> and the <see cref="GetParametersMessage"/> methods.
+        /// Messages can be combined using the + (plus) operator.
+        /// </summary>
+        /// <returns>A help <see cref="Message"/> for this <see cref="Command"/>.</returns>
         protected virtual Message GetHelpMessage()
         {
             var message = Message.NoError;
@@ -112,6 +119,11 @@ namespace CommandLineParsing
             return message;
         }
 
+        /// <summary>
+        /// Gets a <see cref="Message"/> containing lines with each subcommand name and description.
+        /// </summary>
+        /// <param name="indentation">The number of indentation spaces that should be applied to each line.</param>
+        /// <returns>A <see cref="Message"/> that represents a complete description of all subcommands associated with this <see cref="Command"/>.</returns>
         protected Message GetSubCommandsMessage(int indentation)
         {
             StringBuilder sb = new StringBuilder();
@@ -127,6 +139,11 @@ namespace CommandLineParsing
 
             return sb.ToString();
         }
+        /// <summary>
+        /// Gets a <see cref="Message"/> containing lines with each parameter name, alternatives and description.
+        /// </summary>
+        /// <param name="indentation">The number of indentation spaces that should be applied to each line.</param>
+        /// <returns>A <see cref="Message"/> that represents a complete description of all parameters associated with this <see cref="Command"/>.</returns>
         protected Message GetParametersMessage(int indentation)
         {
             StringBuilder sb = new StringBuilder();
