@@ -29,6 +29,12 @@ namespace CommandLineParsing
             this.initializeParameters();
         }
 
+        /// <summary>
+        /// Simulates a read-evaluate-print-loop. This method is especially effective for debugging purposes.
+        /// </summary>
+        /// <param name="command">A function that returns a <see cref="Command"/> item to execute.</param>
+        /// <param name="exit">A keyword that should end the read-evaluate-print-loop.</param>
+        /// <param name="help">A string that identifies a keyword that can be used to display the help message for any command/subcommand when executing this <see cref="Command"/>.</param>
         public static void SimulateREPL(Func<Command> command, string exit, string help = null)
         {
             if (exit == null)
@@ -215,15 +221,33 @@ namespace CommandLineParsing
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Executes this <see cref="Command"/> and returns a resulting <see cref="Message"/>.
+        /// </summary>
+        /// <param name="args">The array of arguments that should be read by this <see cref="Command"/>.</param>
+        /// <param name="help">A string that identifies a keyword that can be used to display the help message for any command/subcommand when executing this <see cref="Command"/>.</param>
+        /// <returns>A <see cref="Message"/> that is the result of executing this <see cref="Command"/>.</returns>
         public Message ParseAndExecute(string[] args, string help = null)
         {
             return executor.Execute(this, args, help);
         }
+        /// <summary>
+        /// Executes this <see cref="Command"/> and returns a resulting <see cref="Message"/>.
+        /// </summary>
+        /// <param name="argsAsString">The string of arguments that should be read by this <see cref="Command"/>.
+        /// This is transformed into an array of arguments, using semantics similar to those used by the .NET framework.</param>
+        /// <param name="help">A string that identifies a keyword that can be used to display the help message for any command/subcommand when executing this <see cref="Command"/>.</param>
+        /// <returns>A <see cref="Message"/> that is the result of executing this <see cref="Command"/>.</returns>
         public Message ParseAndExecute(string argsAsString, string help = null)
         {
             return ParseAndExecute(simulateParse(argsAsString), help);
         }
 
+        /// <summary>
+        /// Runs this <see cref="Command"/>, printing the resulting <see cref="Message"/> to standard output (<see cref="Console"/>).
+        /// </summary>
+        /// <param name="args">The array of arguments that should be read by this <see cref="Command"/>.</param>
+        /// <param name="help">A string that identifies a keyword that can be used to display the help message for any command/subcommand when executing this <see cref="Command"/>.</param>
         public void RunCommand(string[] args, string help = null)
         {
             var msg = ParseAndExecute(args, help);
@@ -231,6 +255,12 @@ namespace CommandLineParsing
             if (msg.IsError)
                 ColorConsole.WriteLine(msg.GetMessage());
         }
+        /// <summary>
+        /// Runs this <see cref="Command"/>, printing the resulting <see cref="Message"/> to standard output (<see cref="Console"/>).
+        /// </summary>
+        /// <param name="argsAsString">The string of arguments that should be read by this <see cref="Command"/>.
+        /// This is transformed into an array of arguments, using semantics similar to those used by the .NET framework.</param>
+        /// <param name="help">A string that identifies a keyword that can be used to display the help message for any command/subcommand when executing this <see cref="Command"/>.</param>
         public void RunCommand(string argsAsString, string help = null)
         {
             RunCommand(simulateParse(argsAsString), help);
