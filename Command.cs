@@ -306,6 +306,15 @@ namespace CommandLineParsing
             }
 
             /// <summary>
+            /// Determines whether the <see cref="ParameterCollection"/> contains a <see cref="Parameter"/> associated with <paramref name="argument"/>.
+            /// </summary>
+            /// <param name="argument">The argument to search for.</param>
+            /// <returns><c>true</c> if this instance contains a <see cref="Parameter"/> associated with <paramref name="argument"/>; otherwise, <c>false</c>.</returns>
+            public bool ContainsKey(string argument)
+            {
+                return parameters.ContainsKey(argument);
+            }
+            /// <summary>
             /// Gets the <see cref="Parameter"/> that is associated with <paramref name="argument"/>.
             /// </summary>
             /// <param name="argument">The argument to search for.</param>
