@@ -51,11 +51,11 @@ namespace CommandLineParsing
             if (alternativeArguments.Count == 0)
                 switch (argumentType)
                 {
-                    case ArgumentType.SubCommand: return string.Format("The executed command does not support any sub-commands. [[:Yellow:{0}]] is invalid.", argument);
-                    case ArgumentType.Parameter: return string.Format("The executed command does not support any parameters. [[:Yellow:{0}]] is invalid.", argument);
+                    case ArgumentType.SubCommand: return string.Format("The executed command does not support any sub-commands. [Yellow:{0}] is invalid.", argument);
+                    case ArgumentType.Parameter: return string.Format("The executed command does not support any parameters. [Yellow:{0}] is invalid.", argument);
                 }
 
-            string message = string.Format("{0} [[:Yellow:{1}]] was not recognized. Did you mean any of the following:", argumentTypeString(argumentType), argument);
+            string message = string.Format("{0} [Yellow:{1}] was not recognized. Did you mean any of the following:", argumentTypeString(argumentType), argument);
             var list = alternativeArguments.Keys.OrderByDistance(argument).TakeWhile((arg, i) => i == 0 || arg.Item2 < 5).Select(x => x.Item1).ToArray();
             var strLen = list.Max(x => x.Length);
 
