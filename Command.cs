@@ -258,13 +258,28 @@ namespace CommandLineParsing
             }
         }
 
+        /// <summary>
+        /// Provides a collection of the parameters included in a command.
+        /// </summary>
         public class ParameterCollection : IEnumerable<Parameter>
         {
             private Parameter noName;
+            /// <summary>
+            /// Gets a value indicating whether this instance has an unnamed parameter.
+            /// </summary>
+            /// <value>
+            /// <c>true</c> if this instance has a no name parameter; otherwise, <c>false</c>.
+            /// </value>
             public bool HasNoName
             {
                 get { return noName != null; }
             }
+            /// <summary>
+            /// Gets the unnamed parameter associated with this <see cref="ParameterCollection"/>.
+            /// </summary>
+            /// <value>
+            /// The unnamed parameter associated with this <see cref="ParameterCollection"/> if one exists; otherwise, <c>null</c>.
+            /// </value>
             public Parameter NoName
             {
                 get { return noName; }
@@ -290,6 +305,12 @@ namespace CommandLineParsing
                     noName = parameter;
             }
 
+            /// <summary>
+            /// Gets the <see cref="Parameter"/> that is associated with <paramref name="argument"/>.
+            /// </summary>
+            /// <param name="argument">The argument to search for.</param>
+            /// <param name="parameter">When the method returns, contains the <see cref="Parameter"/> associated with <paramref name="argument"/>, if such a <see cref="Parameter"/> exists; otherwise, <c>null</c>.</param>
+            /// <returns><c>true</c> if this instance contains a <see cref="Parameter"/> associated with <paramref name="argument"/>; otherwise, <c>false</c>.</returns>
             public bool TryGetParameter(string argument, out Parameter parameter)
             {
                 return parameters.TryGetValue(argument, out parameter);
