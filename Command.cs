@@ -86,7 +86,7 @@ namespace CommandLineParsing
         /// <summary>
         /// Validates each element in <paramref name="collection"/>.
         /// </summary>
-        /// <typeparam name="T">The type of elements in <see cref="collection"/>.</typeparam>
+        /// <typeparam name="T">The type of elements in <paramref name="collection"/>.</typeparam>
         /// <param name="collection">The collection of elements that should be validated.</param>
         /// <param name="validator">A function that returns the result of validating a single element in <paramref name="collection"/>.
         /// Use <see cref="Message.NoError"/> to indicate validation success.
@@ -105,7 +105,7 @@ namespace CommandLineParsing
         /// <summary>
         /// Validates each element in <paramref name="collection"/>.
         /// </summary>
-        /// <typeparam name="T">The type of elements in <see cref="collection"/>.</typeparam>
+        /// <typeparam name="T">The type of elements in <paramref name="collection"/>.</typeparam>
         /// <param name="collection">The collection of elements that should be validated.</param>
         /// <param name="validator">A function that validates a single <typeparamref name="T"/> element.
         /// The method should return <c>true</c> if the value is valid; otherwise <c>false</c>.</param>
@@ -118,7 +118,7 @@ namespace CommandLineParsing
         /// <summary>
         /// Validates each element in <paramref name="collection"/>.
         /// </summary>
-        /// <typeparam name="T">The type of elements in <see cref="collection"/>.</typeparam>
+        /// <typeparam name="T">The type of elements in <paramref name="collection"/>.</typeparam>
         /// <param name="collection">The collection of elements that should be validated.</param>
         /// <param name="validator">A function that validates a single <typeparamref name="T"/> element.
         /// The method should return <c>true</c> if the value is valid; otherwise <c>false</c>.</param>
