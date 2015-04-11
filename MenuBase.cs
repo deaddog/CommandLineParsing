@@ -68,7 +68,7 @@ namespace CommandLineParsing
         /// Displays the menu and returns the selected <see cref="MenuOption"/>.
         /// </summary>
         /// <returns>The selected <see cref="MenuOption"/>.</returns>
-        protected MenuOption ShowAndSelect()
+        protected MenuOption ShowAndSelect(MenuCleanup cleanup)
         {
             Console.CursorVisible = false;
 
@@ -123,13 +123,27 @@ namespace CommandLineParsing
                     selected = options.Count;
             }
 
+            MenuOption result = selected == options.Count ? cancel : options[selected];
+
+            if (cleanup == MenuCleanup.RemoveMenu || cleanup == MenuCleanup.RemoveMenuShowChoice)
+            {
+                Console.SetCursorPosition(0, zeroPosition);
+                for (int i = 0; i < options.Count; i++)
+                    ColorConsole.WriteLine(new string(' ', options[i].Text.Length + 5));
+
+                if (CanCancel)
+                    ColorConsole.WriteLine(new string(' ', cancel.Text.Length + 5));
+
+                finalPosition = zeroPosition;
+            }
+
             Console.SetCursorPosition(0, finalPosition);
             Console.CursorVisible = true;
 
-            if (selected == options.Count)
-                return cancel;
-            else
-                return options[selected];
+            if (cleanup == MenuCleanup.RemoveMenuShowChoice)
+                ColorConsole.WriteLine("Selected {0}: {1}", prefixFromIndex(selected), result.Text);
+
+            return result;
         }
 
         private char prefixFromIndex(int index)
