@@ -51,6 +51,7 @@
     <Compile Include="EditDistanceExtension.cs" />
     <Compile Include="FlagParameter.cs" />
     <Compile Include="IgnoreCase.cs" />
+    <Compile Include="MenuBase.cs" />
     <Compile Include="MenuLabeling.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Name.cs" />
