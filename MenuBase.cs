@@ -178,13 +178,25 @@ namespace CommandLineParsing
             }
         }
 
+        /// <summary>
+        /// Describes a single option in a menu.
+        /// </summary>
         protected class MenuOption
         {
+            /// <summary>
+            /// Indicates if the option is a cancel option.
+            /// </summary>
             public readonly bool IsCancel;
+            /// <summary>
+            /// The text displayed in the menu for this option.
+            /// </summary>
             public readonly string Text;
+            /// <summary>
+            /// The action that should be executed when the option is selected.
+            /// </summary>
             public readonly ActionType Action;
 
-            public MenuOption(bool isCancel, string text, ActionType action)
+            internal MenuOption(bool isCancel, string text, ActionType action)
             {
                 this.IsCancel = isCancel;
                 this.Text = text;
