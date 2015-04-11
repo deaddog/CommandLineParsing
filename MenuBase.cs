@@ -184,15 +184,12 @@ namespace CommandLineParsing
                     return char.IsLetter(keyChar) ? keyChar - 'a' : int.MaxValue;
 
                 case MenuLabeling.LettersUpper:
-                    return char.IsLetter(keyChar) ? keyChar - 'A' : int.MaxValue;
+                    return char.IsLetter(keyChar) ? keyChar - 'a' : int.MaxValue;
 
                 case MenuLabeling.NumbersAndLetters:
-                    return char.IsNumber(keyChar) ? int.Parse(keyChar.ToString()) - 1 :
-                        char.IsLetter(keyChar) ? keyChar - 'a' + 9 : int.MaxValue;
-
                 case MenuLabeling.NumbersAndLettersUpper:
                     return char.IsNumber(keyChar) ? int.Parse(keyChar.ToString()) - 1 :
-                        char.IsLetter(keyChar) ? keyChar - 'A' + 9 : int.MaxValue;
+                        char.IsLetter(keyChar) ? keyChar - 'a' + 9 : int.MaxValue;
                 default:
                     return int.MaxValue;
             }
