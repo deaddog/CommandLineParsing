@@ -32,7 +32,7 @@ namespace CommandLineParsing
                     return TypeErrorMessage(argument[i]);
             }
 
-            var msg = doValidation(temp);
+            var msg = validator.Validate(temp);
             if (msg.IsError)
                 return msg;
 

@@ -26,7 +26,7 @@ namespace CommandLineParsing
         private Message noValueMessage;
         private Message multipleValuesMessage;
 
-        private List<Func<T, Message>> validators;
+        protected readonly Validator<T> validator;
 
 #pragma warning restore
 
@@ -43,7 +43,7 @@ namespace CommandLineParsing
             this.noValueMessage = "No value provided for argument \"" + name + "\".";
             this.multipleValuesMessage = "Only one value can be provided for argument \"" + name + "\".";
 
-            this.validators = new List<Func<T, Message>>();
+            this.validator = new Validator<T>();
         }
 
         /// <summary>
@@ -142,17 +142,9 @@ namespace CommandLineParsing
             }
         }
 
-        /// <summary>
-        /// Provides a validation method for this <see cref="Parameter{T}"/>.
-        /// </summary>
-        /// <param name="validator">A function that validates the parsed <typeparamref name="T"/> value and returns a <see cref="Message"/>.
-        /// If the validation was successful <see cref="Message.NoError"/> should be returned by the method; otherwise an appropriate <see cref="Message"/> should be returned.</param>
-        public void Validate(Func<T, Message> validator)
+        public Validator<T> Validator
         {
-            if (validator == null)
-                throw new ArgumentNullException("validator");
-
-            this.validators.Add(validator);
+            get { return validator; }
         }
 
         internal override Message Handle(Argument argument)
@@ -169,7 +161,7 @@ namespace CommandLineParsing
             else if (!parser(argument[0], out temp))
                 return typeErrorMessage(argument[0]);
 
-            var msg = doValidation(temp);
+            var msg = validator.Validate(temp);
             if (msg.IsError)
                 return msg;
 
