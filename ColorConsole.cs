@@ -120,21 +120,14 @@ namespace CommandLineParsing
                 return c;
         }
 
-        public static T Read<T>(string text, Func<T, bool> predicate)
+        public static T Read<T>(string prompt, Func<T, bool> predicate)
         {
-            if (text == null)
+            if (prompt == null)
                 throw new ArgumentNullException("text");
 
             var tryparse = ParserLookup.Table.GetParser<T>(false);
 
-            text = text.Trim();
-
-            System.Console.Write(text);
-            char lastSymbol = text[text.Length - 1];
-            if (lastSymbol != ':' && lastSymbol != '?')
-                System.Console.Write(':');
-
-            System.Console.Write(' ');
+            System.Console.Write(prompt);
 
             int l = System.Console.CursorLeft, t = System.Console.CursorTop;
             string input = "";
