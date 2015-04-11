@@ -143,10 +143,16 @@ namespace CommandLineParsing
             {
                 case MenuLabeling.None:
                     return ' ';
+
                 case MenuLabeling.Numbers:
                     return index < 9 ? (char)('1' + index) : ' ';
+
                 case MenuLabeling.Letters:
                     return (index + 'a') <= 'z' ? (char)(index + 'a') : ' ';
+
+                case MenuLabeling.LettersUpper:
+                    return (index + 'A') <= 'Z' ? (char)(index + 'A') : ' ';
+
                 case MenuLabeling.NumbersAndLetters:
                     return index < 9 ? (char)('1' + index) :
                         (index - 9 + 'a') <= 'z' ? (char)(index - 9 + 'a') : ' ';
@@ -166,10 +172,16 @@ namespace CommandLineParsing
             {
                 case MenuLabeling.None:
                     return int.MaxValue;
+
                 case MenuLabeling.Numbers:
                     return char.IsNumber(keyChar) ? int.Parse(keyChar.ToString()) - 1 : int.MaxValue;
+
                 case MenuLabeling.Letters:
                     return char.IsLetter(keyChar) ? keyChar - 'a' : int.MaxValue;
+
+                case MenuLabeling.LettersUpper:
+                    return char.IsLetter(keyChar) ? keyChar - 'A' : int.MaxValue;
+
                 case MenuLabeling.NumbersAndLetters:
                     return char.IsNumber(keyChar) ? int.Parse(keyChar.ToString()) - 1 :
                         char.IsLetter(keyChar) ? keyChar - 'a' + 9 : int.MaxValue;

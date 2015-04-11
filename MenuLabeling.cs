@@ -20,6 +20,10 @@ namespace CommandLineParsing
         /// </summary>
         Letters,
         /// <summary>
+        /// Letters in upper case (A-Z) are used.
+        /// </summary>
+        LettersUpper,
+        /// <summary>
         /// Numbers (0-9) and then letters (a-z) are used.
         /// </summary>
         NumbersAndLetters
