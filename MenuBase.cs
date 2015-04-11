@@ -130,6 +130,8 @@ namespace CommandLineParsing
         /// <returns>The index of the selected option.</returns>
         protected int ShowAndSelectIndex()
         {
+            Console.CursorVisible = false;
+
             int zeroPosition = Console.CursorTop;
             int cursorPosition = Console.CursorTop;
             for (int i = 0; i < texts.Count; i++)
@@ -150,10 +152,9 @@ namespace CommandLineParsing
             Console.ResetColor();
 
 
-            int restPosition = Console.CursorTop;
+            int finalPosition = Console.CursorTop;
             Console.SetCursorPosition(0, cursorPosition);
             Console.Write('>');
-            Console.SetCursorPosition(0, restPosition);
 
             int selected = -1;
             while (selected == -1)
@@ -179,7 +180,6 @@ namespace CommandLineParsing
                     Console.Write(' ');
                     Console.SetCursorPosition(0, nextPos);
                     Console.Write('>');
-                    Console.SetCursorPosition(0, restPosition);
                     cursorPosition = nextPos;
                 }
                 else if (key.Key == ConsoleKey.Enter)
@@ -187,6 +187,8 @@ namespace CommandLineParsing
                 else if (key.Key == ConsoleKey.Escape && CanCancel)
                     selected = texts.Count;
             }
+
+            Console.CursorVisible = true;
 
             this.cancelled = selected == texts.Count;
             return selected;
