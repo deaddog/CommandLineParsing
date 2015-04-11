@@ -194,15 +194,6 @@ namespace CommandLineParsing
             return selected;
         }
 
-
-        private void WriteLine(int index)
-        {
-
-        }
-        private void WriteCancel()
-        {
-        }
-
         private char prefixFromIndex(int index)
         {
             if (index < 0)
@@ -226,7 +217,6 @@ namespace CommandLineParsing
                     return ' ';
             }
         }
-
         private int indexFromKey(char keyChar)
         {
             if (keyChar == '0')
