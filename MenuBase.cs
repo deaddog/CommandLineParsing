@@ -80,21 +80,6 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Gets the set of action and text at a specified index.
-        /// </summary>
-        /// <param name="index">The index at which the action and text is retrieved. If index == <see cref="MenuBase{ActionType}.Count"/>, the cancel option is returned.</param>
-        /// <returns>A tuple containing the action and text at the specified index.</returns>
-        protected Tuple<ActionType, string> this[int index]
-        {
-            get
-            {
-                if (index == options.Count)
-                    return new Tuple<ActionType, string>(cancel.Action, cancel.Text);
-                else
-                    return new Tuple<ActionType, string>(options[index].Action, options[index].Text);
-            }
-        }
-        /// <summary>
         /// Displays the menu and returns the selected <see cref="MenuOption"/>.
         /// </summary>
         /// <returns>The selected <see cref="MenuOption"/>.</returns>
