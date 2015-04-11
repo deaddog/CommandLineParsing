@@ -6,8 +6,13 @@ using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
+    /// <summary>
+    /// Defines the base implementation for <see cref="Command"/> parameters.
+    /// </summary>
     public abstract class Parameter
     {
+#pragma warning disable 1591
+
         private string name;
         private string[] alternatives;
         private string description;
@@ -20,6 +25,8 @@ namespace CommandLineParsing
             if (callback != null)
                 callback();
         }
+
+#pragma warning restore
 
         internal Parameter(string name, string[] alternatives, string description, Message required)
         {
@@ -40,20 +47,41 @@ namespace CommandLineParsing
         internal abstract Message Handle(Argument argument);
         internal abstract bool CanHandle(string value);
 
+        /// <summary>
+        /// Manages the action that should be taken when this <see cref="Parameter"/> is identified in an argument set and its values are validated.
+        /// </summary>
         public event Action Callback
         {
             add { this.callback += value; }
             remove { this.callback -= value; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="Parameter"/> is unnamed (has the <see cref="NoName"/> attribute).
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if unnamed; otherwise, <c>false</c>.
+        /// </value>
         public bool Unnamed
         {
             get { return name == null; }
         }
+        /// <summary>
+        /// Gets the name of the <see cref="Parameter"/>. This is the first name specified in a <see cref="Name"/> attribute.
+        /// </summary>
+        /// <value>
+        /// The name of <see cref="Parameter"/> if it is named; otherwise, <c>null</c>.
+        /// </value>
         public string Name
         {
             get { return name; }
         }
+        /// <summary>
+        /// Gets the description of this <see cref="Parameter"/>.
+        /// </summary>
+        /// <value>
+        /// The description of this <see cref="Parameter"/>.
+        /// </value>
         public string Description
         {
             get { return description; }
@@ -68,6 +96,11 @@ namespace CommandLineParsing
             get { return required; }
         }
 
+        /// <summary>
+        /// Gets all the names associated with this <see cref="Parameter"/>.
+        /// </summary>
+        /// <param name="includeMain">if set to <c>true</c> the <see cref="Name"/> property is included as the first element in the returned collection.</param>
+        /// <returns>A collection of the names (including alternatives) for the <see cref="Parameter"/>.</returns>
         public IEnumerable<string> GetNames(bool includeMain)
         {
             if (includeMain)
