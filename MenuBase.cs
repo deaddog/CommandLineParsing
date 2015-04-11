@@ -9,11 +9,8 @@ namespace CommandLineParsing
     /// <typeparam name="ActionType">The type of actions (delegates) associated with each entry in the menu.</typeparam>
     public abstract class MenuBase<ActionType> where ActionType : class
     {
-        private List<string> texts;
-        private List<ActionType> actions;
-
-        private string cancelText = null;
-        private ActionType cancelAction = null;
+        private List<MenuOption> options;
+        private MenuOption cancel;
 
         private MenuLabeling labels;
 
@@ -22,7 +19,7 @@ namespace CommandLineParsing
         /// </summary>
         public bool CanCancel
         {
-            get { return cancelText != null; }
+            get { return cancel != null; }
         }
 
         private bool? cancelled = null;
@@ -48,8 +45,8 @@ namespace CommandLineParsing
         {
             this.labels = labels;
 
-            this.texts = new List<string>();
-            this.actions = new List<ActionType>();
+            this.options = new List<MenuOption>();
+            this.cancel = null;
         }
 
         /// <summary>
@@ -60,8 +57,7 @@ namespace CommandLineParsing
         /// <param name="color">The color of the text displayed for the new option.</param>
         public void Add(string text, ActionType action)
         {
-            this.texts.Add(text);
-            this.actions.Add(action);
+            this.options.Add(new MenuOption(text, action));
         }
 
         /// <summary>
@@ -72,8 +68,7 @@ namespace CommandLineParsing
         /// <param name="color">The color of the text displayed for the cancel option.</param>
         public void SetCancel(string text, ActionType action)
         {
-            this.cancelText = text;
-            this.cancelAction = action;
+            this.cancel = new MenuOption(text, action);
         }
 
         /// <summary>
@@ -81,7 +76,7 @@ namespace CommandLineParsing
         /// </summary>
         public int Count
         {
-            get { return texts.Count; }
+            get { return options.Count; }
         }
 
         /// <summary>
@@ -93,10 +88,10 @@ namespace CommandLineParsing
         {
             get
             {
-                if (index == actions.Count)
-                    return new Tuple<ActionType, string>(cancelAction, cancelText);
+                if (index == options.Count)
+                    return new Tuple<ActionType, string>(cancel.Action, cancel.Text);
                 else
-                    return new Tuple<ActionType, string>(actions[index], texts[index]);
+                    return new Tuple<ActionType, string>(options[index].Action, options[index].Text);
             }
         }
         /// <summary>
@@ -109,17 +104,17 @@ namespace CommandLineParsing
 
             int zeroPosition = Console.CursorTop;
             int cursorPosition = Console.CursorTop;
-            for (int i = 0; i < texts.Count; i++)
+            for (int i = 0; i < options.Count; i++)
             {
                 char prefix = prefixFromIndex(i);
                 if (prefix == ' ')
-                    ColorConsole.WriteLine("     {1}", prefix, texts[i]);
+                    ColorConsole.WriteLine("     {1}", prefix, options[i].Text);
                 else
-                    ColorConsole.WriteLine("  {0}: {1}", prefix, texts[i]);
+                    ColorConsole.WriteLine("  {0}: {1}", prefix, options[i].Text);
             }
 
             if (CanCancel)
-                ColorConsole.WriteLine("  0: " + cancelText);
+                ColorConsole.WriteLine("  0: " + cancel.Text);
 
 
             int finalPosition = Console.CursorTop;
@@ -131,16 +126,16 @@ namespace CommandLineParsing
             {
                 ConsoleKeyInfo key = Console.ReadKey(true);
                 int keyIndex = indexFromKey(key.KeyChar);
-                if (keyIndex < texts.Count)
+                if (keyIndex < options.Count)
                 {
                     selected = keyIndex;
                     if (selected == -1 && CanCancel)
-                        selected = texts.Count;
+                        selected = options.Count;
                 }
                 else if (key.Key == ConsoleKey.DownArrow || key.Key == ConsoleKey.UpArrow)
                 {
                     int nextPos = key.Key == ConsoleKey.DownArrow ? cursorPosition + 1 : cursorPosition - 1;
-                    int lastPos = CanCancel ? texts.Count + zeroPosition : texts.Count + zeroPosition - 1;
+                    int lastPos = CanCancel ? options.Count + zeroPosition : options.Count + zeroPosition - 1;
 
                     if (nextPos - zeroPosition < 0)
                         nextPos = lastPos;
@@ -155,12 +150,12 @@ namespace CommandLineParsing
                 else if (key.Key == ConsoleKey.Enter)
                     selected = cursorPosition - zeroPosition;
                 else if (key.Key == ConsoleKey.Escape && CanCancel)
-                    selected = texts.Count;
+                    selected = options.Count;
             }
 
             Console.CursorVisible = true;
 
-            this.cancelled = selected == texts.Count;
+            this.cancelled = selected == options.Count;
             return selected;
         }
 
