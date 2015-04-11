@@ -72,9 +72,6 @@ namespace CommandLineParsing
         /// <returns>An <see cref="IEnumerable{T}"/> that contains the selected elements (one for each time the menu is displayed).</returns>
         public IEnumerable<T> Show(bool repeat, bool showchoices)
         {
-            if (!this.CanCancel && repeat)
-                throw new InvalidOperationException("A menu cannot auto-repeat without a cancel option.");
-
             MenuOption selected;
             do
             {
