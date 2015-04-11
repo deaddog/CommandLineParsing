@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
-    public class Message
+    public abstract class Message
     {
-        private static Message noError = new Message(false);
+        private static Message noError = new SimpleMessage();
         public static Message NoError
         {
             get { return noError; }
@@ -29,10 +29,7 @@ namespace CommandLineParsing
         {
         }
 
-        public virtual string GetMessage()
-        {
-            return "";
-        }
+        public abstract string GetMessage();
 
 
         public static implicit operator Message(string message)
@@ -59,6 +56,11 @@ namespace CommandLineParsing
         {
             private string message;
 
+            public SimpleMessage()
+                : base(false)
+            {
+                this.message = "";
+            }
             public SimpleMessage(string message)
             {
                 this.message = message;
