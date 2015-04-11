@@ -63,16 +63,6 @@ namespace CommandLineParsing
         /// <param name="color">The color of the text displayed for the new option.</param>
         public void Add(string text, ActionType action, ConsoleColor color = ConsoleColor.Gray)
         {
-            this.Add(action, text, color);
-        }
-        /// <summary>
-        /// Adds a new option to the menu.
-        /// </summary>
-        /// <param name="action">The action associated with the new option.</param>
-        /// <param name="text">The text displayed for the new option.</param>
-        /// <param name="color">The color of the text displayed for the new option.</param>
-        public void Add(ActionType action, string text, ConsoleColor color = ConsoleColor.Gray)
-        {
             this.texts.Add(text);
             this.actions.Add(action);
             this.colors.Add(color);
@@ -85,16 +75,6 @@ namespace CommandLineParsing
         /// <param name="action">The action associated with the cancel option.</param>
         /// <param name="color">The color of the text displayed for the cancel option.</param>
         public void SetCancel(string text, ActionType action, ConsoleColor color = ConsoleColor.Gray)
-        {
-            SetCancel(action, text, color);
-        }
-        /// <summary>
-        /// Sets the cancel option for the menu.
-        /// </summary>
-        /// <param name="action">The action associated with the cancel option.</param>
-        /// <param name="text">The text displayed for the cancel option.</param>
-        /// <param name="color">The color of the text displayed for the cancel option.</param>
-        public void SetCancel(ActionType action, string text, ConsoleColor color = ConsoleColor.Gray)
         {
             this.cancelText = text;
             this.cancelAction = action;

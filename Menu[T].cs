@@ -26,7 +26,7 @@ namespace CommandLineParsing
         /// <param name="color">The color of the text displayed for the new option.</param>
         public void Add(string text, T value, ConsoleColor color = ConsoleColor.Gray)
         {
-            this.Add(() => value, text, color);
+            this.Add(text, () => value, color);
         }
 
         /// <summary>
