@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
+    /// <summary>
+    /// Represents a message displaying a list of alternatives when an unknown argument is found.
+    /// Alternatives are automatically sorted according to their edit distance.
+    /// </summary>
     public class UnknownArgumentMessage : Message
     {
+        /// <summary>
+        /// An enumeration of the different types of interpretations of arguments.
+        /// </summary>
         public enum ArgumentType
         {
             SubCommand,
@@ -28,6 +33,11 @@ namespace CommandLineParsing
         private ArgumentType argumentType;
         private Dictionary<string, string> alternativeArguments;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UnknownArgumentMessage"/> class.
+        /// </summary>
+        /// <param name="argument">The argument that could not be handled.</param>
+        /// <param name="argumentType">The type that was expected from the argument. This will affect the displayed message.</param>
         public UnknownArgumentMessage(string argument, ArgumentType argumentType)
         {
             this.argument = argument;
@@ -35,17 +45,32 @@ namespace CommandLineParsing
             this.alternativeArguments = new Dictionary<string, string>();
         }
 
+        /// <summary>
+        /// Adds an alternative to the <see cref="UnknownArgumentMessage"/> along with a description.
+        /// </summary>
+        /// <param name="alternative">The alternative.</param>
+        /// <param name="description">The associated description.</param>
         public void AddAlternative(string alternative, string description)
         {
             if (!this.alternativeArguments.ContainsKey(alternative))
                 this.alternativeArguments.Add(alternative, description);
         }
 
+        /// <summary>
+        /// Adds a set of alternatives to the <see cref="UnknownArgumentMessage"/> along with a description.
+        /// Only a single string from <paramref name="alternatives"/> is listed (the one with the lowest edit-distance).
+        /// </summary>
+        /// <param name="alternatives">The set of alternatives.</param>
+        /// <param name="description">The associated description.</param>
         public void AddAlternative(string[] alternatives, string description)
         {
             AddAlternative(alternatives.OrderByDistance(argument).First().Item1, description);
         }
 
+        /// <summary>
+        /// Gets a string representing this <see cref="UnknownArgumentMessage" />.
+        /// </summary>
+        /// <returns>A message containing an initial message and a list of alternatives for the unknown command.</returns>
         public override string GetMessage()
         {
             if (alternativeArguments.Count == 0)
