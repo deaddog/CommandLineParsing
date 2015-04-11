@@ -120,7 +120,7 @@ namespace CommandLineParsing
                 return c;
         }
 
-        public static T Read<T>(string prompt, Func<T, bool> predicate)
+        public static T Read<T>(string prompt, Func<T, Message> validator)
         {
             if (prompt == null)
                 throw new ArgumentNullException("text");
@@ -139,10 +139,31 @@ namespace CommandLineParsing
                 System.Console.SetCursorPosition(l, t);
                 System.Console.Write("".PadRight(input.Length, ' '));
                 System.Console.SetCursorPosition(l, t);
+
                 input = System.Console.ReadLine();
                 parsed = tryparse(input, out result);
+
+                Message msg = Message.NoError;
+
                 if (parsed)
-                    parsed = predicate(result);
+                    msg = validator(result);
+                else
+                    msg = string.Format("{0} | A {1} value must be specified.", input, typeof(T).Name);
+
+                if (msg.IsError)
+                {
+                    parsed = false;
+                    System.Console.SetCursorPosition(l, t);
+                    System.Console.Write("".PadRight(input.Length, ' '));
+
+                    input = msg.GetMessage();
+                    System.Console.ForegroundColor = ConsoleColor.Red;
+                    System.Console.SetCursorPosition(l, t);
+                    System.Console.Write(input);
+                    System.Console.ResetColor();
+
+                    System.Console.ReadKey(true);
+                }
             }
 
             return result;
