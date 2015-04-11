@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
+    /// <summary>
+    /// Represents a <see cref="Parameter"/> that accepts no values.
+    /// </summary>
     public class FlagParameter : Parameter
     {
         private Message hasValueMessage;
@@ -21,11 +24,23 @@ namespace CommandLineParsing
             hasValueMessage = name + " is a flag argument, it does not support values.";
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="FlagParameter"/> has been used when executing its containing <see cref="Command"/>.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is used; otherwise, <c>false</c>.
+        /// </value>
         public bool IsSet
         {
             get { return isset; }
         }
 
+        /// <summary>
+        /// Gets or sets the <see cref="Message"/> that should be displayed if values are provided for this <see cref="FlagParameter"/>.
+        /// </summary>
+        /// <value>
+        /// The has-value message.
+        /// </value>
         public Message HasValueMessage
         {
             get { return hasValueMessage; }
@@ -47,6 +62,12 @@ namespace CommandLineParsing
             return false;
         }
 
+        /// <summary>
+        /// Returns a <see cref="string"/> that represents this <see cref="FlagParameter"/>.
+        /// </summary>
+        /// <returns>
+        /// A <see cref="string"/> that represents this instance.
+        /// </returns>
         public override string ToString()
         {
             return string.Format("{0}: {1}", Name, isset ? "set" : "not set");
