@@ -15,7 +15,13 @@ namespace CommandLineParsing
         /// </summary>
         public enum ArgumentType
         {
+            /// <summary>
+            /// Indicates that the unknown argument should be a sub command.
+            /// </summary>
             SubCommand,
+            /// <summary>
+            /// Indicates that the unknown argument should be a parameter.
+            /// </summary>
             Parameter
         }
         private static string argumentTypeString(ArgumentType arg)
