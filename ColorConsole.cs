@@ -119,15 +119,19 @@ namespace CommandLineParsing
             else
                 return c;
         }
-
+        
         public static T Read<T>(string prompt, Func<T, Message> validator = null)
         {
             if (prompt == null)
                 throw new ArgumentNullException("text");
 
-            var tryparse = ParserLookup.Table.GetParser<T>(false);
-
             System.Console.Write(prompt);
+
+            return Read(validator);
+        }
+        public static T Read<T>(Func<T, Message> validator = null)
+        {
+            var tryparse = ParserLookup.Table.GetParser<T>(false);
 
             int l = System.Console.CursorLeft, t = System.Console.CursorTop;
             string input = "";
