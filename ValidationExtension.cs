@@ -7,12 +7,30 @@ using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
+    /// <summary>
+    /// Provides a collection of validation methods for parameters, as extension methods.
+    /// These methods are all based on the <see cref="Parameter{T}.Validate"/> method.
+    /// </summary>
     public static class ValidationExtension
     {
+        /// <summary>
+        /// Provides a validation method for the <see cref="Parameter{T}"/>.
+        /// </summary>
+        /// <typeparam name="T">The value type of the <see cref="Parameter{T}"/>.</typeparam>
+        /// <param name="parameter">The <see cref="Parameter{T}"/> to which the validation should be applied.</param>
+        /// <param name="validator">A function that takes the parsed value as input and returns <c>true</c> if the value is valid; otherwise is must return <c>false</c>.</param>
+        /// <param name="errorMessage">A function that generates the error message that should be the validation result if <see cref="validator"/> returns <c>false</c>.</param>
         public static void Validate<T>(this Parameter<T> parameter, Func<T, bool> validator, Func<T, Message> errorMessage)
         {
             parameter.Validate(x => validator(x) ? Message.NoError : errorMessage(x));
         }
+        /// <summary>
+        /// Provides a validation method for the <see cref="Parameter{T}"/>.
+        /// </summary>
+        /// <typeparam name="T">The value type of the <see cref="Parameter{T}"/>.</typeparam>
+        /// <param name="parameter">The <see cref="Parameter{T}"/> to which the validation should be applied.</param>
+        /// <param name="validator">A function that takes the parsed value as input and returns <c>true</c> if the value is valid; otherwise is must return <c>false</c>.</param>
+        /// <param name="errorMessage">The error message that should be the validation result if <see cref="validator"/> returns <c>false</c>.</param>
         public static void Validate<T>(this Parameter<T> parameter, Func<T, bool> validator, Message errorMessage)
         {
             parameter.Validate(x => validator(x) ? Message.NoError : errorMessage);

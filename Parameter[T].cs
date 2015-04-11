@@ -153,6 +153,11 @@ namespace CommandLineParsing
             }
         }
 
+        /// <summary>
+        /// Provides a validation method for this <see cref="Parameter{T}"/>.
+        /// </summary>
+        /// <param name="validator">A function that validates the parsed <typeparamref name="T"/> value and returns a <see cref="Message"/>.
+        /// If the validation was successful <see cref="Message.NoError"/> should be returned by the method; otherwise an appropriate <see cref="Message"/> should be returned.</param>
         public void Validate(Func<T, Message> validator)
         {
             if (validator == null)
