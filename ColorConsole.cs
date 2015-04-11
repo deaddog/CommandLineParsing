@@ -119,8 +119,8 @@ namespace CommandLineParsing
             else
                 return c;
         }
-        
-        public static T Read<T>(string prompt, Func<T, Message> validator = null)
+
+        public static T Read<T>(string prompt, Validator<T> validator = null)
         {
             if (prompt == null)
                 throw new ArgumentNullException("text");
@@ -129,7 +129,7 @@ namespace CommandLineParsing
 
             return Read(validator);
         }
-        public static T Read<T>(Func<T, Message> validator = null)
+        public static T Read<T>(Validator<T> validator = null)
         {
             var tryparse = ParserLookup.Table.GetParser<T>(false);
 
@@ -150,7 +150,7 @@ namespace CommandLineParsing
                 Message msg = Message.NoError;
 
                 if (parsed)
-                    msg = validator == null ? Message.NoError : validator(result);
+                    msg = validator == null ? Message.NoError : validator.Validate(result);
                 else
                     msg = string.Format("{0} | A {1} value must be specified.", input, typeof(T).Name);
 
