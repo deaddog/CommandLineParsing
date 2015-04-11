@@ -61,11 +61,7 @@ namespace CommandLineParsing
         /// <param name="text">The text displayed for the new option.</param>
         /// <param name="action">The action associated with the new option.</param>
         /// <param name="color">The color of the text displayed for the new option.</param>
-#if NET3
-        public void Add(string text, ActionType action, ConsoleColor color)
-#else
         public void Add(string text, ActionType action, ConsoleColor color = ConsoleColor.Gray)
-#endif
         {
             this.Add(action, text, color);
         }
@@ -75,11 +71,7 @@ namespace CommandLineParsing
         /// <param name="action">The action associated with the new option.</param>
         /// <param name="text">The text displayed for the new option.</param>
         /// <param name="color">The color of the text displayed for the new option.</param>
-#if NET3
-        public void Add(ActionType action, string text, ConsoleColor color)
-#else
         public void Add(ActionType action, string text, ConsoleColor color = ConsoleColor.Gray)
-#endif
         {
             this.texts.Add(text);
             this.actions.Add(action);
@@ -92,11 +84,7 @@ namespace CommandLineParsing
         /// <param name="text">The text displayed for the cancel option.</param>
         /// <param name="action">The action associated with the cancel option.</param>
         /// <param name="color">The color of the text displayed for the cancel option.</param>
-#if NET3
-        public void SetCancel(string text, ActionType action, ConsoleColor color)
-#else
         public void SetCancel(string text, ActionType action, ConsoleColor color = ConsoleColor.Gray)
-#endif
         {
             SetCancel(action, text, color);
         }
@@ -106,11 +94,7 @@ namespace CommandLineParsing
         /// <param name="action">The action associated with the cancel option.</param>
         /// <param name="text">The text displayed for the cancel option.</param>
         /// <param name="color">The color of the text displayed for the cancel option.</param>
-#if NET3
-        public void SetCancel(ActionType action, string text, ConsoleColor color)
-#else
         public void SetCancel(ActionType action, string text, ConsoleColor color = ConsoleColor.Gray)
-#endif
         {
             this.cancelText = text;
             this.cancelAction = action;
@@ -302,18 +286,5 @@ namespace CommandLineParsing
                     return int.MaxValue;
             }
         }
-
-#if NET3
-        public class Tuple<T1, T2>
-        {
-            public Tuple(T1 item1, T2 item2)
-            {
-
-            }
-
-            public T1 Item1 { get; set; }
-            public T2 Item2 { get; set; }
-        }
-#endif
     }
 }

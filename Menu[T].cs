@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace CommandLineParsing
 {
     /// <summary>
-    /// Represents a menu where each option is associated with an <see cref="Func{T}"/> delegate.
+    /// Represents a menu where each option is associated with a <see cref="Func{T}"/> delegate.
     /// </summary>
     /// <typeparam name="T">The type of elements returned by the menu.</typeparam>
     public class Menu<T> : MenuBase<Func<T>>
@@ -24,11 +24,7 @@ namespace CommandLineParsing
         /// <param name="text">The text displayed for the new option.</param>
         /// <param name="value">The value returned by the new option.</param>
         /// <param name="color">The color of the text displayed for the new option.</param>
-#if NET3
-        public void Add(string text, T value, ConsoleColor color)
-#else
         public void Add(string text, T value, ConsoleColor color = ConsoleColor.Gray)
-#endif
         {
             this.Add(() => value, text, color);
         }
@@ -39,11 +35,7 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="text">The text displayed for the cancel option.</param>
         /// <param name="color">The color of the text displayed for the cancel option.</param>
-#if NET3
-        public void SetCancel(string text, ConsoleColor color)
-#else
         public void SetCancel(string text, ConsoleColor color = ConsoleColor.Gray)
-#endif
         {
             base.SetCancel(text, () => default(T), color);
         }
@@ -53,11 +45,7 @@ namespace CommandLineParsing
         /// <param name="text">The text displayed for the cancel option.</param>
         /// <param name="value">The value of type <typeparamref name="T"/> that should be returned if the cancel option is selected.</param>
         /// <param name="color">The color of the text displayed for the cancel option.</param>
-#if NET3
-        public void SetCancel(string text, T value, ConsoleColor color)
-#else
         public void SetCancel(string text, T value, ConsoleColor color = ConsoleColor.Gray)
-#endif
         {
             base.SetCancel(text, () => value, color);
         }
