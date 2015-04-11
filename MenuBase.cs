@@ -193,50 +193,12 @@ namespace CommandLineParsing
         }
 
 
-        private void WriteLines(string text, string prefix, int width)
-        {
-            if (text == null || text.Length == 0)
-                return;
-
-            text = text.Trim().Replace("\r\n", "\n");
-            width = width - prefix.Length;
-
-            List<string> lines = new List<string>(text.Split('\n', '\r'));
-            if (lines.Count == 0)
-                return;
-
-            int i = 0;
-            while (i < lines.Count)
-            {
-                lines[i] = lines[i].Trim();
-                if (lines[i].Length > width)
-                {
-                    int wid = lines[i].LastIndexOf(' ', width) >= 0 ? lines[i].LastIndexOf(' ', width) : width;
-
-                    lines.Insert(i + 1, lines[i].Substring(wid));
-                    lines[i] = lines[i].Substring(0, wid);
-                }
-                System.Console.WriteLine(prefix + lines[i]);
-                i++;
-            }
-            System.Console.WriteLine();
-        }
         private void WriteLine(int index)
         {
 
         }
         private void WriteCancel()
         {
-        }
-
-        private static string CenterString(string text, int width, char pad)
-        {
-            int padL, padR;
-            padR = padL = width - text.Length;
-            padL /= 2;
-            padR -= padL;
-
-            return "  ".PadLeft(padL, pad) + text + "  ".PadRight(padR, pad);
         }
 
         private char prefixFromIndex(int index)
