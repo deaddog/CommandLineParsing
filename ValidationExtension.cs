@@ -36,6 +36,14 @@ namespace CommandLineParsing
             parameter.Validate(x => validator(x) ? Message.NoError : errorMessage);
         }
 
+        /// <summary>
+        /// Provides a validation method for the <see cref="Parameter{T}"/> that validates each element in the parsed array.
+        /// </summary>
+        /// <typeparam name="T">The value type of each element in the <see cref="Parameter{T}"/> value array.</typeparam>
+        /// <param name="parameter">The <see cref="Parameter{T}"/> to which the validation should be applied.</param>
+        /// <param name="validator">A function that returns the result of validating a single element in <paramref name="parameter"/>.
+        /// Use <see cref="Message.NoError"/> to indicate validation success.
+        /// If a single element is not validated, the remaining elements are not validated.</param>
         public static void ValidateEach<T>(this Parameter<T[]> parameter, Func<T, Message> validator)
         {
             parameter.Validate(x =>
@@ -49,10 +57,26 @@ namespace CommandLineParsing
                 return Message.NoError;
             });
         }
+        /// <summary>
+        /// Provides a validation method for the <see cref="Parameter{T}"/> that validates each element in the parsed array.
+        /// </summary>
+        /// <typeparam name="T">The value type of each element in the <see cref="Parameter{T}"/> value array.</typeparam>
+        /// <param name="parameter">The <see cref="Parameter{T}"/> to which the validation should be applied.</param>
+        /// <param name="validator">A function that validates a single <typeparamref name="T"/> element.
+        /// The method should return <c>true</c> if the value is valid; otherwise <c>false</c>.</param>
+        /// <param name="errorMessage">A function that takes the value that could not be validated and returns an error message describing the reason for the message.</param>
         public static void ValidateEach<T>(this Parameter<T[]> parameter, Func<T, bool> validator, Func<T, Message> errorMessage)
         {
             parameter.ValidateEach(x => validator(x) ? Message.NoError : errorMessage(x));
         }
+        /// <summary>
+        /// Provides a validation method for the <see cref="Parameter{T}"/> that validates each element in the parsed array.
+        /// </summary>
+        /// <typeparam name="T">The value type of each element in the <see cref="Parameter{T}"/> value array.</typeparam>
+        /// <param name="parameter">The <see cref="Parameter{T}"/> to which the validation should be applied.</param>
+        /// <param name="validator">A function that validates a single <typeparamref name="T"/> element.
+        /// The method should return <c>true</c> if the value is valid; otherwise <c>false</c>.</param>
+        /// <param name="errorMessage">The error message that should be returned if validation of a single element fails (if <paramref name="validator"/> returns <c>false</c>).</param>
         public static void ValidateEach<T>(this Parameter<T[]> parameter, Func<T, bool> validator, Message errorMessage)
         {
             parameter.ValidateEach(x => validator(x) ? Message.NoError : errorMessage);
