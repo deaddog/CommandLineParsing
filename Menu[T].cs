@@ -57,10 +57,8 @@ namespace CommandLineParsing
         /// <returns>The value returned by the delegate called (dependant on the option selected).</returns>
         public T Show()
         {
-            int selected = ShowAndSelectIndex();
-
-            var result = this[selected];
-            return result.Item1();
+            MenuOption selected = ShowAndSelect();
+            return selected.Action();
         }
 
         /// <summary>
@@ -76,10 +74,8 @@ namespace CommandLineParsing
 
             do
             {
-                int selected = ShowAndSelectIndex();
-
-                var result = this[selected];
-                yield return result.Item1();
+                MenuOption selected = ShowAndSelect();
+                yield return selected.Action();
             } while (repeat && !this.WasCancelled);
         }
     }

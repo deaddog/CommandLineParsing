@@ -45,10 +45,8 @@ namespace CommandLineParsing
 
             do
             {
-                int selected = ShowAndSelectIndex();
-
-                var result = this[selected];
-                result.Item1();
+                MenuOption selected = ShowAndSelect();
+                selected.Action();
             } while (repeat && !this.WasCancelled);
         }
     }

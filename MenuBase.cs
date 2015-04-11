@@ -95,10 +95,10 @@ namespace CommandLineParsing
             }
         }
         /// <summary>
-        /// Displays the menu and returns the selected index.
+        /// Displays the menu and returns the selected <see cref="MenuOption"/>.
         /// </summary>
-        /// <returns>The index of the selected option.</returns>
-        protected int ShowAndSelectIndex()
+        /// <returns>The selected <see cref="MenuOption"/>.</returns>
+        protected MenuOption ShowAndSelect()
         {
             Console.CursorVisible = false;
 
@@ -156,7 +156,10 @@ namespace CommandLineParsing
             Console.CursorVisible = true;
 
             this.cancelled = selected == options.Count;
-            return selected;
+            if (selected == options.Count)
+                return cancel;
+            else
+                return options[selected];
         }
 
         private char prefixFromIndex(int index)
