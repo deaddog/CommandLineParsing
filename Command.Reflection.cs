@@ -47,6 +47,12 @@ namespace CommandLineParsing
                         throw new TypeAccessException("A " + _FLAGPARAMETER + " cannot have a default value.");
                 }
 
+                if (reqAtt != null)
+                {
+                    if (f.FieldType == typeof(FlagParameter))
+                        throw new TypeAccessException("A " + _FLAGPARAMETER + " cannot be have the " + _REQUIRED + " attribute.");
+                }
+
                 if (nonAtt != null)
                 {
                     if (nameAtt != null)
