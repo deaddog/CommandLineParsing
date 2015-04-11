@@ -123,6 +123,7 @@ namespace CommandLineParsing
                     selected = options.Count;
             }
 
+            Console.SetCursorPosition(0, finalPosition);
             Console.CursorVisible = true;
 
             if (selected == options.Count)
