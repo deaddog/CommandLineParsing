@@ -72,11 +72,12 @@ namespace CommandLineParsing
             if (!this.CanCancel && repeat)
                 throw new InvalidOperationException("A menu cannot auto-repeat without a cancel option.");
 
+            MenuOption selected;
             do
             {
-                MenuOption selected = ShowAndSelect();
+                selected = ShowAndSelect();
                 yield return selected.Action();
-            } while (repeat && !this.WasCancelled);
+            } while (repeat && !selected.IsCancel);
         }
     }
 }

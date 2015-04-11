@@ -22,21 +22,6 @@ namespace CommandLineParsing
             get { return cancel != null; }
         }
 
-        private bool? cancelled = null;
-        /// <summary>
-        /// Gets a boolean value indicating whether or not the cancel option was selected the last time this menu was displayed.
-        /// </summary>
-        /// <exception cref="InvalidOperationException">Menu has not been displayed.</exception>
-        public bool WasCancelled
-        {
-            get
-            {
-                if (!cancelled.HasValue)
-                    throw new InvalidOperationException("WasCancelled can not be read when menu has not been displayed.");
-                return cancelled.Value;
-            }
-        }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="MenuBase{ActionType}" /> class.
         /// </summary>
@@ -57,7 +42,7 @@ namespace CommandLineParsing
         /// <param name="color">The color of the text displayed for the new option.</param>
         public void Add(string text, ActionType action)
         {
-            this.options.Add(new MenuOption(text, action));
+            this.options.Add(new MenuOption(false, text, action));
         }
 
         /// <summary>
@@ -68,7 +53,7 @@ namespace CommandLineParsing
         /// <param name="color">The color of the text displayed for the cancel option.</param>
         public void SetCancel(string text, ActionType action)
         {
-            this.cancel = new MenuOption(text, action);
+            this.cancel = new MenuOption(true, text, action);
         }
 
         /// <summary>
@@ -140,7 +125,6 @@ namespace CommandLineParsing
 
             Console.CursorVisible = true;
 
-            this.cancelled = selected == options.Count;
             if (selected == options.Count)
                 return cancel;
             else
@@ -196,11 +180,13 @@ namespace CommandLineParsing
 
         protected class MenuOption
         {
+            public readonly bool IsCancel;
             public readonly string Text;
             public readonly ActionType Action;
 
-            public MenuOption(string text, ActionType action)
+            public MenuOption(bool isCancel, string text, ActionType action)
             {
+                this.IsCancel = isCancel;
                 this.Text = text;
                 this.Action = action;
             }
