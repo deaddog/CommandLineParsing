@@ -6,10 +6,17 @@ using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
+    /// <summary>
+    /// Defines a collection of validation methods, that can be applied to data of the specified type <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of elements validated by the <see cref="Validator{T}"/>.</typeparam>
     public class Validator<T>
     {
         private List<Func<T, Message>> validators;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Validator{T}"/> class that accepts any <typeparamref name="T"/> values.
+        /// </summary>
         public Validator()
         {
             this.validators = new List<Func<T, Message>>();

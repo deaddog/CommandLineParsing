@@ -142,6 +142,9 @@ namespace CommandLineParsing
             }
         }
 
+        /// <summary>
+        /// Gets the <see cref="CommandLineParsing.Validator{T}"/> that handles all validation for this <see cref="Parameter{T}"/>.
+        /// </summary>
         public Validator<T> Validator
         {
             get { return validator; }

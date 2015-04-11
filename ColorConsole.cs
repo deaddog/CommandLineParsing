@@ -37,7 +37,7 @@ namespace CommandLineParsing
         {
             handle(args.Length == 0 ? format : string.Format(format, args), true, true);
         }
-
+        
         /// <summary>
         /// Writes the specified string value to the standard output stream.
         /// </summary>
@@ -120,15 +120,30 @@ namespace CommandLineParsing
                 return c;
         }
 
+        /// <summary>
+        /// Writes <paramref name="prompt"/> to <see cref="Console"/>, reads user input and returns a parsed value.
+        /// </summary>
+        /// <typeparam name="T">The type of input that the method should accept.</typeparam>
+        /// <param name="prompt">The prompt message to display.</param>
+        /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
+        /// <c>null</c> indicates that no validation should be applied.</param>
+        /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
         public static T Read<T>(string prompt, Validator<T> validator = null)
         {
             if (prompt == null)
                 throw new ArgumentNullException("text");
 
-            System.Console.Write(prompt);
+            ColorConsole.Write(prompt);
 
             return Read(validator);
         }
+        /// <summary>
+        /// Reads user input from <see cref="Console"/> and returns a parsed value.
+        /// </summary>
+        /// <typeparam name="T">The type of input that the method should accept.</typeparam>
+        /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
+        /// <c>null</c> indicates that no validation should be applied.</param>
+        /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
         public static T Read<T>(Validator<T> validator = null)
         {
             var tryparse = ParserLookup.Table.GetParser<T>(false);
