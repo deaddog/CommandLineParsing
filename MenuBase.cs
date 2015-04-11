@@ -130,35 +130,35 @@ namespace CommandLineParsing
         /// <returns>The index of the selected option.</returns>
         protected int ShowAndSelectIndex()
         {
-            int zeroPosition = System.Console.CursorTop;
-            int cursorPosition = System.Console.CursorTop;
+            int zeroPosition = Console.CursorTop;
+            int cursorPosition = Console.CursorTop;
             for (int i = 0; i < texts.Count; i++)
             {
-                System.Console.ForegroundColor = colors[i];
+                Console.ForegroundColor = colors[i];
                 char prefix = prefixFromIndex(i);
                 if (prefix == ' ')
-                    System.Console.WriteLine("     {1}", prefix, texts[i]);
+                    Console.WriteLine("     {1}", prefix, texts[i]);
                 else
-                    System.Console.WriteLine("  {0}: {1}", prefix, texts[i]);
+                    Console.WriteLine("  {0}: {1}", prefix, texts[i]);
             }
 
             if (CanCancel)
             {
-                System.Console.ForegroundColor = cancelColor;
-                System.Console.WriteLine("  0: " + cancelText);
+                Console.ForegroundColor = cancelColor;
+                Console.WriteLine("  0: " + cancelText);
             }
-            System.Console.ResetColor();
+            Console.ResetColor();
 
 
-            int restPosition = System.Console.CursorTop;
-            System.Console.SetCursorPosition(0, cursorPosition);
-            System.Console.Write('>');
-            System.Console.SetCursorPosition(0, restPosition);
+            int restPosition = Console.CursorTop;
+            Console.SetCursorPosition(0, cursorPosition);
+            Console.Write('>');
+            Console.SetCursorPosition(0, restPosition);
 
             int selected = -1;
             while (selected == -1)
             {
-                ConsoleKeyInfo key = System.Console.ReadKey(true);
+                ConsoleKeyInfo key = Console.ReadKey(true);
                 int keyIndex = indexFromKey(key.KeyChar);
                 if (keyIndex < texts.Count)
                 {
@@ -175,11 +175,11 @@ namespace CommandLineParsing
                         nextPos = lastPos;
                     else if (nextPos > lastPos)
                         nextPos = zeroPosition;
-                    System.Console.SetCursorPosition(0, cursorPosition);
-                    System.Console.Write(' ');
-                    System.Console.SetCursorPosition(0, nextPos);
-                    System.Console.Write('>');
-                    System.Console.SetCursorPosition(0, restPosition);
+                    Console.SetCursorPosition(0, cursorPosition);
+                    Console.Write(' ');
+                    Console.SetCursorPosition(0, nextPos);
+                    Console.Write('>');
+                    Console.SetCursorPosition(0, restPosition);
                     cursorPosition = nextPos;
                 }
                 else if (key.Key == ConsoleKey.Enter)
