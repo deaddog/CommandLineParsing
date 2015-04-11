@@ -52,7 +52,7 @@ namespace CommandLineParsing
         }
         public string Name
         {
-            get { return name ?? "<unnamed>"; }
+            get { return name; }
         }
         public string Description
         {
