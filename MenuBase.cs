@@ -286,5 +286,17 @@ namespace CommandLineParsing
                     return int.MaxValue;
             }
         }
+
+        protected class MenuOption
+        {
+            public readonly string Text;
+            public readonly ActionType Action;
+
+            public MenuOption(string text, ActionType action)
+            {
+                this.Text = text;
+                this.Action = action;
+            }
+        }
     }
 }
