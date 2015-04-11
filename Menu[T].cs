@@ -10,11 +10,11 @@ namespace CommandLineParsing
     public class Menu<T> : MenuBase<Func<T>>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="Menu{T}"/> class with a specified title.
+        /// Initializes a new instance of the <see cref="Menu"/> class.
         /// </summary>
-        /// <param name="title">The title of the menu.</param>
-        public Menu(string title)
-            : base(title)
+        /// <param name="labels">Defines the type of labeling used when displaying this menu.</param>
+        public Menu(MenuLabeling labels)
+            : base(labels)
         {
         }
 

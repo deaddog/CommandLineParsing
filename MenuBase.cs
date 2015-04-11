@@ -17,15 +17,7 @@ namespace CommandLineParsing
         private ActionType cancelAction = null;
         private ConsoleColor cancelColor = ConsoleColor.Gray;
 
-        private MenuLabeling labels = MenuLabeling.Numbers;
-        /// <summary>
-        /// Gets or sets the type of labeling used when displaying this menu.
-        /// </summary>
-        public MenuLabeling Labels
-        {
-            get { return labels; }
-            set { labels = value; }
-        }
+        private MenuLabeling labels;
 
         /// <summary>
         /// Gets a boolean value indicating whether or not the menu has a "cancel" option.
@@ -51,11 +43,13 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MenuBase{ActionType}"/> class with a specified title.
+        /// Initializes a new instance of the <see cref="MenuBase{ActionType}" /> class.
         /// </summary>
-        /// <param name="title">The title of the menu.</param>
-        public MenuBase()
+        /// <param name="labels">Defines the type of labeling used when displaying this menu.</param>
+        public MenuBase(MenuLabeling labels)
         {
+            this.labels = labels;
+
             this.texts = new List<string>();
             this.actions = new List<ActionType>();
             this.colors = new List<ConsoleColor>();
