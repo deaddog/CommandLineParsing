@@ -120,7 +120,7 @@ namespace CommandLineParsing
                 return c;
         }
 
-        public static T Read<T>(string prompt, Func<T, Message> validator)
+        public static T Read<T>(string prompt, Func<T, Message> validator = null)
         {
             if (prompt == null)
                 throw new ArgumentNullException("text");
@@ -146,7 +146,7 @@ namespace CommandLineParsing
                 Message msg = Message.NoError;
 
                 if (parsed)
-                    msg = validator(result);
+                    msg = validator == null ? Message.NoError : validator(result);
                 else
                     msg = string.Format("{0} | A {1} value must be specified.", input, typeof(T).Name);
 
