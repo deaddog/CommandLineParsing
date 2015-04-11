@@ -27,17 +27,6 @@ namespace CommandLineParsing
         private Message multipleValuesMessage;
 
         private List<Func<T, Message>> validators;
-        protected Message doValidation(T value)
-        {
-            for (int i = 0; i < validators.Count; i++)
-            {
-                var msg = validators[i](value);
-                if (msg.IsError)
-                    return msg;
-            }
-
-            return Message.NoError;
-        }
 
 #pragma warning restore
 

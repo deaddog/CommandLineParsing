@@ -27,5 +27,22 @@ namespace CommandLineParsing
 
             this.validators.Add(validator);
         }
+
+        /// <summary>
+        /// Validates <paramref name="value"/> using the validation methods stored in this <see cref="Validator{T}"/>.
+        /// </summary>
+        /// <param name="value">The value to validate.</param>
+        /// <returns>A <see cref="Message"/> representing the error that occured during validation; or <see cref="Message.NoError"/> if no error occured.</returns>
+        public Message Validate(T value)
+        {
+            for (int i = 0; i < validators.Count; i++)
+            {
+                var msg = validators[i](value);
+                if (msg.IsError)
+                    return msg;
+            }
+
+            return Message.NoError;
+        }
     }
 }
