@@ -152,8 +152,6 @@ namespace CommandLineParsing
         /// <returns>The index of the selected option.</returns>
         protected int ShowAndSelectIndex()
         {
-            System.Console.Clear();
-
             int zeroPosition = System.Console.CursorTop;
             int cursorPosition = System.Console.CursorTop;
             for (int i = 0; i < texts.Count; i++)
@@ -211,8 +209,6 @@ namespace CommandLineParsing
                 else if (key.Key == ConsoleKey.Escape && CanCancel)
                     selected = texts.Count;
             }
-
-            System.Console.Clear();
 
             this.cancelled = selected == texts.Count;
             return selected;
