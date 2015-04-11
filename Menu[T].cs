@@ -54,11 +54,14 @@ namespace CommandLineParsing
         /// Shows the menu and waits for an option to be selected.
         /// When an option has been selected, its corresponding delegate is executed.
         /// </summary>
-        /// <returns>The value returned by the delegate called (dependant on the option selected).</returns>
-        public T Show()
+        /// <param name="cleanup">Determines what kind of console cleanup should be applied after displaying the menu.</param>
+        /// <param name="showchoices">if set to <c>true</c> the chosen options are listed as they are selected in the menu.</param>
+        /// <returns>
+        /// The value returned by the delegate called (dependant on the option selected).
+        /// </returns>
+        public T Show(MenuCleanup cleanup)
         {
-            MenuOption selected = ShowAndSelect();
-            return selected.Action();
+            return ShowAndSelect(cleanup).Action();
         }
 
         /// <summary>
@@ -67,7 +70,7 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="repeat">A boolean indicating whether the menu should be displayed repeatedly until the cancel option is selected.</param>
         /// <returns>An <see cref="IEnumerable{T}"/> that contains the selected elements (one for each time the menu is displayed).</returns>
-        public IEnumerable<T> Show(bool repeat)
+        public IEnumerable<T> Show(bool repeat, bool showchoices)
         {
             if (!this.CanCancel && repeat)
                 throw new InvalidOperationException("A menu cannot auto-repeat without a cancel option.");
@@ -75,7 +78,7 @@ namespace CommandLineParsing
             MenuOption selected;
             do
             {
-                selected = ShowAndSelect();
+                selected = ShowAndSelect(showchoices ? MenuCleanup.RemoveMenuShowChoice : MenuCleanup.RemoveMenu);
                 yield return selected.Action();
             } while (repeat && !selected.IsCancel);
         }

@@ -65,9 +65,12 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Displays the menu and returns the selected <see cref="MenuOption"/>.
+        /// Displays the menu and returns the selected <see cref="MenuOption" />.
         /// </summary>
-        /// <returns>The selected <see cref="MenuOption"/>.</returns>
+        /// <param name="cleanup">Determines what kind of console cleanup should be applied after displaying the menu.</param>
+        /// <returns>
+        /// The selected <see cref="MenuOption" />.
+        /// </returns>
         protected MenuOption ShowAndSelect(MenuCleanup cleanup)
         {
             Console.CursorVisible = false;
