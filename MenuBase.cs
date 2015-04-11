@@ -9,9 +9,6 @@ namespace CommandLineParsing
     /// <typeparam name="ActionType">The type of actions (delegates) associated with each entry in the menu.</typeparam>
     public abstract class MenuBase<ActionType> where ActionType : class
     {
-        private int menuWidth = 60;
-        private string title;
-
         private List<string> texts;
         private List<ActionType> actions;
         private List<ConsoleColor> colors;
@@ -19,8 +16,6 @@ namespace CommandLineParsing
         private string cancelText = null;
         private ActionType cancelAction = null;
         private ConsoleColor cancelColor = ConsoleColor.Gray;
-
-        private char paddingChar = '#';
 
         private MenuLabeling labels = MenuLabeling.Numbers;
         /// <summary>
@@ -30,38 +25,6 @@ namespace CommandLineParsing
         {
             get { return labels; }
             set { labels = value; }
-        }
-
-        /// <summary>
-        /// Gets or sets the char used to pad the menu.
-        /// </summary>
-        public char PaddingChar
-        {
-            get { return paddingChar; }
-            set
-            {
-                if (char.IsControl(value))
-                    throw new ArgumentException("Cannot use control-character for padding.");
-                paddingChar = value;
-            }
-        }
-        /// <summary>
-        /// Gets or sets the title of the menu.
-        /// </summary>
-        public string Title
-        {
-            get { return title; }
-            set { title = value; }
-        }
-
-        private string description = string.Empty;
-        /// <summary>
-        /// Gets or sets a description-text displayed at the top of the menu.
-        /// </summary>
-        public string Description
-        {
-            get { return description; }
-            set { description = value; }
         }
 
         /// <summary>
@@ -91,10 +54,8 @@ namespace CommandLineParsing
         /// Initializes a new instance of the <see cref="MenuBase{ActionType}"/> class with a specified title.
         /// </summary>
         /// <param name="title">The title of the menu.</param>
-        public MenuBase(string title)
+        public MenuBase()
         {
-            this.title = title;
-
             this.texts = new List<string>();
             this.actions = new List<ActionType>();
             this.colors = new List<ConsoleColor>();
@@ -193,15 +154,6 @@ namespace CommandLineParsing
         {
             System.Console.Clear();
 
-            int padL = menuWidth - title.Length;
-            int padR = padL;
-            padL /= 2;
-            padR -= padL;
-
-            int width = menuWidth - 6 - title.Length;
-            System.Console.WriteLine(CenterString(title, menuWidth, paddingChar) + "\n");
-            WriteLines(description, "  ", menuWidth);
-
             int zeroPosition = System.Console.CursorTop;
             int cursorPosition = System.Console.CursorTop;
             for (int i = 0; i < texts.Count; i++)
@@ -220,8 +172,6 @@ namespace CommandLineParsing
                 System.Console.WriteLine("  0: " + cancelText);
             }
             System.Console.ResetColor();
-
-            System.Console.WriteLine("\n".PadRight(menuWidth + 1, '#'));
 
 
             int restPosition = System.Console.CursorTop;
