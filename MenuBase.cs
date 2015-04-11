@@ -11,11 +11,9 @@ namespace CommandLineParsing
     {
         private List<string> texts;
         private List<ActionType> actions;
-        private List<ConsoleColor> colors;
 
         private string cancelText = null;
         private ActionType cancelAction = null;
-        private ConsoleColor cancelColor = ConsoleColor.Gray;
 
         private MenuLabeling labels;
 
@@ -52,7 +50,6 @@ namespace CommandLineParsing
 
             this.texts = new List<string>();
             this.actions = new List<ActionType>();
-            this.colors = new List<ConsoleColor>();
         }
 
         /// <summary>
@@ -61,11 +58,10 @@ namespace CommandLineParsing
         /// <param name="text">The text displayed for the new option.</param>
         /// <param name="action">The action associated with the new option.</param>
         /// <param name="color">The color of the text displayed for the new option.</param>
-        public void Add(string text, ActionType action, ConsoleColor color = ConsoleColor.Gray)
+        public void Add(string text, ActionType action)
         {
             this.texts.Add(text);
             this.actions.Add(action);
-            this.colors.Add(color);
         }
 
         /// <summary>
@@ -74,11 +70,10 @@ namespace CommandLineParsing
         /// <param name="text">The text displayed for the cancel option.</param>
         /// <param name="action">The action associated with the cancel option.</param>
         /// <param name="color">The color of the text displayed for the cancel option.</param>
-        public void SetCancel(string text, ActionType action, ConsoleColor color = ConsoleColor.Gray)
+        public void SetCancel(string text, ActionType action)
         {
             this.cancelText = text;
             this.cancelAction = action;
-            this.cancelColor = color;
         }
 
         /// <summary>
@@ -116,7 +111,6 @@ namespace CommandLineParsing
             int cursorPosition = Console.CursorTop;
             for (int i = 0; i < texts.Count; i++)
             {
-                Console.ForegroundColor = colors[i];
                 char prefix = prefixFromIndex(i);
                 if (prefix == ' ')
                     Console.WriteLine("     {1}", prefix, texts[i]);
@@ -125,11 +119,7 @@ namespace CommandLineParsing
             }
 
             if (CanCancel)
-            {
-                Console.ForegroundColor = cancelColor;
                 Console.WriteLine("  0: " + cancelText);
-            }
-            Console.ResetColor();
 
 
             int finalPosition = Console.CursorTop;

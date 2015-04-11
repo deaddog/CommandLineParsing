@@ -22,11 +22,7 @@ namespace CommandLineParsing
         /// <param name="text">The text displayed for the cancel option.</param>
         public void SetCancel(string text)
         {
-#if NET3
-            base.SetCancel(text, () => { }, ConsoleColor.Gray);
-#else
             base.SetCancel(text, () => { });
-#endif
         }
 
         /// <summary>

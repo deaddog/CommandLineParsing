@@ -24,9 +24,9 @@ namespace CommandLineParsing
         /// <param name="text">The text displayed for the new option.</param>
         /// <param name="value">The value returned by the new option.</param>
         /// <param name="color">The color of the text displayed for the new option.</param>
-        public void Add(string text, T value, ConsoleColor color = ConsoleColor.Gray)
+        public void Add(string text, T value)
         {
-            this.Add(text, () => value, color);
+            this.Add(text, () => value);
         }
 
         /// <summary>
@@ -35,9 +35,9 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="text">The text displayed for the cancel option.</param>
         /// <param name="color">The color of the text displayed for the cancel option.</param>
-        public void SetCancel(string text, ConsoleColor color = ConsoleColor.Gray)
+        public void SetCancel(string text)
         {
-            base.SetCancel(text, () => default(T), color);
+            base.SetCancel(text, () => default(T));
         }
         /// <summary>
         /// Sets the cancel option for the menu.
@@ -45,9 +45,9 @@ namespace CommandLineParsing
         /// <param name="text">The text displayed for the cancel option.</param>
         /// <param name="value">The value of type <typeparamref name="T"/> that should be returned if the cancel option is selected.</param>
         /// <param name="color">The color of the text displayed for the cancel option.</param>
-        public void SetCancel(string text, T value, ConsoleColor color = ConsoleColor.Gray)
+        public void SetCancel(string text, T value)
         {
-            base.SetCancel(text, () => value, color);
+            base.SetCancel(text, () => value);
         }
 
         /// <summary>
