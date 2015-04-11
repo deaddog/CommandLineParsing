@@ -113,13 +113,13 @@ namespace CommandLineParsing
             {
                 char prefix = prefixFromIndex(i);
                 if (prefix == ' ')
-                    Console.WriteLine("     {1}", prefix, texts[i]);
+                    ColorConsole.WriteLine("     {1}", prefix, texts[i]);
                 else
-                    Console.WriteLine("  {0}: {1}", prefix, texts[i]);
+                    ColorConsole.WriteLine("  {0}: {1}", prefix, texts[i]);
             }
 
             if (CanCancel)
-                Console.WriteLine("  0: " + cancelText);
+                ColorConsole.WriteLine("  0: " + cancelText);
 
 
             int finalPosition = Console.CursorTop;
