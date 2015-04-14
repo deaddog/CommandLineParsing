@@ -39,7 +39,6 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="text">The text displayed for the new option.</param>
         /// <param name="action">The action associated with the new option.</param>
-        /// <param name="color">The color of the text displayed for the new option.</param>
         public void Add(string text, ActionType action)
         {
             this.options.Add(new MenuOption(false, text, action));
@@ -50,7 +49,6 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="text">The text displayed for the cancel option.</param>
         /// <param name="action">The action associated with the cancel option.</param>
-        /// <param name="color">The color of the text displayed for the cancel option.</param>
         public void SetCancel(string text, ActionType action)
         {
             this.cancel = new MenuOption(true, text, action);

@@ -23,7 +23,6 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="text">The text displayed for the new option.</param>
         /// <param name="value">The value returned by the new option.</param>
-        /// <param name="color">The color of the text displayed for the new option.</param>
         public void Add(string text, T value)
         {
             this.Add(text, () => value);
@@ -34,7 +33,6 @@ namespace CommandLineParsing
         /// The default value of <typeparamref name="T"/> is returned if the cancel option is selected.
         /// </summary>
         /// <param name="text">The text displayed for the cancel option.</param>
-        /// <param name="color">The color of the text displayed for the cancel option.</param>
         public void SetCancel(string text)
         {
             base.SetCancel(text, () => default(T));
@@ -44,7 +42,6 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="text">The text displayed for the cancel option.</param>
         /// <param name="value">The value of type <typeparamref name="T"/> that should be returned if the cancel option is selected.</param>
-        /// <param name="color">The color of the text displayed for the cancel option.</param>
         public void SetCancel(string text, T value)
         {
             base.SetCancel(text, () => value);
