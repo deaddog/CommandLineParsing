@@ -70,6 +70,7 @@
     <Compile Include="UnknownArgumentMessage.cs" />
     <Compile Include="ValidationExtension.cs" />
     <Compile Include="Validator.cs" />
+    <Compile Include="Validator[T].cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
