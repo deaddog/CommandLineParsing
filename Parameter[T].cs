@@ -17,7 +17,6 @@ namespace CommandLineParsing
 #pragma warning disable 1591
 
         protected T value;
-        protected bool isDefault;
 
         protected readonly bool enumIgnore;
         private TryParse<T> parser;
@@ -34,7 +33,6 @@ namespace CommandLineParsing
             : base(name, alternatives, description, required)
         {
             this.value = default(T);
-            this.isDefault = true;
 
             this.enumIgnore = enumIgnore;
             this.parser = null;
@@ -58,16 +56,6 @@ namespace CommandLineParsing
             get { return value; }
             set { this.value = value; }
         }
-        /// <summary>
-        /// Gets a value indicating whether the <see cref="Value"/> property holds the default value.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this <see cref="Parameter{T}"/> is not provided for the executed command; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsDefault
-        {
-            get { return isDefault; }
-        }
 
         /// <summary>
         /// Sets the default value for this <see cref="Parameter{T}"/>.
@@ -81,7 +69,7 @@ namespace CommandLineParsing
                 throw new InvalidOperationException("A parameter cannot be both required and have a default value.");
 
             this.value = value;
-            this.isDefault = true;
+            this.IsSet = false;
         }
 
         /// <summary>
@@ -170,7 +158,6 @@ namespace CommandLineParsing
             if (msg.IsError)
                 return msg;
 
-            isDefault = false;
             IsSet = true;
             value = temp;
             doCallback();
@@ -198,7 +185,7 @@ namespace CommandLineParsing
                 Name,
                 typeof(T).Name,
                 Object.ReferenceEquals(value, null) ? "<null>" : value.ToString(),
-                isDefault ? " (default)" : "");
+                IsSet ? "" : " (default)");
         }
     }
 }

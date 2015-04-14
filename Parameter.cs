@@ -100,6 +100,7 @@ namespace CommandLineParsing
 
         /// <summary>
         /// Gets a value indicating whether this <see cref="Parameter"/> has been used when executing its containing <see cref="Command"/>.
+        /// If <c>false</c> any value contained by the <see cref="Parameter"/> is considered its default value.
         /// </summary>
         /// <value>
         ///   <c>true</c> if this instance is used; otherwise, <c>false</c>.

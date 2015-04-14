@@ -37,7 +37,6 @@ namespace CommandLineParsing
                 return msg;
 
             IsSet = true;
-            isDefault = false;
             value = temp;
             doCallback();
 
@@ -58,7 +57,7 @@ namespace CommandLineParsing
                 Name,
                 typeof(T).Name,
                 Object.ReferenceEquals(value, null) ? "<null>" : ("{" + string.Join(", ", value) + "}"),
-                isDefault ? " (default)" : "");
+                IsSet ? "" : " (default)");
         }
     }
 }
