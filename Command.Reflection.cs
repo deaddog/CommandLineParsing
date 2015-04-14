@@ -73,13 +73,14 @@ namespace CommandLineParsing
                 string name = nonAtt != null ? null : (nameAtt != null ? nameAtt.name : "--" + f.Name);
                 string[] alternatives = nameAtt != null ? nameAtt.alternatives : new string[0];
                 string description = descAtt != null ? descAtt.description : string.Empty;
-                Message required = reqAtt != null ? reqAtt.message ?? Required.defaultMessage(name) : Message.NoError;
+                Message required =
+                    reqAtt != null ? reqAtt.message ?? Required.defaultMessage(name) : Message.NoError;
                 bool ignore = ignAtt != null;
                 object defaultValue = defAtt != null ? defAtt.value : null;
 
                 Parameter par;
                 if (f.FieldType == typeof(FlagParameter))
-                    par = ctr.Invoke(new object[] { name, alternatives, description, required }) as Parameter;
+                    par = ctr.Invoke(new object[] { name, alternatives, description }) as Parameter;
                 else if (f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>))
                     par = ctr.Invoke(new object[] { name, alternatives, description, required, ignore }) as Parameter;
                 else
@@ -98,7 +99,7 @@ namespace CommandLineParsing
             if (fieldType == typeof(FlagParameter))
                 return fieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance,
                     null,
-                    new Type[] { typeof(string), typeof(string[]), typeof(string), typeof(Message) },
+                    new Type[] { typeof(string), typeof(string[]), typeof(string) },
                     null);
 
             if (fieldType.GetGenericTypeDefinition() == typeof(Parameter<>))
