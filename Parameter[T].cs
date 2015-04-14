@@ -171,6 +171,7 @@ namespace CommandLineParsing
                 return msg;
 
             isDefault = false;
+            IsSet = true;
             value = temp;
             doCallback();
 

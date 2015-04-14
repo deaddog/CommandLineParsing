@@ -36,6 +36,7 @@ namespace CommandLineParsing
             if (msg.IsError)
                 return msg;
 
+            IsSet = true;
             isDefault = false;
             value = temp;
             doCallback();

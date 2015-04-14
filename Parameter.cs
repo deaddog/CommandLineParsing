@@ -18,6 +18,7 @@ namespace CommandLineParsing
         private string description;
 
         private Message required;
+        private bool isset;
 
         private Action callback;
         protected void doCallback()
@@ -42,6 +43,7 @@ namespace CommandLineParsing
             this.alternatives = alternatives;
             this.description = description;
             this.required = required;
+            this.isset = false;
         }
 
         internal abstract Message Handle(Argument argument);
@@ -94,6 +96,18 @@ namespace CommandLineParsing
         internal Message RequiredMessage
         {
             get { return required; }
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="Parameter"/> has been used when executing its containing <see cref="Command"/>.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if this instance is used; otherwise, <c>false</c>.
+        /// </value>
+        public bool IsSet
+        {
+            get { return isset; }
+            protected set { isset = value; }
         }
 
         /// <summary>

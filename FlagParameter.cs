@@ -12,7 +12,6 @@ namespace CommandLineParsing
     public class FlagParameter : Parameter
     {
         private Message hasValueMessage;
-        private bool isset;
 
         internal FlagParameter(string name, string[] alternatives, string description)
             : base(name, alternatives, description, Message.NoError)
@@ -20,19 +19,7 @@ namespace CommandLineParsing
             if (this.IsRequired)
                 throw new ArgumentException("A FlagParameter cannot be required.", "required");
 
-            isset = false;
             hasValueMessage = name + " is a flag argument, it does not support values.";
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether this <see cref="FlagParameter"/> has been used when executing its containing <see cref="Command"/>.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is used; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsSet
-        {
-            get { return isset; }
         }
 
         /// <summary>
@@ -52,7 +39,7 @@ namespace CommandLineParsing
             if (argument.Count > 0)
                 return hasValueMessage;
 
-            isset = true;
+            IsSet = true;
             doCallback();
 
             return Message.NoError;
@@ -70,7 +57,7 @@ namespace CommandLineParsing
         /// </returns>
         public override string ToString()
         {
-            return string.Format("{0}: {1}", Name, isset ? "set" : "not set");
+            return string.Format("{0}: {1}", Name, IsSet ? "set" : "not set");
         }
     }
 }
