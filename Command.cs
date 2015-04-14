@@ -18,6 +18,8 @@ namespace CommandLineParsing
         private CommandCollection subcommands;
         private ParameterCollection parameters;
 
+        private Validator preValid, postValid;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Command"/> class.
         /// </summary>
@@ -25,6 +27,9 @@ namespace CommandLineParsing
         {
             this.subcommands = new CommandCollection(this);
             this.parameters = new ParameterCollection();
+
+            this.preValid = new Validator();
+            this.postValid = new Validator();
 
             this.initializeParameters();
         }
@@ -90,6 +95,23 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Gets the <see cref="CommandLineParsing.Validator"/> that handles validation for this <see cref="Command"/>.
+        /// This validation is executed before handling arguments.
+        /// </summary>
+        public Validator PreValidator
+        {
+            get { return preValid; }
+        }
+        /// <summary>
+        /// Gets the <see cref="CommandLineParsing.Validator"/> that handles validation for this <see cref="Command"/>.
+        /// This validation is executed after handling arguments.
+        /// </summary>
+        public Validator Validator
+        {
+            get { return postValid; }
+        }
+
+        /// <summary>
         /// Validates each element in <paramref name="collection"/>.
         /// </summary>
         /// <typeparam name="T">The type of elements in <paramref name="collection"/>.</typeparam>
@@ -135,22 +157,6 @@ namespace CommandLineParsing
             return ValidateEach(collection, x => validator(x) ? Message.NoError : errorMessage);
         }
 
-        /// <summary>
-        /// When overridden in a derived class, validates the state of this <see cref="Command"/> before handling any arguments.
-        /// </summary>
-        /// <returns>A <see cref="Message"/> that is the result of the validation. Use <see cref="Message.NoError"/> to indicate validation success.</returns>
-        protected virtual Message ValidateStart()
-        {
-            return Message.NoError;
-        }
-        /// <summary>
-        /// When overridden in a derived class, validates the state of this <see cref="Command"/> after handling (and validating) all of its arguments.
-        /// </summary>
-        /// <returns>A <see cref="Message"/> that is the result of the validation. Use <see cref="Message.NoError"/> to indicate validation success.</returns>
-        protected virtual Message Validate()
-        {
-            return Message.NoError;
-        }
         /// <summary>
         /// When overridden in a derived class, performs any action that is associated with this <see cref="Command"/>.
         /// </summary>
@@ -356,20 +362,11 @@ namespace CommandLineParsing
             private class ActionCommand : Command
             {
                 private Action action;
-                private Func<Message> validation;
 
                 public ActionCommand(Action action, Func<Message> validation)
                 {
                     this.action = action;
-                    this.validation = validation;
-                }
-
-                protected override Message Validate()
-                {
-                    if (validation != null)
-                        return validation();
-                    else
-                        return base.Validate();
+                    this.postValid.Add(validation);
                 }
 
                 protected override void Execute()

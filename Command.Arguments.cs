@@ -47,7 +47,7 @@ namespace CommandLineParsing
                         return executeSubCommand(firstArg, help);
                 }
 
-                Message startvalid = command.ValidateStart();
+                Message startvalid = command.preValid.Validate();
                 if (startvalid.IsError)
                     return startvalid;
 
@@ -75,7 +75,7 @@ namespace CommandLineParsing
                         return nonameMessage;
                 }
 
-                var validMessage = command.Validate();
+                var validMessage = command.postValid.Validate();
                 if (validMessage.IsError)
                     return validMessage;
 
