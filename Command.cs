@@ -298,7 +298,7 @@ namespace CommandLineParsing
                 Add(name, new ActionCommand(action, null));
             }
             /// <summary>
-            /// Adds an <see cref="Action"/> and a <see cref="Func{Message}"/> to the <see cref="CommandCollection"/>, representing the <see cref="Command.Execute"/> and <see cref="Command.Validate"/> methods.
+            /// Adds an <see cref="Action"/> and a <see cref="Func{Message}"/> to the <see cref="CommandCollection"/>, representing the <see cref="Command.Execute"/> method and a validation method.
             /// </summary>
             /// <param name="name">The name that the two methods should be associated with as a subcommand.</param>
             /// <param name="action">The method that should be executed when the subcommand is executed.</param>
