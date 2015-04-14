@@ -112,52 +112,6 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Validates each element in <paramref name="collection"/>.
-        /// </summary>
-        /// <typeparam name="T">The type of elements in <paramref name="collection"/>.</typeparam>
-        /// <param name="collection">The collection of elements that should be validated.</param>
-        /// <param name="validator">A function that returns the result of validating a single element in <paramref name="collection"/>.
-        /// Use <see cref="Message.NoError"/> to indicate validation success.
-        /// If a single element is not validated, the remaining elements are not validated.</param>
-        /// <returns>The <see cref="Message"/> that is the result of validating each element in <paramref name="collection"/>.</returns>
-        protected Message ValidateEach<T>(IEnumerable<T> collection, Func<T, Message> validator)
-        {
-            foreach (var t in collection)
-            {
-                var msg = validator(t);
-                if (msg.IsError)
-                    return msg;
-            }
-            return Message.NoError;
-        }
-        /// <summary>
-        /// Validates each element in <paramref name="collection"/>.
-        /// </summary>
-        /// <typeparam name="T">The type of elements in <paramref name="collection"/>.</typeparam>
-        /// <param name="collection">The collection of elements that should be validated.</param>
-        /// <param name="validator">A function that validates a single <typeparamref name="T"/> element.
-        /// The method should return <c>true</c> if the value is valid; otherwise <c>false</c>.</param>
-        /// <param name="errorMessage">A function that takes the value that could not be validated and returns an error message describing the reason for the message.</param>
-        /// <returns>The <see cref="Message"/> that is the result of validating each element in <paramref name="collection"/>.</returns>
-        protected Message ValidateEach<T>(IEnumerable<T> collection, Func<T, bool> validator, Func<T, Message> errorMessage)
-        {
-            return ValidateEach(collection, x => validator(x) ? Message.NoError : errorMessage(x));
-        }
-        /// <summary>
-        /// Validates each element in <paramref name="collection"/>.
-        /// </summary>
-        /// <typeparam name="T">The type of elements in <paramref name="collection"/>.</typeparam>
-        /// <param name="collection">The collection of elements that should be validated.</param>
-        /// <param name="validator">A function that validates a single <typeparamref name="T"/> element.
-        /// The method should return <c>true</c> if the value is valid; otherwise <c>false</c>.</param>
-        /// <param name="errorMessage">The error message that should be returned if validation of a single element fails (if <paramref name="validator"/> returns <c>false</c>).</param>
-        /// <returns>The <see cref="Message"/> that is the result of validating each element in <paramref name="collection"/>.</returns>
-        protected Message ValidateEach<T>(IEnumerable<T> collection, Func<T, bool> validator, Message errorMessage)
-        {
-            return ValidateEach(collection, x => validator(x) ? Message.NoError : errorMessage);
-        }
-
-        /// <summary>
         /// When overridden in a derived class, performs any action that is associated with this <see cref="Command"/>.
         /// </summary>
         protected virtual void Execute()
