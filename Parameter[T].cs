@@ -45,7 +45,7 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Gets or sets the value parsed by this <see cref="Parameter{T}"/>, or the default value if <see cref="IsDefault"/> is <c>true</c>.
+        /// Gets or sets the value parsed by this <see cref="Parameter{T}"/>, or the default value if <see cref="Parameter.IsSet"/> is <c>false</c>.
         /// Setting the value will override any previously parsed value and any default value.
         /// </summary>
         /// <value>
