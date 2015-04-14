@@ -55,13 +55,13 @@ namespace CommandLineParsing
         /// When an option has been selected, its corresponding delegate is executed.
         /// </summary>
         /// <param name="cleanup">Determines what kind of console cleanup should be applied after displaying the menu.</param>
-        /// <param name="showchoices">if set to <c>true</c> the chosen options are listed as they are selected in the menu.</param>
+        /// <param name="indentation">A string that is used to indent each line in the menu.</param>
         /// <returns>
         /// The value returned by the delegate called (dependant on the option selected).
         /// </returns>
-        public T Show(MenuCleanup cleanup)
+        public T Show(MenuCleanup cleanup, string indentation = null)
         {
-            return ShowAndSelect(cleanup).Action();
+            return ShowAndSelect(cleanup, indentation).Action();
         }
 
         /// <summary>
@@ -69,13 +69,15 @@ namespace CommandLineParsing
         /// When an option has been selected, its corresponding delegate is executed.
         /// </summary>
         /// <param name="repeat">A boolean indicating whether the menu should be displayed repeatedly until the cancel option is selected.</param>
+        /// <param name="showchoices">if set to <c>true</c> the chosen options are listed as they are selected in the menu.</param>
+        /// <param name="indentation">A string that is used to indent each line in the menu.</param>
         /// <returns>An <see cref="IEnumerable{T}"/> that contains the selected elements (one for each time the menu is displayed).</returns>
-        public IEnumerable<T> Show(bool repeat, bool showchoices)
+        public IEnumerable<T> Show(bool repeat, bool showchoices, string indentation = null)
         {
             MenuOption selected;
             do
             {
-                selected = ShowAndSelect(showchoices ? MenuCleanup.RemoveMenuShowChoice : MenuCleanup.RemoveMenu);
+                selected = ShowAndSelect(showchoices ? MenuCleanup.RemoveMenuShowChoice : MenuCleanup.RemoveMenu, indentation);
                 yield return selected.Action();
             } while (repeat && !selected.IsCancel);
         }

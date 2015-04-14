@@ -68,12 +68,15 @@ namespace CommandLineParsing
         /// Displays the menu and returns the selected <see cref="MenuOption" />.
         /// </summary>
         /// <param name="cleanup">Determines what kind of console cleanup should be applied after displaying the menu.</param>
+        /// <param name="indentation">A string that is used to indent each line in the menu.</param>
         /// <returns>
         /// The selected <see cref="MenuOption" />.
         /// </returns>
-        protected MenuOption ShowAndSelect(MenuCleanup cleanup)
+        protected MenuOption ShowAndSelect(MenuCleanup cleanup, string indentation)
         {
             Console.CursorVisible = false;
+
+            int indentW = indentation.Length;
 
             int zeroPosition = Console.CursorTop;
             int cursorPosition = Console.CursorTop;
@@ -81,17 +84,17 @@ namespace CommandLineParsing
             {
                 char prefix = prefixFromIndex(i);
                 if (prefix == ' ')
-                    ColorConsole.WriteLine("     {1}", prefix, options[i].Text);
+                    ColorConsole.WriteLine(indentation + "     {1}", prefix, options[i].Text);
                 else
-                    ColorConsole.WriteLine("  {0}: {1}", prefix, options[i].Text);
+                    ColorConsole.WriteLine(indentation + "  {0}: {1}", prefix, options[i].Text);
             }
 
             if (CanCancel)
-                ColorConsole.WriteLine("  0: " + cancel.Text);
+                ColorConsole.WriteLine(indentation + "  0: " + cancel.Text);
 
 
             int finalPosition = Console.CursorTop;
-            Console.SetCursorPosition(0, cursorPosition);
+            Console.SetCursorPosition(indentW, cursorPosition);
             Console.Write('>');
 
             int selected = -1;
@@ -114,9 +117,9 @@ namespace CommandLineParsing
                         nextPos = lastPos;
                     else if (nextPos > lastPos)
                         nextPos = zeroPosition;
-                    Console.SetCursorPosition(0, cursorPosition);
+                    Console.SetCursorPosition(indentW, cursorPosition);
                     Console.Write(' ');
-                    Console.SetCursorPosition(0, nextPos);
+                    Console.SetCursorPosition(indentW, nextPos);
                     Console.Write('>');
                     cursorPosition = nextPos;
                 }
@@ -132,10 +135,10 @@ namespace CommandLineParsing
             {
                 Console.SetCursorPosition(0, zeroPosition);
                 for (int i = 0; i < options.Count; i++)
-                    ColorConsole.WriteLine(new string(' ', options[i].Text.Length + 5));
+                    ColorConsole.WriteLine(new string(' ', options[i].Text.Length + 5 + indentW));
 
                 if (CanCancel)
-                    ColorConsole.WriteLine(new string(' ', cancel.Text.Length + 5));
+                    ColorConsole.WriteLine(new string(' ', cancel.Text.Length + 5 + indentW));
 
                 finalPosition = zeroPosition;
             }

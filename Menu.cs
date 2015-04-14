@@ -30,9 +30,10 @@ namespace CommandLineParsing
         /// When an option has been selected, its corresponding delegate is executed.
         /// </summary>
         /// <param name="cleanup">Determines what kind of console cleanup should be applied after displaying the menu.</param>
-        public void Show(MenuCleanup cleanup)
+        /// <param name="indentation">A string that is used to indent each line in the menu.</param>
+        public void Show(MenuCleanup cleanup, string indentation = null)
         {
-            ShowAndSelect(cleanup).Action();
+            ShowAndSelect(cleanup, indentation).Action();
         }
         /// <summary>
         /// Shows the menu and waits for an option to be selected.
@@ -40,7 +41,8 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="repeat">A boolean indicating whether the menu should be displayed repeatedly until the cancel option is selected.</param>
         /// <param name="showchoices">if set to <c>true</c> the chosen options are listed as they are selected in the menu.</param>
-        public void Show(bool repeat, bool showchoices)
+        /// <param name="indentation">A string that is used to indent each line in the menu.</param>
+        public void Show(bool repeat, bool showchoices, string indentation = null)
         {
             if (!this.CanCancel && repeat)
                 throw new InvalidOperationException("A menu cannot auto-repeat without a cancel option.");
@@ -48,7 +50,7 @@ namespace CommandLineParsing
             MenuOption selected;
             do
             {
-                selected = ShowAndSelect(showchoices ? MenuCleanup.RemoveMenuShowChoice : MenuCleanup.RemoveMenu);
+                selected = ShowAndSelect(showchoices ? MenuCleanup.RemoveMenuShowChoice : MenuCleanup.RemoveMenu, indentation);
                 selected.Action();
             } while (repeat && !selected.IsCancel);
         }
