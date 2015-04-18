@@ -125,22 +125,22 @@ namespace CommandLineParsing
         /// </summary>
         /// <typeparam name="T">The type of input that the method should accept.</typeparam>
         /// <param name="prompt">The prompt message to display.</param>
+        /// <param name="defaultString">The string that will be displayed when the user is prompted for input.
+        /// The string can be edited in the <see cref="Console"/>.</param>
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
         public static T ReadLine<T>(string prompt, string defaultString, Validator<T> validator = null)
         {
-            if (prompt == null)
-                throw new ArgumentNullException("prompt");
-
             ColorConsole.Write(prompt);
-
             return ReadLine(validator);
         }
         /// <summary>
         /// Reads user input from <see cref="Console"/> and returns a parsed value.
         /// </summary>
         /// <typeparam name="T">The type of input that the method should accept.</typeparam>
+        /// <param name="defaultString">The string that will be displayed when the user is prompted for input.
+        /// The string can be edited in the <see cref="Console"/>.</param>
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
@@ -187,16 +187,36 @@ namespace CommandLineParsing
 
             return result;
         }
+        /// <summary>
+        /// Reads user input from <see cref="Console"/> and returns a parsed value.
+        /// </summary>
+        /// <typeparam name="T">The type of input that the method should accept.</typeparam>
+        /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
+        /// <c>null</c> indicates that no validation should be applied.</param>
+        /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
         public static T ReadLine<T>(Validator<T> validator = null)
         {
             return ReadLine<T>(null, validator);
         }
 
+        /// <summary>
+        /// Writes <paramref name="prompt"/> to <see cref="Console"/> and reads a <see cref="string"/> from <see cref="Console"/>.
+        /// </summary>
+        /// <param name="prompt">The prompt message to display.</param>
+        /// <param name="defaultString">The string that will be displayed when the user is prompted for input.
+        /// The string can be edited in the <see cref="Console"/>.</param>
+        /// <returns>A <see cref="string"/> containing the user input.</returns>
         public static string ReadLine(string prompt, string defaultString)
         {
             ColorConsole.Write(prompt);
             return ReadLine(defaultString);
         }
+        /// <summary>
+        /// Reads a <see cref="string"/> from <see cref="Console"/>.
+        /// </summary>
+        /// <param name="defaultString">The string that will be displayed when the user is prompted for input.
+        /// The string can be edited in the <see cref="Console"/>.</param>
+        /// <returns>A <see cref="string"/> containing the user input.</returns>
         public static string ReadLine(string defaultString)
         {
             int pos = Console.CursorLeft;
@@ -262,6 +282,10 @@ namespace CommandLineParsing
             }
             return sb.ToString();
         }
+        /// <summary>
+        /// Reads a <see cref="string"/> from <see cref="Console"/>.
+        /// </summary>
+        /// <returns>A <see cref="string"/> containing the user input.</returns>
         public static string ReadLine()
         {
             return ReadLine(null);
