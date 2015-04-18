@@ -131,7 +131,7 @@ namespace CommandLineParsing
         public static T Read<T>(string prompt, Validator<T> validator = null)
         {
             if (prompt == null)
-                throw new ArgumentNullException("text");
+                throw new ArgumentNullException("prompt");
 
             ColorConsole.Write(prompt);
 
