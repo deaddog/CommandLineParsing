@@ -37,7 +37,7 @@ namespace CommandLineParsing
         {
             handle(args.Length == 0 ? format : string.Format(format, args), true, true);
         }
-        
+
         /// <summary>
         /// Writes the specified string value to the standard output stream.
         /// </summary>
@@ -186,6 +186,77 @@ namespace CommandLineParsing
             }
 
             return result;
+        }
+
+        public static string ReadLine(string Default)
+        {
+            int pos = Console.CursorLeft;
+            Console.Write(Default);
+            ConsoleKeyInfo info;
+
+            StringBuilder sb = new StringBuilder(Default);
+
+            while (true)
+            {
+                info = Console.ReadKey(true);
+                if (info.Key == ConsoleKey.Backspace)
+                {
+                    if (Console.CursorLeft <= pos) continue;
+                    sb.Remove(Console.CursorLeft - pos - 1, 1);
+                    if (Console.CursorLeft == pos + sb.Length + 1)
+                    {
+                        Console.CursorLeft -= 1;
+                        Console.Write(' ');
+                        Console.CursorLeft -= 1;
+                    }
+                    else
+                    {
+                        int temp = Console.CursorLeft;
+                        Console.CursorLeft -= 1;
+                        var cover = sb.ToString().Substring(Console.CursorLeft - pos) + " ";
+                        Console.Write(sb.ToString().Substring(Console.CursorLeft - pos) + " ");
+                        Console.CursorLeft = temp - 1;
+                    }
+
+                }
+                else if (info.Key == ConsoleKey.Delete)
+                {
+                    if (Console.CursorLeft == pos + sb.Length) continue;
+
+                    int temp = Console.CursorLeft;
+                    sb.Remove(Console.CursorLeft - pos, 1);
+                    Console.Write(sb.ToString().Substring(Console.CursorLeft - pos) + " ");
+                    Console.CursorLeft = temp;
+                }
+
+                else if (info.Key == ConsoleKey.Enter) { Console.Write(Environment.NewLine); break; }
+                else if (info.Key == ConsoleKey.LeftArrow) { if (Console.CursorLeft > pos) Console.CursorLeft--; }
+                else if (info.Key == ConsoleKey.RightArrow) { if (Console.CursorLeft < pos + sb.Length) Console.CursorLeft++; }
+                else if (info.Key == ConsoleKey.Home) Console.CursorLeft = pos;
+                else if (info.Key == ConsoleKey.End) Console.CursorLeft = pos + sb.Length;
+
+                else if (isConsoleChar(info))
+                {
+                    if (Console.CursorLeft == pos + sb.Length)
+                    {
+                        Console.Write(info.KeyChar);
+                        sb.Append(info.KeyChar);
+                    }
+                    else
+                    {
+                        int temp = Console.CursorLeft;
+                        sb.Insert(Console.CursorLeft - pos, info.KeyChar);
+                        Console.Write(sb.ToString().Substring(Console.CursorLeft - pos));
+                        Console.CursorLeft = temp + 1;
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+
+        private static bool isConsoleChar(ConsoleKeyInfo info)
+        {
+            return char.IsLetterOrDigit(info.KeyChar) || char.IsPunctuation(info.KeyChar) || char.IsSymbol(info.KeyChar);
         }
     }
 }
