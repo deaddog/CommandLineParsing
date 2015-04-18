@@ -256,7 +256,7 @@ namespace CommandLineParsing
 
         private static bool isConsoleChar(ConsoleKeyInfo info)
         {
-            return char.IsLetterOrDigit(info.KeyChar) || char.IsPunctuation(info.KeyChar) || char.IsSymbol(info.KeyChar);
+            return char.IsLetterOrDigit(info.KeyChar) || char.IsPunctuation(info.KeyChar) || char.IsSymbol(info.KeyChar) || char.IsSeparator(info.KeyChar);
         }
     }
 }
