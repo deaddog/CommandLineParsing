@@ -128,14 +128,14 @@ namespace CommandLineParsing
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
-        public static T Read<T>(string prompt, Validator<T> validator = null)
+        public static T ReadLine<T>(string prompt, string defaultString, Validator<T> validator = null)
         {
             if (prompt == null)
                 throw new ArgumentNullException("prompt");
 
             ColorConsole.Write(prompt);
 
-            return Read(validator);
+            return ReadLine(validator);
         }
         /// <summary>
         /// Reads user input from <see cref="Console"/> and returns a parsed value.
@@ -144,7 +144,7 @@ namespace CommandLineParsing
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
-        public static T Read<T>(Validator<T> validator = null)
+        public static T ReadLine<T>(string defaultString, Validator<T> validator = null)
         {
             var tryparse = ParserLookup.Table.GetParser<T>(false);
 
@@ -159,7 +159,7 @@ namespace CommandLineParsing
                 System.Console.Write("".PadRight(input.Length, ' '));
                 System.Console.SetCursorPosition(l, t);
 
-                input = System.Console.ReadLine();
+                input = ColorConsole.ReadLine(defaultString);
                 parsed = tryparse(input, out result);
 
                 Message msg = Message.NoError;
@@ -187,14 +187,23 @@ namespace CommandLineParsing
 
             return result;
         }
+        public static T ReadLine<T>(Validator<T> validator = null)
+        {
+            return ReadLine<T>(null, validator);
+        }
 
-        public static string ReadLine(string Default)
+        public static string ReadLine(string prompt, string defaultString)
+        {
+            ColorConsole.Write(prompt);
+            return ReadLine(defaultString);
+        }
+        public static string ReadLine(string defaultString)
         {
             int pos = Console.CursorLeft;
-            Console.Write(Default);
+            Console.Write(defaultString);
             ConsoleKeyInfo info;
 
-            StringBuilder sb = new StringBuilder(Default);
+            StringBuilder sb = new StringBuilder(defaultString);
 
             while (true)
             {
@@ -252,6 +261,10 @@ namespace CommandLineParsing
                 }
             }
             return sb.ToString();
+        }
+        public static string ReadLine()
+        {
+            return ReadLine(null);
         }
 
         private static bool isConsoleChar(ConsoleKeyInfo info)
