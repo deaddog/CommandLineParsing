@@ -106,9 +106,9 @@ namespace CommandLineParsing
                 handle(post, allowcolor, newline);
             }
             else if (newline)
-                Console.WriteLine(input);
+                Console.WriteLine(input.Replace("\\[", "[").Replace("\\]", "]"));
             else
-                Console.Write(input);
+                Console.Write(input.Replace("\\[", "[").Replace("\\]", "]"));
         }
 
         private static ConsoleColor? getColor(string color)
