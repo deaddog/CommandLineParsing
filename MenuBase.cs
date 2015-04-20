@@ -74,7 +74,7 @@ namespace CommandLineParsing
         {
             Console.CursorVisible = false;
 
-            int indentW = indentation.Length;
+            int indentW = (indentation ?? string.Empty).Length;
 
             int zeroPosition = Console.CursorTop;
             int cursorPosition = Console.CursorTop;
