@@ -320,7 +320,8 @@ namespace CommandLineParsing
                 public ActionCommand(Action action, Func<Message> validation)
                 {
                     this.action = action;
-                    this.postValid.Add(validation);
+                    if (validation != null)
+                        this.postValid.Add(validation);
                 }
 
                 protected override void Execute()
