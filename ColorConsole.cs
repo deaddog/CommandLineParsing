@@ -14,7 +14,7 @@ namespace CommandLineParsing
 
         static ColorConsole()
         {
-            colorRegex = new Regex(@"(?<!\\)\[(?<color>[^:]+):(?<content>([^\\\]]|\\\])*)\]");
+            colorRegex = new Regex(@"(?<!\\)\[(?<color>[^:]+):(?<content>([^\\\]\[]|\\\]|\\\[)*)\]");
         }
 
         /// <summary>
