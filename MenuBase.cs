@@ -45,6 +45,16 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Adds a new option to the menu.
+        /// Selecting this option will return the default value for <typeparamref name="ActionType"/>.
+        /// </summary>
+        /// <param name="text">The text displayed for the new option.</param>
+        public void Add(string text)
+        {
+            this.Add(text, default(ActionType));
+        }
+
+        /// <summary>
         /// Sets the cancel option for the menu.
         /// </summary>
         /// <param name="text">The text displayed for the cancel option.</param>
@@ -52,6 +62,16 @@ namespace CommandLineParsing
         public void SetCancel(string text, ActionType action)
         {
             this.cancel = new MenuOption(true, text, action);
+        }
+
+        /// <summary>
+        /// Sets the cancel option for the menu.
+        /// Selecting the cancel option will return the default value for <typeparamref name="ActionType"/>.
+        /// </summary>
+        /// <param name="text">The text displayed for the cancel option.</param>
+        public void SetCancel(string text)
+        {
+            this.SetCancel(text, default(ActionType));
         }
 
         /// <summary>
