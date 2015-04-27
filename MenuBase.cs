@@ -7,7 +7,7 @@ namespace CommandLineParsing
     /// Represents the baseclass for a menu displayed by the <see cref="Console"/> type.
     /// </summary>
     /// <typeparam name="ActionType">The type of actions (delegates) associated with each entry in the menu.</typeparam>
-    public abstract class MenuBase<ActionType> where ActionType : class
+    public class MenuBase<ActionType> where ActionType : class
     {
         private List<MenuOption> options;
         private MenuOption cancel;
