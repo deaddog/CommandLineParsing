@@ -11,23 +11,12 @@ namespace CommandLineParsing
         /// <summary>
         /// Shows the menu and waits for an option to be selected.
         /// When an option has been selected, its corresponding delegate is executed.
+        /// If <paramref name="repeat"/> is <c>true</c> this process is repeated until the cancel option is selected.
         /// </summary>
         /// <param name="menu">The menu that should be shown.</param>
-        /// <param name="cleanup">Determines what kind of console cleanup should be applied after displaying the menu.</param>
-        /// <param name="indentation">A string that is used to indent each line in the menu.</param>
-        public static void Show(this Menu<Action> menu, MenuCleanup cleanup, string indentation = null)
-        {
-            menu.ShowAndSelect(cleanup, indentation).Value();
-        }
-        /// <summary>
-        /// Shows the menu and waits for an option to be selected.
-        /// When an option has been selected, its corresponding delegate is executed.
-        /// </summary>
-        /// <param name="menu">The menu that should be shown.</param>
+        /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
         /// <param name="repeat">A boolean indicating whether the menu should be displayed repeatedly until the cancel option is selected.</param>
-        /// <param name="showchoices">if set to <c>true</c> the chosen options are listed as they are selected in the menu.</param>
-        /// <param name="indentation">A string that is used to indent each line in the menu.</param>
-        public static void Show(this Menu<Action> menu, bool repeat, bool showchoices, string indentation = null)
+        public static void Show(this Menu<Action> menu, MenuSettings settings, bool repeat = false)
         {
             if (!menu.CanCancel && repeat)
                 throw new InvalidOperationException("A menu cannot auto-repeat without a cancel option.");
@@ -35,7 +24,7 @@ namespace CommandLineParsing
             Menu<Action>.MenuOption selected;
             do
             {
-                selected = menu.ShowAndSelect(showchoices ? MenuCleanup.RemoveMenuShowChoice : MenuCleanup.RemoveMenu, indentation);
+                selected = menu.ShowAndSelect(settings);
                 selected.Value();
             } while (repeat && !selected.IsCancel);
         }
@@ -44,32 +33,29 @@ namespace CommandLineParsing
         /// When an option has been selected, its corresponding delegate is executed.
         /// </summary>
         /// <param name="menu">The menu that should be shown.</param>
-        /// <param name="cleanup">Determines what kind of console cleanup should be applied after displaying the menu.</param>
-        /// <param name="indentation">A string that is used to indent each line in the menu.</param>
+        /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
         /// <returns>
         /// The value returned by the delegate called (dependant on the option selected).
         /// </returns>
-        public static T Show<T>(this Menu<Func<T>> menu, MenuCleanup cleanup, string indentation = null)
+        public static T Show<T>(this Menu<Func<T>> menu, MenuSettings settings)
         {
-            return menu.ShowAndSelect(cleanup, indentation).Value();
+            return menu.ShowAndSelect(settings).Value();
         }
         /// <summary>
         /// Shows the menu and waits for an option to be selected.
         /// When an option has been selected, its corresponding delegate is executed.
         /// </summary>
         /// <param name="menu">The menu that should be shown.</param>
-        /// <param name="repeat">A boolean indicating whether the menu should be displayed repeatedly until the cancel option is selected.</param>
-        /// <param name="showchoices">if set to <c>true</c> the chosen options are listed as they are selected in the menu.</param>
-        /// <param name="indentation">A string that is used to indent each line in the menu.</param>
+        /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
         /// <returns>An <see cref="IEnumerable{T}"/> that contains the selected elements (one for each time the menu is displayed).</returns>
-        public static IEnumerable<T> Show<T>(this Menu<Func<T>> menu, bool repeat, bool showchoices, string indentation = null)
+        public static IEnumerable<T> ShowRange<T>(this Menu<Func<T>> menu, MenuSettings settings)
         {
             Menu<Func<T>>.MenuOption selected;
             do
             {
-                selected = menu.ShowAndSelect(showchoices ? MenuCleanup.RemoveMenuShowChoice : MenuCleanup.RemoveMenu, indentation);
+                selected = menu.ShowAndSelect(settings);
                 yield return selected.Value();
-            } while (repeat && !selected.IsCancel);
+            } while (!selected.IsCancel);
         }
 
         /// <summary>

@@ -12,8 +12,6 @@ namespace CommandLineParsing
         private List<MenuOption> options;
         private MenuOption cancel;
 
-        private MenuLabeling labels;
-
         /// <summary>
         /// Gets a boolean value indicating whether or not the menu has a "cancel" option.
         /// </summary>
@@ -25,11 +23,8 @@ namespace CommandLineParsing
         /// <summary>
         /// Initializes a new instance of the <see cref="Menu{T}" /> class.
         /// </summary>
-        /// <param name="labels">Defines the type of labeling used when displaying this menu.</param>
-        public Menu(MenuLabeling labels)
+        public Menu()
         {
-            this.labels = labels;
-
             this.options = new List<MenuOption>();
             this.cancel = null;
         }
@@ -85,30 +80,29 @@ namespace CommandLineParsing
         /// <summary>
         /// Displays the menu and returns the selected <see cref="MenuOption" />.
         /// </summary>
-        /// <param name="cleanup">Determines what kind of console cleanup should be applied after displaying the menu.</param>
-        /// <param name="indentation">A string that is used to indent each line in the menu.</param>
+        /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
         /// <returns>
         /// The selected <see cref="MenuOption" />.
         /// </returns>
-        public MenuOption ShowAndSelect(MenuCleanup cleanup, string indentation)
+        public MenuOption ShowAndSelect(MenuSettings settings)
         {
             Console.CursorVisible = false;
 
-            int indentW = (indentation ?? string.Empty).Length;
+            int indentW = (settings.Indentation ?? string.Empty).Length;
 
             int zeroPosition = Console.CursorTop;
             int cursorPosition = Console.CursorTop;
             for (int i = 0; i < options.Count; i++)
             {
-                char prefix = prefixFromIndex(i);
+                char prefix = prefixFromIndex(i, settings.Labeling);
                 if (prefix == ' ')
-                    ColorConsole.WriteLine(indentation + "     {1}", prefix, options[i].Text);
+                    ColorConsole.WriteLine(settings.Indentation + "     {1}", prefix, options[i].Text);
                 else
-                    ColorConsole.WriteLine(indentation + "  {0}: {1}", prefix, options[i].Text);
+                    ColorConsole.WriteLine(settings.Indentation + "  {0}: {1}", prefix, options[i].Text);
             }
 
             if (CanCancel)
-                ColorConsole.WriteLine(indentation + "  0: " + cancel.Text);
+                ColorConsole.WriteLine(settings.Indentation + "  0: " + cancel.Text);
 
 
             int finalPosition = Console.CursorTop;
@@ -119,7 +113,7 @@ namespace CommandLineParsing
             while (selected == -1)
             {
                 ConsoleKeyInfo key = Console.ReadKey(true);
-                int keyIndex = indexFromKey(key.KeyChar);
+                int keyIndex = indexFromKey(key.KeyChar, settings.Labeling);
                 if (keyIndex < options.Count)
                 {
                     selected = keyIndex;
@@ -149,7 +143,7 @@ namespace CommandLineParsing
 
             MenuOption result = selected == options.Count ? cancel : options[selected];
 
-            if (cleanup == MenuCleanup.RemoveMenu || cleanup == MenuCleanup.RemoveMenuShowChoice)
+            if (settings.Cleanup == MenuCleanup.RemoveMenu || settings.Cleanup == MenuCleanup.RemoveMenuShowChoice)
             {
                 Console.SetCursorPosition(0, zeroPosition);
                 for (int i = 0; i < options.Count; i++)
@@ -164,13 +158,13 @@ namespace CommandLineParsing
             Console.SetCursorPosition(0, finalPosition);
             Console.CursorVisible = true;
 
-            if (cleanup == MenuCleanup.RemoveMenuShowChoice)
-                ColorConsole.WriteLine("Selected {0}: {1}", prefixFromIndex(selected), result.Text);
+            if (settings.Cleanup == MenuCleanup.RemoveMenuShowChoice)
+                ColorConsole.WriteLine("Selected {0}: {1}", prefixFromIndex(selected, settings.Labeling), result.Text);
 
             return result;
         }
 
-        private char prefixFromIndex(int index)
+        private char prefixFromIndex(int index, MenuLabeling labeling)
         {
             if (index < 0)
                 return ' ';
@@ -178,7 +172,7 @@ namespace CommandLineParsing
             if (index == Count)
                 return '0';
 
-            switch (labels)
+            switch (labeling)
             {
                 case MenuLabeling.None:
                     return ' ';
@@ -203,7 +197,7 @@ namespace CommandLineParsing
                     return ' ';
             }
         }
-        private int indexFromKey(char keyChar)
+        private int indexFromKey(char keyChar, MenuLabeling labeling)
         {
             if (keyChar == '0')
                 return -1;
@@ -211,7 +205,7 @@ namespace CommandLineParsing
             if (char.IsUpper(keyChar))
                 keyChar = char.ToLower(keyChar);
 
-            switch (labels)
+            switch (labeling)
             {
                 case MenuLabeling.None:
                     return int.MaxValue;
