@@ -23,7 +23,7 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MenuBase{T}" /> class.
+        /// Initializes a new instance of the <see cref="Menu{T}" /> class.
         /// </summary>
         /// <param name="labels">Defines the type of labeling used when displaying this menu.</param>
         public Menu(MenuLabeling labels)

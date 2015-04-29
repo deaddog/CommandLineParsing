@@ -3,12 +3,16 @@ using System.Collections.Generic;
 
 namespace CommandLineParsing
 {
+    /// <summary>
+    /// Provides additional methods for specialized menu types.
+    /// </summary>
     public static class MenuExtension
     {
         /// <summary>
         /// Shows the menu and waits for an option to be selected.
         /// When an option has been selected, its corresponding delegate is executed.
         /// </summary>
+        /// <param name="menu">The menu that should be shown.</param>
         /// <param name="cleanup">Determines what kind of console cleanup should be applied after displaying the menu.</param>
         /// <param name="indentation">A string that is used to indent each line in the menu.</param>
         public static void Show(this Menu<Action> menu, MenuCleanup cleanup, string indentation = null)
@@ -19,6 +23,7 @@ namespace CommandLineParsing
         /// Shows the menu and waits for an option to be selected.
         /// When an option has been selected, its corresponding delegate is executed.
         /// </summary>
+        /// <param name="menu">The menu that should be shown.</param>
         /// <param name="repeat">A boolean indicating whether the menu should be displayed repeatedly until the cancel option is selected.</param>
         /// <param name="showchoices">if set to <c>true</c> the chosen options are listed as they are selected in the menu.</param>
         /// <param name="indentation">A string that is used to indent each line in the menu.</param>
@@ -38,6 +43,7 @@ namespace CommandLineParsing
         /// Shows the menu and waits for an option to be selected.
         /// When an option has been selected, its corresponding delegate is executed.
         /// </summary>
+        /// <param name="menu">The menu that should be shown.</param>
         /// <param name="cleanup">Determines what kind of console cleanup should be applied after displaying the menu.</param>
         /// <param name="indentation">A string that is used to indent each line in the menu.</param>
         /// <returns>
@@ -51,6 +57,7 @@ namespace CommandLineParsing
         /// Shows the menu and waits for an option to be selected.
         /// When an option has been selected, its corresponding delegate is executed.
         /// </summary>
+        /// <param name="menu">The menu that should be shown.</param>
         /// <param name="repeat">A boolean indicating whether the menu should be displayed repeatedly until the cancel option is selected.</param>
         /// <param name="showchoices">if set to <c>true</c> the chosen options are listed as they are selected in the menu.</param>
         /// <param name="indentation">A string that is used to indent each line in the menu.</param>
@@ -68,6 +75,7 @@ namespace CommandLineParsing
         /// <summary>
         /// Adds a new option to the menu, which returns a constant value.
         /// </summary>
+        /// <param name="menu">The menu to which the option is added.</param>
         /// <param name="text">The text displayed for the new option.</param>
         /// <param name="value">The value returned by the new option.</param>
         public static void Add<T>(this Menu<Func<T>> menu, string text, T value)
@@ -77,6 +85,7 @@ namespace CommandLineParsing
         /// <summary>
         /// Sets the cancel option for the menu.
         /// </summary>
+        /// <param name="menu">The menu for which the cancel option is set.</param>
         /// <param name="text">The text displayed for the cancel option.</param>
         /// <param name="value">The value of type <typeparamref name="T"/> that should be returned if the cancel option is selected.</param>
         public static void SetCancel<T>(this Menu<Func<T>> menu, string text, T value)
