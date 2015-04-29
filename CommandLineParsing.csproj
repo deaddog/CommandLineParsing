@@ -55,6 +55,7 @@
     <Compile Include="MenuCleanup.cs" />
     <Compile Include="MenuExtension.cs" />
     <Compile Include="MenuLabeling.cs" />
+    <Compile Include="MenuSettings.cs" />
     <Compile Include="Menu[T].cs" />
     <Compile Include="Message.cs" />
     <Compile Include="Name.cs" />
