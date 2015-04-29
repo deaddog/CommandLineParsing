@@ -49,7 +49,7 @@ namespace CommandLineParsing
         /// </returns>
         public T Show(MenuCleanup cleanup, string indentation = null)
         {
-            return ShowAndSelect(cleanup, indentation).Action();
+            return ShowAndSelect(cleanup, indentation).Value();
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace CommandLineParsing
             do
             {
                 selected = ShowAndSelect(showchoices ? MenuCleanup.RemoveMenuShowChoice : MenuCleanup.RemoveMenu, indentation);
-                yield return selected.Action();
+                yield return selected.Value();
             } while (repeat && !selected.IsCancel);
         }
     }

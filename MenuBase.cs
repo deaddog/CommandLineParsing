@@ -6,8 +6,8 @@ namespace CommandLineParsing
     /// <summary>
     /// Represents the baseclass for a menu displayed by the <see cref="Console"/> type.
     /// </summary>
-    /// <typeparam name="ActionType">The type of actions (delegates) associated with each entry in the menu.</typeparam>
-    public class MenuBase<ActionType> where ActionType : class
+    /// <typeparam name="T">The type of values associated with each entry in the menu.</typeparam>
+    public class MenuBase<T> where T : class
     {
         private List<MenuOption> options;
         private MenuOption cancel;
@@ -23,7 +23,7 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MenuBase{ActionType}" /> class.
+        /// Initializes a new instance of the <see cref="MenuBase{T}" /> class.
         /// </summary>
         /// <param name="labels">Defines the type of labeling used when displaying this menu.</param>
         public MenuBase(MenuLabeling labels)
@@ -38,40 +38,40 @@ namespace CommandLineParsing
         /// Adds a new option to the menu.
         /// </summary>
         /// <param name="text">The text displayed for the new option.</param>
-        /// <param name="action">The action associated with the new option.</param>
-        public void Add(string text, ActionType action)
+        /// <param name="value">The value associated with the new option.</param>
+        public void Add(string text, T value)
         {
-            this.options.Add(new MenuOption(false, text, action));
+            this.options.Add(new MenuOption(false, text, value));
         }
 
         /// <summary>
         /// Adds a new option to the menu.
-        /// Selecting this option will return the default value for <typeparamref name="ActionType"/>.
+        /// Selecting this option will return the default value for <typeparamref name="T"/>.
         /// </summary>
         /// <param name="text">The text displayed for the new option.</param>
         public void Add(string text)
         {
-            this.Add(text, default(ActionType));
+            this.Add(text, default(T));
         }
 
         /// <summary>
         /// Sets the cancel option for the menu.
         /// </summary>
         /// <param name="text">The text displayed for the cancel option.</param>
-        /// <param name="action">The action associated with the cancel option.</param>
-        public void SetCancel(string text, ActionType action)
+        /// <param name="value">The value associated with the cancel option.</param>
+        public void SetCancel(string text, T value)
         {
-            this.cancel = new MenuOption(true, text, action);
+            this.cancel = new MenuOption(true, text, value);
         }
 
         /// <summary>
         /// Sets the cancel option for the menu.
-        /// Selecting the cancel option will return the default value for <typeparamref name="ActionType"/>.
+        /// Selecting the cancel option will return the default value for <typeparamref name="T"/>.
         /// </summary>
         /// <param name="text">The text displayed for the cancel option.</param>
         public void SetCancel(string text)
         {
-            this.SetCancel(text, default(ActionType));
+            this.SetCancel(text, default(T));
         }
 
         /// <summary>
@@ -248,15 +248,15 @@ namespace CommandLineParsing
             /// </summary>
             public readonly string Text;
             /// <summary>
-            /// The action that should be executed when the option is selected.
+            /// The value that is associated with this <see cref="MenuOption"/>.
             /// </summary>
-            public readonly ActionType Action;
+            public readonly T Value;
 
-            internal MenuOption(bool isCancel, string text, ActionType action)
+            internal MenuOption(bool isCancel, string text, T value)
             {
                 this.IsCancel = isCancel;
                 this.Text = text;
-                this.Action = action;
+                this.Value = value;
             }
         }
     }

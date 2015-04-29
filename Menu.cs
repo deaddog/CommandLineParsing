@@ -24,7 +24,7 @@ namespace CommandLineParsing
         /// <param name="indentation">A string that is used to indent each line in the menu.</param>
         public void Show(MenuCleanup cleanup, string indentation = null)
         {
-            ShowAndSelect(cleanup, indentation).Action();
+            ShowAndSelect(cleanup, indentation).Value();
         }
         /// <summary>
         /// Shows the menu and waits for an option to be selected.
@@ -42,7 +42,7 @@ namespace CommandLineParsing
             do
             {
                 selected = ShowAndSelect(showchoices ? MenuCleanup.RemoveMenuShowChoice : MenuCleanup.RemoveMenu, indentation);
-                selected.Action();
+                selected.Value();
             } while (repeat && !selected.IsCancel);
         }
     }
