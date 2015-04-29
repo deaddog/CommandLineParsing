@@ -7,67 +7,257 @@ namespace CommandLineParsing
     /// Represents a menu where each option is associated with a <see cref="Func{T}"/> delegate.
     /// </summary>
     /// <typeparam name="T">The type of elements returned by the menu.</typeparam>
-    public class Menu<T> : MenuBase<Func<T>>
+    public class Menu<T>
     {
+        private List<MenuOption> options;
+        private MenuOption cancel;
+
+        private MenuLabeling labels;
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="Menu"/> class.
+        /// Gets a boolean value indicating whether or not the menu has a "cancel" option.
         /// </summary>
-        /// <param name="labels">Defines the type of labeling used when displaying this menu.</param>
-        public Menu(MenuLabeling labels)
-            : base(labels)
+        public bool CanCancel
         {
+            get { return cancel != null; }
         }
 
         /// <summary>
-        /// Adds a new option to the menu, which returns a constant value.
+        /// Initializes a new instance of the <see cref="MenuBase{T}" /> class.
+        /// </summary>
+        /// <param name="labels">Defines the type of labeling used when displaying this menu.</param>
+        public Menu(MenuLabeling labels)
+        {
+            this.labels = labels;
+
+            this.options = new List<MenuOption>();
+            this.cancel = null;
+        }
+
+        /// <summary>
+        /// Adds a new option to the menu.
         /// </summary>
         /// <param name="text">The text displayed for the new option.</param>
-        /// <param name="value">The value returned by the new option.</param>
+        /// <param name="value">The value associated with the new option.</param>
         public void Add(string text, T value)
         {
-            this.Add(text, () => value);
+            this.options.Add(new MenuOption(false, text, value));
+        }
+
+        /// <summary>
+        /// Adds a new option to the menu.
+        /// Selecting this option will return the default value for <typeparamref name="T"/>.
+        /// </summary>
+        /// <param name="text">The text displayed for the new option.</param>
+        public void Add(string text)
+        {
+            this.Add(text, default(T));
         }
 
         /// <summary>
         /// Sets the cancel option for the menu.
         /// </summary>
         /// <param name="text">The text displayed for the cancel option.</param>
-        /// <param name="value">The value of type <typeparamref name="T"/> that should be returned if the cancel option is selected.</param>
+        /// <param name="value">The value associated with the cancel option.</param>
         public void SetCancel(string text, T value)
         {
-            base.SetCancel(text, () => value);
+            this.cancel = new MenuOption(true, text, value);
         }
 
         /// <summary>
-        /// Shows the menu and waits for an option to be selected.
-        /// When an option has been selected, its corresponding delegate is executed.
+        /// Sets the cancel option for the menu.
+        /// Selecting the cancel option will return the default value for <typeparamref name="T"/>.
+        /// </summary>
+        /// <param name="text">The text displayed for the cancel option.</param>
+        public void SetCancel(string text)
+        {
+            this.SetCancel(text, default(T));
+        }
+
+        /// <summary>
+        /// Gets the number of options available in the menu (excluding the cancel option).
+        /// </summary>
+        public int Count
+        {
+            get { return options.Count; }
+        }
+
+        /// <summary>
+        /// Displays the menu and returns the selected <see cref="MenuOption" />.
         /// </summary>
         /// <param name="cleanup">Determines what kind of console cleanup should be applied after displaying the menu.</param>
         /// <param name="indentation">A string that is used to indent each line in the menu.</param>
         /// <returns>
-        /// The value returned by the delegate called (dependant on the option selected).
+        /// The selected <see cref="MenuOption" />.
         /// </returns>
-        public T Show(MenuCleanup cleanup, string indentation = null)
+        protected MenuOption ShowAndSelect(MenuCleanup cleanup, string indentation)
         {
-            return ShowAndSelect(cleanup, indentation).Value();
+            Console.CursorVisible = false;
+
+            int indentW = (indentation ?? string.Empty).Length;
+
+            int zeroPosition = Console.CursorTop;
+            int cursorPosition = Console.CursorTop;
+            for (int i = 0; i < options.Count; i++)
+            {
+                char prefix = prefixFromIndex(i);
+                if (prefix == ' ')
+                    ColorConsole.WriteLine(indentation + "     {1}", prefix, options[i].Text);
+                else
+                    ColorConsole.WriteLine(indentation + "  {0}: {1}", prefix, options[i].Text);
+            }
+
+            if (CanCancel)
+                ColorConsole.WriteLine(indentation + "  0: " + cancel.Text);
+
+
+            int finalPosition = Console.CursorTop;
+            Console.SetCursorPosition(indentW, cursorPosition);
+            Console.Write('>');
+
+            int selected = -1;
+            while (selected == -1)
+            {
+                ConsoleKeyInfo key = Console.ReadKey(true);
+                int keyIndex = indexFromKey(key.KeyChar);
+                if (keyIndex < options.Count)
+                {
+                    selected = keyIndex;
+                    if (selected == -1 && CanCancel)
+                        selected = options.Count;
+                }
+                else if (key.Key == ConsoleKey.DownArrow || key.Key == ConsoleKey.UpArrow)
+                {
+                    int nextPos = key.Key == ConsoleKey.DownArrow ? cursorPosition + 1 : cursorPosition - 1;
+                    int lastPos = CanCancel ? options.Count + zeroPosition : options.Count + zeroPosition - 1;
+
+                    if (nextPos - zeroPosition < 0)
+                        nextPos = lastPos;
+                    else if (nextPos > lastPos)
+                        nextPos = zeroPosition;
+                    Console.SetCursorPosition(indentW, cursorPosition);
+                    Console.Write(' ');
+                    Console.SetCursorPosition(indentW, nextPos);
+                    Console.Write('>');
+                    cursorPosition = nextPos;
+                }
+                else if (key.Key == ConsoleKey.Enter)
+                    selected = cursorPosition - zeroPosition;
+                else if (key.Key == ConsoleKey.Escape && CanCancel)
+                    selected = options.Count;
+            }
+
+            MenuOption result = selected == options.Count ? cancel : options[selected];
+
+            if (cleanup == MenuCleanup.RemoveMenu || cleanup == MenuCleanup.RemoveMenuShowChoice)
+            {
+                Console.SetCursorPosition(0, zeroPosition);
+                for (int i = 0; i < options.Count; i++)
+                    ColorConsole.WriteLine(new string(' ', options[i].Text.Length + 5 + indentW));
+
+                if (CanCancel)
+                    ColorConsole.WriteLine(new string(' ', cancel.Text.Length + 5 + indentW));
+
+                finalPosition = zeroPosition;
+            }
+
+            Console.SetCursorPosition(0, finalPosition);
+            Console.CursorVisible = true;
+
+            if (cleanup == MenuCleanup.RemoveMenuShowChoice)
+                ColorConsole.WriteLine("Selected {0}: {1}", prefixFromIndex(selected), result.Text);
+
+            return result;
+        }
+
+        private char prefixFromIndex(int index)
+        {
+            if (index < 0)
+                return ' ';
+
+            if (index == Count)
+                return '0';
+
+            switch (labels)
+            {
+                case MenuLabeling.None:
+                    return ' ';
+
+                case MenuLabeling.Numbers:
+                    return index < 9 ? (char)('1' + index) : ' ';
+
+                case MenuLabeling.Letters:
+                    return (index + 'a') <= 'z' ? (char)(index + 'a') : ' ';
+
+                case MenuLabeling.LettersUpper:
+                    return (index + 'A') <= 'Z' ? (char)(index + 'A') : ' ';
+
+                case MenuLabeling.NumbersAndLetters:
+                    return index < 9 ? (char)('1' + index) :
+                        (index - 9 + 'a') <= 'z' ? (char)(index - 9 + 'a') : ' ';
+
+                case MenuLabeling.NumbersAndLettersUpper:
+                    return index < 9 ? (char)('1' + index) :
+                        (index - 9 + 'A') <= 'Z' ? (char)(index - 9 + 'A') : ' ';
+                default:
+                    return ' ';
+            }
+        }
+        private int indexFromKey(char keyChar)
+        {
+            if (keyChar == '0')
+                return -1;
+
+            if (char.IsUpper(keyChar))
+                keyChar = char.ToLower(keyChar);
+
+            switch (labels)
+            {
+                case MenuLabeling.None:
+                    return int.MaxValue;
+
+                case MenuLabeling.Numbers:
+                    return char.IsNumber(keyChar) ? int.Parse(keyChar.ToString()) - 1 : int.MaxValue;
+
+                case MenuLabeling.Letters:
+                    return char.IsLetter(keyChar) ? keyChar - 'a' : int.MaxValue;
+
+                case MenuLabeling.LettersUpper:
+                    return char.IsLetter(keyChar) ? keyChar - 'a' : int.MaxValue;
+
+                case MenuLabeling.NumbersAndLetters:
+                case MenuLabeling.NumbersAndLettersUpper:
+                    return char.IsNumber(keyChar) ? int.Parse(keyChar.ToString()) - 1 :
+                        char.IsLetter(keyChar) ? keyChar - 'a' + 9 : int.MaxValue;
+                default:
+                    return int.MaxValue;
+            }
         }
 
         /// <summary>
-        /// Shows the menu and waits for an option to be selected.
-        /// When an option has been selected, its corresponding delegate is executed.
+        /// Describes a single option in a menu.
         /// </summary>
-        /// <param name="repeat">A boolean indicating whether the menu should be displayed repeatedly until the cancel option is selected.</param>
-        /// <param name="showchoices">if set to <c>true</c> the chosen options are listed as they are selected in the menu.</param>
-        /// <param name="indentation">A string that is used to indent each line in the menu.</param>
-        /// <returns>An <see cref="IEnumerable{T}"/> that contains the selected elements (one for each time the menu is displayed).</returns>
-        public IEnumerable<T> Show(bool repeat, bool showchoices, string indentation = null)
+        protected class MenuOption
         {
-            MenuOption selected;
-            do
+            /// <summary>
+            /// Indicates if the option is a cancel option.
+            /// </summary>
+            public readonly bool IsCancel;
+            /// <summary>
+            /// The text displayed in the menu for this option.
+            /// </summary>
+            public readonly string Text;
+            /// <summary>
+            /// The value that is associated with this <see cref="MenuOption"/>.
+            /// </summary>
+            public readonly T Value;
+
+            internal MenuOption(bool isCancel, string text, T value)
             {
-                selected = ShowAndSelect(showchoices ? MenuCleanup.RemoveMenuShowChoice : MenuCleanup.RemoveMenu, indentation);
-                yield return selected.Value();
-            } while (repeat && !selected.IsCancel);
+                this.IsCancel = isCancel;
+                this.Text = text;
+                this.Value = value;
+            }
         }
     }
 }
