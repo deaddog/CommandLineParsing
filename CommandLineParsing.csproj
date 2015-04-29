@@ -53,6 +53,7 @@
     <Compile Include="FlagParameter.cs" />
     <Compile Include="IgnoreCase.cs" />
     <Compile Include="MenuCleanup.cs" />
+    <Compile Include="MenuExtension.cs" />
     <Compile Include="MenuLabeling.cs" />
     <Compile Include="Menu[T].cs" />
     <Compile Include="Message.cs" />
