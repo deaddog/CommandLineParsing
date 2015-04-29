@@ -90,7 +90,7 @@ namespace CommandLineParsing
         /// <returns>
         /// The selected <see cref="MenuOption" />.
         /// </returns>
-        protected MenuOption ShowAndSelect(MenuCleanup cleanup, string indentation)
+        public MenuOption ShowAndSelect(MenuCleanup cleanup, string indentation)
         {
             Console.CursorVisible = false;
 
@@ -237,7 +237,7 @@ namespace CommandLineParsing
         /// <summary>
         /// Describes a single option in a menu.
         /// </summary>
-        protected class MenuOption
+        public class MenuOption
         {
             /// <summary>
             /// Indicates if the option is a cancel option.
