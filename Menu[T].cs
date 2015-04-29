@@ -30,15 +30,6 @@ namespace CommandLineParsing
 
         /// <summary>
         /// Sets the cancel option for the menu.
-        /// The default value of <typeparamref name="T"/> is returned if the cancel option is selected.
-        /// </summary>
-        /// <param name="text">The text displayed for the cancel option.</param>
-        public void SetCancel(string text)
-        {
-            base.SetCancel(text, () => default(T));
-        }
-        /// <summary>
-        /// Sets the cancel option for the menu.
         /// </summary>
         /// <param name="text">The text displayed for the cancel option.</param>
         /// <param name="value">The value of type <typeparamref name="T"/> that should be returned if the cancel option is selected.</param>
