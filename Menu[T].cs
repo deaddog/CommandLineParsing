@@ -86,6 +86,8 @@ namespace CommandLineParsing
         /// </returns>
         public MenuOption ShowAndSelect(MenuSettings settings)
         {
+            if (settings == null) settings = new MenuSettings();
+
             Console.CursorVisible = false;
 
             int indentW = (settings.Indentation ?? string.Empty).Length;
