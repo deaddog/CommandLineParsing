@@ -46,7 +46,7 @@ namespace CommandLineParsing
 
         private Dictionary<string, string> values;
 
-        private Config()
+        public Config(string filePath)
         {
             values = new Dictionary<string, string>();
             if (!File.Exists(filePath))
@@ -59,6 +59,8 @@ namespace CommandLineParsing
                 if (temp != null)
                     values[temp.Item1] = temp.Item2;
             }
+
+            this.filePath = filePath;
         }
 
         public string this[string key]
