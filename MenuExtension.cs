@@ -21,12 +21,8 @@ namespace CommandLineParsing
             if (!menu.CanCancel && repeat)
                 throw new InvalidOperationException("A menu cannot auto-repeat without a cancel option.");
 
-            Menu<Action>.MenuOption selected;
-            do
-            {
-                selected = menu.ShowAndSelect(settings);
-                selected.Value();
-            } while (repeat && !selected.IsCancel);
+            foreach (var s in menu.ShowAndSelectRange(settings, false))
+                s.Value();
         }
         /// <summary>
         /// Shows the menu and waits for an option to be selected.
@@ -50,12 +46,8 @@ namespace CommandLineParsing
         /// <returns>An <see cref="IEnumerable{T}"/> that contains the selected elements (one for each time the menu is displayed).</returns>
         public static IEnumerable<T> ShowRange<T>(this Menu<Func<T>> menu, MenuSettings settings)
         {
-            Menu<Func<T>>.MenuOption selected;
-            do
-            {
-                selected = menu.ShowAndSelect(settings);
-                yield return selected.Value();
-            } while (!selected.IsCancel);
+            foreach (var s in menu.ShowAndSelectRange(settings, false))
+                yield return s.Value();
         }
 
         /// <summary>

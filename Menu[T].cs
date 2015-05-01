@@ -166,6 +166,16 @@ namespace CommandLineParsing
             return result;
         }
 
+        public IEnumerable<MenuOption> ShowAndSelectRange(MenuSettings settings, bool yieldCancel = false)
+        {
+            Menu<T>.MenuOption selected;
+            do
+            {
+                selected = ShowAndSelect(settings);
+                yield return selected;
+            } while (!selected.IsCancel);
+        }
+
         private char prefixFromIndex(int index, MenuLabeling labeling)
         {
             if (index < 0)
