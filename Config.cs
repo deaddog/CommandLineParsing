@@ -48,6 +48,8 @@ namespace CommandLineParsing
 
         public Config(string filePath)
         {
+            ensurePath(Path.GetDirectoryName(filePath));
+
             values = new Dictionary<string, string>();
             if (!File.Exists(filePath))
                 return;
