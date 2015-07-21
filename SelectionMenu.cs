@@ -24,7 +24,7 @@ namespace CommandLineParsing
         /// <param name="value">The value associated with the new option.</param>
         public void Add(string text, T value)
         {
-            this.options.Add(new MenuOption(false, text, value));
+            this.options.Add(new MenuOption(text, value));
         }
 
         /// <summary>
@@ -212,10 +212,6 @@ namespace CommandLineParsing
         public class MenuOption
         {
             /// <summary>
-            /// Indicates if the option is a cancel option.
-            /// </summary>
-            public readonly bool IsCancel;
-            /// <summary>
             /// The text displayed in the menu for this option.
             /// </summary>
             public readonly string Text;
@@ -224,9 +220,8 @@ namespace CommandLineParsing
             /// </summary>
             public readonly T Value;
 
-            internal MenuOption(bool isCancel, string text, T value)
+            internal MenuOption(string text, T value)
             {
-                this.IsCancel = isCancel;
                 this.Text = text;
                 this.Value = value;
             }
