@@ -24,7 +24,21 @@ namespace CommandLineParsing
         /// <param name="value">The value associated with the new option.</param>
         public void Add(string text, T value)
         {
-            this.options.Add(new MenuOption(text, value));
+            if (ColorConsole.HasColors(text))
+                Add(text, ColorConsole.ClearColors(text), value);
+            else
+                Add(text + " *", text, value);
+        }
+
+        /// <summary>
+        /// Adds a new option to the menu.
+        /// </summary>
+        /// <param name="onText">The text displayed when the new option is selected.</param>
+        /// <param name="offText">The text displayed when the new option is not selected.</param>
+        /// <param name="value">The value associated with the new option.</param>
+        public void Add(string onText, string offText, T value)
+        {
+            this.options.Add(new MenuOption(onText, offText, value));
         }
 
         /// <summary>
@@ -35,6 +49,17 @@ namespace CommandLineParsing
         public void Add(string text)
         {
             this.Add(text, default(T));
+        }
+
+        /// <summary>
+        /// Adds a new option to the menu.
+        /// Selecting this option will return the default value for <typeparamref name="T"/>.
+        /// </summary>
+        /// <param name="onText">The text displayed when the new option is selected.</param>
+        /// <param name="offText">The text displayed when the new option is not selected.</param>
+        public void Add(string onText, string offText)
+        {
+            this.Add(onText, offText, default(T));
         }
 
         /// <summary>
