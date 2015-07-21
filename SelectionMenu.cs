@@ -253,6 +253,11 @@ namespace CommandLineParsing
         /// </summary>
         public class MenuOption
         {
+            internal string Text
+            {
+                get { return selected ? OnText : OffText; }
+            }
+
             /// <summary>
             /// The text displayed in the menu for this option when it is selected.
             /// </summary>
@@ -266,11 +271,14 @@ namespace CommandLineParsing
             /// </summary>
             public readonly T Value;
 
-            internal MenuOption(string onText, string offText, T value)
+            internal bool selected;
+
+            internal MenuOption(string onText, string offText, T value, bool selected)
             {
                 this.OnText = onText;
                 this.OffText = offText;
                 this.Value = value;
+                this.selected = selected;
             }
         }
     }
