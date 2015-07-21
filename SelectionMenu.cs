@@ -23,7 +23,7 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="text">The text displayed for the new option.</param>
         /// <param name="offText">The text displayed when the new option is not selected.
-        /// If <c>null</c> an asterisk is used to identify selection or color is removed from option when not selected - depending on <paramref name="text"/>.</param>
+        /// If <c>null</c> coloring used to identify when the option is selected.</param>
         /// <param name="value">The value associated with the new option.</param>
         /// <param name="selected">if set to <c>true</c> the option will initially be selected when the menu is displayed.</param>
         public void Add(string text, string offText = null, T value = default(T), bool selected = false)
@@ -37,7 +37,7 @@ namespace CommandLineParsing
                 else
                 {
                     offText = text;
-                    text += " *";
+                    text = "[DarkGreen:" + text + "]";
                 }
 
             this.options.Add(new MenuOption(text, offText, value, selected));
