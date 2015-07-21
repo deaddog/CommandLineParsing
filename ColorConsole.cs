@@ -79,6 +79,16 @@ namespace CommandLineParsing
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Determines whether the specified string includes coloring syntax.
+        /// </summary>
+        /// <param name="input">The string that should be examined.</param>
+        /// <returns><c>true</c>, if <paramref name="input"/> contains any "[Color:Text]" strings; otherwise, <c>false</c>.</returns>
+        public static bool HasColors(string input)
+        {
+            return colorRegex.IsMatch(input);
+        }
+
         private static void handle(string input, bool allowcolor, bool newline)
         {
             var m = colorRegex.Match(input);

@@ -1,72 +1,56 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CommandLineParsing
 {
-    /// <summary>
-    /// Represents a menu where each option is associated with a <see cref="Func{T}"/> delegate.
-    /// </summary>
-    /// <typeparam name="T">The type of elements returned by the menu.</typeparam>
-    public class Menu<T>
+    public class SelectionMenu<T>
     {
         private List<MenuOption> options;
-        private MenuOption cancel;
-
-        /// <summary>
-        /// Gets a boolean value indicating whether or not the menu has a "cancel" option.
-        /// </summary>
-        public bool CanCancel
-        {
-            get { return cancel != null; }
-        }
+        private string doneText;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Menu{T}" /> class.
         /// </summary>
-        public Menu()
+        public SelectionMenu()
         {
             this.options = new List<MenuOption>();
-            this.cancel = null;
+            this.doneText = "Done";
         }
 
         /// <summary>
         /// Adds a new option to the menu.
         /// </summary>
         /// <param name="text">The text displayed for the new option.</param>
+        /// <param name="offText">The text displayed when the new option is not selected.
+        /// If <c>null</c> coloring used to identify when the option is selected.</param>
         /// <param name="value">The value associated with the new option.</param>
-        public void Add(string text, T value)
+        /// <param name="selected">if set to <c>true</c> the option will initially be selected when the menu is displayed.</param>
+        public void Add(string text, string offText = null, T value = default(T), bool selected = false)
         {
-            this.options.Add(new MenuOption(false, text, value));
+            if (text == null)
+                throw new ArgumentNullException("text");
+
+            if (offText == null)
+                if (ColorConsole.HasColors(text))
+                    offText = ColorConsole.ClearColors(text);
+                else
+                {
+                    offText = text;
+                    text = "[DarkGreen:" + text + "]";
+                }
+
+            this.options.Add(new MenuOption(text, offText, value, selected));
         }
 
         /// <summary>
-        /// Adds a new option to the menu.
-        /// Selecting this option will return the default value for <typeparamref name="T"/>.
+        /// Gets or sets the text displayed for the menu option that terminates selection.
+        /// Initializes to 'Done'.
         /// </summary>
-        /// <param name="text">The text displayed for the new option.</param>
-        public void Add(string text)
+        public string DoneText
         {
-            this.Add(text, default(T));
-        }
-
-        /// <summary>
-        /// Sets the cancel option for the menu.
-        /// </summary>
-        /// <param name="text">The text displayed for the cancel option.</param>
-        /// <param name="value">The value associated with the cancel option.</param>
-        public void SetCancel(string text, T value)
-        {
-            this.cancel = new MenuOption(true, text, value);
-        }
-
-        /// <summary>
-        /// Sets the cancel option for the menu.
-        /// Selecting the cancel option will return the default value for <typeparamref name="T"/>.
-        /// </summary>
-        /// <param name="text">The text displayed for the cancel option.</param>
-        public void SetCancel(string text)
-        {
-            this.SetCancel(text, default(T));
+            get { return doneText; }
+            set { doneText = value; }
         }
 
         /// <summary>
@@ -78,13 +62,13 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Displays the menu and returns the selected <see cref="MenuOption" />.
+        /// Displays the menu and returns an array with the selected <see cref="MenuOption"/>s.
         /// </summary>
         /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
         /// <returns>
-        /// The selected <see cref="MenuOption" />.
+        /// The selected <see cref="MenuOption"/>s array.
         /// </returns>
-        public MenuOption ShowAndSelect(MenuSettings settings)
+        public MenuOption[] ShowAndSelect(MenuSettings settings)
         {
             if (settings == null) settings = new MenuSettings();
 
@@ -103,47 +87,54 @@ namespace CommandLineParsing
                     ColorConsole.WriteLine(settings.Indentation + "  {0}: {1}", prefix, options[i].Text);
             }
 
-            if (CanCancel)
-                ColorConsole.WriteLine(settings.Indentation + "  0: " + cancel.Text);
+            ColorConsole.WriteLine(settings.Indentation + "  0: " + doneText);
 
 
             int finalPosition = Console.CursorTop;
             Console.SetCursorPosition(indentW, cursorPosition);
             Console.Write('>');
 
-            int selected = -1;
-            while (selected == -1)
+            while (true)
             {
-                ConsoleKeyInfo key = Console.ReadKey(true);
-                int keyIndex = indexFromKey(key.KeyChar, settings.Labeling);
-                if (keyIndex < options.Count)
+                int selected = -1;
+                while (selected == -1)
                 {
-                    selected = keyIndex;
-                    if (selected == -1 && CanCancel)
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    int keyIndex = indexFromKey(key.KeyChar, settings.Labeling);
+                    if (keyIndex < options.Count)
+                    {
+                        selected = keyIndex;
+                        if (selected == -1)
+                            selected = options.Count;
+                    }
+                    else if (key.Key == ConsoleKey.DownArrow || key.Key == ConsoleKey.UpArrow)
+                    {
+                        int nextPos = key.Key == ConsoleKey.DownArrow ? cursorPosition + 1 : cursorPosition - 1;
+                        int lastPos = options.Count + zeroPosition;
+
+                        if (nextPos - zeroPosition < 0)
+                            nextPos = lastPos;
+                        else if (nextPos > lastPos)
+                            nextPos = zeroPosition;
+                        Console.SetCursorPosition(indentW, cursorPosition);
+                        Console.Write(' ');
+                        Console.SetCursorPosition(indentW, nextPos);
+                        Console.Write('>');
+                        cursorPosition = nextPos;
+                    }
+                    else if (key.Key == ConsoleKey.Enter)
+                        selected = cursorPosition - zeroPosition;
+                    else if (key.Key == ConsoleKey.Escape)
                         selected = options.Count;
                 }
-                else if (key.Key == ConsoleKey.DownArrow || key.Key == ConsoleKey.UpArrow)
-                {
-                    int nextPos = key.Key == ConsoleKey.DownArrow ? cursorPosition + 1 : cursorPosition - 1;
-                    int lastPos = CanCancel ? options.Count + zeroPosition : options.Count + zeroPosition - 1;
 
-                    if (nextPos - zeroPosition < 0)
-                        nextPos = lastPos;
-                    else if (nextPos > lastPos)
-                        nextPos = zeroPosition;
-                    Console.SetCursorPosition(indentW, cursorPosition);
-                    Console.Write(' ');
-                    Console.SetCursorPosition(indentW, nextPos);
-                    Console.Write('>');
-                    cursorPosition = nextPos;
-                }
-                else if (key.Key == ConsoleKey.Enter)
-                    selected = cursorPosition - zeroPosition;
-                else if (key.Key == ConsoleKey.Escape && CanCancel)
-                    selected = options.Count;
+                if (selected == options.Count)
+                    break;
+
+                options[selected].selected = !options[selected].selected;
+                Console.SetCursorPosition(indentW + 5, zeroPosition + selected);
+                ColorConsole.Write(options[selected].Text);
             }
-
-            MenuOption result = selected == options.Count ? cancel : options[selected];
 
             if (settings.Cleanup == MenuCleanup.RemoveMenu || settings.Cleanup == MenuCleanup.RemoveMenuShowChoice)
             {
@@ -151,8 +142,7 @@ namespace CommandLineParsing
                 for (int i = 0; i < options.Count; i++)
                     ColorConsole.WriteLine(new string(' ', options[i].Text.Length + 5 + indentW));
 
-                if (CanCancel)
-                    ColorConsole.WriteLine(new string(' ', cancel.Text.Length + 5 + indentW));
+                ColorConsole.WriteLine(new string(' ', doneText.Length + 5 + indentW));
 
                 finalPosition = zeroPosition;
             }
@@ -161,9 +151,11 @@ namespace CommandLineParsing
             Console.CursorVisible = true;
 
             if (settings.Cleanup == MenuCleanup.RemoveMenuShowChoice)
-                ColorConsole.WriteLine("Selected {0}: {1}", prefixFromIndex(selected, settings.Labeling), result.Text);
+                for (int i = 0; i < options.Count; i++)
+                    if (options[i].selected)
+                        ColorConsole.WriteLine("Selected {0}: {1}", prefixFromIndex(i, settings.Labeling), options[i].Text);
 
-            return result;
+            return options.Where(o => o.selected).ToArray();
         }
 
         private char prefixFromIndex(int index, MenuLabeling labeling)
@@ -235,24 +227,44 @@ namespace CommandLineParsing
         /// </summary>
         public class MenuOption
         {
+            internal string Text
+            {
+                get { return selected ? OnText : OffText; }
+            }
+
             /// <summary>
-            /// Indicates if the option is a cancel option.
+            /// The text displayed in the menu for this option when it is selected.
             /// </summary>
-            public readonly bool IsCancel;
+            public readonly string OnText;
             /// <summary>
-            /// The text displayed in the menu for this option.
+            /// The text displayed in the menu for this option when it is not selected.
             /// </summary>
-            public readonly string Text;
+            public readonly string OffText;
             /// <summary>
             /// The value that is associated with this <see cref="MenuOption"/>.
             /// </summary>
             public readonly T Value;
 
-            internal MenuOption(bool isCancel, string text, T value)
+            internal bool selected;
+
+            internal MenuOption(string onText, string offText, T value, bool selected)
             {
-                this.IsCancel = isCancel;
-                this.Text = text;
+                this.OnText = onText;
+                this.OffText = offText;
+
+                string on = ColorConsole.ClearColors(onText);
+                string off = ColorConsole.ClearColors(offText);
+
+                if (on.Length != off.Length)
+                {
+                    int max = Math.Max(on.Length, off.Length);
+
+                    this.OnText = this.OnText.PadRight(max);
+                    this.OffText = this.OffText.PadRight(max);
+                }
+
                 this.Value = value;
+                this.selected = selected;
             }
         }
     }
