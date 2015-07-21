@@ -166,6 +166,16 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Determines whether the specified key exists in the configuration file.
+        /// </summary>
+        /// <param name="key">The key that is looked for in the configuration file.</param>
+        /// <returns><c>true</c>, if <paramref name="key"/> is defined in the configuration file; otherwise, <c>false</c>.</returns>
+        public bool HasKey(string key)
+        {
+            return values.ContainsKey(key);
+        }
+
+        /// <summary>
         /// Clears the configuration. This also clear the configuration file.
         /// </summary>
         public void Clear()
