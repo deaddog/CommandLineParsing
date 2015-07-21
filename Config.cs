@@ -7,6 +7,9 @@ using System.Text.RegularExpressions;
 
 namespace CommandLineParsing
 {
+    /// <summary>
+    /// Provides a method for managing a simple configuration file, with a collection of key=value pairs.
+    /// </summary>
     public class Config
     {
         private static void ensurePath(string path)
@@ -61,6 +64,11 @@ namespace CommandLineParsing
         private string filePath;
         private Dictionary<string, string> values;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Config"/> class.
+        /// </summary>
+        /// <param name="filePath">The file containing the configuration details.
+        /// If the file does not exist it is created when a key/value pair is added.</param>
         public Config(string filePath)
         {
             this.filePath = filePath;
@@ -80,6 +88,11 @@ namespace CommandLineParsing
             }
         }
 
+        /// <summary>
+        /// Gets or sets the value associated with a key.
+        /// </summary>
+        /// <param name="key">The key (name.name) that the value should be associated with.</param>
+        /// <returns>The value that corresponds to <paramref name="key"/>.</returns>
         public string this[string key]
         {
             get
@@ -133,6 +146,11 @@ namespace CommandLineParsing
             }
         }
 
+        /// <summary>
+        /// Removes the key/value pair with the specified key.
+        /// The pair is also removed from the configuration file.
+        /// </summary>
+        /// <param name="key">The key that should be removed from the configuration.</param>
         public void Remove(string key)
         {
             if (!Regex.IsMatch(key, "^[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*$"))
@@ -147,12 +165,19 @@ namespace CommandLineParsing
             File.WriteAllText(filePath, string.Join("\n", lines.Where(x => x != null)) + "\n", Encoding.UTF8);
         }
 
+        /// <summary>
+        /// Clears the configuration. This also clear the configuration file.
+        /// </summary>
         public void Clear()
         {
             File.WriteAllText(filePath, "");
             values.Clear();
         }
 
+        /// <summary>
+        /// Gets all the key/value pairs in the configuration.
+        /// </summary>
+        /// <returns>A collection of all key/value pairs in the configuration.</returns>
         public IEnumerable<KeyValuePair<string, string>> GetAll()
         {
             foreach (var pair in values)
