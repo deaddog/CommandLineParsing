@@ -229,17 +229,22 @@ namespace CommandLineParsing
         public class MenuOption
         {
             /// <summary>
-            /// The text displayed in the menu for this option.
+            /// The text displayed in the menu for this option when it is selected.
             /// </summary>
-            public readonly string Text;
+            public readonly string OnText;
+            /// <summary>
+            /// The text displayed in the menu for this option when it is not selected.
+            /// </summary>
+            public readonly string OffText;
             /// <summary>
             /// The value that is associated with this <see cref="MenuOption"/>.
             /// </summary>
             public readonly T Value;
 
-            internal MenuOption(string text, T value)
+            internal MenuOption(string onText, string offText, T value)
             {
-                this.Text = text;
+                this.OnText = onText;
+                this.OffText = offText;
                 this.Value = value;
             }
         }
