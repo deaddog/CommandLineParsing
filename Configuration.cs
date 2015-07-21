@@ -8,9 +8,9 @@ using System.Text.RegularExpressions;
 namespace CommandLineParsing
 {
     /// <summary>
-    /// Provides a method for managing a simple configuration file, with a collection of key=value pairs.
+    /// Provides a set of methods for managing a simple configuration file, with a collection of key=value pairs.
     /// </summary>
-    public class Config
+    public class Configuration
     {
         private static void ensurePath(string path)
         {
@@ -45,7 +45,7 @@ namespace CommandLineParsing
                 return Tuple.Create(pair.Groups["name"].Value, pair.Groups["value"].Value);
         }
 
-        static Config()
+        static Configuration()
         {
             string KEYCHARS = "[a-zA-Z][a-zA-Z0-9]*";
             string NAME = "(?<rootname>" + KEYCHARS + ")";
@@ -65,11 +65,11 @@ namespace CommandLineParsing
         private Dictionary<string, string> values;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Config"/> class.
+        /// Initializes a new instance of the <see cref="Configuration"/> class.
         /// </summary>
         /// <param name="filePath">The file containing the configuration details.
         /// If the file does not exist it is created when a key/value pair is added.</param>
-        public Config(string filePath)
+        public Configuration(string filePath)
         {
             this.filePath = filePath;
 
