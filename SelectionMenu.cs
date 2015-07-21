@@ -7,15 +7,6 @@ namespace CommandLineParsing
     {
         private List<MenuOption> options;
         private string done;
-        private MenuOption cancel;
-
-        /// <summary>
-        /// Gets a boolean value indicating whether or not the menu has a "cancel" option.
-        /// </summary>
-        public bool CanCancel
-        {
-            get { return cancel != null; }
-        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Menu{T}" /> class.
@@ -24,7 +15,6 @@ namespace CommandLineParsing
         {
             this.options = new List<MenuOption>();
             this.done = "Done";
-            this.cancel = null;
         }
 
         /// <summary>
@@ -51,26 +41,6 @@ namespace CommandLineParsing
         {
             get { return done; }
             set { done = value; }
-        }
-
-        /// <summary>
-        /// Sets the cancel option for the menu.
-        /// </summary>
-        /// <param name="text">The text displayed for the cancel option.</param>
-        /// <param name="value">The value associated with the cancel option.</param>
-        public void SetCancel(string text, T value)
-        {
-            this.cancel = new MenuOption(true, text, value);
-        }
-
-        /// <summary>
-        /// Sets the cancel option for the menu.
-        /// Selecting the cancel option will return the default value for <typeparamref name="T"/>.
-        /// </summary>
-        /// <param name="text">The text displayed for the cancel option.</param>
-        public void SetCancel(string text)
-        {
-            this.SetCancel(text, default(T));
         }
 
         /// <summary>
