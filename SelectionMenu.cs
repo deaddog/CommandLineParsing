@@ -152,6 +152,8 @@ namespace CommandLineParsing
                     break;
 
                 options[selected].selected = !options[selected].selected;
+                Console.SetCursorPosition(indentW + 5, zeroPosition + selected);
+                ColorConsole.Write(options[selected].Text);
             }
 
             if (settings.Cleanup == MenuCleanup.RemoveMenu || settings.Cleanup == MenuCleanup.RemoveMenuShowChoice)
@@ -269,6 +271,18 @@ namespace CommandLineParsing
             {
                 this.OnText = onText;
                 this.OffText = offText;
+
+                string on = ColorConsole.ClearColors(onText);
+                string off = ColorConsole.ClearColors(offText);
+
+                if (on.Length != off.Length)
+                {
+                    int max = Math.Max(on.Length, off.Length);
+
+                    this.OnText = this.OnText.PadRight(max);
+                    this.OffText = this.OffText.PadRight(max);
+                }
+
                 this.Value = value;
                 this.selected = selected;
             }
