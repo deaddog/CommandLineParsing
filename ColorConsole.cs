@@ -14,7 +14,7 @@ namespace CommandLineParsing
 
         static ColorConsole()
         {
-            colorRegex = new Regex(@"(?<!\\)\[(?<color>[^:]+):(?<content>([^\\\]\[]|\\\]|\\\[)*)\]");
+            colorRegex = new Regex(@"(?<!\\)\[(?<color>[^:]+):(?<content>([^\\\]\[]|\\\]|\\\[|\\\\)*)\]");
         }
 
         /// <summary>
@@ -84,10 +84,10 @@ namespace CommandLineParsing
             var m = colorRegex.Match(input);
             if (m.Success)
             {
-                string pre = input.Substring(0, m.Index).Replace("\\[", "[").Replace("\\]", "]");
+                string pre = replaceEscaped(input.Substring(0, m.Index));
                 string post = input.Substring(m.Index + m.Length);
 
-                string content = m.Groups["content"].Value.Replace("\\[", "[").Replace("\\]", "]");
+                string content = replaceEscaped(m.Groups["content"].Value).Replace("\\\\", "\\");
                 if (!allowcolor)
                     Console.Write(pre + content);
                 else
@@ -106,9 +106,15 @@ namespace CommandLineParsing
                 handle(post, allowcolor, newline);
             }
             else if (newline)
-                Console.WriteLine(input.Replace("\\[", "[").Replace("\\]", "]"));
+                Console.WriteLine(replaceEscaped(input));
             else
-                Console.Write(input.Replace("\\[", "[").Replace("\\]", "]"));
+                Console.Write(replaceEscaped(input));
+        }
+
+        private static string replaceEscaped(string input)
+        {
+            return input.Replace("\\[", "[").Replace("\\]", "]");
+
         }
 
         private static ConsoleColor? getColor(string color)
