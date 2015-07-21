@@ -56,13 +56,13 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Displays the menu and returns the selected <see cref="MenuOption" />.
+        /// Displays the menu and returns an array with the selected <see cref="MenuOption"/>s.
         /// </summary>
         /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
         /// <returns>
-        /// The selected <see cref="MenuOption" />.
+        /// The selected <see cref="MenuOption"/>s array.
         /// </returns>
-        public MenuOption ShowAndSelect(MenuSettings settings)
+        public MenuOption[] ShowAndSelect(MenuSettings settings)
         {
             if (settings == null) settings = new MenuSettings();
 
@@ -88,39 +88,55 @@ namespace CommandLineParsing
             Console.SetCursorPosition(indentW, cursorPosition);
             Console.Write('>');
 
-            int selected = -1;
-            while (selected == -1)
+            bool done = false;
+            List<int> selectedIndices = new List<int>();
+
+            while (!done)
             {
-                ConsoleKeyInfo key = Console.ReadKey(true);
-                int keyIndex = indexFromKey(key.KeyChar, settings.Labeling);
-                if (keyIndex < options.Count)
+                int selected = -1;
+                while (selected == -1)
                 {
-                    selected = keyIndex;
-                    if (selected == -1)
+                    ConsoleKeyInfo key = Console.ReadKey(true);
+                    int keyIndex = indexFromKey(key.KeyChar, settings.Labeling);
+                    if (keyIndex < options.Count)
+                    {
+                        selected = keyIndex;
+                        if (selected == -1)
+                            selected = options.Count;
+                    }
+                    else if (key.Key == ConsoleKey.DownArrow || key.Key == ConsoleKey.UpArrow)
+                    {
+                        int nextPos = key.Key == ConsoleKey.DownArrow ? cursorPosition + 1 : cursorPosition - 1;
+                        int lastPos = options.Count + zeroPosition;
+
+                        if (nextPos - zeroPosition < 0)
+                            nextPos = lastPos;
+                        else if (nextPos > lastPos)
+                            nextPos = zeroPosition;
+                        Console.SetCursorPosition(indentW, cursorPosition);
+                        Console.Write(' ');
+                        Console.SetCursorPosition(indentW, nextPos);
+                        Console.Write('>');
+                        cursorPosition = nextPos;
+                    }
+                    else if (key.Key == ConsoleKey.Enter)
+                        selected = cursorPosition - zeroPosition;
+                    else if (key.Key == ConsoleKey.Escape)
                         selected = options.Count;
                 }
-                else if (key.Key == ConsoleKey.DownArrow || key.Key == ConsoleKey.UpArrow)
-                {
-                    int nextPos = key.Key == ConsoleKey.DownArrow ? cursorPosition + 1 : cursorPosition - 1;
-                    int lastPos = options.Count + zeroPosition;
 
-                    if (nextPos - zeroPosition < 0)
-                        nextPos = lastPos;
-                    else if (nextPos > lastPos)
-                        nextPos = zeroPosition;
-                    Console.SetCursorPosition(indentW, cursorPosition);
-                    Console.Write(' ');
-                    Console.SetCursorPosition(indentW, nextPos);
-                    Console.Write('>');
-                    cursorPosition = nextPos;
+                if (selected == options.Count)
+                    done = true;
+                else
+                {
+                    selectedIndices.Add(selected);
                 }
-                else if (key.Key == ConsoleKey.Enter)
-                    selected = cursorPosition - zeroPosition;
-                else if (key.Key == ConsoleKey.Escape)
-                    selected = options.Count;
             }
 
-            MenuOption result = selected == options.Count ? cancel : options[selected];
+            selectedIndices.Sort();
+
+            MenuOption[] result = new MenuOption[selectedIndices.Count];
+            for (int i = 0; i < selectedIndices.Count; i++) result[i] = options[selectedIndices[i]];
 
             if (settings.Cleanup == MenuCleanup.RemoveMenu || settings.Cleanup == MenuCleanup.RemoveMenuShowChoice)
             {
@@ -137,7 +153,8 @@ namespace CommandLineParsing
             Console.CursorVisible = true;
 
             if (settings.Cleanup == MenuCleanup.RemoveMenuShowChoice)
-                ColorConsole.WriteLine("Selected {0}: {1}", prefixFromIndex(selected, settings.Labeling), result.Text);
+                for (int i = 0; i < selectedIndices.Count; i++)
+                    ColorConsole.WriteLine("Selected {0}: {1}", prefixFromIndex(selectedIndices[i], settings.Labeling), result[i].Text);
 
             return result;
         }
