@@ -63,6 +63,8 @@ namespace CommandLineParsing
 
         public Config(string filePath)
         {
+            this.filePath = filePath;
+
             ensurePath(Path.GetDirectoryName(filePath));
 
             values = new Dictionary<string, string>();
@@ -76,8 +78,6 @@ namespace CommandLineParsing
                 if (temp != null)
                     values[temp.Item1] = temp.Item2;
             }
-
-            this.filePath = filePath;
         }
 
         public string this[string key]
