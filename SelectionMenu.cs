@@ -6,7 +6,7 @@ namespace CommandLineParsing
     public class SelectionMenu<T>
     {
         private List<MenuOption> options;
-        private string done;
+        private string doneText;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Menu{T}" /> class.
@@ -14,7 +14,7 @@ namespace CommandLineParsing
         public SelectionMenu()
         {
             this.options = new List<MenuOption>();
-            this.done = "Done";
+            this.doneText = "Done";
         }
 
         /// <summary>
@@ -41,10 +41,10 @@ namespace CommandLineParsing
         /// Gets or sets the text displayed for the menu option that terminates selection.
         /// Initializes to 'Done'.
         /// </summary>
-        public string Done
+        public string DoneText
         {
-            get { return done; }
-            set { done = value; }
+            get { return doneText; }
+            set { doneText = value; }
         }
 
         /// <summary>
@@ -81,7 +81,7 @@ namespace CommandLineParsing
                     ColorConsole.WriteLine(settings.Indentation + "  {0}: {1}", prefix, options[i].Text);
             }
 
-            ColorConsole.WriteLine(settings.Indentation + "  0: " + done);
+            ColorConsole.WriteLine(settings.Indentation + "  0: " + doneText);
 
 
             int finalPosition = Console.CursorTop;
@@ -128,7 +128,7 @@ namespace CommandLineParsing
                 for (int i = 0; i < options.Count; i++)
                     ColorConsole.WriteLine(new string(' ', options[i].Text.Length + 5 + indentW));
 
-                ColorConsole.WriteLine(new string(' ', done.Length + 5 + indentW));
+                ColorConsole.WriteLine(new string(' ', doneText.Length + 5 + indentW));
 
                 finalPosition = zeroPosition;
             }
