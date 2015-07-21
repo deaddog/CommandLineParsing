@@ -42,8 +42,10 @@ namespace CommandLineParsing
                 return Tuple.Create(pair.Groups["key"].Value, pair.Groups["value"].Value);
         }
 
-        private string filePath;
+        private static readonly Regex keyRegex;
+        private static readonly Regex lineRegex;
 
+        private string filePath;
         private Dictionary<string, string> values;
 
         public Config(string filePath)
