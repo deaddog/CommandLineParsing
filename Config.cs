@@ -34,12 +34,25 @@ namespace CommandLineParsing
         {
             line = line.Trim();
 
-            var pair = Regex.Match(line, "(?<key>[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*) *= *(?<value>.*[^ ])");
+            var pair = lineRegex.Match(line);
 
             if (!pair.Success)
                 return null;
             else
-                return Tuple.Create(pair.Groups["key"].Value, pair.Groups["value"].Value);
+                return Tuple.Create(pair.Groups["name"].Value, pair.Groups["value"].Value);
+        }
+
+        static Config()
+        {
+            string KEYCHARS = "[a-zA-Z][a-zA-Z0-9]*";
+            string NAME = "(?<rootname>" + KEYCHARS + ")";
+            string SUBNAME = "(\\.(?<subname>" + KEYCHARS + "))";
+            string KEY = "\\.(?<key>" + KEYCHARS + ")";
+
+            string R_KEY = string.Format("{0}{1}*{2}", NAME, SUBNAME, KEY);
+
+            keyRegex = new Regex(R_KEY);
+            lineRegex = new Regex("^(?<name>" + R_KEY + @")[ \t]*=[ \t]*(?<value>[^ \t][^\r\n]*)");
         }
 
         private static readonly Regex keyRegex;
@@ -90,7 +103,7 @@ namespace CommandLineParsing
                 if (key.Length == 0)
                     return;
 
-                if (!Regex.IsMatch(key, "^[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*$"))
+                if (!keyRegex.IsMatch(key))
                     return;
                 if (value.Contains('\r') || value.Contains('\n'))
                     return;
