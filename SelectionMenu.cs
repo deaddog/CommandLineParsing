@@ -37,6 +37,10 @@ namespace CommandLineParsing
             this.Add(text, default(T));
         }
 
+        /// <summary>
+        /// Gets or sets the text displayed for the menu option that terminates selection.
+        /// Initializes to 'Done'.
+        /// </summary>
         public string Done
         {
             get { return done; }
