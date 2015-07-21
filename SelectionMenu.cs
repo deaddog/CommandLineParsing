@@ -81,8 +81,7 @@ namespace CommandLineParsing
                     ColorConsole.WriteLine(settings.Indentation + "  {0}: {1}", prefix, options[i].Text);
             }
 
-            if (CanCancel)
-                ColorConsole.WriteLine(settings.Indentation + "  0: " + cancel.Text);
+            ColorConsole.WriteLine(settings.Indentation + "  0: " + done);
 
 
             int finalPosition = Console.CursorTop;
@@ -97,13 +96,13 @@ namespace CommandLineParsing
                 if (keyIndex < options.Count)
                 {
                     selected = keyIndex;
-                    if (selected == -1 && CanCancel)
+                    if (selected == -1)
                         selected = options.Count;
                 }
                 else if (key.Key == ConsoleKey.DownArrow || key.Key == ConsoleKey.UpArrow)
                 {
                     int nextPos = key.Key == ConsoleKey.DownArrow ? cursorPosition + 1 : cursorPosition - 1;
-                    int lastPos = CanCancel ? options.Count + zeroPosition : options.Count + zeroPosition - 1;
+                    int lastPos = options.Count + zeroPosition;
 
                     if (nextPos - zeroPosition < 0)
                         nextPos = lastPos;
@@ -117,7 +116,7 @@ namespace CommandLineParsing
                 }
                 else if (key.Key == ConsoleKey.Enter)
                     selected = cursorPosition - zeroPosition;
-                else if (key.Key == ConsoleKey.Escape && CanCancel)
+                else if (key.Key == ConsoleKey.Escape)
                     selected = options.Count;
             }
 
@@ -129,8 +128,7 @@ namespace CommandLineParsing
                 for (int i = 0; i < options.Count; i++)
                     ColorConsole.WriteLine(new string(' ', options[i].Text.Length + 5 + indentW));
 
-                if (CanCancel)
-                    ColorConsole.WriteLine(new string(' ', cancel.Text.Length + 5 + indentW));
+                ColorConsole.WriteLine(new string(' ', done.Length + 5 + indentW));
 
                 finalPosition = zeroPosition;
             }
