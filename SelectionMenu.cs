@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CommandLineParsing
 {
@@ -113,10 +114,7 @@ namespace CommandLineParsing
             Console.SetCursorPosition(indentW, cursorPosition);
             Console.Write('>');
 
-            bool done = false;
-            List<int> selectedIndices = new List<int>();
-
-            while (!done)
+            while (true)
             {
                 int selected = -1;
                 while (selected == -1)
@@ -151,17 +149,10 @@ namespace CommandLineParsing
                 }
 
                 if (selected == options.Count)
-                    done = true;
-                else
-                {
-                    selectedIndices.Add(selected);
-                }
+                    break;
+
+                options[selected].selected = !options[selected].selected;
             }
-
-            selectedIndices.Sort();
-
-            MenuOption[] result = new MenuOption[selectedIndices.Count];
-            for (int i = 0; i < selectedIndices.Count; i++) result[i] = options[selectedIndices[i]];
 
             if (settings.Cleanup == MenuCleanup.RemoveMenu || settings.Cleanup == MenuCleanup.RemoveMenuShowChoice)
             {
@@ -178,10 +169,11 @@ namespace CommandLineParsing
             Console.CursorVisible = true;
 
             if (settings.Cleanup == MenuCleanup.RemoveMenuShowChoice)
-                for (int i = 0; i < selectedIndices.Count; i++)
-                    ColorConsole.WriteLine("Selected {0}: {1}", prefixFromIndex(selectedIndices[i], settings.Labeling), result[i].Text);
+                for (int i = 0; i < options.Count; i++)
+                    if (options[i].selected)
+                        ColorConsole.WriteLine("Selected {0}: {1}", prefixFromIndex(i, settings.Labeling), options[i].Text);
 
-            return result;
+            return options.Where(o => o.selected).ToArray();
         }
 
         private char prefixFromIndex(int index, MenuLabeling labeling)
