@@ -52,6 +52,41 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Displays a <see cref="SelectionMenu{T}"/> where a set of elements from the collection can be selected.
+        /// </summary>
+        /// <typeparam name="T">The type of element in <typeparamref name="collection"/>.</typeparam>
+        /// <param name="collection">The collection of element from which the <see cref="SelectionMenu{T}"/> should be created.</param>
+        /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
+        /// <param name="selected">A function that returns <c>true</c> if an element should initially be selected when the menu is displayed.</param>
+        /// <returns>An array containing the elements that were selected using the displayed <see cref="SelectionMenu{T}"/>.</returns>
+        public static T[] MenuSelectMultiple<T>(this IEnumerable<T> collection, MenuSettings settings, Func<T, bool> selected = null)
+        {
+            return MenuSelectMultiple(collection, settings, x => x.ToString(), x => null, selected);
+        }
+        /// <summary>
+        /// Displays a <see cref="SelectionMenu{T}"/> where a set of elements from the collection can be selected.
+        /// </summary>
+        /// <typeparam name="T">The type of element in <typeparamref name="collection"/>.</typeparam>
+        /// <param name="collection">The collection of element from which the <see cref="SelectionMenu{T}"/> should be created.</param>
+        /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
+        /// <param name="onKeySelector">A function that gets the <see cref="String"/> that should be displayed for an item when it is selected.</param>
+        /// <param name="offKeySelector">A function that gets the <see cref="String"/> that should be displayed for an item when it is not selected.</param>
+        /// <param name="selected">A function that returns <c>true</c> if an element should initially be selected when the menu is displayed.</param>
+        /// <returns>An array containing the elements that were selected using the displayed <see cref="SelectionMenu{T}"/>.</returns>
+        public static T[] MenuSelectMultiple<T>(this IEnumerable<T> collection, MenuSettings settings, Func<T, string> onKeySelector, Func<T, string> offKeySelector, Func<T, bool> selected = null)
+        {
+            SelectionMenu<T> menu = new SelectionMenu<T>();
+
+            foreach (var item in collection)
+                menu.Add(onKeySelector(item), offKeySelector(item), item, selected == null ? false : selected(item));
+
+            var res = menu.ShowAndSelect(settings);
+            T[] arr = new T[res.Length];
+            for (int i = 0; i < res.Length; i++) arr[i] = res[i].Value;
+            return arr;
+        }
+
+        /// <summary>
         /// Adds a new option to the menu, which returns a constant value.
         /// </summary>
         /// <param name="menu">The menu to which the option is added.</param>
