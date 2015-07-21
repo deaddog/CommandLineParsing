@@ -168,7 +168,7 @@ namespace CommandLineParsing
 
         public IEnumerable<MenuOption> ShowAndSelectRange(MenuSettings settings, bool yieldCancel = false)
         {
-            Menu<T>.MenuOption selected;
+            MenuOption selected;
             do
             {
                 selected = ShowAndSelect(settings);
