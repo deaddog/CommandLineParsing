@@ -6,6 +6,7 @@ namespace CommandLineParsing
     public class SelectionMenu<T>
     {
         private List<MenuOption> options;
+        private string done;
         private MenuOption cancel;
 
         /// <summary>
@@ -22,6 +23,7 @@ namespace CommandLineParsing
         public SelectionMenu()
         {
             this.options = new List<MenuOption>();
+            this.done = "Done";
             this.cancel = null;
         }
 
@@ -43,6 +45,12 @@ namespace CommandLineParsing
         public void Add(string text)
         {
             this.Add(text, default(T));
+        }
+
+        public string Done
+        {
+            get { return done; }
+            set { done = value; }
         }
 
         /// <summary>
