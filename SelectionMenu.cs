@@ -22,45 +22,25 @@ namespace CommandLineParsing
         /// Adds a new option to the menu.
         /// </summary>
         /// <param name="text">The text displayed for the new option.</param>
+        /// <param name="offText">The text displayed when the new option is not selected.
+        /// If <c>null</c> an asterisk is used to identify selection or color is removed from option when not selected - depending on <paramref name="text"/>.</param>
         /// <param name="value">The value associated with the new option.</param>
-        public void Add(string text, T value)
+        /// <param name="selected">if set to <c>true</c> the option will initially be selected when the menu is displayed.</param>
+        public void Add(string text, string offText = null, T value = default(T), bool selected = false)
         {
-            if (ColorConsole.HasColors(text))
-                Add(text, ColorConsole.ClearColors(text), value);
-            else
-                Add(text + " *", text, value);
-        }
+            if (text == null)
+                throw new ArgumentNullException("text");
 
-        /// <summary>
-        /// Adds a new option to the menu.
-        /// </summary>
-        /// <param name="onText">The text displayed when the new option is selected.</param>
-        /// <param name="offText">The text displayed when the new option is not selected.</param>
-        /// <param name="value">The value associated with the new option.</param>
-        public void Add(string onText, string offText, T value)
-        {
-            this.options.Add(new MenuOption(onText, offText, value));
-        }
+            if (offText == null)
+                if (ColorConsole.HasColors(text))
+                    offText = ColorConsole.ClearColors(text);
+                else
+                {
+                    offText = text;
+                    text += " *";
+                }
 
-        /// <summary>
-        /// Adds a new option to the menu.
-        /// Selecting this option will return the default value for <typeparamref name="T"/>.
-        /// </summary>
-        /// <param name="text">The text displayed for the new option.</param>
-        public void Add(string text)
-        {
-            this.Add(text, default(T));
-        }
-
-        /// <summary>
-        /// Adds a new option to the menu.
-        /// Selecting this option will return the default value for <typeparamref name="T"/>.
-        /// </summary>
-        /// <param name="onText">The text displayed when the new option is selected.</param>
-        /// <param name="offText">The text displayed when the new option is not selected.</param>
-        public void Add(string onText, string offText)
-        {
-            this.Add(onText, offText, default(T));
+            this.options.Add(new MenuOption(text, offText, value, selected));
         }
 
         /// <summary>
