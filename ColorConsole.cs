@@ -148,8 +148,9 @@ namespace CommandLineParsing
         /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
         public static T ReadLine<T>(string prompt, string defaultString, Validator<T> validator = null)
         {
-            ColorConsole.Write(prompt);
-            return ReadLine(validator);
+            if (prompt != null)
+                ColorConsole.Write(prompt);
+            return ReadLine(defaultString, validator);
         }
         /// <summary>
         /// Reads user input from <see cref="Console"/> and returns a parsed value.
@@ -224,7 +225,8 @@ namespace CommandLineParsing
         /// <returns>A <see cref="string"/> containing the user input.</returns>
         public static string ReadLine(string prompt, string defaultString)
         {
-            ColorConsole.Write(prompt);
+            if (prompt != null)
+                ColorConsole.Write(prompt);
             return ReadLine(defaultString);
         }
         /// <summary>
