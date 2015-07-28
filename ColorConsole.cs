@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -11,10 +12,17 @@ namespace CommandLineParsing
     public static class ColorConsole
     {
         private static readonly Regex colorRegex;
+        private static readonly ColorTable colors;
 
         static ColorConsole()
         {
             colorRegex = new Regex(@"(?<!\\)\[(?<color>[^:]+):(?<content>([^\\\]\[]|\\\]|\\\[|\\\\)*)\]");
+            colors = new ColorTable();
+        }
+
+        public static ColorTable Colors
+        {
+            get { return colors; }
         }
 
         /// <summary>
@@ -105,7 +113,7 @@ namespace CommandLineParsing
                     Console.Write(pre);
                     if (content.Length > 0)
                     {
-                        var c = getColor(m.Groups["color"].Value);
+                        var c = colors[m.Groups["color"].Value];
                         if (c.HasValue)
                             Console.ForegroundColor = c.Value;
                         Console.Write(content);
@@ -125,15 +133,6 @@ namespace CommandLineParsing
         {
             return input.Replace("\\[", "[").Replace("\\]", "]");
 
-        }
-
-        private static ConsoleColor? getColor(string color)
-        {
-            ConsoleColor c;
-            if (!Enum.TryParse(color, out c))
-                return null;
-            else
-                return c;
         }
 
         /// <summary>
@@ -313,10 +312,52 @@ namespace CommandLineParsing
             }
             return sb.ToString();
         }
-        
+
         private static bool isConsoleChar(ConsoleKeyInfo info)
         {
             return char.IsLetterOrDigit(info.KeyChar) || char.IsPunctuation(info.KeyChar) || char.IsSymbol(info.KeyChar) || char.IsSeparator(info.KeyChar);
+        }
+
+        public class ColorTable
+        {
+            private Dictionary<string, ConsoleColor> colors;
+
+            internal ColorTable()
+            {
+                colors = new Dictionary<string, ConsoleColor>();
+
+                foreach (var c in Enum.GetValues(typeof(ConsoleColor)))
+                    colors.Add(c.ToString(), (ConsoleColor)c);
+            }
+
+            public ConsoleColor? this[string name]
+            {
+                get
+                {
+                    if (name == null)
+                        throw new ArgumentNullException(nameof(name));
+                    if (name.Trim().Length == 0)
+                        throw new ArgumentException("Color name must be non-empty.", nameof(name));
+
+                    ConsoleColor c;
+                    if (!colors.TryGetValue(name, out c))
+                        return null;
+                    else
+                        return c;
+                }
+                set
+                {
+                    if (name == null)
+                        throw new ArgumentNullException(nameof(name));
+                    if (name.Trim().Length == 0)
+                        throw new ArgumentException("Color name must be non-empty.", nameof(name));
+
+                    if (value.HasValue)
+                        colors[name] = value.Value;
+                    else
+                        colors.Remove(name);
+                }
+            }
         }
     }
 }
