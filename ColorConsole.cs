@@ -154,16 +154,16 @@ namespace CommandLineParsing
 
             var tryparse = ParserLookup.Table.GetParser<T>(false);
 
-            int l = System.Console.CursorLeft, t = System.Console.CursorTop;
+            int l = Console.CursorLeft, t = Console.CursorTop;
             string input = "";
             T result = default(T);
             bool parsed = false;
 
             while (!parsed)
             {
-                System.Console.SetCursorPosition(l, t);
-                System.Console.Write("".PadRight(input.Length, ' '));
-                System.Console.SetCursorPosition(l, t);
+                Console.SetCursorPosition(l, t);
+                Console.Write("".PadRight(input.Length, ' '));
+                Console.SetCursorPosition(l, t);
 
                 input = ColorConsole.ReadLine(defaultString);
                 parsed = tryparse(input, out result);
@@ -177,19 +177,19 @@ namespace CommandLineParsing
 
                 if (msg.IsError)
                 {
-                    System.Console.CursorVisible = false;
+                    Console.CursorVisible = false;
                     parsed = false;
-                    System.Console.SetCursorPosition(l, t);
-                    System.Console.Write("".PadRight(input.Length, ' '));
+                    Console.SetCursorPosition(l, t);
+                    Console.Write("".PadRight(input.Length, ' '));
 
                     input = msg.GetMessage();
-                    System.Console.ForegroundColor = ConsoleColor.Red;
-                    System.Console.SetCursorPosition(l, t);
-                    System.Console.Write(input);
-                    System.Console.ResetColor();
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.SetCursorPosition(l, t);
+                    Console.Write(input);
+                    Console.ResetColor();
 
-                    System.Console.ReadKey(true);
-                    System.Console.CursorVisible = true;
+                    Console.ReadKey(true);
+                    Console.CursorVisible = true;
                 }
             }
 
