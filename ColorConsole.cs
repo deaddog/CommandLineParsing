@@ -183,7 +183,7 @@ namespace CommandLineParsing
                 if (parsed)
                     msg = validator == null ? Message.NoError : validator.Validate(result);
                 else
-                    msg = string.Format("{0} | A {1} value must be specified.", input, typeof(T).Name);
+                    msg = $"{input} is not a {typeof(T).Name} value.";
 
                 if (msg.IsError)
                 {
