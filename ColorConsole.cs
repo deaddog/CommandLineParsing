@@ -140,9 +140,10 @@ namespace CommandLineParsing
         /// Writes <paramref name="prompt"/> to <see cref="Console"/>, reads user input and returns a parsed value.
         /// </summary>
         /// <typeparam name="T">The type of input that the method should accept.</typeparam>
-        /// <param name="prompt">The prompt message to display.</param>
-        /// <param name="defaultString">The string that will be displayed when the user is prompted for input.
-        /// The string can be edited in the <see cref="Console"/>.</param>
+        /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
+        /// <param name="defaultString">A <see cref="string"/> that the inputtext is initialized to.
+        /// The <see cref="string"/> can be edited in the <see cref="Console"/> and is part of the parsed <see cref="string"/> if not modified.
+        /// <c>null</c> indicates that no initial value should be used.</param>
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
@@ -217,11 +218,12 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Writes <paramref name="prompt"/> to <see cref="Console"/> and reads a <see cref="string"/> from <see cref="Console"/>.
+        /// Reads a <see cref="string"/> from <see cref="Console"/>.
         /// </summary>
-        /// <param name="prompt">The prompt message to display.</param>
-        /// <param name="defaultString">The string that will be displayed when the user is prompted for input.
-        /// The string can be edited in the <see cref="Console"/>.</param>
+        /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
+        /// <param name="defaultString">A <see cref="string"/> that the inputtext is initialized to.
+        /// The <see cref="string"/> can be edited in the <see cref="Console"/> and is part of the returned <see cref="string"/> if not modified.
+        /// <c>null</c> indicates that no initial value should be used.</param>
         /// <returns>A <see cref="string"/> containing the user input.</returns>
         public static string ReadLine(string prompt, string defaultString)
         {
