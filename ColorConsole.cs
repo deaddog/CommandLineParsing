@@ -162,7 +162,7 @@ namespace CommandLineParsing
             while (!parsed)
             {
                 Console.SetCursorPosition(l, t);
-                Console.Write("".PadRight(input.Length, ' '));
+                Console.Write(new string(' ', input.Length));
                 Console.SetCursorPosition(l, t);
 
                 input = ColorConsole.ReadLine(defaultString);
@@ -180,7 +180,7 @@ namespace CommandLineParsing
                     Console.CursorVisible = false;
                     parsed = false;
                     Console.SetCursorPosition(l, t);
-                    Console.Write("".PadRight(input.Length, ' '));
+                    Console.Write(new string(' ', input.Length));
 
                     input = msg.GetMessage();
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -195,7 +195,6 @@ namespace CommandLineParsing
 
             return result;
         }
-
         /// <summary>
         /// Reads a <see cref="string"/> from <see cref="Console"/>.
         /// </summary>
@@ -272,7 +271,49 @@ namespace CommandLineParsing
             }
             return sb.ToString();
         }
+        /// <summary>
+        /// Reads a password from <see cref="Console"/> without printing the input characters.
+        /// </summary>
+        /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
+        /// <param name="passChar">An optional character to display in place of input symbols. <c>null</c> will display nothing to the user.</param>
+        /// <param name="singleSymbol">if set to <c>true</c> <paramref name="passChar"/> will only be printed once, on input.</param>
+        /// <returns>A <see cref="string"/> containing the password.</returns>
+        public static string ReadPassword(string prompt = null, char? passChar = '*', bool singleSymbol = true)
+        {
+            if (prompt != null)
+                ColorConsole.Write(prompt);
 
+            int pos = Console.CursorLeft;
+            ConsoleKeyInfo info;
+
+            StringBuilder sb = new StringBuilder(string.Empty);
+
+            while (true)
+            {
+                info = Console.ReadKey(true);
+                if (info.Key == ConsoleKey.Backspace)
+                {
+                    Console.CursorLeft = pos;
+                    Console.Write(new string(' ', (singleSymbol || !passChar.HasValue) ? 1 : sb.Length));
+                    Console.CursorLeft = pos;
+                    sb.Clear();
+                }
+
+                else if (info.Key == ConsoleKey.Enter) { Console.Write(Environment.NewLine); break; }
+
+                else if (isConsoleChar(info))
+                {
+                    sb.Append(info.KeyChar);
+                    if (passChar.HasValue)
+                    {
+                        if (!singleSymbol || sb.Length == 1)
+                            Console.Write(passChar.Value);
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+        
         private static bool isConsoleChar(ConsoleKeyInfo info)
         {
             return char.IsLetterOrDigit(info.KeyChar) || char.IsPunctuation(info.KeyChar) || char.IsSymbol(info.KeyChar) || char.IsSeparator(info.KeyChar);
