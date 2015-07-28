@@ -327,6 +327,9 @@ namespace CommandLineParsing
             internal ColorTable()
             {
                 colors = new Dictionary<string, ConsoleColor>();
+
+                foreach (var c in Enum.GetValues(typeof(ConsoleColor)))
+                    colors.Add(c.ToString(), (ConsoleColor)c);
             }
         }
     }
