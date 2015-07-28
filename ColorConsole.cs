@@ -177,6 +177,7 @@ namespace CommandLineParsing
 
                 if (msg.IsError)
                 {
+                    System.Console.CursorVisible = false;
                     parsed = false;
                     System.Console.SetCursorPosition(l, t);
                     System.Console.Write("".PadRight(input.Length, ' '));
@@ -188,6 +189,7 @@ namespace CommandLineParsing
                     System.Console.ResetColor();
 
                     System.Console.ReadKey(true);
+                    System.Console.CursorVisible = true;
                 }
             }
 
