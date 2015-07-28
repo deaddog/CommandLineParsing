@@ -113,7 +113,7 @@ namespace CommandLineParsing
                     Console.Write(pre);
                     if (content.Length > 0)
                     {
-                        var c = getColor(m.Groups["color"].Value);
+                        var c = colors[m.Groups["color"].Value];
                         if (c.HasValue)
                             Console.ForegroundColor = c.Value;
                         Console.Write(content);
@@ -133,15 +133,6 @@ namespace CommandLineParsing
         {
             return input.Replace("\\[", "[").Replace("\\]", "]");
 
-        }
-
-        private static ConsoleColor? getColor(string color)
-        {
-            ConsoleColor c;
-            if (!Enum.TryParse(color, out c))
-                return null;
-            else
-                return c;
         }
 
         /// <summary>
@@ -337,6 +328,23 @@ namespace CommandLineParsing
 
                 foreach (var c in Enum.GetValues(typeof(ConsoleColor)))
                     colors.Add(c.ToString(), (ConsoleColor)c);
+            }
+
+            public ConsoleColor? this[string name]
+            {
+                get
+                {
+                    if (name == null)
+                        throw new ArgumentNullException(nameof(name));
+                    if (name.Trim().Length == 0)
+                        throw new ArgumentException("Color name must be non-empty.", nameof(name));
+
+                    ConsoleColor c;
+                    if (!colors.TryGetValue(name, out c))
+                        return null;
+                    else
+                        return c;
+                }
             }
         }
     }
