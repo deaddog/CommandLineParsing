@@ -225,20 +225,11 @@ namespace CommandLineParsing
         /// The <see cref="string"/> can be edited in the <see cref="Console"/> and is part of the returned <see cref="string"/> if not modified.
         /// <c>null</c> indicates that no initial value should be used.</param>
         /// <returns>A <see cref="string"/> containing the user input.</returns>
-        public static string ReadLine(string prompt, string defaultString)
+        public static string ReadLine(string prompt = null, string defaultString = null)
         {
             if (prompt != null)
                 ColorConsole.Write(prompt);
-            return ReadLine(defaultString);
-        }
-        /// <summary>
-        /// Reads a <see cref="string"/> from <see cref="Console"/>.
-        /// </summary>
-        /// <param name="defaultString">The string that will be displayed when the user is prompted for input.
-        /// The string can be edited in the <see cref="Console"/>.</param>
-        /// <returns>A <see cref="string"/> containing the user input.</returns>
-        public static string ReadLine(string defaultString)
-        {
+
             int pos = Console.CursorLeft;
             Console.Write(defaultString);
             ConsoleKeyInfo info;
@@ -301,14 +292,6 @@ namespace CommandLineParsing
                 }
             }
             return sb.ToString();
-        }
-        /// <summary>
-        /// Reads a <see cref="string"/> from <see cref="Console"/>.
-        /// </summary>
-        /// <returns>A <see cref="string"/> containing the user input.</returns>
-        public static string ReadLine()
-        {
-            return ReadLine(null);
         }
 
         private static bool isConsoleChar(ConsoleKeyInfo info)
