@@ -345,6 +345,18 @@ namespace CommandLineParsing
                     else
                         return c;
                 }
+                set
+                {
+                    if (name == null)
+                        throw new ArgumentNullException(nameof(name));
+                    if (name.Trim().Length == 0)
+                        throw new ArgumentException("Color name must be non-empty.", nameof(name));
+
+                    if (value.HasValue)
+                        colors[name] = value.Value;
+                    else
+                        colors.Remove(name);
+                }
             }
         }
     }
