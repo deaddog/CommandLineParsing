@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -313,10 +314,20 @@ namespace CommandLineParsing
             }
             return sb.ToString();
         }
-        
+
         private static bool isConsoleChar(ConsoleKeyInfo info)
         {
             return char.IsLetterOrDigit(info.KeyChar) || char.IsPunctuation(info.KeyChar) || char.IsSymbol(info.KeyChar) || char.IsSeparator(info.KeyChar);
+        }
+
+        public class ColorTable
+        {
+            private Dictionary<string, ConsoleColor> colors;
+
+            internal ColorTable()
+            {
+                colors = new Dictionary<string, ConsoleColor>();
+            }
         }
     }
 }
