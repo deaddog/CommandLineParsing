@@ -147,23 +147,11 @@ namespace CommandLineParsing
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
-        public static T ReadLine<T>(string prompt, string defaultString, Validator<T> validator = null)
+        public static T ReadLine<T>(string prompt = null, string defaultString = null, Validator<T> validator = null)
         {
             if (prompt != null)
                 ColorConsole.Write(prompt);
-            return ReadLine(defaultString, validator);
-        }
-        /// <summary>
-        /// Reads user input from <see cref="Console"/> and returns a parsed value.
-        /// </summary>
-        /// <typeparam name="T">The type of input that the method should accept.</typeparam>
-        /// <param name="defaultString">The string that will be displayed when the user is prompted for input.
-        /// The string can be edited in the <see cref="Console"/>.</param>
-        /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
-        /// <c>null</c> indicates that no validation should be applied.</param>
-        /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
-        public static T ReadLine<T>(string defaultString, Validator<T> validator = null)
-        {
+
             var tryparse = ParserLookup.Table.GetParser<T>(false);
 
             int l = System.Console.CursorLeft, t = System.Console.CursorTop;
@@ -204,17 +192,6 @@ namespace CommandLineParsing
             }
 
             return result;
-        }
-        /// <summary>
-        /// Reads user input from <see cref="Console"/> and returns a parsed value.
-        /// </summary>
-        /// <typeparam name="T">The type of input that the method should accept.</typeparam>
-        /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
-        /// <c>null</c> indicates that no validation should be applied.</param>
-        /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
-        public static T ReadLine<T>(Validator<T> validator = null)
-        {
-            return ReadLine<T>(null, validator);
         }
 
         /// <summary>
