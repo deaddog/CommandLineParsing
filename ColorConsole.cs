@@ -164,7 +164,7 @@ namespace CommandLineParsing
                 Console.Write(new string(' ', input.Length));
                 Console.SetCursorPosition(l, t);
 
-                input = ColorConsole.ReadLine(defaultString);
+                input = ColorConsole.ReadLine(null, defaultString);
                 parsed = tryparse(input, out result);
 
                 Message msg = Message.NoError;
