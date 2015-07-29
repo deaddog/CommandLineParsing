@@ -318,6 +318,9 @@ namespace CommandLineParsing
             return char.IsLetterOrDigit(info.KeyChar) || char.IsPunctuation(info.KeyChar) || char.IsSymbol(info.KeyChar) || char.IsSeparator(info.KeyChar);
         }
 
+        /// <summary>
+        /// Provides a collection of <see cref="string"/>-><see cref="ConsoleColor"/> relations.
+        /// </summary>
         public class ColorTable
         {
             private Dictionary<string, ConsoleColor> colors;
@@ -330,6 +333,13 @@ namespace CommandLineParsing
                     colors.Add(c.ToString(), (ConsoleColor)c);
             }
 
+            /// <summary>
+            /// Gets or sets the <see cref="System.Nullable{ConsoleColor}"/> with the specified name.
+            /// A value of <c>null</c> (in both getter and setter) is equivalent of no color.
+            /// </summary>
+            /// <param name="name">The name associated with the <see cref="ConsoleColor"/>.
+            /// This name does not have to pre-exist in the <see cref="ConsoleColor"/> enum.</param>
+            /// <returns></returns>
             public ConsoleColor? this[string name]
             {
                 get
