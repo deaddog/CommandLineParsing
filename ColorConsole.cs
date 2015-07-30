@@ -39,10 +39,9 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="format">The string format to write, included color information.
         /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
-        /// <param name="args">An array of arguments used for the <paramref name="format"/> string.</param>
-        public static void WriteLine(string format, params object[] args)
+        public static void WriteLine(string format)
         {
-            handle(args.Length == 0 ? format : string.Format(format, args), true);
+            handle(format ?? string.Empty, true);
         }
 
         /// <summary>
@@ -54,13 +53,12 @@ namespace CommandLineParsing
             Console.Write(ClearColors(value ?? string.Empty));
         }
         /// <summary>
-        /// Writes the specified string value, followed by the current line terminator, to the standard output stream.
+        /// Writes the specified string value, followed by the current line terminator, to the standard output stream, discarding any color information.
         /// </summary>
         /// <param name="format">The string format to write. Any color information is discarded.</param>
-        /// <param name="args">An array of arguments used for the <paramref name="format"/> string.</param>
-        public static void WriteLineNoColor(string format, params object[] args)
+        public static void WriteLineNoColor(string format)
         {
-            Console.WriteLine(ClearColors(args.Length == 0 ? format : string.Format(format, args)));
+            Console.WriteLine(ClearColors(format ?? string.Empty));
         }
 
         /// <summary>
