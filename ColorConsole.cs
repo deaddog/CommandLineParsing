@@ -32,7 +32,7 @@ namespace CommandLineParsing
         /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
         public static void Write(string value)
         {
-            handle(value ?? string.Empty, true, false);
+            handle(value ?? string.Empty, false);
         }
         /// <summary>
         /// Writes the specified string value, followed by the current line terminator, to the standard output stream.
@@ -42,7 +42,7 @@ namespace CommandLineParsing
         /// <param name="args">An array of arguments used for the <paramref name="format"/> string.</param>
         public static void WriteLine(string format, params object[] args)
         {
-            handle(args.Length == 0 ? format : string.Format(format, args), true, true);
+            handle(args.Length == 0 ? format : string.Format(format, args), true);
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace CommandLineParsing
             return colorRegex.IsMatch(input);
         }
 
-        private static void handle(string input, bool allowcolor, bool newline)
+        private static void handle(string input, bool newline)
         {
             var m = colorRegex.Match(input);
             if (m.Success)
@@ -104,22 +104,17 @@ namespace CommandLineParsing
                 string post = input.Substring(m.Index + m.Length);
 
                 string content = replaceEscaped(m.Groups["content"].Value).Replace("\\\\", "\\");
-                if (!allowcolor)
-                    Console.Write(pre + content);
-                else
+                Console.Write(pre);
+                if (content.Length > 0)
                 {
-                    Console.Write(pre);
-                    if (content.Length > 0)
-                    {
-                        var c = colors[m.Groups["color"].Value];
-                        if (c.HasValue)
-                            Console.ForegroundColor = c.Value;
-                        Console.Write(content);
-                        Console.ResetColor();
-                    }
+                    var c = colors[m.Groups["color"].Value];
+                    if (c.HasValue)
+                        Console.ForegroundColor = c.Value;
+                    Console.Write(content);
+                    Console.ResetColor();
                 }
 
-                handle(post, allowcolor, newline);
+                handle(post, newline);
             }
             else if (newline)
                 Console.WriteLine(replaceEscaped(input));
