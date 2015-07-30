@@ -102,7 +102,12 @@ namespace CommandLineParsing
         {
             get
             {
-                throw new NotImplementedException();
+                string result = null;
+                foreach (var c in configurations)
+                    if ((result = c[key]) != null)
+                        return result;
+
+                return null;
             }
         }
 
@@ -113,7 +118,10 @@ namespace CommandLineParsing
         /// <returns><c>true</c>, if <paramref name="key"/> is defined any of the configurations in this <see cref="ConfigurationGroup"/>; otherwise, <c>false</c>.</returns>
         public bool HasKey(string key)
         {
-            throw new NotImplementedException();
+            foreach (var c in configurations)
+                if (c.HasKey(key))
+                    return true;
+            return false;
         }
 
         /// <summary>
@@ -125,7 +133,15 @@ namespace CommandLineParsing
         /// </returns>
         public IEnumerable<KeyValuePair<string, string>> GetAll()
         {
-            throw new NotImplementedException();
+            List<string> keys = new List<string>();
+
+            foreach (var c in configurations)
+                foreach (var kvp in c.GetAll())
+                    if (!keys.Contains(kvp.Key))
+                    {
+                        keys.Add(kvp.Key);
+                        yield return kvp;
+                    }
         }
     }
 }
