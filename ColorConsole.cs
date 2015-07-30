@@ -97,8 +97,9 @@ namespace CommandLineParsing
 
         private static void handle(string input, bool newline)
         {
-            var m = colorRegex.Match(input);
-            if (m.Success)
+            Match m;
+
+            while ((m = colorRegex.Match(input)).Success)
             {
                 string pre = replaceEscaped(input.Substring(0, m.Index));
                 string post = input.Substring(m.Index + m.Length);
@@ -108,15 +109,17 @@ namespace CommandLineParsing
                 if (content.Length > 0)
                 {
                     var c = colors[m.Groups["color"].Value];
-                    if (c.HasValue)
+                    bool colored = c.HasValue && content.Trim().Length > 0;
+                    if (colored)
                         Console.ForegroundColor = c.Value;
                     Console.Write(content);
-                    Console.ResetColor();
+                    if (colored)
+                        Console.ResetColor();
                 }
 
-                handle(post, newline);
+                input = post;
             }
-            else if (newline)
+            if (newline)
                 Console.WriteLine(replaceEscaped(input));
             else
                 Console.Write(replaceEscaped(input));
