@@ -37,11 +37,11 @@ namespace CommandLineParsing
         /// <summary>
         /// Writes the specified string value, followed by the current line terminator, to the standard output stream.
         /// </summary>
-        /// <param name="format">The string format to write, included color information.
+        /// <param name="value">The string format to write, included color information.
         /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
-        public static void WriteLine(string format)
+        public static void WriteLine(string value)
         {
-            handle(format ?? string.Empty, true);
+            handle(value ?? string.Empty, true);
         }
 
         /// <summary>
@@ -55,10 +55,10 @@ namespace CommandLineParsing
         /// <summary>
         /// Writes the specified string value, followed by the current line terminator, to the standard output stream, discarding any color information.
         /// </summary>
-        /// <param name="format">The string format to write. Any color information is discarded.</param>
-        public static void WriteLineNoColor(string format)
+        /// <param name="value">The string format to write. Any color information is discarded.</param>
+        public static void WriteLineNoColor(string value)
         {
-            Console.WriteLine(ClearColors(format ?? string.Empty));
+            Console.WriteLine(ClearColors(value ?? string.Empty));
         }
 
         /// <summary>
