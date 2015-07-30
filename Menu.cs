@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace CommandLineParsing
 {
     /// <summary>
-    /// Represents a menu where each option is associated with a <see cref="Func{T}"/> delegate.
+    /// Represents a menu displayed in <see cref="Console"/> allowing the user to select a single element.
+    /// For multiple-element selection see <see cref="SelectionMenu{T}"/>.
     /// </summary>
     /// <typeparam name="T">The type of elements returned by the menu.</typeparam>
     public class Menu<T>

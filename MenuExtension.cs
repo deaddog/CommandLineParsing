@@ -11,7 +11,7 @@ namespace CommandLineParsing
         /// <summary>
         /// Displays a <see cref="Menu{T}"/> where an element from the collection can be selected.
         /// </summary>
-        /// <typeparam name="T">The type of element in <typeparamref name="collection"/>.</typeparam>
+        /// <typeparam name="T">The type of element in <paramref name="collection"/>.</typeparam>
         /// <param name="collection">The collection of element from which the <see cref="Menu{T}"/> should be created.</param>
         /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
         /// <returns>The element that was selected using the displayed <see cref="Menu{T}"/>.</returns>
@@ -22,7 +22,7 @@ namespace CommandLineParsing
         /// <summary>
         /// Displays a <see cref="Menu{T}"/> where an element from the collection can be selected.
         /// </summary>
-        /// <typeparam name="T">The type of element in <typeparamref name="collection"/>.</typeparam>
+        /// <typeparam name="T">The type of element in <paramref name="collection"/>.</typeparam>
         /// <param name="collection">The collection of element from which the <see cref="Menu{T}"/> should be created.</param>
         /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
         /// <param name="keySelector">A function that gets the <see cref="String"/> that should be displayed for an item in the collection</param>
@@ -54,7 +54,7 @@ namespace CommandLineParsing
         /// <summary>
         /// Displays a <see cref="SelectionMenu{T}"/> where a set of elements from the collection can be selected.
         /// </summary>
-        /// <typeparam name="T">The type of element in <typeparamref name="collection"/>.</typeparam>
+        /// <typeparam name="T">The type of element in <paramref name="collection"/>.</typeparam>
         /// <param name="collection">The collection of element from which the <see cref="SelectionMenu{T}"/> should be created.</param>
         /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
         /// <param name="selected">A function that returns <c>true</c> if an element should initially be selected when the menu is displayed.</param>
@@ -66,7 +66,7 @@ namespace CommandLineParsing
         /// <summary>
         /// Displays a <see cref="SelectionMenu{T}"/> where a set of elements from the collection can be selected.
         /// </summary>
-        /// <typeparam name="T">The type of element in <typeparamref name="collection"/>.</typeparam>
+        /// <typeparam name="T">The type of element in <paramref name="collection"/>.</typeparam>
         /// <param name="collection">The collection of element from which the <see cref="SelectionMenu{T}"/> should be created.</param>
         /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
         /// <param name="onKeySelector">A function that gets the <see cref="String"/> that should be displayed for an item when it is selected.</param>

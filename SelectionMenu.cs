@@ -4,6 +4,11 @@ using System.Linq;
 
 namespace CommandLineParsing
 {
+    /// <summary>
+    /// Represents a menu displayed in <see cref="Console"/> allowing the user to select multiple elements.
+    /// For single-element selection see <see cref="Menu{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of elements returned by the menu.</typeparam>
     public class SelectionMenu<T>
     {
         private List<MenuOption> options;
