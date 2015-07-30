@@ -30,37 +30,28 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="value">The string format to write, included color information.
         /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
-        public static void Write(string value)
+        /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
+        public static void Write(string value, bool allowcolor = true)
         {
-            handle(value ?? string.Empty, false);
+            if (allowcolor)
+                handle(value ?? string.Empty, false);
+            else
+                Console.Write(ClearColors(value ?? string.Empty));
         }
         /// <summary>
         /// Writes the specified string value, followed by the current line terminator, to the standard output stream.
         /// </summary>
         /// <param name="value">The string format to write, included color information.
         /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
-        public static void WriteLine(string value)
+        /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
+        public static void WriteLine(string value, bool allowcolor = true)
         {
-            handle(value ?? string.Empty, true);
+            if (allowcolor)
+                handle(value ?? string.Empty, true);
+            else
+                Console.WriteLine(ClearColors(value ?? string.Empty));
         }
-
-        /// <summary>
-        /// Writes the specified string value to the standard output stream, discarding any color information.
-        /// </summary>
-        /// <param name="value">The string format to write. Any color information is discarded.</param>
-        public static void WriteNoColor(string value)
-        {
-            Console.Write(ClearColors(value ?? string.Empty));
-        }
-        /// <summary>
-        /// Writes the specified string value, followed by the current line terminator, to the standard output stream, discarding any color information.
-        /// </summary>
-        /// <param name="value">The string format to write. Any color information is discarded.</param>
-        public static void WriteLineNoColor(string value)
-        {
-            Console.WriteLine(ClearColors(value ?? string.Empty));
-        }
-
+        
         /// <summary>
         /// Removes color-coding information from a string.
         /// The string "[Color:Text]" will print Text to the console using the default color as the foreground color.
