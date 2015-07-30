@@ -98,9 +98,9 @@ namespace CommandLineParsing
             {
                 char prefix = prefixFromIndex(i, settings.Labeling);
                 if (prefix == ' ')
-                    ColorConsole.WriteLine(settings.Indentation + "     {1}", prefix, options[i].Text);
+                    ColorConsole.WriteLine($"{settings.Indentation}     {options[i].Text}");
                 else
-                    ColorConsole.WriteLine(settings.Indentation + "  {0}: {1}", prefix, options[i].Text);
+                    ColorConsole.WriteLine($"{settings.Indentation}  {prefix}: {options[i].Text}");
             }
 
             if (CanCancel)
@@ -161,7 +161,7 @@ namespace CommandLineParsing
             Console.CursorVisible = true;
 
             if (settings.Cleanup == MenuCleanup.RemoveMenuShowChoice)
-                ColorConsole.WriteLine("Selected {0}: {1}", prefixFromIndex(selected, settings.Labeling), result.Text);
+                ColorConsole.WriteLine($"Selected {prefixFromIndex(selected, settings.Labeling)}: {result.Text}");
 
             return result;
         }
