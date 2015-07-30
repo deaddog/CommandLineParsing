@@ -28,12 +28,11 @@ namespace CommandLineParsing
         /// <summary>
         /// Writes the specified string value to the standard output stream.
         /// </summary>
-        /// <param name="format">The string format to write, included color information.
+        /// <param name="value">The string format to write, included color information.
         /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
-        /// <param name="args">An array of arguments used for the <paramref name="format"/> string.</param>
-        public static void Write(string format, params object[] args)
+        public static void Write(string value)
         {
-            handle(args.Length == 0 ? format : string.Format(format, args), true, false);
+            handle(value ?? string.Empty, true, false);
         }
         /// <summary>
         /// Writes the specified string value, followed by the current line terminator, to the standard output stream.
@@ -47,13 +46,12 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Writes the specified string value to the standard output stream.
+        /// Writes the specified string value to the standard output stream, discarding any color information.
         /// </summary>
-        /// <param name="format">The string format to write. Any color information is discarded.</param>
-        /// <param name="args">An array of arguments used for the <paramref name="format"/> string.</param>
-        public static void WriteNoColor(string format, params object[] args)
+        /// <param name="value">The string format to write. Any color information is discarded.</param>
+        public static void WriteNoColor(string value)
         {
-            Console.Write(ClearColors(args.Length == 0 ? format : string.Format(format, args)));
+            Console.Write(ClearColors(value ?? string.Empty));
         }
         /// <summary>
         /// Writes the specified string value, followed by the current line terminator, to the standard output stream.
