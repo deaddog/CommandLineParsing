@@ -43,6 +43,57 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Adds a <see cref="IConfiguration"/> to the <see cref="ConfigurationGroup"/>. This configuration will be checked before any existing configurations.
+        /// </summary>
+        /// <param name="configuration">The <see cref="IConfiguration"/> that is added to the <see cref="ConfigurationGroup"/>.</param>
+        public void AddFirst(IConfiguration configuration)
+        {
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+            if (configurations.Contains(configuration))
+                throw new ArgumentException($"A {nameof(configuration)} can not be included in a {nameof(ConfigurationGroup)} twice.", nameof(configuration));
+
+            configurations.AddFirst(configuration);
+        }
+        /// <summary>
+        /// Adds a <see cref="IConfiguration"/> to the <see cref="ConfigurationGroup"/>. This configuration will be checked after any existing configurations.
+        /// </summary>
+        /// <param name="configuration">The <see cref="IConfiguration"/> that is added to the <see cref="ConfigurationGroup"/>.</param>
+        public void AddLast(IConfiguration configuration)
+        {
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+            if (configurations.Contains(configuration))
+                throw new ArgumentException($"A {nameof(configuration)} can not be included in a {nameof(ConfigurationGroup)} twice.", nameof(configuration));
+
+            configurations.AddLast(configuration);
+        }
+        /// <summary>
+        /// Removes the specified <see cref="IConfiguration"/> from the <see cref="ConfigurationGroup"/>.
+        /// </summary>
+        /// <param name="configuration">The configuration that is removed.</param>
+        /// <returns><c>true</c> if <paramref name="configuration"/> was removed from the <see cref="ConfigurationGroup"/> (if it existed); otherwise <c>false</c>.</returns>
+        public bool Remove(IConfiguration configuration)
+        {
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            return configurations.Remove(configuration);
+        }
+        /// <summary>
+        /// Determines whether the <see cref="ConfigurationGroup"/> contains the specified <see cref="IConfiguration"/>.
+        /// </summary>
+        /// <param name="configuration">The configuration to look for.</param>
+        /// <returns><c>true</c> if <paramref name="configuration"/> was found in the <see cref="ConfigurationGroup"/>; otherwise <c>false</c>.</returns>
+        public bool Contains(IConfiguration configuration)
+        {
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            return configurations.Contains(configuration);
+        }
+
+        /// <summary>
         /// Gets the <see cref="string"/> value with the specified key.
         /// </summary>
         /// <param name="key">The key (name.name) that the value is associated with.</param>
