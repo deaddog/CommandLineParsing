@@ -20,6 +20,9 @@ namespace CommandLineParsing
             colors = new ColorTable();
         }
 
+        /// <summary>
+        /// Gets the <see cref="ColorTable"/> that handles the available colornames for the <see cref="ColorConsole"/>.
+        /// </summary>
         public static ColorTable Colors
         {
             get { return colors; }
