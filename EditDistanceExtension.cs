@@ -33,7 +33,7 @@ namespace CommandLineParsing
         public static int EditDistanceTo(this string origin, string str)
         {
             int[,] dist = new int[origin.Length + 1, str.Length + 1];
-            for (int i = 0; i <= origin.Length; i++) dist[i, 0] = i;
+            for (int i = 1; i <= origin.Length; i++) dist[i, 0] = i;
             for (int j = 1; j <= str.Length; j++) dist[0, j] = j;
             for (int i = 1; i <= origin.Length; i++)
                 for (int j = 1; j <= str.Length; j++)
@@ -42,8 +42,7 @@ namespace CommandLineParsing
                     else
                         dist[i, j] = 1 + Math.Min(dist[i - 1, j - 1], Math.Min(dist[i - 1, j], dist[i, j - 1]));
 
-            int v = dist[origin.Length, str.Length];
-            return v;
+            return dist[origin.Length, str.Length];
         }
     }
 }
