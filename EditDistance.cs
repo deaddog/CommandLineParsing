@@ -10,18 +10,18 @@ namespace CommandLineParsing
     public static class EditDistance
     {
         /// <summary>
-        /// Orders the strings in <paramref name="strings"/> according to their edit distance to <paramref name="origin"/>.
+        /// Orders the strings in <paramref name="collection"/> according to their edit distance to <paramref name="origin"/>.
         /// </summary>
-        /// <param name="strings">The strings to which edit distance is calculated.</param>
+        /// <param name="collection">The strings to which edit distance is calculated.</param>
         /// <param name="origin">The origin string from which edit distance is calculated.</param>
         /// <param name="add">The weight of an 'add' operation (inserting a character).</param>
         /// <param name="remove">The weight of a 'remove' operation (deleting a character).</param>
         /// <param name="replace">The weight of  a 'replace' operation (replacing a character, maintaining order).</param>
         /// <param name="swap">The weight of a 'swap' operation (swapping two neighbouring characters) or <c>null</c> to disable swap operations.</param>
         /// <returns>An ordered collection of strings and their edit distance to <paramref name="origin"/>, ordered by the edit distance (ascending).</returns>
-        public static IEnumerable<Tuple<string, uint>> OrderByDistance(this IEnumerable<string> strings, string origin, uint add, uint remove, uint replace, uint? swap)
+        public static IEnumerable<Tuple<string, uint>> OrderByDistance(IEnumerable<string> collection, string origin, uint add, uint remove, uint replace, uint? swap)
         {
-            Tuple<string, uint>[] dist = strings.Select(x => Tuple.Create(x, GetEditDistance(origin, x, add, remove, replace, swap))).ToArray();
+            Tuple<string, uint>[] dist = collection.Select(x => Tuple.Create(x, GetEditDistance(origin, x, add, remove, replace, swap))).ToArray();
             Array.Sort(dist, (x, y) => x.Item2.CompareTo(y.Item2));
 
             foreach (var t in dist)
