@@ -21,7 +21,19 @@ namespace CommandLineParsing
         /// <returns>An ordered collection of strings and their edit distance to <paramref name="origin"/>, ordered by the edit distance (ascending).</returns>
         public static IEnumerable<Tuple<string, uint>> OrderByDistance(IEnumerable<string> collection, string origin, uint add, uint remove, uint replace, uint? swap)
         {
-            Tuple<string, uint>[] dist = collection.Select(x => Tuple.Create(x, GetEditDistance(origin, x, add, remove, replace, swap))).ToArray();
+            return OrderByDistance(collection, origin, GetEditDistanceMethod(add, remove, replace, swap));
+        }
+
+        /// <summary>
+        /// Orders the strings in <paramref name="collection"/> according to their edit distance to <paramref name="origin"/>.
+        /// </summary>
+        /// <param name="collection">The strings to which edit distance is calculated.</param>
+        /// <param name="origin">The origin string from which edit distance is calculated.</param>
+        /// <param name="editdistance">The method used to calculate the edit distance. This can be retrieved using the <see cref="GetEditDistanceMethod(uint, uint, uint, uint?)"/> method.</param>
+        /// <returns>An ordered collection of strings and their edit distance to <paramref name="origin"/>, ordered by the edit distance (ascending).</returns>
+        public static IEnumerable<Tuple<string,uint>> OrderByDistance(IEnumerable<string> collection, string origin, Func<string,string,uint> editdistance)
+        {
+            Tuple<string, uint>[] dist = collection.Select(x => Tuple.Create(x, editdistance(origin, x))).ToArray();
             Array.Sort(dist, (x, y) => x.Item2.CompareTo(y.Item2));
 
             foreach (var t in dist)
