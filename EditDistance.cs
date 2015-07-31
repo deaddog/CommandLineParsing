@@ -25,22 +25,27 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Calculates the edit distance between <paramref name="from"/> and <paramref name="to"/>.
+        /// Calculates the edit distance between <paramref name="from" /> and <paramref name="to" />.
         /// </summary>
         /// <param name="from">The origin string from which edit distance is calculated.</param>
         /// <param name="to">The target string to which edit distance is calculated.</param>
-        /// <returns>The edit distance between the two strings (see http://en.wikipedia.org/wiki/Edit_distance). </returns>
-        public static int GetEditDistance(string from, string to)
+        /// <param name="add">The weight of an 'add' operation (inserting a character).</param>
+        /// <param name="remove">The weight of a 'remove' operation (deleting a character).</param>
+        /// <param name="replace">The weight of  a 'replace' operation (replacing a character, maintaining order).</param>
+        /// <returns>
+        /// The edit distance between the two strings (see http://en.wikipedia.org/wiki/Edit_distance).
+        /// </returns>
+        public static uint GetEditDistance(string from, string to, uint add, uint remove, uint replace)
         {
-            int[,] dist = new int[from.Length + 1, to.Length + 1];
-            for (int i = 1; i <= from.Length; i++) dist[i, 0] = i;
-            for (int j = 1; j <= to.Length; j++) dist[0, j] = j;
+            uint[,] dist = new uint[from.Length + 1, to.Length + 1];
+            for (uint i = 1; i <= from.Length; i++) dist[i, 0] = i;
+            for (uint j = 1; j <= to.Length; j++) dist[0, j] = j;
             for (int i = 1; i <= from.Length; i++)
                 for (int j = 1; j <= to.Length; j++)
                     if (from[i - 1] == to[j - 1])
-                        dist[i, j] = Math.Min(dist[i - 1, j - 1], Math.Min(dist[i - 1, j] + 1, dist[i, j - 1] + 1));
+                        dist[i, j] = Math.Min(dist[i - 1, j - 1], Math.Min(dist[i - 1, j] + remove, dist[i, j - 1] + add));
                     else
-                        dist[i, j] = 1 + Math.Min(dist[i - 1, j - 1], Math.Min(dist[i - 1, j], dist[i, j - 1]));
+                        dist[i, j] = 1 + Math.Min(dist[i - 1, j - 1] + replace, Math.Min(dist[i - 1, j], dist[i, j - 1]));
 
             return dist[from.Length, to.Length];
         }
