@@ -35,6 +35,8 @@ namespace CommandLineParsing
             }
         }
 
+        private static Func<string, string, uint> editDistance = EditDistance.GetEditDistanceMethod(1, 4, 1, 1);
+
         private string argument;
         private ArgumentType argumentType;
         private Dictionary<string, string> alternativeArguments;
@@ -70,7 +72,7 @@ namespace CommandLineParsing
         /// <param name="description">The associated description.</param>
         public void AddAlternative(string[] alternatives, string description)
         {
-            AddAlternative(alternatives.OrderByDistance(argument).First().Item1, description);
+            AddAlternative(EditDistance.OrderByDistance(alternatives, argument, editDistance).First().Item1, description);
         }
 
         /// <summary>
@@ -87,7 +89,7 @@ namespace CommandLineParsing
                 }
 
             string message = string.Format("{0} [Yellow:{1}] was not recognized. Did you mean any of the following:", argumentTypeString(argumentType), argument);
-            var list = alternativeArguments.Keys.OrderByDistance(argument).TakeWhile((arg, i) => i == 0 || arg.Item2 < 5).Select(x => x.Item1).ToArray();
+            var list = EditDistance.OrderByDistance(alternativeArguments.Keys, argument, editDistance).TakeWhile((arg, i) => i == 0 || arg.Item2 < 5).Select(x => x.Item1).ToArray();
             var strLen = list.Max(x => x.Length);
 
             foreach (var a in list)
