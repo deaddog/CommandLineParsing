@@ -48,10 +48,12 @@
     <Compile Include="Command.cs" />
     <Compile Include="Command.Reflection.cs" />
     <Compile Include="Configuration.cs" />
+    <Compile Include="ConfigurationGroup.cs" />
     <Compile Include="Default.cs" />
     <Compile Include="Description.cs" />
     <Compile Include="EditDistanceExtension.cs" />
     <Compile Include="FlagParameter.cs" />
+    <Compile Include="IConfiguration.cs" />
     <Compile Include="IgnoreCase.cs" />
     <Compile Include="MenuCleanup.cs" />
     <Compile Include="MenuExtension.cs" />

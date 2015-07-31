@@ -10,7 +10,7 @@ namespace CommandLineParsing
     /// <summary>
     /// Provides a set of methods for managing a simple configuration file, with a collection of key=value pairs.
     /// </summary>
-    public class Configuration
+    public class Configuration : IConfiguration
     {
         private static void ensurePath(string path)
         {
