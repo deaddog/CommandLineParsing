@@ -19,7 +19,7 @@ namespace CommandLineParsing
         /// <param name="replace">The weight of  a 'replace' operation (replacing a character, maintaining order).</param>
         /// <param name="swap">The weight of a 'swap' operation (swapping two neighbouring characters) or <c>null</c> to disable swap operations.</param>
         /// <returns>An ordered collection of strings and their edit distance to <paramref name="origin"/>, ordered by the edit distance (ascending).</returns>
-        public static IEnumerable<Tuple<string, uint>> OrderByDistance(IEnumerable<string> collection, string origin, uint add, uint remove, uint replace, uint? swap)
+        public static IEnumerable<Tuple<string, uint>> OrderByDistance(IEnumerable<string> collection, string origin, uint add, uint remove, uint replace, uint? swap = null)
         {
             return OrderByDistance(collection, origin, GetEditDistanceMethod(add, remove, replace, swap));
         }
@@ -31,7 +31,7 @@ namespace CommandLineParsing
         /// <param name="origin">The origin string from which edit distance is calculated.</param>
         /// <param name="editdistance">The method used to calculate the edit distance. This can be retrieved using the <see cref="GetEditDistanceMethod(uint, uint, uint, uint?)"/> method.</param>
         /// <returns>An ordered collection of strings and their edit distance to <paramref name="origin"/>, ordered by the edit distance (ascending).</returns>
-        public static IEnumerable<Tuple<string,uint>> OrderByDistance(IEnumerable<string> collection, string origin, Func<string,string,uint> editdistance)
+        public static IEnumerable<Tuple<string, uint>> OrderByDistance(IEnumerable<string> collection, string origin, Func<string, string, uint> editdistance)
         {
             Tuple<string, uint>[] dist = collection.Select(x => Tuple.Create(x, editdistance(origin, x))).ToArray();
             Array.Sort(dist, (x, y) => x.Item2.CompareTo(y.Item2));
@@ -48,7 +48,7 @@ namespace CommandLineParsing
         /// <param name="replace">The weight of  a 'replace' operation (replacing a character, maintaining order).</param>
         /// <param name="swap">The weight of a 'swap' operation (swapping two neighbouring characters) or <c>null</c> to disable swap operations.</param>
         /// <returns>A method that will calculate the edit distance between strings using the set of weights.</returns>
-        public static Func<string, string, uint> GetEditDistanceMethod(uint add, uint remove, uint replace, uint? swap)
+        public static Func<string, string, uint> GetEditDistanceMethod(uint add, uint remove, uint replace, uint? swap = null)
         {
             return (string a, string b) => GetEditDistance(a, b, add, remove, replace, swap);
         }
