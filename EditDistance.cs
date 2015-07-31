@@ -7,7 +7,7 @@ namespace CommandLineParsing
     /// <summary>
     /// Provides a collection of methods for calculating the edit distance between two strings (see http://en.wikipedia.org/wiki/Edit_distance).
     /// </summary>
-    public static class EditDistanceExtension
+    public static class EditDistance
     {
         /// <summary>
         /// Orders the strings in <paramref name="strings"/> according to their edit distance to <paramref name="origin"/>.
@@ -17,7 +17,7 @@ namespace CommandLineParsing
         /// <returns>An ordered collection of strings and their edit distance to <paramref name="origin"/>, ordered by the edit distance (ascending).</returns>
         public static IEnumerable<Tuple<string, int>> OrderByDistance(this IEnumerable<string> strings, string origin)
         {
-            Tuple<string, int>[] dist = strings.Select(x => Tuple.Create(x, EditDistanceTo(origin, x))).ToArray();
+            Tuple<string, int>[] dist = strings.Select(x => Tuple.Create(x, GetEditDistance(origin, x))).ToArray();
             Array.Sort(dist, (x, y) => x.Item2.CompareTo(y.Item2));
 
             foreach (var t in dist)
@@ -25,24 +25,24 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Calculates the edit distance from <paramref name="origin"/> to <paramref name="str"/>.
+        /// Calculates the edit distance between <paramref name="from"/> and <paramref name="to"/>.
         /// </summary>
-        /// <param name="origin">The origin string from which edit distance is calculated.</param>
-        /// <param name="str">The target string to which edit distance is calculated.</param>
+        /// <param name="from">The origin string from which edit distance is calculated.</param>
+        /// <param name="to">The target string to which edit distance is calculated.</param>
         /// <returns>The edit distance between the two strings (see http://en.wikipedia.org/wiki/Edit_distance). </returns>
-        public static int EditDistanceTo(this string origin, string str)
+        public static int GetEditDistance(string from, string to)
         {
-            int[,] dist = new int[origin.Length + 1, str.Length + 1];
-            for (int i = 1; i <= origin.Length; i++) dist[i, 0] = i;
-            for (int j = 1; j <= str.Length; j++) dist[0, j] = j;
-            for (int i = 1; i <= origin.Length; i++)
-                for (int j = 1; j <= str.Length; j++)
-                    if (origin[i - 1] == str[j - 1])
+            int[,] dist = new int[from.Length + 1, to.Length + 1];
+            for (int i = 1; i <= from.Length; i++) dist[i, 0] = i;
+            for (int j = 1; j <= to.Length; j++) dist[0, j] = j;
+            for (int i = 1; i <= from.Length; i++)
+                for (int j = 1; j <= to.Length; j++)
+                    if (from[i - 1] == to[j - 1])
                         dist[i, j] = Math.Min(dist[i - 1, j - 1], Math.Min(dist[i - 1, j] + 1, dist[i, j - 1] + 1));
                     else
                         dist[i, j] = 1 + Math.Min(dist[i - 1, j - 1], Math.Min(dist[i - 1, j], dist[i, j - 1]));
 
-            return dist[origin.Length, str.Length];
+            return dist[from.Length, to.Length];
         }
     }
 }
