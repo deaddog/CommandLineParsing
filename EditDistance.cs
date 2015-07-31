@@ -32,11 +32,15 @@ namespace CommandLineParsing
         /// <param name="add">The weight of an 'add' operation (inserting a character).</param>
         /// <param name="remove">The weight of a 'remove' operation (deleting a character).</param>
         /// <param name="replace">The weight of  a 'replace' operation (replacing a character, maintaining order).</param>
+        /// <param name="swap">The weight of a 'swap' operation (swapping two neighbouring characters) or <c>null</c> to disable swap operations.</param>
         /// <returns>
         /// The edit distance between the two strings (see http://en.wikipedia.org/wiki/Edit_distance).
         /// </returns>
-        public static uint GetEditDistance(string from, string to, uint add, uint remove, uint replace)
+        public static uint GetEditDistance(string from, string to, uint add, uint remove, uint replace, uint? swap = null)
         {
+            if (swap.HasValue)
+                return editDistance(from, to, add, remove, replace, swap.Value, 1);
+
             uint[,] dist = new uint[from.Length + 1, to.Length + 1];
             for (uint i = 1; i <= from.Length; i++) dist[i, 0] = i;
             for (uint j = 1; j <= to.Length; j++) dist[0, j] = j;
@@ -48,6 +52,21 @@ namespace CommandLineParsing
                         dist[i, j] = 1 + Math.Min(dist[i - 1, j - 1] + replace, Math.Min(dist[i - 1, j], dist[i, j - 1]));
 
             return dist[from.Length, to.Length];
+        }
+
+        private static uint editDistance(string origin, string str, uint add, uint remove, uint replace, uint swap, int nextswap)
+        {
+            if (nextswap > origin.Length - 1)
+                return GetEditDistance(origin, str, add, remove, replace);
+            else
+                return Math.Min(
+                    editDistance(origin, str, add, remove, replace, swap, nextswap + 1),
+                    editDistance(swapAt(origin, nextswap), str, add, remove, replace, swap, nextswap + 2) + swap);
+        }
+
+        private static string swapAt(string str, int lastindex)
+        {
+            return str.Substring(0, lastindex - 1) + str[lastindex] + str[lastindex - 1] + str.Substring(lastindex + 1);
         }
     }
 }
