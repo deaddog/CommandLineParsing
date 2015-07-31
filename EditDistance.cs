@@ -25,6 +25,19 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Gets a method for calculating edit distance between strings using a set of weights.
+        /// </summary>
+        /// <param name="add">The weight of an 'add' operation (inserting a character).</param>
+        /// <param name="remove">The weight of a 'remove' operation (deleting a character).</param>
+        /// <param name="replace">The weight of  a 'replace' operation (replacing a character, maintaining order).</param>
+        /// <param name="swap">The weight of a 'swap' operation (swapping two neighbouring characters) or <c>null</c> to disable swap operations.</param>
+        /// <returns>A method that will calculate the edit distance between strings using the set of weights.</returns>
+        public static Func<string, string, uint> GetEditDistanceMethod(uint add, uint remove, uint replace, uint? swap)
+        {
+            return (string a, string b) => GetEditDistance(a, b, add, remove, replace, swap);
+        }
+
+        /// <summary>
         /// Calculates the edit distance between <paramref name="from" /> and <paramref name="to" />.
         /// </summary>
         /// <param name="from">The origin string from which edit distance is calculated.</param>
