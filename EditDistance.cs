@@ -71,14 +71,14 @@ namespace CommandLineParsing
                 return editDistance(from, to, add, remove, replace, swap.Value, 1);
 
             uint[,] dist = new uint[from.Length + 1, to.Length + 1];
-            for (uint i = 1; i <= from.Length; i++) dist[i, 0] = i;
-            for (uint j = 1; j <= to.Length; j++) dist[0, j] = j;
+            for (uint i = 1; i <= from.Length; i++) dist[i, 0] = i * remove;
+            for (uint j = 1; j <= to.Length; j++) dist[0, j] = j * add;
             for (int i = 1; i <= from.Length; i++)
                 for (int j = 1; j <= to.Length; j++)
                     if (from[i - 1] == to[j - 1])
                         dist[i, j] = Math.Min(dist[i - 1, j - 1], Math.Min(dist[i - 1, j] + remove, dist[i, j - 1] + add));
                     else
-                        dist[i, j] = 1 + Math.Min(dist[i - 1, j - 1] + replace, Math.Min(dist[i - 1, j], dist[i, j - 1]));
+                        dist[i, j] = Math.Min(dist[i - 1, j - 1] + replace, Math.Min(dist[i - 1, j] + remove, dist[i, j - 1] + add));
 
             return dist[from.Length, to.Length];
         }
