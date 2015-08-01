@@ -35,7 +35,7 @@ namespace CommandLineParsing
             }
         }
 
-        private static Func<string, string, uint> editDistance = EditDistance.GetEditDistanceMethod(1, 4, 1, 1);
+        private static Func<string, string, uint> editDistance = EditDistance.GetEditDistanceMethod(1, 4, 100, 1);
 
         private string argument;
         private ArgumentType argumentType;
