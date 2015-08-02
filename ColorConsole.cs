@@ -78,6 +78,16 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Escapes color-coding information in a string such that it can be printed using the <see cref="ColorConsole"/> without color being applied.
+        /// </summary>
+        /// <param name="input">The string in which color-coding should be escaped.</param>
+        /// <returns>A new string, where all color-coding is escaped.</returns>
+        public static string EscapeColor(string input)
+        {
+            return input.Replace("[", "\\[").Replace("]", "\\]");
+        }
+
+        /// <summary>
         /// Determines whether the specified string includes coloring syntax.
         /// </summary>
         /// <param name="input">The string that should be examined.</param>
