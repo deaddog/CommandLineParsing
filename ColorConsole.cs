@@ -318,7 +318,7 @@ namespace CommandLineParsing
                 colors = new Dictionary<string, ConsoleColor>();
 
                 foreach (var c in Enum.GetValues(typeof(ConsoleColor)))
-                    colors.Add(c.ToString(), (ConsoleColor)c);
+                    colors.Add(c.ToString().ToLowerInvariant(), (ConsoleColor)c);
             }
 
             /// <summary>
@@ -326,8 +326,9 @@ namespace CommandLineParsing
             /// A value of <c>null</c> (in both getter and setter) is equivalent of no color.
             /// </summary>
             /// <param name="name">The name associated with the <see cref="ConsoleColor"/>.
-            /// This name does not have to pre-exist in the <see cref="ConsoleColor"/> enum.</param>
-            /// <returns></returns>
+            /// This name does not have to pre-exist in the <see cref="ConsoleColor"/> enum.
+            /// The name is case insensitive, meaning that "Red" and "red" will refer to the same color, if any.</param>
+            /// <returns>The <see cref="ConsoleColor"/> associated with <paramref name="name"/> or <c>null</c>, if no color is associated with <paramref name="name"/>.</returns>
             public ConsoleColor? this[string name]
             {
                 get
@@ -338,7 +339,7 @@ namespace CommandLineParsing
                         throw new ArgumentException("Color name must be non-empty.", nameof(name));
 
                     ConsoleColor c;
-                    if (!colors.TryGetValue(name, out c))
+                    if (!colors.TryGetValue(name.ToLowerInvariant(), out c))
                         return null;
                     else
                         return c;
@@ -351,9 +352,9 @@ namespace CommandLineParsing
                         throw new ArgumentException("Color name must be non-empty.", nameof(name));
 
                     if (value.HasValue)
-                        colors[name] = value.Value;
+                        colors[name.ToLowerInvariant()] = value.Value;
                     else
-                        colors.Remove(name);
+                        colors.Remove(name.ToLowerInvariant());
                 }
             }
         }
