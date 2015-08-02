@@ -84,7 +84,7 @@ namespace CommandLineParsing
         /// <returns>A new string, where all color-coding is escaped.</returns>
         public static string EscapeColor(string input)
         {
-            return input.Replace("[", "\\[").Replace("]", "\\]");
+            return input?.Replace("[", "\\[")?.Replace("]", "\\]");
         }
 
         /// <summary>
