@@ -14,8 +14,6 @@ namespace CommandLineParsing
     /// </summary>
     public abstract partial class Command
     {
-        private const string SUBCOMMAND_DESCRIPTION = "N/A - Commands have no description.";
-
         private CommandCollection subcommands;
         private ParameterCollection parameters;
 
@@ -169,9 +167,9 @@ namespace CommandLineParsing
 
             var commands = subcommands.ToArray();
             for (int i = 0; i < commands.Length - 1; i++)
-                sb.AppendLine(string.Format("{2}{0}  {1}", commands[i].Key.PadRight(len), SUBCOMMAND_DESCRIPTION, indent));
+                sb.AppendLine(string.Format("{2}{0}  {1}", commands[i].Key.PadRight(len), commands[i].Value.Description, indent));
             if (commands.Length > 0)
-                sb.Append(string.Format("{2}{0}  {1}", commands[commands.Length - 1].Key.PadRight(len), SUBCOMMAND_DESCRIPTION, indent));
+                sb.Append(string.Format("{2}{0}  {1}", commands[commands.Length - 1].Key.PadRight(len), commands[commands.Length - 1].Value.Description, indent));
 
             return sb.ToString();
         }
