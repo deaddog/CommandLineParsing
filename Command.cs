@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace CommandLineParsing
@@ -20,6 +21,8 @@ namespace CommandLineParsing
 
         private Validator preValid, postValid;
 
+        private string description;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Command"/> class.
         /// </summary>
@@ -31,7 +34,21 @@ namespace CommandLineParsing
             this.preValid = new Validator();
             this.postValid = new Validator();
 
+            this.description = this.GetType().GetCustomAttribute<Description>()?.description ?? string.Empty;
+
             this.initializeParameters();
+        }
+
+        /// <summary>
+        /// Gets the description of this <see cref="Command"/>.
+        /// The description is applied when the command is used as a subcommand.
+        /// </summary>
+        /// <value>
+        /// The description of this <see cref="Parameter"/>.
+        /// </value>
+        public string Description
+        {
+            get { return description; }
         }
 
         /// <summary>
