@@ -32,23 +32,21 @@ namespace CommandLineParsing
 
                 if (ignAtt != null)
                 {
-                    if (f.FieldType == typeof(FlagParameter))
+                    if (isFlag)
                         throw new TypeAccessException($"A {nameof(FlagParameter)} cannot be marked with the {nameof(IgnoreCase)} attribute.");
-                    if (f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>) &&
-                        !(f.FieldType.GetGenericArguments()[0].IsEnum ||
-                         (f.FieldType.GetGenericArguments()[0].IsArray && f.FieldType.GetGenericArguments()[0].GetElementType().IsEnum)))
+                    if (isEnum)
                         throw new TypeAccessException($"The {nameof(IgnoreCase)} attribute only applies to enumerations.");
                 }
 
                 if (defAtt != null)
                 {
-                    if (f.FieldType == typeof(FlagParameter))
+                    if (isFlag)
                         throw new TypeAccessException($"A {nameof(FlagParameter)} cannot have a default value.");
                 }
 
                 if (reqAtt != null)
                 {
-                    if (f.FieldType == typeof(FlagParameter))
+                    if (isFlag)
                         throw new TypeAccessException($"A {nameof(FlagParameter)} cannot be have the {nameof(Required)} attribute.");
                 }
 
@@ -60,9 +58,7 @@ namespace CommandLineParsing
                     if (parameters.HasNoName)
                         throw new TypeAccessException($"A {nameof(Command)} can only support a single {nameof(Parameter)} with the {nameof(NoName)} attribute.");
 
-                    if (!f.FieldType.IsGenericType ||
-                        f.FieldType.GetGenericTypeDefinition() != typeof(Parameter<>) ||
-                        !f.FieldType.GetGenericArguments()[0].IsArray)
+                    if (!isArray)
                         throw new TypeAccessException($"A {nameof(Parameter)} with the {nameof(NoName)} attribute must be defined as generic, using an array as type argument.");
 
                     if (reqAtt != null)
@@ -77,13 +73,10 @@ namespace CommandLineParsing
                 object defaultValue = defAtt?.value;
 
                 Parameter par;
-                if (f.FieldType == typeof(FlagParameter))
+                if (isFlag)
                     par = new FlagParameter(name, alternatives, description);
                 else if (f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>))
-                {
-                    Type paramType = f.FieldType.GetGenericArguments()[0];
                     par = constructParameter(paramType, name, alternatives, description, required, ignore);
-                }
                 else
                     throw new InvalidOperationException($"Unknown parameter type: {f.FieldType}");
 
