@@ -19,6 +19,17 @@ namespace CommandLineParsing
                 var ignAtt = f.GetCustomAttribute<IgnoreCase>();
                 var defAtt = f.GetCustomAttribute<Default>();
 
+                bool isFlag = f.FieldType == typeof(FlagParameter);
+                bool isTyped = f.FieldType.IsGenericType && f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>);
+
+                if (!isFlag && !isTyped)
+                    throw new InvalidOperationException($"Unknown parameter type: {f.FieldType}");
+
+                var paramType = isTyped ? f.FieldType.GetGenericArguments()[0] : null;
+                bool isArray = !isFlag && paramType.IsArray;
+                var elementType = isTyped ? (isArray ? paramType.GetElementType() : paramType) : null;
+                bool isEnum = isTyped && elementType.IsEnum;
+
                 if (ignAtt != null)
                 {
                     if (f.FieldType == typeof(FlagParameter))
