@@ -58,13 +58,12 @@ namespace CommandLineParsing
                         throw new TypeAccessException($"A {nameof(Parameter)} with the {nameof(NoName)} attribute cannot have the {nameof(Required)} attribute.");
                 }
 
-                string name = nonAtt != null ? null : (nameAtt != null ? nameAtt.name : "--" + f.Name);
-                string[] alternatives = nameAtt != null ? nameAtt.alternatives : new string[0];
-                string description = descAtt != null ? descAtt.description : string.Empty;
-                Message required =
-                    reqAtt != null ? reqAtt.message ?? Required.defaultMessage(name) : Message.NoError;
+                string name = nonAtt != null ? null : (nameAtt?.name ?? $"--{f.Name}");
+                string[] alternatives = nameAtt?.alternatives ?? new string[0];
+                string description = descAtt?.description ?? string.Empty;
+                Message required = reqAtt == null ? Message.NoError : (reqAtt.message ?? Required.defaultMessage(name));
                 bool ignore = ignAtt != null;
-                object defaultValue = defAtt != null ? defAtt.value : null;
+                object defaultValue = defAtt?.value;
 
                 Parameter par;
                 if (f.FieldType == typeof(FlagParameter))
