@@ -22,8 +22,6 @@ namespace CommandLineParsing
 
             foreach (var f in fields)
             {
-                var ctr = getConstructor(f.FieldType);
-
                 var nameAtt = f.GetCustomAttribute<Name>();
                 var nonAtt = f.GetCustomAttribute<NoName>();
                 var descAtt = f.GetCustomAttribute<Description>();
@@ -106,30 +104,6 @@ namespace CommandLineParsing
             var ctr = paramType.GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0];
 
             return (Parameter)ctr.Invoke(new object[] { name, alternatives, description, required, enumIgnore });
-        }
-
-        private ConstructorInfo getConstructor(Type fieldType)
-        {
-            if (fieldType == typeof(FlagParameter))
-                return fieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance,
-                    null,
-                    new Type[] { typeof(string), typeof(string[]), typeof(string) },
-                    null);
-
-            if (fieldType.GetGenericTypeDefinition() == typeof(Parameter<>))
-            {
-                if (fieldType.GetGenericArguments()[0].IsArray)
-                {
-                    var arrayType = fieldType.GetGenericArguments()[0].GetElementType();
-                    fieldType = typeof(ArrayParameter<>).MakeGenericType(arrayType);
-                }
-                return fieldType.GetConstructor(BindingFlags.NonPublic | BindingFlags.CreateInstance | BindingFlags.Instance,
-                    null,
-                    new Type[] { typeof(string), typeof(string[]), typeof(string), typeof(Message), typeof(bool) },
-                    null);
-            }
-
-            throw new InvalidOperationException("Unknown parameter type: " + fieldType);
         }
 
         private FieldInfo[] getParameterFields()
