@@ -6,16 +6,6 @@ namespace CommandLineParsing
 {
     public partial class Command
     {
-        private static readonly string _COMMAND = typeof(Command).Name;
-        private static readonly string _PARAMETER = typeof(Parameter).Name;
-        private static readonly string _FLAGPARAMETER = typeof(FlagParameter).Name;
-        private static readonly string _NAME = typeof(Name).Name;
-        private static readonly string _NONAME = typeof(NoName).Name;
-        private static readonly string _DESCRIPTION = typeof(Description).Name;
-        private static readonly string _REQUIRED = typeof(Required).Name;
-        private static readonly string _IGNORECASE = typeof(IgnoreCase).Name;
-        private static readonly string _DEFAULT = typeof(Default).Name;
-
         private void initializeParameters()
         {
             var fields = getParameterFields();
@@ -32,40 +22,40 @@ namespace CommandLineParsing
                 if (ignAtt != null)
                 {
                     if (f.FieldType == typeof(FlagParameter))
-                        throw new TypeAccessException("A " + _FLAGPARAMETER + " cannot be marked with the " + _IGNORECASE + " attribute.");
+                        throw new TypeAccessException($"A {nameof(FlagParameter)} cannot be marked with the {nameof(IgnoreCase)} attribute.");
                     if (f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>) &&
                         !(f.FieldType.GetGenericArguments()[0].IsEnum ||
                          (f.FieldType.GetGenericArguments()[0].IsArray && f.FieldType.GetGenericArguments()[0].GetElementType().IsEnum)))
-                        throw new TypeAccessException("The " + _IGNORECASE + " attribute only applies to enumerations.");
+                        throw new TypeAccessException($"The {nameof(IgnoreCase)} attribute only applies to enumerations.");
                 }
 
                 if (defAtt != null)
                 {
                     if (f.FieldType == typeof(FlagParameter))
-                        throw new TypeAccessException("A " + _FLAGPARAMETER + " cannot have a default value.");
+                        throw new TypeAccessException($"A {nameof(FlagParameter)} cannot have a default value.");
                 }
 
                 if (reqAtt != null)
                 {
                     if (f.FieldType == typeof(FlagParameter))
-                        throw new TypeAccessException("A " + _FLAGPARAMETER + " cannot be have the " + _REQUIRED + " attribute.");
+                        throw new TypeAccessException($"A {nameof(FlagParameter)} cannot be have the {nameof(Required)} attribute.");
                 }
 
                 if (nonAtt != null)
                 {
                     if (nameAtt != null)
-                        throw new TypeAccessException(string.Format("A {0} cannot have the {1} and the {2} attribute simultaneously.", _PARAMETER, _NAME, _NONAME));
+                        throw new TypeAccessException($"A {nameof(Parameter)} cannot have the {nameof(Name)} and the {nameof(NoName)} attribute simultaneously.");
 
                     if (parameters.HasNoName)
-                        throw new TypeAccessException(string.Format("A {0} can only support a single {1} with the {2} attribute.", _COMMAND, _PARAMETER, _NONAME));
+                        throw new TypeAccessException($"A {nameof(Command)} can only support a single {nameof(Parameter)} with the {nameof(NoName)} attribute.");
 
                     if (!f.FieldType.IsGenericType ||
                         f.FieldType.GetGenericTypeDefinition() != typeof(Parameter<>) ||
                         !f.FieldType.GetGenericArguments()[0].IsArray)
-                        throw new TypeAccessException(string.Format("A {0} with the {1} attribute must be defined as generic, using an array as type argument.", _PARAMETER, _NONAME));
+                        throw new TypeAccessException($"A {nameof(Parameter)} with the {nameof(NoName)} attribute must be defined as generic, using an array as type argument.");
 
                     if (reqAtt != null)
-                        throw new TypeAccessException(string.Format("A {0} with the {1} attribute cannot have the {2} attribute.", _PARAMETER, _NONAME, _REQUIRED));
+                        throw new TypeAccessException($"A {nameof(Parameter)} with the {nameof(NoName)} attribute cannot have the {nameof(Required)} attribute.");
                 }
 
                 string name = nonAtt != null ? null : (nameAtt != null ? nameAtt.name : "--" + f.Name);
@@ -85,7 +75,7 @@ namespace CommandLineParsing
                     par = constructParameter(paramType, name, alternatives, description, required, ignore);
                 }
                 else
-                    throw new InvalidOperationException("Unknown parameter type: " + f.FieldType);
+                    throw new InvalidOperationException($"Unknown parameter type: {f.FieldType}");
 
                 if (defAtt != null)
                     f.FieldType.GetMethod("SetDefault").Invoke(par, new object[] { defaultValue });
@@ -117,10 +107,10 @@ namespace CommandLineParsing
                     continue;
 
                 if (!fields[i].IsInitOnly)
-                    throw new FieldAccessException(string.Format("{0} fields must be defined as readonly - '{1}' in {2} is not.", typeof(Parameter).Name, fields[i].Name, fields[i].DeclaringType));
+                    throw new FieldAccessException($"{nameof(Parameter)} fields must be defined as readonly - '{fields[i].Name}' in {fields[i].DeclaringType} is not.");
 
                 if (fields[i].IsStatic)
-                    throw new FieldAccessException(string.Format("The {0} field '{1}' in {2} is defined as static.", typeof(Parameter).Name, fields[i].Name, fields[i].DeclaringType));
+                    throw new FieldAccessException($"The {nameof(Parameter)} field '{fields[i].Name}' in {fields[i].DeclaringType} is defined as static.");
 
                 accepted.Add(fields[i]);
             }
