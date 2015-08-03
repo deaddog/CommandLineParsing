@@ -80,7 +80,7 @@ namespace CommandLineParsing
 
                 Parameter par;
                 if (f.FieldType == typeof(FlagParameter))
-                    par = ctr.Invoke(new object[] { name, alternatives, description }) as Parameter;
+                    par = new FlagParameter(name, alternatives, description);
                 else if (f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>))
                     par = ctr.Invoke(new object[] { name, alternatives, description, required, ignore }) as Parameter;
                 else
