@@ -82,7 +82,10 @@ namespace CommandLineParsing
                 if (f.FieldType == typeof(FlagParameter))
                     par = new FlagParameter(name, alternatives, description);
                 else if (f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>))
-                    par = ctr.Invoke(new object[] { name, alternatives, description, required, ignore }) as Parameter;
+                {
+                    Type paramType = f.FieldType.GetGenericArguments()[0];
+                    par = constructParameter(paramType, name, alternatives, description, required, ignore);
+                }
                 else
                     throw new InvalidOperationException("Unknown parameter type: " + f.FieldType);
 
@@ -92,6 +95,17 @@ namespace CommandLineParsing
                 parameters.Add(par);
                 f.SetValue(this, par);
             }
+        }
+
+        private Parameter constructParameter(Type type, string name, string[] alternatives, string description, Message required, bool enumIgnore)
+        {
+            Type paramType = type.IsArray ?
+                typeof(ArrayParameter<>).MakeGenericType(type.GetElementType()) :
+                typeof(Parameter<>).MakeGenericType(type);
+
+            var ctr = paramType.GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0];
+
+            return (Parameter)ctr.Invoke(new object[] { name, alternatives, description, required, enumIgnore });
         }
 
         private ConstructorInfo getConstructor(Type fieldType)
