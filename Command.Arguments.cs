@@ -92,7 +92,7 @@ namespace CommandLineParsing
                 {
                     UnknownArgumentMessage unknown = new UnknownArgumentMessage(arg, UnknownArgumentMessage.ArgumentType.SubCommand);
                     foreach (var n in command.subcommands)
-                        unknown.AddAlternative(n.Key, SUBCOMMAND_DESCRIPTION);
+                        unknown.AddAlternative(n.Key, n.Value.Description);
                     return unknown;
                 }
             }

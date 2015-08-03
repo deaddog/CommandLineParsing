@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace CommandLineParsing
@@ -13,12 +14,12 @@ namespace CommandLineParsing
     /// </summary>
     public abstract partial class Command
     {
-        private const string SUBCOMMAND_DESCRIPTION = "N/A - Commands have no description.";
-
         private CommandCollection subcommands;
         private ParameterCollection parameters;
 
         private Validator preValid, postValid;
+
+        private string description;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Command"/> class.
@@ -31,7 +32,21 @@ namespace CommandLineParsing
             this.preValid = new Validator();
             this.postValid = new Validator();
 
+            this.description = this.GetType().GetCustomAttribute<Description>()?.description ?? string.Empty;
+
             this.initializeParameters();
+        }
+
+        /// <summary>
+        /// Gets the description of this <see cref="Command"/>.
+        /// The description is applied when the command is used as a subcommand.
+        /// </summary>
+        /// <value>
+        /// The description of this <see cref="Parameter"/>.
+        /// </value>
+        public string Description
+        {
+            get { return description; }
         }
 
         /// <summary>
@@ -152,9 +167,9 @@ namespace CommandLineParsing
 
             var commands = subcommands.ToArray();
             for (int i = 0; i < commands.Length - 1; i++)
-                sb.AppendLine(string.Format("{2}{0}  {1}", commands[i].Key.PadRight(len), SUBCOMMAND_DESCRIPTION, indent));
+                sb.AppendLine(string.Format("{2}{0}  {1}", commands[i].Key.PadRight(len), commands[i].Value.Description, indent));
             if (commands.Length > 0)
-                sb.Append(string.Format("{2}{0}  {1}", commands[commands.Length - 1].Key.PadRight(len), SUBCOMMAND_DESCRIPTION, indent));
+                sb.Append(string.Format("{2}{0}  {1}", commands[commands.Length - 1].Key.PadRight(len), commands[commands.Length - 1].Value.Description, indent));
 
             return sb.ToString();
         }
