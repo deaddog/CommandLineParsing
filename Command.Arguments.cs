@@ -33,7 +33,7 @@ namespace CommandLineParsing
                     return root;
 
                 Command res;
-                if (root.subcommands.TryGetCommand(args.Peek(), out res))
+                if (RegexLookup.SubcommandName.IsMatch(args.Peek()) && root.subcommands.TryGetCommand(args.Peek(), out res))
                 {
                     args.Pop();
                     return findCommand(res, args);

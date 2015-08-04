@@ -298,6 +298,9 @@ namespace CommandLineParsing
                 if (command == null)
                     throw new ArgumentNullException("command");
 
+                if (!RegexLookup.SubcommandName.IsMatch(name))
+                    throw new ArgumentException("Subcommand name \"" + name + "\" is illformed.", nameof(name));
+
                 this.commands.Add(name, command);
             }
             /// <summary>

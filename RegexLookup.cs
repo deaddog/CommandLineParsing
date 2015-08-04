@@ -9,5 +9,6 @@ namespace CommandLineParsing
         private static string letterThenBoth = letter + letterAndNumber + "*";
 
         public static readonly Regex ParameterName = new Regex($"^-+{letterThenBoth}(-+{letterThenBoth})*$");
+        public static readonly Regex SubcommandName = new Regex($"^{letterThenBoth}$");
     }
 }
