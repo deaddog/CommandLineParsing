@@ -7,28 +7,26 @@ namespace CommandLineParsing
     {
         private class executor
         {
-            private Command command;
+            private readonly Command command;
             private List<Parameter> unusedParsers;
 
             private Stack<string> args;
             private List<string> nonameArgs;
 
-            private executor(IEnumerable<string> args)
+            private executor(Command command, IEnumerable<string> args)
             {
-                this.command = null;
+                this.command = command;
                 this.args = new Stack<string>(args.Reverse());
                 this.nonameArgs = new List<string>();
             }
 
             public static Message Execute(Command command, IEnumerable<string> args, string help)
             {
-                return new executor(args).execute(command, help);
+                return new executor(command, args).execute(command, help);
             }
 
             private Message execute(Command command, string help)
             {
-                this.command = command;
-
                 if (args.Count > 0 && help == args.Peek())
                     return command.GetHelpMessage();
 
@@ -36,7 +34,7 @@ namespace CommandLineParsing
                 {
                     string firstArg = args.Pop();
 
-                    if(command.parameters.HasNoName)
+                    if (command.parameters.HasNoName)
                     {
                         if (command.subcommands.ContainsName(firstArg))
                             return executeSubCommand(firstArg, help);
