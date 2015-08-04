@@ -27,6 +27,14 @@ namespace CommandLineParsing
 
         protected readonly Validator<T> validator;
 
+        private Message defaultTypeError(string input)
+        {
+            if (Name == null)
+                return $@"The ""{input}"" argument could not be parsed to a value of type {typeof(T).Name}.";
+            else
+                return $@"The ""{input}"" argument for the parameter ""{Name}"", could not be parsed to a value of type {typeof(T).Name}.";
+        }
+
 #pragma warning restore
 
         internal Parameter(string name, string[] alternatives, string description, Message required, bool enumIgnore)
@@ -37,7 +45,7 @@ namespace CommandLineParsing
             this.enumIgnore = enumIgnore;
             this.parser = null;
 
-            this.typeErrorMessage = x => string.Format("Argument \"{0}\" with value \"{1}\" could not be parsed to a value of type {2}.", name, x, typeof(T).Name);
+            this.typeErrorMessage = defaultTypeError;
             this.noValueMessage = "No value provided for argument \"" + name + "\".";
             this.multipleValuesMessage = "Only one value can be provided for argument \"" + name + "\".";
 
