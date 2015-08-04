@@ -108,12 +108,7 @@ namespace CommandLineParsing
                 if (command.subcommands.TryGetCommand(arg, out cmd))
                     return execute(cmd, help);
                 else
-                {
-                    UnknownArgumentMessage unknown = new UnknownArgumentMessage(arg, UnknownArgumentMessage.ArgumentType.SubCommand);
-                    foreach (var n in command.subcommands)
-                        unknown.AddAlternative(n.Key, n.Value.Description);
-                    return unknown;
-                }
+                    return UnknownArgumentMessage.FromSubcommands(command, arg);
             }
             private Message handleParameter()
             {
@@ -123,12 +118,7 @@ namespace CommandLineParsing
                 Parameter parameter;
 
                 if (!command.parameters.TryGetParameter(key, out parameter))
-                {
-                    UnknownArgumentMessage unknown = new UnknownArgumentMessage(key, UnknownArgumentMessage.ArgumentType.Parameter);
-                    foreach (var par in command.parameters)
-                        unknown.AddAlternative(par.GetNames(true).ToArray(), par.Description);
-                    return unknown;
-                }
+                    return UnknownArgumentMessage.FromParameters(command, key);
 
                 while (args.Count > 0 && !RegexLookup.ParameterName.IsMatch(args.Peek()) &&
                     (!command.parameters.HasNoName || parameter.CanHandle(args.Peek())))

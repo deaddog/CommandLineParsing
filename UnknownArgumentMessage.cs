@@ -41,6 +41,32 @@ namespace CommandLineParsing
         private ArgumentType argumentType;
         private Dictionary<string, string> alternativeArguments;
 
+        internal static UnknownArgumentMessage FromType(Command command, ArgumentType type, string argument)
+        {
+            switch (type)
+            {
+                case ArgumentType.SubCommand: return FromSubcommands(command, argument);
+                case ArgumentType.Parameter: return FromParameters(command, argument);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), $"No such {nameof(ArgumentType)}; \"{type}\".");
+            }
+        }
+
+        internal static UnknownArgumentMessage FromSubcommands(Command command, string argument)
+        {
+            UnknownArgumentMessage unknown = new UnknownArgumentMessage(argument, UnknownArgumentMessage.ArgumentType.SubCommand);
+            foreach (var n in command.SubCommands)
+                unknown.AddAlternative(n.Key, n.Value.Description);
+            return unknown;
+        }
+        internal static UnknownArgumentMessage FromParameters(Command command, string argument)
+        {
+            UnknownArgumentMessage unknown = new UnknownArgumentMessage(argument, UnknownArgumentMessage.ArgumentType.Parameter);
+            foreach (var par in command.Parameters)
+                unknown.AddAlternative(par.GetNames(true).ToArray(), par.Description);
+            return unknown;
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="UnknownArgumentMessage"/> class.
         /// </summary>
