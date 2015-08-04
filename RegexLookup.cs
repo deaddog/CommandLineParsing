@@ -8,6 +8,6 @@ namespace CommandLineParsing
         private static string letterAndNumber = "[a-zA-Z0-9]";
         private static string letterThenBoth = letter + letterAndNumber + "*";
 
-        public static readonly Regex ParameterName = new Regex($"^--?{letterThenBoth}(-{letterThenBoth})*$");
+        public static readonly Regex ParameterName = new Regex($"^-+{letterThenBoth}(-+{letterThenBoth})*$");
     }
 }
