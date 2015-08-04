@@ -48,6 +48,8 @@ namespace CommandLineParsing
 
             private Message execute()
             {
+                Message msg;
+
                 if (args.Count > 0 && !RegexLookup.ParameterName.IsMatch(args.Peek()))
                 {
                     string firstArg = args.Pop();
@@ -63,9 +65,9 @@ namespace CommandLineParsing
                         return executeSubCommand(firstArg, help);
                 }
 
-                Message startvalid = command.preValid.Validate();
-                if (startvalid.IsError)
-                    return startvalid;
+                msg = command.preValid.Validate();
+                if (msg.IsError)
+                    return msg;
 
                 unusedParsers = new List<Parameter>(command.parameters);
                 while (args.Count > 0)
@@ -91,14 +93,15 @@ namespace CommandLineParsing
                         return nonameMessage;
                 }
 
-                var validMessage = command.postValid.Validate();
-                if (validMessage.IsError)
-                    return validMessage;
+                msg = command.postValid.Validate();
+                if (msg.IsError)
+                    return msg;
 
                 command.Execute();
 
                 return Message.NoError;
             }
+
             private Message executeSubCommand(string arg, string help)
             {
                 Command cmd;
