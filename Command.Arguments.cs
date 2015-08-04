@@ -24,6 +24,10 @@ namespace CommandLineParsing
             {
                 Stack<string> arguments = new Stack<string>(args.Reverse());
                 command = findCommand(command, arguments);
+
+                if (arguments.Count == 1 && arguments.Peek() == help)
+                    return command.GetHelpMessage();
+
                 return new executor(command, arguments).execute();
             }
 
@@ -41,11 +45,9 @@ namespace CommandLineParsing
 
                 return root;
             }
+
             private Message execute()
             {
-                if (args.Count > 0 && help == args.Peek())
-                    return command.GetHelpMessage();
-
                 if (args.Count > 0 && !RegexLookup.ParameterName.IsMatch(args.Peek()))
                 {
                     string firstArg = args.Pop();
