@@ -49,22 +49,7 @@ namespace CommandLineParsing
             private Message execute()
             {
                 Message msg;
-
-                if (args.Count > 0 && !RegexLookup.ParameterName.IsMatch(args.Peek()))
-                {
-                    string firstArg = args.Pop();
-
-                    if (command.parameters.HasNoName)
-                    {
-                        if (command.subcommands.ContainsName(firstArg))
-                            return executeSubCommand(firstArg, help);
-                        else
-                            nonameArgs.Add(firstArg);
-                    }
-                    else
-                        return executeSubCommand(firstArg, help);
-                }
-
+                
                 msg = command.preValid.Validate();
                 if (msg.IsError)
                     return msg;
@@ -101,15 +86,7 @@ namespace CommandLineParsing
 
                 return Message.NoError;
             }
-
-            private Message executeSubCommand(string arg, string help)
-            {
-                Command cmd;
-                if (command.subcommands.TryGetCommand(arg, out cmd))
-                    return execute(cmd, help);
-                else
-                    return UnknownArgumentMessage.FromSubcommands(command, arg);
-            }
+            
             private Message handleParameter()
             {
                 string key = args.Pop();
