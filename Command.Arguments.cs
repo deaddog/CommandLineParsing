@@ -13,18 +13,34 @@ namespace CommandLineParsing
             private Stack<string> args;
             private List<string> nonameArgs;
 
-            private executor(Command command, IEnumerable<string> args)
+            private executor(Command command, Stack<string> args)
             {
                 this.command = command;
-                this.args = new Stack<string>(args.Reverse());
+                this.args = args;
                 this.nonameArgs = new List<string>();
             }
 
             public static Message Execute(Command command, IEnumerable<string> args, string help)
             {
-                return new executor(command, args).execute(command, help);
+                Stack<string> arguments = new Stack<string>(args.Reverse());
+                command = findCommand(command, arguments);
+                return new executor(command, arguments).execute(command, help);
             }
 
+            private static Command findCommand(Command root, Stack<string> args)
+            {
+                if (args.Count == 0)
+                    return root;
+
+                Command res;
+                if (root.subcommands.TryGetCommand(args.Peek(), out res))
+                {
+                    args.Pop();
+                    return findCommand(res, args);
+                }
+
+                return root;
+            }
             private Message execute(Command command, string help)
             {
                 if (args.Count > 0 && help == args.Peek())
