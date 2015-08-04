@@ -31,14 +31,14 @@ namespace CommandLineParsing
 
         internal Parameter(string name, string[] alternatives, string description, Message required)
         {
-            if (name != null && !RegexLookup.ArgumentName.IsMatch(name))
-                throw new ArgumentException("Argument name \"" + name + "\" is illformed.", "name");
+            if (name != null && !RegexLookup.ParameterName.IsMatch(name))
+                throw new ArgumentException("Parameter name \"" + name + "\" is illformed.", "name");
             this.name = name;
 
             foreach (var n in alternatives)
             {
-                if (!RegexLookup.ArgumentName.IsMatch(n))
-                    throw new ArgumentException("Argument name \"" + n + "\" is illformed.", "alternatives");
+                if (!RegexLookup.ParameterName.IsMatch(n))
+                    throw new ArgumentException("Parameter name \"" + n + "\" is illformed.", "alternatives");
             }
             this.alternatives = alternatives;
             this.description = description;

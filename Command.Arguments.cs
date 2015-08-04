@@ -46,7 +46,7 @@ namespace CommandLineParsing
                 if (args.Count > 0 && help == args.Peek())
                     return command.GetHelpMessage();
 
-                if (args.Count > 0 && !RegexLookup.ArgumentName.IsMatch(args.Peek()))
+                if (args.Count > 0 && !RegexLookup.ParameterName.IsMatch(args.Peek()))
                 {
                     string firstArg = args.Pop();
 
@@ -68,7 +68,7 @@ namespace CommandLineParsing
                 unusedParsers = new List<Parameter>(command.parameters);
                 while (args.Count > 0)
                 {
-                    if (RegexLookup.ArgumentName.IsMatch(args.Peek()))
+                    if (RegexLookup.ParameterName.IsMatch(args.Peek()))
                     {
                         Message parMessage = handleParameter();
                         if (parMessage.IsError)
@@ -125,7 +125,7 @@ namespace CommandLineParsing
                     return unknown;
                 }
 
-                while (args.Count > 0 && !RegexLookup.ArgumentName.IsMatch(args.Peek()) &&
+                while (args.Count > 0 && !RegexLookup.ParameterName.IsMatch(args.Peek()) &&
                     (!command.parameters.HasNoName || parameter.CanHandle(args.Peek())))
                 {
                     values.Add(args.Pop());
