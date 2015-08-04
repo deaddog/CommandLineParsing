@@ -24,7 +24,7 @@ namespace CommandLineParsing
             {
                 Stack<string> arguments = new Stack<string>(args.Reverse());
                 command = findCommand(command, arguments);
-                return new executor(command, arguments).execute(command, help);
+                return new executor(command, arguments).execute();
             }
 
             private static Command findCommand(Command root, Stack<string> args)
@@ -41,7 +41,7 @@ namespace CommandLineParsing
 
                 return root;
             }
-            private Message execute(Command command, string help)
+            private Message execute()
             {
                 if (args.Count > 0 && help == args.Peek())
                     return command.GetHelpMessage();
