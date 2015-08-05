@@ -9,36 +9,34 @@ namespace CommandLineParsing
         {
             private readonly Command command;
 
-            private Stack<string> args;
-            private List<string> nonameArgs;
+            private ArgumentQueue arguments;
 
-            private executor(Command command, Stack<string> args)
+            private executor(Command command, ArgumentQueue arguments)
             {
                 this.command = command;
-                this.args = args;
-                this.nonameArgs = new List<string>();
+                this.arguments = null;
             }
 
             public static Message Execute(Command command, IEnumerable<string> args, string help)
             {
-                Stack<string> arguments = new Stack<string>(args.Reverse());
+                ArgumentQueue arguments = new ArgumentQueue(args);
                 command = findCommand(command, arguments);
 
-                if (arguments.Count == 1 && arguments.Peek() == help)
+                if (arguments.Count == 1 && arguments.Peek == help)
                     return command.GetHelpMessage();
 
                 return new executor(command, arguments).execute();
             }
 
-            private static Command findCommand(Command root, Stack<string> args)
+            private static Command findCommand(Command root, ArgumentQueue args)
             {
                 if (args.Count == 0)
                     return root;
 
                 Command res;
-                if (RegexLookup.SubcommandName.IsMatch(args.Peek()) && root.subcommands.TryGetCommand(args.Peek(), out res))
+                if (RegexLookup.SubcommandName.IsMatch(args.Peek) && root.subcommands.TryGetCommand(args.Peek, out res))
                 {
-                    args.Pop();
+                    args.Dequeue();
                     return findCommand(res, args);
                 }
 
@@ -72,11 +70,11 @@ namespace CommandLineParsing
             {
                 Message msg = Message.NoError;
 
-                while (args.Count > 0)
+                while (arguments.Count > 0)
                 {
-                    if (RegexLookup.ParameterName.IsMatch(args.Peek()))
+                    if (RegexLookup.ParameterName.IsMatch(arguments.Peek))
                     {
-                        Parameter par = findParameter(args.Pop(), out msg);
+                        Parameter par = findParameter(arguments.Dequeue(), out msg);
                         if (msg.IsError)
                             return msg;
 
@@ -86,12 +84,12 @@ namespace CommandLineParsing
                     }
                     else
                     {
-                        if (command.Parameters.HasNoName && command.Parameters.NoName.CanHandle(args.Peek()))
-                            nonameArgs.Add(args.Pop());
-                        else if (RegexLookup.SubcommandName.IsMatch(args.Peek()))
-                            return UnknownArgumentMessage.FromSubcommands(command, args.Pop());
+                        if (command.Parameters.HasNoName && command.Parameters.NoName.CanHandle(arguments.Peek))
+                            arguments.Skip();
+                        else if (RegexLookup.SubcommandName.IsMatch(arguments.Peek))
+                            return UnknownArgumentMessage.FromSubcommands(command, arguments.Dequeue());
                         else
-                            return NoUnnamed(args.Pop());
+                            return NoUnnamed(arguments.Dequeue());
                     }
                 }
 
@@ -99,10 +97,11 @@ namespace CommandLineParsing
                 if (msg.IsError)
                     return msg;
 
-                if (nonameArgs.Count > 0)
+                string[] nonameArgs = arguments.PopSkipped();
+                if (nonameArgs.Length > 0)
                     if (command.parameters.HasNoName)
                     {
-                        msg = command.parameters.NoName.Handle(nonameArgs.ToArray());
+                        msg = command.parameters.NoName.Handle(nonameArgs);
                         if (msg.IsError)
                             return msg;
                     }
@@ -129,14 +128,13 @@ namespace CommandLineParsing
 
             private Message handleParameter(Parameter parameter)
             {
-                List<string> values = new List<string>();
-                while (args.Count > 0 && !RegexLookup.ParameterName.IsMatch(args.Peek()))
+                while (arguments.Count > 0 && !RegexLookup.ParameterName.IsMatch(arguments.Peek))
                     if (parameter is FlagParameter && command.Parameters.HasNoName)
-                        nonameArgs.Add(args.Pop());
+                        arguments.Skip();
                     else
-                        values.Add(args.Pop());
+                        arguments.Accept();
 
-                return parameter.Handle(values.ToArray());
+                return parameter.Handle(arguments.PopAccepted());
             }
         }
     }
