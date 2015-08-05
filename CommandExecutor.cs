@@ -39,6 +39,20 @@ namespace CommandLineParsing
 
             return root;
         }
+        private static Parameter findParameter(Command command, string arg, out Message message)
+        {
+            Parameter par;
+            if (command.Parameters.TryGetParameter(arg, out par))
+            {
+                message = Message.NoError;
+                return par;
+            }
+            else
+            {
+                message = UnknownArgumentMessage.FromParameters(command, arg);
+                return null;
+            }
+        }
 
         private static Message NoUnnamed(string value) => $@"You must specify which parameter the value '{value}' is associated with (eg. [Example:--parameter-name {value}]).";
 
@@ -107,22 +121,7 @@ namespace CommandLineParsing
 
             return Message.NoError;
         }
-
-        private static Parameter findParameter(Command command, string arg, out Message message)
-        {
-            Parameter par;
-            if (command.Parameters.TryGetParameter(arg, out par))
-            {
-                message = Message.NoError;
-                return par;
-            }
-            else
-            {
-                message = UnknownArgumentMessage.FromParameters(command, arg);
-                return null;
-            }
-        }
-
+        
         private Message handleParameter(Parameter parameter)
         {
             while (arguments.Count > 0 && !RegexLookup.ParameterName.IsMatch(arguments.Peek))
