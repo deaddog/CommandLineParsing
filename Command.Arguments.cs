@@ -45,6 +45,8 @@ namespace CommandLineParsing
                 return root;
             }
 
+            private Message NoUnnamed(string value) => $@"You must specify which parameter the value '{value}' is associated with; ([Example:--\[parameter-name\] {value}]).";
+
             private Message execute()
             {
                 Message msg;
@@ -89,7 +91,7 @@ namespace CommandLineParsing
                         else if (RegexLookup.SubcommandName.IsMatch(args.Peek()))
                             return UnknownArgumentMessage.FromSubcommands(command, args.Pop());
                         else
-                            return $"You must specify which parameter the value is associated to; ([Example:--parameter {args.Pop()}]).";
+                            return NoUnnamed(args.Pop());
                     }
                 }
 
