@@ -79,7 +79,12 @@ namespace CommandLineParsing
                 Console.WriteLine();
             }
         }
-        private static string[] simulateParse(string input)
+        /// <summary>
+        /// Simulates parsing of a string into an array of values done by the .Net framework before execution of main.
+        /// </summary>
+        /// <param name="input">The input string that is parsed.</param>
+        /// <returns>An array of strings that are the result of splitting <paramref name="input"/>.</returns>
+        public static string[] SimulateParse(string input)
         {
             input = input.Trim();
 
@@ -235,7 +240,7 @@ namespace CommandLineParsing
         /// <returns>A <see cref="Message"/> that is the result of executing this <see cref="Command"/>.</returns>
         public Message ParseAndExecute(string argsAsString, string help = null)
         {
-            return ParseAndExecute(simulateParse(argsAsString), help);
+            return ParseAndExecute(SimulateParse(argsAsString), help);
         }
 
         /// <summary>
@@ -258,7 +263,7 @@ namespace CommandLineParsing
         /// <param name="help">A string that identifies a keyword that can be used to display the help message for any command/subcommand when executing this <see cref="Command"/>.</param>
         public void RunCommand(string argsAsString, string help = null)
         {
-            RunCommand(simulateParse(argsAsString), help);
+            RunCommand(SimulateParse(argsAsString), help);
         }
 
         /// <summary>
