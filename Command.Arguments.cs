@@ -34,7 +34,7 @@ namespace CommandLineParsing
                     return root;
 
                 Command res;
-                if (RegexLookup.SubcommandName.IsMatch(args.Peek) && root.subcommands.TryGetCommand(args.Peek, out res))
+                if (RegexLookup.SubcommandName.IsMatch(args.Peek) && root.SubCommands.TryGetCommand(args.Peek, out res))
                 {
                     args.Dequeue();
                     return findCommand(res, args);
@@ -49,7 +49,7 @@ namespace CommandLineParsing
             {
                 Message msg;
 
-                msg = command.preValid.Validate();
+                msg = command.PreValidator.Validate();
                 if (msg.IsError)
                     return msg;
 
@@ -57,7 +57,7 @@ namespace CommandLineParsing
                 if (msg.IsError)
                     return msg;
 
-                msg = command.postValid.Validate();
+                msg = command.Validator.Validate();
                 if (msg.IsError)
                     return msg;
 
@@ -99,9 +99,9 @@ namespace CommandLineParsing
 
                 string[] nonameArgs = arguments.PopSkipped();
                 if (nonameArgs.Length > 0)
-                    if (command.parameters.HasNoName)
+                    if (command.Parameters.HasNoName)
                     {
-                        msg = command.parameters.NoName.Handle(nonameArgs);
+                        msg = command.Parameters.NoName.Handle(nonameArgs);
                         if (msg.IsError)
                             return msg;
                     }

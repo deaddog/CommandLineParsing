@@ -129,7 +129,7 @@ namespace CommandLineParsing
         /// <summary>
         /// When overridden in a derived class, performs any action that is associated with this <see cref="Command"/>.
         /// </summary>
-        protected virtual void Execute()
+        protected internal virtual void Execute()
         {
         }
 
@@ -140,7 +140,7 @@ namespace CommandLineParsing
         /// Messages can be combined using the + (plus) operator.
         /// </summary>
         /// <returns>A help <see cref="Message"/> for this <see cref="Command"/>.</returns>
-        protected virtual Message GetHelpMessage()
+        protected internal virtual Message GetHelpMessage()
         {
             var message = Message.NoError;
 
@@ -342,7 +342,7 @@ namespace CommandLineParsing
                         this.postValid.Add(validation);
                 }
 
-                protected override void Execute()
+                protected internal override void Execute()
                 {
                     action();
                 }
