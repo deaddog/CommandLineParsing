@@ -127,6 +127,17 @@ namespace CommandLineParsing
             get { return subcommands; }
         }
         /// <summary>
+        /// Translates <paramref name="alias"/> into <paramref name="replaceby"/> which is injected into the execution of this <see cref="Command"/>.
+        /// </summary>
+        /// <param name="alias">The name of the alias.</param>
+        /// <param name="replaceby">The string that <paramref name="alias"/> should be replace by if <paramref name="alias"/> actually is an alias.</param>
+        /// <returns><c>true</c>, if <paramref name="alias"/> is an alias for another string; otherwise, <c>false</c>.</returns>
+        protected internal virtual bool HandleAlias(string alias, out string replaceby)
+        {
+            replaceby = string.Empty;
+            return false;
+        }
+        /// <summary>
         /// Gets a collection of the parameters associated with this <see cref="Command"/>.
         /// </summary>
         public ParameterCollection Parameters
