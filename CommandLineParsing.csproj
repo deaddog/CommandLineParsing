@@ -41,7 +41,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Argument.cs" />
     <Compile Include="ArgumentQueue.cs" />
     <Compile Include="ArrayParameter.cs" />
     <Compile Include="ColorConsole.cs" />

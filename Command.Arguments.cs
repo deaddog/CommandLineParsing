@@ -102,7 +102,7 @@ namespace CommandLineParsing
                 if (nonameArgs.Count > 0)
                     if (command.parameters.HasNoName)
                     {
-                        msg = command.parameters.NoName.Handle(new Argument(nonameArgs));
+                        msg = command.parameters.NoName.Handle(nonameArgs.ToArray());
                         if (msg.IsError)
                             return msg;
                     }
@@ -136,7 +136,7 @@ namespace CommandLineParsing
                     else
                         values.Add(args.Pop());
 
-                return parameter.Handle(new Argument(values));
+                return parameter.Handle(values.ToArray());
             }
         }
     }

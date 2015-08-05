@@ -46,7 +46,7 @@ namespace CommandLineParsing
             this.isset = false;
         }
 
-        internal abstract Message Handle(Argument argument);
+        internal abstract Message Handle(string[] values);
         internal abstract bool CanHandle(string value);
 
         /// <summary>
