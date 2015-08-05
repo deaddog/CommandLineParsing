@@ -11,7 +11,7 @@ namespace CommandLineParsing
         private CommandExecutor(Command command, ArgumentQueue arguments)
         {
             this.command = command;
-            this.arguments = null;
+            this.arguments = arguments;
         }
 
         public static Message Execute(Command command, IEnumerable<string> args, string help)
