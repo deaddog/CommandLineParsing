@@ -72,7 +72,7 @@ namespace CommandLineParsing
             {
                 if (RegexLookup.ParameterName.IsMatch(arguments.Peek))
                 {
-                    Parameter par = findParameter(arguments.Dequeue(), out msg);
+                    Parameter par = findParameter(command, arguments.Dequeue(), out msg);
                     if (msg.IsError)
                         return msg;
 
@@ -109,7 +109,7 @@ namespace CommandLineParsing
             return Message.NoError;
         }
 
-        private Parameter findParameter(string arg, out Message message)
+        private static Parameter findParameter(Command command, string arg, out Message message)
         {
             Parameter par;
             if (command.Parameters.TryGetParameter(arg, out par))
