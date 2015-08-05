@@ -22,6 +22,11 @@ namespace CommandLineParsing
             get { return args.Count - index; }
         }
 
+        public void Prepend(IEnumerable<string> args)
+        {
+            this.args.InsertRange(index, args);
+        }
+
         public string Peek
         {
             get { return index < args.Count ? args[index] : null; }
