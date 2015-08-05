@@ -53,7 +53,7 @@ namespace CommandLineParsing
                 if (msg.IsError)
                     return msg;
 
-                msg = handleAllParameters();
+                msg = parseArguments();
                 if (msg.IsError)
                     return msg;
 
@@ -66,7 +66,7 @@ namespace CommandLineParsing
                 return Message.NoError;
             }
 
-            private Message handleAllParameters()
+            private Message parseArguments()
             {
                 Message msg = Message.NoError;
 
