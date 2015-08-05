@@ -6,26 +6,14 @@ namespace CommandLineParsing
 {
     internal class Argument
     {
-        private string key;
         private string[] values;
 
         public Argument(IEnumerable<string> values)
         {
-            this.key = null;
-            this.values = values.ToArray();
-        }
-        public Argument(string key, IEnumerable<string> values)
-        {
-            if (key == null)
-                throw new ArgumentNullException("key");
+            if (values == null)
+                throw new ArgumentNullException(nameof(values));
 
-            this.key = key.ToLower();
             this.values = values.ToArray();
-        }
-
-        public string Key
-        {
-            get { return key; }
         }
 
         public int Count
@@ -40,7 +28,7 @@ namespace CommandLineParsing
 
         public override string ToString()
         {
-            return string.Format("{0} [{1}]", key, string.Join(", ", values));
+            return $"Count: {Count}";
         }
     }
 }

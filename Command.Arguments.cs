@@ -104,7 +104,7 @@ namespace CommandLineParsing
                 }
 
                 unusedParsers.Remove(parameter);
-                return parameter.Handle(new Argument(key, values));
+                return parameter.Handle(new Argument(values));
             }
         }
     }
