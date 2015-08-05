@@ -49,11 +49,26 @@ namespace CommandLineParsing
             private Message execute()
             {
                 Message msg;
-                
+
                 msg = command.preValid.Validate();
                 if (msg.IsError)
                     return msg;
 
+                msg = handleAllParameters();
+                if (msg.IsError)
+                    return msg;
+
+                msg = command.postValid.Validate();
+                if (msg.IsError)
+                    return msg;
+
+                command.Execute();
+
+                return Message.NoError;
+            }
+
+            private Message handleAllParameters()
+            {
                 unusedParsers = new List<Parameter>(command.parameters);
                 while (args.Count > 0)
                 {
@@ -78,15 +93,9 @@ namespace CommandLineParsing
                         return nonameMessage;
                 }
 
-                msg = command.postValid.Validate();
-                if (msg.IsError)
-                    return msg;
-
-                command.Execute();
-
                 return Message.NoError;
             }
-            
+
             private Message handleParameter()
             {
                 string key = args.Pop();
