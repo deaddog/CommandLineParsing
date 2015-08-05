@@ -42,6 +42,7 @@ namespace CommandLineParsing
                 throw new InvalidOperationException($"Nothing can be accepted as the of the {nameof(ArgumentQueue)} is empty.");
 
             accepted.Add(args[index]);
+            args.RemoveAt(index);
         }
         public void Skip()
         {
