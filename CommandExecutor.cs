@@ -38,11 +38,20 @@ namespace CommandLineParsing
                 return root;
 
             Command res;
-            if (RegexLookup.SubcommandName.IsMatch(args.Peek) && root.SubCommands.TryGetCommand(args.Peek, out res))
-            {
-                args.Dequeue();
-                return findCommand(res, args);
-            }
+            string alias;
+
+            if (RegexLookup.SubcommandName.IsMatch(args.Peek))
+                if (root.SubCommands.TryGetCommand(args.Peek, out res))
+                {
+                    args.Dequeue();
+                    return findCommand(res, args);
+                }
+                else if (root.HandleAlias(args.Peek, out alias))
+                {
+                    args.Dequeue();
+                    args.Prepend(Command.SimulateParse(alias));
+                    return findCommand(root, args);
+                }
 
             return root;
         }
