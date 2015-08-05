@@ -40,7 +40,7 @@ namespace CommandLineParsing
             return root;
         }
 
-        private Message NoUnnamed(string value) => $@"You must specify which parameter the value '{value}' is associated with; ([Example:--\[parameter-name\] {value}]).";
+        private static Message NoUnnamed(string value) => $@"You must specify which parameter the value '{value}' is associated with (eg. [Example:--parameter-name {value}]).";
 
         private Message execute()
         {
