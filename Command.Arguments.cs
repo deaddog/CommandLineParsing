@@ -83,7 +83,14 @@ namespace CommandLineParsing
                             return msg;
                     }
                     else
-                        nonameArgs.Add(args.Pop());
+                    {
+                        if (command.Parameters.HasNoName && command.Parameters.NoName.CanHandle(args.Peek()))
+                            nonameArgs.Add(args.Pop());
+                        else if (RegexLookup.SubcommandName.IsMatch(args.Peek()))
+                            return UnknownArgumentMessage.FromSubcommands(command, args.Pop());
+                        else
+                            return $"You must specify which parameter the value is associated to; ([Example:--parameter {args.Pop()}]).";
+                    }
                 }
 
                 msg = command.Parameters.FirstOrDefault(x => !x.IsSet && x.IsRequired)?.RequiredMessage ?? Message.NoError;
