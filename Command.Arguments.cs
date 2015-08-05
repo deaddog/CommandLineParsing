@@ -8,7 +8,6 @@ namespace CommandLineParsing
         private class executor
         {
             private readonly Command command;
-            private List<Parameter> unusedParsers;
 
             private Stack<string> args;
             private List<string> nonameArgs;
@@ -69,7 +68,6 @@ namespace CommandLineParsing
 
             private Message handleAllParameters()
             {
-                unusedParsers = new List<Parameter>(command.parameters);
                 Message msg = Message.NoError;
 
                 while (args.Count > 0)
@@ -84,9 +82,9 @@ namespace CommandLineParsing
                         nonameArgs.Add(args.Pop());
                 }
 
-                var req = unusedParsers.FirstOrDefault(x => x.IsRequired);
-                if (req != null)
-                    return req.RequiredMessage;
+                msg = command.Parameters.FirstOrDefault(x => !x.IsSet && x.IsRequired)?.RequiredMessage ?? Message.NoError;
+                if (msg.IsError)
+                    return msg;
 
                 if (command.parameters.HasNoName && nonameArgs.Count > 0)
                 {
@@ -114,7 +112,6 @@ namespace CommandLineParsing
                     values.Add(args.Pop());
                 }
 
-                unusedParsers.Remove(parameter);
                 return parameter.Handle(new Argument(values));
             }
         }
