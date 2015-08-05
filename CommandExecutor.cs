@@ -6,8 +6,7 @@ namespace CommandLineParsing
     internal class CommandExecutor
     {
         private readonly Command command;
-
-        private ArgumentQueue arguments;
+        private readonly ArgumentQueue arguments;
 
         private CommandExecutor(Command command, ArgumentQueue arguments)
         {
