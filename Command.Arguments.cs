@@ -99,9 +99,9 @@ namespace CommandLineParsing
 
                 if (command.parameters.HasNoName && nonameArgs.Count > 0)
                 {
-                    var nonameMessage = command.parameters.NoName.Handle(new Argument(nonameArgs));
-                    if (nonameMessage.IsError)
-                        return nonameMessage;
+                    msg = command.parameters.NoName.Handle(new Argument(nonameArgs));
+                    if (msg.IsError)
+                        return msg;
                 }
 
                 return Message.NoError;
