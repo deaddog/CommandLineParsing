@@ -204,7 +204,7 @@ namespace CommandLineParsing
         /// <returns>A <see cref="Message"/> that is the result of executing this <see cref="Command"/>.</returns>
         public Message ParseAndExecute(string[] args, string help = null)
         {
-            return executor.Execute(this, args, help);
+            return CommandExecutor.Execute(this, args, help);
         }
         /// <summary>
         /// Executes this <see cref="Command"/> and returns a resulting <see cref="Message"/>.
