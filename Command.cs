@@ -83,15 +83,35 @@ namespace CommandLineParsing
         {
             input = input.Trim();
 
-            var matches = System.Text.RegularExpressions.Regex.Matches(input, "[^ \"]+|\"[^\"]+\"");
-            string[] inputArr = new string[matches.Count];
-            for (int i = 0; i < inputArr.Length; i++)
+            List<string> res = new List<string>();
+
+            while (input.Length > 0)
             {
-                inputArr[i] = matches[i].Value;
-                if (inputArr[i][0] == '\"' && inputArr[i][inputArr[i].Length - 1] == '\"')
-                    inputArr[i] = inputArr[i].Substring(1, inputArr[i].Length - 2);
+                int offset, len;
+                char lookfor;
+                switch (input[0])
+                {
+                    case '\"': offset = 1; len = -2; lookfor = '\"'; break;
+                    case '\'': offset = 1; len = -2; lookfor = '\''; break;
+                    default: offset = 0; len = -1; lookfor = ' '; break;
+                }
+
+                int index = input.IndexOf(lookfor, offset);
+                if (index == -1)
+                {
+                    res.Add(input);
+                    input = string.Empty;
+                }
+                else
+                {
+                    string add = input.Substring(offset, index + len + 1);
+                    if (add.Length > 0)
+                        res.Add(add);
+                    input = input.Substring(index + 1);
+                }
             }
-            return inputArr;
+
+            return res.ToArray();
         }
 
         /// <summary>
