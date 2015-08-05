@@ -34,9 +34,9 @@ namespace CommandLineParsing
             set { hasValueMessage = value; }
         }
 
-        internal override Message Handle(Argument argument)
+        internal override Message Handle(string[] values)
         {
-            if (argument.Count > 0)
+            if (values.Length > 0)
                 return hasValueMessage;
 
             IsSet = true;

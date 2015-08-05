@@ -4,6 +4,11 @@ namespace CommandLineParsing
 {
     internal static class RegexLookup
     {
-        public static readonly Regex ArgumentName = new Regex("^--?[a-z]+(-[a-z]+)*$");
+        private static string letter = "[a-zA-Z]";
+        private static string letterAndNumber = "[a-zA-Z0-9]";
+        private static string letterThenBoth = letter + letterAndNumber + "*";
+
+        public static readonly Regex ParameterName = new Regex($"^-+{letterThenBoth}(-+{letterThenBoth})*$");
+        public static readonly Regex SubcommandName = new Regex($"^{letterThenBoth}$");
     }
 }

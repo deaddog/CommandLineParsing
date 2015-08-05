@@ -19,17 +19,17 @@ namespace CommandLineParsing
             get { return value.ToArray(); }
         }
 
-        internal override Message Handle(Argument argument)
+        internal override Message Handle(string[] values)
         {
             if (parser == null)
                 parser = ParserLookup.Table.GetParser<T>(enumIgnore);
 
-            T[] temp = new T[argument.Count];
+            T[] temp = new T[values.Length];
 
-            for (int i = 0; i < argument.Count; i++)
+            for (int i = 0; i < values.Length; i++)
             {
-                if (!parser(argument[i], out temp[i]))
-                    return TypeErrorMessage(argument[i]);
+                if (!parser(values[i], out temp[i]))
+                    return TypeErrorMessage(values[i]);
             }
 
             var msg = validator.Validate(temp);

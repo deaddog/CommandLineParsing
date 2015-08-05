@@ -129,7 +129,7 @@ namespace CommandLineParsing
         /// <summary>
         /// When overridden in a derived class, performs any action that is associated with this <see cref="Command"/>.
         /// </summary>
-        protected virtual void Execute()
+        protected internal virtual void Execute()
         {
         }
 
@@ -140,7 +140,7 @@ namespace CommandLineParsing
         /// Messages can be combined using the + (plus) operator.
         /// </summary>
         /// <returns>A help <see cref="Message"/> for this <see cref="Command"/>.</returns>
-        protected virtual Message GetHelpMessage()
+        protected internal virtual Message GetHelpMessage()
         {
             var message = Message.NoError;
 
@@ -204,7 +204,7 @@ namespace CommandLineParsing
         /// <returns>A <see cref="Message"/> that is the result of executing this <see cref="Command"/>.</returns>
         public Message ParseAndExecute(string[] args, string help = null)
         {
-            return executor.Execute(this, args, help);
+            return CommandExecutor.Execute(this, args, help);
         }
         /// <summary>
         /// Executes this <see cref="Command"/> and returns a resulting <see cref="Message"/>.
@@ -298,6 +298,9 @@ namespace CommandLineParsing
                 if (command == null)
                     throw new ArgumentNullException("command");
 
+                if (!RegexLookup.SubcommandName.IsMatch(name))
+                    throw new ArgumentException("Subcommand name \"" + name + "\" is illformed.", nameof(name));
+
                 this.commands.Add(name, command);
             }
             /// <summary>
@@ -339,7 +342,7 @@ namespace CommandLineParsing
                         this.postValid.Add(validation);
                 }
 
-                protected override void Execute()
+                protected internal override void Execute()
                 {
                     action();
                 }

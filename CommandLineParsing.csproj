@@ -41,12 +41,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Argument.cs" />
+    <Compile Include="ArgumentQueue.cs" />
     <Compile Include="ArrayParameter.cs" />
     <Compile Include="ColorConsole.cs" />
-    <Compile Include="Command.Arguments.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Command.Reflection.cs" />
+    <Compile Include="CommandExecutor.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationGroup.cs" />
     <Compile Include="Default.cs" />
