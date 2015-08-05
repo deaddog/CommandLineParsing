@@ -3,17 +3,8 @@ using System.Linq;
 
 namespace CommandLineParsing
 {
-    internal class CommandExecutor
+    internal static class CommandExecutor
     {
-        private readonly Command command;
-        private readonly ArgumentQueue arguments;
-
-        private CommandExecutor(Command command, ArgumentQueue arguments)
-        {
-            this.command = command;
-            this.arguments = arguments;
-        }
-
         public static Message Execute(Command command, IEnumerable<string> args, string help)
         {
             ArgumentQueue arguments = new ArgumentQueue(args);
@@ -22,7 +13,23 @@ namespace CommandLineParsing
             if (arguments.Count == 1 && arguments.Peek == help)
                 return command.GetHelpMessage();
 
-            return new CommandExecutor(command, arguments).execute();
+            Message msg;
+
+            msg = command.PreValidator.Validate();
+            if (msg.IsError)
+                return msg;
+
+            msg = parseArguments(command, arguments);
+            if (msg.IsError)
+                return msg;
+
+            msg = command.Validator.Validate();
+            if (msg.IsError)
+                return msg;
+
+            command.Execute();
+
+            return Message.NoError;
         }
 
         private static Command findCommand(Command root, ArgumentQueue args)
@@ -56,28 +63,7 @@ namespace CommandLineParsing
 
         private static Message NoUnnamed(string value) => $@"You must specify which parameter the value '{value}' is associated with (eg. [Example:--parameter-name {value}]).";
 
-        private Message execute()
-        {
-            Message msg;
-
-            msg = command.PreValidator.Validate();
-            if (msg.IsError)
-                return msg;
-
-            msg = parseArguments();
-            if (msg.IsError)
-                return msg;
-
-            msg = command.Validator.Validate();
-            if (msg.IsError)
-                return msg;
-
-            command.Execute();
-
-            return Message.NoError;
-        }
-
-        private Message parseArguments()
+        private static Message parseArguments(Command command, ArgumentQueue arguments)
         {
             Message msg = Message.NoError;
 
@@ -89,7 +75,7 @@ namespace CommandLineParsing
                     if (msg.IsError)
                         return msg;
 
-                    msg = handleParameter(par);
+                    msg = handleParameter(command, par, arguments);
                     if (msg.IsError)
                         return msg;
                 }
@@ -121,8 +107,7 @@ namespace CommandLineParsing
 
             return Message.NoError;
         }
-        
-        private Message handleParameter(Parameter parameter)
+        private static Message handleParameter(Command command, Parameter parameter, ArgumentQueue arguments)
         {
             while (arguments.Count > 0 && !RegexLookup.ParameterName.IsMatch(arguments.Peek))
                 if (parameter is FlagParameter && command.Parameters.HasNoName)
