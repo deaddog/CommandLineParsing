@@ -70,6 +70,8 @@ namespace CommandLineParsing
             private Message handleAllParameters()
             {
                 unusedParsers = new List<Parameter>(command.parameters);
+                Message msg = Message.NoError;
+
                 while (args.Count > 0)
                 {
                     if (RegexLookup.ParameterName.IsMatch(args.Peek()))
