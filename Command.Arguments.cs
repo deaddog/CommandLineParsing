@@ -96,6 +96,21 @@ namespace CommandLineParsing
                 return Message.NoError;
             }
 
+            private Parameter findParameter(string arg, out Message message)
+            {
+                Parameter par;
+                if (command.Parameters.TryGetParameter(arg, out par))
+                {
+                    message = Message.NoError;
+                    return par;
+                }
+                else
+                {
+                    message = UnknownArgumentMessage.FromParameters(command, arg);
+                    return null;
+                }
+            }
+
             private Message handleParameter()
             {
                 string key = args.Pop();
