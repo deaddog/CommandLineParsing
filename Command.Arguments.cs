@@ -74,9 +74,13 @@ namespace CommandLineParsing
                 {
                     if (RegexLookup.ParameterName.IsMatch(args.Peek()))
                     {
-                        Message parMessage = handleParameter();
-                        if (parMessage.IsError)
-                            return parMessage;
+                        Parameter par = findParameter(args.Pop(), out msg);
+                        if (msg.IsError)
+                            return msg;
+
+                        msg = handleParameter(par);
+                        if (msg.IsError)
+                            return msg;
                     }
                     else
                         nonameArgs.Add(args.Pop());
@@ -111,21 +115,14 @@ namespace CommandLineParsing
                 }
             }
 
-            private Message handleParameter()
+            private Message handleParameter(Parameter parameter)
             {
-                string key = args.Pop();
                 List<string> values = new List<string>();
-
-                Parameter parameter;
-
-                if (!command.parameters.TryGetParameter(key, out parameter))
-                    return UnknownArgumentMessage.FromParameters(command, key);
-
-                while (args.Count > 0 && !RegexLookup.ParameterName.IsMatch(args.Peek()) &&
-                    (!command.parameters.HasNoName || parameter.CanHandle(args.Peek())))
-                {
-                    values.Add(args.Pop());
-                }
+                while (args.Count > 0 && !RegexLookup.ParameterName.IsMatch(args.Peek()))
+                    if (parameter is FlagParameter && command.Parameters.HasNoName)
+                        nonameArgs.Add(args.Pop());
+                    else
+                        values.Add(args.Pop());
 
                 return parameter.Handle(new Argument(values));
             }
