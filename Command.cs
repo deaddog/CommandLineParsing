@@ -79,19 +79,44 @@ namespace CommandLineParsing
                 Console.WriteLine();
             }
         }
-        private static string[] simulateParse(string input)
+        /// <summary>
+        /// Simulates parsing of a string into an array of values done by the .Net framework before execution of main.
+        /// </summary>
+        /// <param name="input">The input string that is parsed.</param>
+        /// <returns>An array of strings that are the result of splitting <paramref name="input"/>.</returns>
+        public static string[] SimulateParse(string input)
         {
             input = input.Trim();
 
-            var matches = System.Text.RegularExpressions.Regex.Matches(input, "[^ \"]+|\"[^\"]+\"");
-            string[] inputArr = new string[matches.Count];
-            for (int i = 0; i < inputArr.Length; i++)
+            List<string> res = new List<string>();
+
+            while (input.Length > 0)
             {
-                inputArr[i] = matches[i].Value;
-                if (inputArr[i][0] == '\"' && inputArr[i][inputArr[i].Length - 1] == '\"')
-                    inputArr[i] = inputArr[i].Substring(1, inputArr[i].Length - 2);
+                int offset, len;
+                char lookfor;
+                switch (input[0])
+                {
+                    case '\"': offset = 1; len = -2; lookfor = '\"'; break;
+                    case '\'': offset = 1; len = -2; lookfor = '\''; break;
+                    default: offset = 0; len = -1; lookfor = ' '; break;
+                }
+
+                int index = input.IndexOf(lookfor, offset);
+                if (index == -1)
+                {
+                    res.Add(input);
+                    input = string.Empty;
+                }
+                else
+                {
+                    string add = input.Substring(offset, index + len + 1);
+                    if (add.Length > 0)
+                        res.Add(add);
+                    input = input.Substring(index + 1);
+                }
             }
-            return inputArr;
+
+            return res.ToArray();
         }
 
         /// <summary>
@@ -100,6 +125,17 @@ namespace CommandLineParsing
         public CommandCollection SubCommands
         {
             get { return subcommands; }
+        }
+        /// <summary>
+        /// Translates <paramref name="alias"/> into <paramref name="replaceby"/> which is injected into the execution of this <see cref="Command"/>.
+        /// </summary>
+        /// <param name="alias">The name of the alias.</param>
+        /// <param name="replaceby">The string that <paramref name="alias"/> should be replace by if <paramref name="alias"/> actually is an alias.</param>
+        /// <returns><c>true</c>, if <paramref name="alias"/> is an alias for another string; otherwise, <c>false</c>.</returns>
+        protected internal virtual bool HandleAlias(string alias, out string replaceby)
+        {
+            replaceby = string.Empty;
+            return false;
         }
         /// <summary>
         /// Gets a collection of the parameters associated with this <see cref="Command"/>.
@@ -215,7 +251,7 @@ namespace CommandLineParsing
         /// <returns>A <see cref="Message"/> that is the result of executing this <see cref="Command"/>.</returns>
         public Message ParseAndExecute(string argsAsString, string help = null)
         {
-            return ParseAndExecute(simulateParse(argsAsString), help);
+            return ParseAndExecute(SimulateParse(argsAsString), help);
         }
 
         /// <summary>
@@ -238,7 +274,7 @@ namespace CommandLineParsing
         /// <param name="help">A string that identifies a keyword that can be used to display the help message for any command/subcommand when executing this <see cref="Command"/>.</param>
         public void RunCommand(string argsAsString, string help = null)
         {
-            RunCommand(simulateParse(argsAsString), help);
+            RunCommand(SimulateParse(argsAsString), help);
         }
 
         /// <summary>
