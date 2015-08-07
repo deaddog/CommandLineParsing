@@ -29,7 +29,7 @@ namespace CommandLineParsing
             this.format = format;
         }
 
-        protected string Handle()
+        protected string HandleFormat()
         {
             return Handle(format);
         }
