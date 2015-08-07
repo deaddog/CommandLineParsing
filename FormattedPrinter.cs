@@ -44,10 +44,19 @@ namespace CommandLineParsing
             ColorConsole.WriteLine(HandleFormat());
         }
 
+        /// <summary>
+        /// Evaluates the format string managed by this <see cref="FormattedPrinter"/> given its current state, by applying the format translation.
+        /// </summary>
+        /// <returns>The result of the evaluation.</returns>
         protected string HandleFormat()
         {
             return Handle(format);
         }
+        /// <summary>
+        /// Evaluates <paramref name="text"/> given the current state of the <see cref="FormattedPrinter"/>, by applying the format translation.
+        /// </summary>
+        /// <param name="text">The text that should be evaluated.</param>
+        /// <returns>The result of the evaluation.</returns>
         protected string Handle(string text)
         {
             int index = 0;
