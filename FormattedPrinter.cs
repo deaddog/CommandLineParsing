@@ -34,30 +34,30 @@ namespace CommandLineParsing
         /// </summary>
         protected void PrintFormat()
         {
-            ColorConsole.Write(HandleFormat());
+            ColorConsole.Write(EvaluateFormat());
         }
         /// <summary>
         /// Evaluates the format of this <see cref="FormattedPrinter"/> and prints the result, followed by the current line terminator, using the <see cref="ColorConsole"/>.
         /// </summary>
         protected void PrintFormatLine()
         {
-            ColorConsole.WriteLine(HandleFormat());
+            ColorConsole.WriteLine(EvaluateFormat());
         }
 
         /// <summary>
         /// Evaluates the format string managed by this <see cref="FormattedPrinter"/> given its current state, by applying the format translation.
         /// </summary>
         /// <returns>The result of the evaluation.</returns>
-        protected string HandleFormat()
+        protected string EvaluateFormat()
         {
-            return Handle(format);
+            return Evaluate(format);
         }
         /// <summary>
         /// Evaluates <paramref name="text"/> given the current state of the <see cref="FormattedPrinter"/>, by applying the format translation.
         /// </summary>
         /// <param name="text">The text that should be evaluated.</param>
         /// <returns>The result of the evaluation.</returns>
-        protected string Handle(string text)
+        protected string Evaluate(string text)
         {
             int index = 0;
 
@@ -83,9 +83,9 @@ namespace CommandLineParsing
                             string replace = "";
                             var condition = ValidateCondition(match.Value.Substring(1));
                             if (!condition.HasValue)
-                                replace = "?" + match.Value + "{" + Handle(block) + "}";
+                                replace = "?" + match.Value + "{" + Evaluate(block) + "}";
                             else if (condition.Value)
-                                replace = Handle(block);
+                                replace = Evaluate(block);
 
                             text = text.Substring(0, index) + replace + text.Substring(end + 1);
                             index += replace.Length;
@@ -200,7 +200,7 @@ namespace CommandLineParsing
                     color_str = string.Empty;
             }
 
-            return $"[{color_str}:{Handle(content)}]";
+            return $"[{color_str}:{Evaluate(content)}]";
         }
         protected virtual bool? ValidateCondition(string condition)
         {
