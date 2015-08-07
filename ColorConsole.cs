@@ -37,7 +37,7 @@ namespace CommandLineParsing
         public static void Write(string value, bool allowcolor = true)
         {
             if (allowcolor)
-                handle(value ?? string.Empty, false);
+                handle(value ?? string.Empty);
             else
                 Console.Write(ClearColors(value ?? string.Empty));
         }
@@ -50,11 +50,14 @@ namespace CommandLineParsing
         public static void WriteLine(string value, bool allowcolor = true)
         {
             if (allowcolor)
-                handle(value ?? string.Empty, true);
+            {
+                handle(value ?? string.Empty);
+                Console.WriteLine();
+            }
             else
                 Console.WriteLine(ClearColors(value ?? string.Empty));
         }
-        
+
         /// <summary>
         /// Removes color-coding information from a string.
         /// The string "[Color:Text]" will print Text to the console using the default color as the foreground color.
@@ -97,7 +100,7 @@ namespace CommandLineParsing
             return colorRegex.IsMatch(input);
         }
 
-        private static void handle(string input, bool newline)
+        private static void handle(string input)
         {
             Match m;
 
@@ -121,10 +124,6 @@ namespace CommandLineParsing
 
                 input = post;
             }
-            if (newline)
-                Console.WriteLine(replaceEscaped(input));
-            else
-                Console.Write(replaceEscaped(input));
         }
 
         private static string replaceEscaped(string input)
