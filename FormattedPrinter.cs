@@ -29,6 +29,21 @@ namespace CommandLineParsing
             this.format = format;
         }
 
+        /// <summary>
+        /// Evaluates the format of this <see cref="FormattedPrinter"/> and prints the result using the <see cref="ColorConsole"/>.
+        /// </summary>
+        protected void PrintFormat()
+        {
+            ColorConsole.Write(HandleFormat());
+        }
+        /// <summary>
+        /// Evaluates the format of this <see cref="FormattedPrinter"/> and prints the result, followed by the current line terminator, using the <see cref="ColorConsole"/>.
+        /// </summary>
+        protected void PrintFormatLine()
+        {
+            ColorConsole.WriteLine(HandleFormat());
+        }
+
         protected string HandleFormat()
         {
             return Handle(format);
