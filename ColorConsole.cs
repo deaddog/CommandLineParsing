@@ -66,18 +66,48 @@ namespace CommandLineParsing
         /// <returns>A new string, without any color information.</returns>
         public static string ClearColors(string input)
         {
-            StringBuilder sb = new StringBuilder();
+            int index = 0;
 
-            Match m;
-            while ((m = colorRegex.Match(input)).Success)
-            {
-                sb.Append(input.Substring(0, m.Index));
-                sb.Append(m.Groups["content"].Value);
-                input = input.Substring(m.Index + m.Length);
-            }
-            sb.Append(input);
+            while (index < input.Length)
+                switch (input[index])
+                {
+                    case '[': // Coloring
+                        {
+                            int end = findEnd(input, index, '[', ']');
+                            var block = input.Substring(index + 1, end - index - 1);
+                            int colon = block.IndexOf(':');
+                            if (colon != -1 && block[colon - 1] == '\\')
+                                colon = -1;
 
-            return sb.ToString();
+                            if (colon == -1)
+                                return input;
+                            else
+                            {
+                                string content = block.Substring(colon + 1);
+                                input = input.Substring(0, index) + content + input.Substring(end + 1);
+                                index += content.Length;
+                            }
+                        }
+                        break;
+
+                    case '\\':
+                        if (input.Length == index + 1)
+                            input = input.Substring(0, input.Length - 1);
+                        else
+                        {
+                            input = input.Substring(0, index) + input.Substring(index + 1);
+                            index++;
+                        }
+                        break;
+
+                    default: // Skip content
+                        int nIndex = input.IndexOfAny(new char[] { '[', '\\' }, index);
+                        if (nIndex < 0) nIndex = input.Length;
+                        index = nIndex;
+                        break;
+                }
+
+            return input;
         }
 
         /// <summary>
@@ -97,7 +127,41 @@ namespace CommandLineParsing
         /// <returns><c>true</c>, if <paramref name="input"/> contains any "[Color:Text]" strings; otherwise, <c>false</c>.</returns>
         public static bool HasColors(string input)
         {
-            return colorRegex.IsMatch(input);
+            int index = 0;
+
+            while (index < input.Length)
+                switch (input[index])
+                {
+                    case '[': // Coloring
+                        {
+                            int end = findEnd(input, index, '[', ']');
+                            var block = input.Substring(index + 1, end - index - 1);
+                            int colon = block.IndexOf(':');
+                            if (colon != -1 && block[colon - 1] == '\\')
+                                colon = -1;
+
+                            if (colon != -1)
+                                return true;
+
+                            index += block.Length + 2;
+                        }
+                        break;
+
+                    case '\\':
+                        if (input.Length == index + 1)
+                            return false;
+                        else
+                            index += 2;
+                        break;
+
+                    default: // Skip content
+                        int nIndex = input.IndexOfAny(new char[] { '[', '\\' }, index);
+                        if (nIndex < 0) nIndex = input.Length;
+                        index = nIndex;
+                        break;
+                }
+
+            return false;
         }
 
         private static void handle(string input)
