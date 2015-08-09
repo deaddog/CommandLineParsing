@@ -231,12 +231,6 @@ namespace CommandLineParsing
             return index;
         }
 
-        private static string replaceEscaped(string input)
-        {
-            return input.Replace("\\[", "[").Replace("\\]", "]");
-
-        }
-
         /// <summary>
         /// Writes <paramref name="prompt"/> to <see cref="Console"/>, reads user input and returns a parsed value.
         /// </summary>
