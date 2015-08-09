@@ -11,12 +11,10 @@ namespace CommandLineParsing
     /// </summary>
     public static class ColorConsole
     {
-        private static readonly Regex colorRegex;
         private static readonly ColorTable colors;
 
         static ColorConsole()
         {
-            colorRegex = new Regex(@"(?<!\\)\[(?<color>[^:]+):(?<content>([^\\\]\[]|\\\]|\\\[|\\\\)*)\]");
             colors = new ColorTable();
         }
 
