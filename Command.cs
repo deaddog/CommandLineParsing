@@ -53,20 +53,27 @@ namespace CommandLineParsing
         /// Simulates a read-evaluate-print-loop. This method is especially effective for debugging purposes.
         /// </summary>
         /// <param name="command">A function that returns a <see cref="Command"/> item to execute.</param>
+        /// <param name="prefix">A string that is printed as part of the prompt, simulating a call to the application.</param>
         /// <param name="exit">A keyword that should end the read-evaluate-print-loop.</param>
         /// <param name="help">A string that identifies a keyword that can be used to display the help message for any command/subcommand when executing this <see cref="Command"/>.</param>
-        public static void SimulateREPL(Func<Command> command, string exit, string help = null)
+        public static void SimulateREPL(Func<Command> command, string prefix, string exit, string help = null)
         {
+            prefix = prefix?.Trim() ?? string.Empty;
+            if (prefix == string.Empty) prefix = System.Reflection.Assembly.GetExecutingAssembly().CodeBase;
+            if (prefix.Length > 0) prefix += " ";
+
             if (exit == null)
-                throw new ArgumentNullException("exit");
+                throw new ArgumentNullException(nameof(exit));
 
             exit = exit.Trim();
             if (exit.Length == 0)
-                throw new ArgumentException("To end the REPL an exit command must be supplied.", "exit");
+                throw new ArgumentException("To end the REPL an exit command must be supplied.", nameof(exit));
+
+            Console.WriteLine($"Input command below (or \"{exit}\" to quit)");
 
             while (true)
             {
-                Console.Write("Input command (or \"{0}\" to quit): ", exit);
+                Console.Write(prefix);
 
                 string input = Console.ReadLine();
 
