@@ -1,15 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
     /// <summary>
     /// Defines a collection of validation methods.
     /// </summary>
-    public class Validator
+    public class Validator : IEnumerable<Func<Message>>
     {
         private List<Func<Message>> validators;
 
@@ -32,6 +30,16 @@ namespace CommandLineParsing
                 throw new ArgumentNullException("validator");
 
             this.validators.Add(validator);
+        }
+        
+        /// <summary>
+        /// Provides a validation method for the <see cref="Validator"/>.
+        /// </summary>
+        /// <param name="validator">A function that takes state and returns <c>true</c> if the state was valid; otherwise is must return <c>false</c>.</param>
+        /// <param name="errorMessage">The error message that should be the validation result if <paramref name="validator"/> returns <c>false</c>.</param>
+        public void Add(Func<bool> validator, Message errorMessage)
+        {
+            Add(() => validator() ? Message.NoError : errorMessage);
         }
 
         /// <summary>
@@ -98,6 +106,17 @@ namespace CommandLineParsing
             }
 
             return Message.NoError;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            foreach (var v in validators)
+                yield return v;
+        }
+        IEnumerator<Func<Message>> IEnumerable<Func<Message>>.GetEnumerator()
+        {
+            foreach (var v in validators)
+                yield return v;
         }
     }
 }

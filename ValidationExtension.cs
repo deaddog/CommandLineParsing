@@ -11,40 +11,6 @@ namespace CommandLineParsing
     public static class ValidationExtension
     {
         /// <summary>
-        /// Provides a validation method for this <see cref="Validator{T}"/>.
-        /// </summary>
-        /// <typeparam name="T">The value type of the <see cref="Validator{T}"/>.</typeparam>
-        /// <param name="validatorElement">The <see cref="Validator{T}"/> to which the validation should be applied.</param>
-        /// <param name="validator">A function that takes the parsed value as input and returns <c>true</c> if the value is valid; otherwise is must return <c>false</c>.</param>
-        /// <param name="errorMessage">A function that generates the error message that should be the validation result if <paramref name="validator"/> returns <c>false</c>.</param>
-        public static void Add<T>(this Validator<T> validatorElement, Func<T, bool> validator, Func<T, Message> errorMessage)
-        {
-            validatorElement.Add(x => validator(x) ? Message.NoError : errorMessage(x));
-        }
-        /// <summary>
-        /// Provides a validation method for the <see cref="Validator{T}"/>.
-        /// </summary>
-        /// <typeparam name="T">The value type of the <see cref="Validator{T}"/>.</typeparam>
-        /// <param name="validatorElement">The <see cref="Validator{T}"/> to which the validation should be applied.</param>
-        /// <param name="validator">A function that takes the parsed value as input and returns <c>true</c> if the value is valid; otherwise is must return <c>false</c>.</param>
-        /// <param name="errorMessage">The error message that should be the validation result if <paramref name="validator"/> returns <c>false</c>.</param>
-        public static void Add<T>(this Validator<T> validatorElement, Func<T, bool> validator, Message errorMessage)
-        {
-            validatorElement.Add(x => validator(x) ? Message.NoError : errorMessage);
-        }
-        /// <summary>
-        /// Provides a validation method for the <see cref="Validator{T}"/>.
-        /// Errors in validation return a generic error message.
-        /// </summary>
-        /// <typeparam name="T">The value type of the <see cref="Validator{T}"/>.</typeparam>
-        /// <param name="validatorElement">The <see cref="Validator{T}"/> to which the validation should be applied.</param>
-        /// <param name="validator">A function that takes the parsed value as input and returns <c>true</c> if the value is valid; otherwise is must return <c>false</c>.</param>
-        public static void Add<T>(this Validator<T> validatorElement, Func<T, bool> validator)
-        {
-            validatorElement.Add(x => validator(x) ? Message.NoError : $"Invalid value '{x}'.");
-        }
-
-        /// <summary>
         /// Provides a validation method for the <see cref="Validator{T}"/> that validates each element in an array.
         /// </summary>
         /// <typeparam name="T">The element type of the <see cref="Validator{T}"/> array.</typeparam>
