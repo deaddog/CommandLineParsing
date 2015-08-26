@@ -96,8 +96,14 @@ namespace CommandLineParsing
                         {
                             var match = Regex.Match(text.Substring(index), @"\@[^\{]*");
                             var end = findEnd(text, index + match.Value.Length, '{', '}');
-                            var block = text.Substring(index + match.Value.Length + 1, end - index - match.Value.Length - 1);
-                            string replace = EvaluateFunction(match.Value.Substring(1), block.Split('@'));
+
+                            var args = text.Substring(index + match.Value.Length + 1, end - index - match.Value.Length - 1);
+                            string name = match.Value.Substring(1);
+
+                            string replace = EvaluateFunction(name, args.Split('@'));
+                            if (replace == null)
+                                replace = $"@{name}{{{args}}}";
+
                             text = text.Substring(0, index) + replace + text.Substring(end + 1);
                             index += replace.Length;
                         }
@@ -236,7 +242,7 @@ namespace CommandLineParsing
         /// <returns>The result of evaluating the function.</returns>
         protected virtual string EvaluateFunction(string function, string[] args)
         {
-            return "@" + function + "{" + string.Join("@", args) + "}";
+            return null;
         }
 
         private int findEnd(string text, int index, char open, char close)
