@@ -31,6 +31,16 @@ namespace CommandLineParsing
 
             this.validators.Add(validator);
         }
+        
+        /// <summary>
+        /// Provides a validation method for the <see cref="Validator"/>.
+        /// </summary>
+        /// <param name="validator">A function that takes state and returns <c>true</c> if the state was valid; otherwise is must return <c>false</c>.</param>
+        /// <param name="errorMessage">The error message that should be the validation result if <paramref name="validator"/> returns <c>false</c>.</param>
+        public void Add(Func<bool> validator, Message errorMessage)
+        {
+            Add(() => validator() ? Message.NoError : errorMessage);
+        }
 
         /// <summary>
         /// Validates that only one of <paramref name="parameters"/> is set.
