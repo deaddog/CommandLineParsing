@@ -34,6 +34,34 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Provides a validation method for this <see cref="Validator{T}"/>.
+        /// </summary>
+        /// <param name="validator">A function that takes the parsed value as input and returns <c>true</c> if the value is valid; otherwise is must return <c>false</c>.</param>
+        /// <param name="errorMessage">A function that generates the error message that should be the validation result if <paramref name="validator"/> returns <c>false</c>.</param>
+        public void Add(Func<T, bool> validator, Func<T, Message> errorMessage)
+        {
+            Add(x => validator(x) ? Message.NoError : errorMessage(x));
+        }
+        /// <summary>
+        /// Provides a validation method for the <see cref="Validator{T}"/>.
+        /// </summary>
+        /// <param name="validator">A function that takes the parsed value as input and returns <c>true</c> if the value is valid; otherwise is must return <c>false</c>.</param>
+        /// <param name="errorMessage">The error message that should be the validation result if <paramref name="validator"/> returns <c>false</c>.</param>
+        public void Add(Func<T, bool> validator, Message errorMessage)
+        {
+            Add(x => validator(x) ? Message.NoError : errorMessage);
+        }
+        /// <summary>
+        /// Provides a validation method for the <see cref="Validator{T}"/>.
+        /// Errors in validation return a generic error message.
+        /// </summary>
+        /// <param name="validator">A function that takes the parsed value as input and returns <c>true</c> if the value is valid; otherwise is must return <c>false</c>.</param>
+        public void Add(Func<T, bool> validator)
+        {
+            Add(x => validator(x) ? Message.NoError : $"Invalid value '{x}'.");
+        }
+
+        /// <summary>
         /// Validates <paramref name="value"/> using the validation methods stored in this <see cref="Validator{T}"/>.
         /// </summary>
         /// <param name="value">The value to validate.</param>
