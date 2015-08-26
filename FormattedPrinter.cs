@@ -196,7 +196,7 @@ namespace CommandLineParsing
         {
             Match m = Regex.Match(format, "^(?<color>[^:]+):(?<content>.*)$", RegexOptions.Singleline);
             if (!m.Success)
-                return null;
+                return string.Empty;
 
             string color_str = m.Groups["color"].Value;
             string content = m.Groups["content"].Value;
