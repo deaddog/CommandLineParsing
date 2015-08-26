@@ -21,11 +21,7 @@ namespace CommandLineParsing
         private bool isset;
 
         private Action callback;
-        protected void doCallback()
-        {
-            if (callback != null)
-                callback();
-        }
+        protected void doCallback() => callback?.Invoke();
 
 #pragma warning restore
 
