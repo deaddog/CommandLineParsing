@@ -1,15 +1,13 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
     /// <summary>
     /// Defines a collection of validation methods.
     /// </summary>
-    public class Validator
+    public class Validator : IEnumerable<Func<Message>>
     {
         private List<Func<Message>> validators;
 
@@ -98,6 +96,17 @@ namespace CommandLineParsing
             }
 
             return Message.NoError;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            foreach (var v in validators)
+                yield return v;
+        }
+        IEnumerator<Func<Message>> IEnumerable<Func<Message>>.GetEnumerator()
+        {
+            foreach (var v in validators)
+                yield return v;
         }
     }
 }

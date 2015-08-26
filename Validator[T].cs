@@ -55,7 +55,6 @@ namespace CommandLineParsing
             foreach (var v in validators)
                 yield return v;
         }
-
         IEnumerator<Func<T, Message>> IEnumerable<Func<T, Message>>.GetEnumerator()
         {
             foreach (var v in validators)
