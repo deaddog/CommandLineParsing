@@ -20,6 +20,7 @@ namespace CommandLineParsing
 
         protected readonly bool enumIgnore;
         private TryParse<T> parser;
+        internal void setParser(TryParse<T> parser) => this.parser = parser;
 
         private Func<string, Message> typeErrorMessage;
         private Message noValueMessage;

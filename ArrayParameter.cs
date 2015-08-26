@@ -6,6 +6,7 @@ namespace CommandLineParsing
     internal class ArrayParameter<T> : Parameter<T[]>
     {
         private TryParse<T> parser;
+        internal void setParser(TryParse<T> parser) => this.parser = parser;
 
         internal ArrayParameter(string name, string[] alternatives, string description, Message required, bool enumIgnore)
             : base(name, alternatives, description, required, enumIgnore)
