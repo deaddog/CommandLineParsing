@@ -223,7 +223,11 @@ namespace CommandLineParsing
                     color_str = string.Empty;
             }
 
-            return $"[{color_str}:{Evaluate(content)}]";
+            color_str = color_str.Trim();
+            if (color_str.Length == 0)
+                return Evaluate(content);
+            else
+                return $"[{color_str}:{Evaluate(content)}]";
         }
         /// <summary>
         /// Validates a condition on the form ?condition{content}.
