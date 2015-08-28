@@ -18,31 +18,7 @@ namespace CommandLineParsing
         {
             this.format = format;
         }
-
-        /// <summary>
-        /// Evaluates the format of this <see cref="FormattedPrinter"/> and prints the result using the <see cref="ColorConsole"/>.
-        /// </summary>
-        protected void PrintFormat()
-        {
-            ColorConsole.Write(EvaluateFormat());
-        }
-        /// <summary>
-        /// Evaluates the format of this <see cref="FormattedPrinter"/> and prints the result, followed by the current line terminator, using the <see cref="ColorConsole"/>.
-        /// </summary>
-        protected void PrintFormatLine()
-        {
-            ColorConsole.WriteLine(EvaluateFormat());
-        }
-
-        /// <summary>
-        /// Evaluates the format string managed by this <see cref="FormattedPrinter"/> given its current state, by applying the format translation.
-        /// </summary>
-        /// <returns>The result of the evaluation.</returns>
-        protected string EvaluateFormat()
-        {
-            return Evaluate(format);
-        }
-
+        
         /// <summary>
         /// When overriden in a derived class; gets the length (if any) that should be used when aligning a variable.
         /// If the variable must be printed in an aligned column that is x characters wide, x should be returned.

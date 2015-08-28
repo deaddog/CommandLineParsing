@@ -41,7 +41,7 @@ namespace CommandLineParsing
                 Console.Write(ClearColors(value).Replace("\\\\", "\\"));
                 return;
             }
-            
+
             int index = 0;
 
             while (index < value.Length)
@@ -107,9 +107,30 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Evaluates <paramref name="format"/> using a <see cref="IFormatter"/> and writes the result to the standard output stream.
+        /// </summary>
+        /// <param name="format">The string format that should be written. See <see cref="EvaluateFormat(string, IFormatter)"/> for details about the format.</param>
+        /// <param name="formatter">The <see cref="IFormatter"/> that should be used to define the available elements in the format.</param>
+        /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
+        public static void WriteFormat(string format, IFormatter formatter, bool allowcolor = true)
+        {
+            Write(EvaluateFormat(format, formatter), allowcolor);
+        }
+        /// <summary>
+        /// Evaluates <paramref name="format"/> using a <see cref="IFormatter"/> and writes the result, followed by the current line terminator, to the standard output stream.
+        /// </summary>
+        /// <param name="format">The string format that should be written. See <see cref="EvaluateFormat(string, IFormatter)"/> for details about the format.</param>
+        /// <param name="formatter">The <see cref="IFormatter"/> that should be used to define the available elements in the format.</param>
+        /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
+        public static void WriteFormatLine(string format, IFormatter formatter, bool allowcolor = true)
+        {
+            WriteLine(EvaluateFormat(format, formatter), allowcolor);
+        }
+
+        /// <summary>
         /// Evaluates <paramref name="format"/> using a <see cref="IFormatter"/> to specify to string translation.
         /// </summary>
-        /// <param name="format">The text that should be evaluated.</param>
+        /// <param name="format">The string format that should be evaluated.</param>
         /// <param name="formatter">The <see cref="IFormatter"/> that should be used to define the available elements in the format.</param>
         /// <returns>The result of the string translation.</returns>
         /// <remarks>
