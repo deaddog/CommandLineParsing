@@ -34,10 +34,65 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
         public static void Write(string value, bool allowcolor = true)
         {
-            if (allowcolor)
-                handle(value ?? string.Empty);
-            else
-                Console.Write(ClearColors(value ?? string.Empty));
+            value = value ?? string.Empty;
+
+            if (!allowcolor)
+            {
+                Console.Write(ClearColors(value).Replace("\\\\", "\\"));
+                return;
+            }
+            
+            int index = 0;
+
+            while (index < value.Length)
+                switch (value[index])
+                {
+                    case '[': // Coloring
+                        {
+                            int end = findEnd(value, index, '[', ']');
+                            var block = value.Substring(index + 1, end - index - 1);
+                            int colon = block.IndexOf(':');
+                            if (colon != -1 && block[colon - 1] == '\\')
+                                colon = -1;
+
+                            if (colon == -1)
+                                Console.Write("[" + block + "]");
+                            else
+                            {
+                                var color = colors[block.Substring(0, colon)];
+                                string content = block.Substring(colon + 1);
+
+                                if (color.HasValue && content.Trim().Length > 0)
+                                {
+                                    ConsoleColor temp = Console.ForegroundColor;
+                                    Console.ForegroundColor = color.Value;
+                                    Write(content);
+                                    Console.ForegroundColor = temp;
+                                }
+                                else
+                                    Write(content);
+                            }
+                            index += block.Length + 2;
+                        }
+                        break;
+
+                    case '\\':
+                        if (value.Length == index + 1)
+                            index++;
+                        else
+                        {
+                            Console.Write(value[index + 1]);
+                            index += 2;
+                        }
+                        break;
+
+                    default: // Skip content
+                        int nIndex = value.IndexOfAny(new char[] { '[', '\\' }, index);
+                        if (nIndex < 0) nIndex = value.Length;
+                        Console.Write(value.Substring(index, nIndex - index));
+                        index = nIndex;
+                        break;
+                }
         }
         /// <summary>
         /// Writes the specified string value, followed by the current line terminator, to the standard output stream.
@@ -47,13 +102,23 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
         public static void WriteLine(string value, bool allowcolor = true)
         {
-            if (allowcolor)
+            Write(value, allowcolor);
+            Console.WriteLine();
+        }
+
+        private static int findEnd(string text, int index, char open, char close)
+        {
+            int count = 0;
+            do
             {
-                handle(value ?? string.Empty);
-                Console.WriteLine();
-            }
-            else
-                Console.WriteLine(ClearColors(value ?? string.Empty));
+                if (text[index] == '\\') { index += 2; continue; }
+                if (text[index] == open) count++;
+                else if (text[index] == close) count--;
+                index++;
+            } while (count > 0 && index < text.Length);
+            if (count == 0) index--;
+
+            return index;
         }
 
         /// <summary>
@@ -107,7 +172,6 @@ namespace CommandLineParsing
 
             return input;
         }
-
         /// <summary>
         /// Escapes color-coding information in a string such that it can be printed using the <see cref="ColorConsole"/> without color being applied.
         /// </summary>
@@ -117,7 +181,6 @@ namespace CommandLineParsing
         {
             return input?.Replace("[", "\\[")?.Replace("]", "\\]");
         }
-
         /// <summary>
         /// Determines whether the specified string includes coloring syntax.
         /// </summary>
@@ -160,75 +223,6 @@ namespace CommandLineParsing
                 }
 
             return false;
-        }
-
-        private static void handle(string input)
-        {
-            int index = 0;
-
-            while (index < input.Length)
-                switch (input[index])
-                {
-                    case '[': // Coloring
-                        {
-                            int end = findEnd(input, index, '[', ']');
-                            var block = input.Substring(index + 1, end - index - 1);
-                            int colon = block.IndexOf(':');
-                            if (colon != -1 && block[colon - 1] == '\\')
-                                colon = -1;
-
-                            if (colon == -1)
-                                Console.Write("[" + block + "]");
-                            else
-                            {
-                                var color = colors[block.Substring(0, colon)];
-                                string content = block.Substring(colon + 1);
-
-                                if (color.HasValue && content.Trim().Length > 0)
-                                {
-                                    ConsoleColor temp = Console.ForegroundColor;
-                                    Console.ForegroundColor = color.Value;
-                                    handle(content);
-                                    Console.ForegroundColor = temp;
-                                }
-                                else
-                                    handle(content);
-                            }
-                            index += block.Length + 2;
-                        }
-                        break;
-
-                    case '\\':
-                        if (input.Length == index + 1)
-                            index++;
-                        else
-                        {
-                            Console.Write(input[index + 1]);
-                            index += 2;
-                        }
-                        break;
-
-                    default: // Skip content
-                        int nIndex = input.IndexOfAny(new char[] { '[', '\\' }, index);
-                        if (nIndex < 0) nIndex = input.Length;
-                        Console.Write(input.Substring(index, nIndex - index));
-                        index = nIndex;
-                        break;
-                }
-        }
-        private static int findEnd(string text, int index, char open, char close)
-        {
-            int count = 0;
-            do
-            {
-                if (text[index] == '\\') { index += 2; continue; }
-                if (text[index] == open) count++;
-                else if (text[index] == close) count--;
-                index++;
-            } while (count > 0 && index < text.Length);
-            if (count == 0) index--;
-
-            return index;
         }
 
         /// <summary>
