@@ -52,122 +52,6 @@ namespace CommandLineParsing
         {
             return Evaluate(format);
         }
-        /// <summary>
-        /// Evaluates <paramref name="text"/> given the current state of the <see cref="FormattedPrinter"/>, by applying the format translation.
-        /// </summary>
-        /// <param name="text">The text that should be evaluated.</param>
-        /// <param name="formatter">The <see cref="IFormatter"/> that should be used to define the available elements in the format.</param>
-        /// <returns>The result of the evaluation.</returns>
-        public static string Evaluate(string text, IFormatter formatter)
-        {
-            int index = 0;
-
-            while (index < text.Length)
-                switch (text[index])
-                {
-                    case '[': // Coloring
-                        {
-                            int end = findEnd(text, index, '[', ']');
-                            var block = text.Substring(index + 1, end - index - 1);
-                            string replace = colorBlock(block, formatter);
-                            text = text.Substring(0, index) + replace + text.Substring(end + 1);
-                            index += replace.Length;
-                        }
-                        break;
-
-                    case '?': // Conditional
-                        {
-                            var match = Regex.Match(text.Substring(index), @"\?[^\{]*");
-                            var end = findEnd(text, index + match.Value.Length, '{', '}');
-                            var block = text.Substring(index + match.Value.Length + 1, end - index - match.Value.Length - 1);
-
-                            string replace = "";
-                            var condition = formatter.ValidateCondition(match.Value.Substring(1));
-                            if (!condition.HasValue)
-                                replace = "?" + match.Value + "{" + Evaluate(block, formatter) + "}";
-                            else if (condition.Value)
-                                replace = Evaluate(block, formatter);
-
-                            text = text.Substring(0, index) + replace + text.Substring(end + 1);
-                            index += replace.Length;
-                        }
-                        break;
-
-                    case '@': // Listing/Function
-                        {
-                            var match = Regex.Match(text.Substring(index), @"\@[^\{]*");
-                            var end = findEnd(text, index + match.Value.Length, '{', '}');
-
-                            var args = text.Substring(index + match.Value.Length + 1, end - index - match.Value.Length - 1);
-                            string name = match.Value.Substring(1);
-
-                            string replace = formatter.EvaluateFunction(name, args.Split('@'));
-                            if (replace == null)
-                                replace = $"@{name}{{{args}}}";
-
-                            text = text.Substring(0, index) + replace + text.Substring(end + 1);
-                            index += replace.Length;
-                        }
-                        break;
-
-                    case '$': // Variable
-                        {
-                            var match = Regex.Match(text.Substring(index), @"^\$([a-z]|\+)+");
-                            var end = match.Index + index + match.Length;
-                            string replace = getVariable(match.Value.Substring(1), formatter);
-                            text = text.Substring(0, index) + replace + text.Substring(end);
-                            index += replace.Length;
-                        }
-                        break;
-                    case '\\':
-                        if (text.Length == index + 1)
-                            index++;
-                        else if (text[index + 1] == '[' || text[index + 1] == ']')
-                            index += 2;
-                        else
-                        {
-                            text = text.Substring(0, index) + text.Substring(index + 1);
-                            index++;
-                        }
-                        break;
-
-                    default: // Skip content
-                        index = text.IndexOfAny(new char[] { '[', '?', '@', '$', '\\' }, index);
-                        if (index < 0) index = text.Length;
-                        break;
-                }
-
-            return text;
-        }
-
-        private static string getVariable(string variable, IFormatter formatter)
-        {
-            bool padLeft = variable[0] == '+';
-            bool padRight = variable[variable.Length - 1] == '+';
-
-            if (padLeft) variable = variable.Substring(1);
-            if (padRight) variable = variable.Substring(0, variable.Length - 1);
-
-            string res = formatter.GetVariable(variable);
-            if (res == null)
-                return "$" + (padLeft ? "+" : "") + variable + (padRight ? "+" : "");
-
-            if (padLeft || padRight)
-            {
-                int? size = formatter.GetAlignedLength(variable);
-                if (size.HasValue)
-                {
-                    if (padLeft && padRight)
-                        res = res.PadLeft(size.Value / 2).PadRight(size.Value - (size.Value / 2));
-                    else if (padLeft)
-                        res = res.PadLeft(size.Value);
-                    else
-                        res = res.PadRight(size.Value);
-                }
-            }
-
-            return res;
-        }
 
         /// <summary>
         /// When overriden in a derived class; gets the length (if any) that should be used when aligning a variable.
@@ -199,37 +83,6 @@ namespace CommandLineParsing
             return string.Empty;
         }
 
-        private static string colorBlock(string format, IFormatter formatter)
-        {
-            Match m = Regex.Match(format, "^(?<color>[^:]+):(?<content>.*)$", RegexOptions.Singleline);
-            if (!m.Success)
-                return string.Empty;
-
-            string color_str = m.Groups["color"].Value;
-            string content = m.Groups["content"].Value;
-
-            if (color_str.ToLower() == "auto")
-            {
-                Match autoColor = Regex.Match(content, @"\$([a-z]|\+)+");
-
-                if (autoColor.Success)
-                {
-                    string variable = autoColor.Value.Substring(1);
-                    if (variable[0] == '+') variable = variable.Substring(1);
-                    if (variable[variable.Length - 1] == '+') variable = variable.Substring(0, variable.Length - 1);
-
-                    color_str = formatter.GetAutoColor(variable) ?? string.Empty;
-                }
-                else
-                    color_str = string.Empty;
-            }
-
-            color_str = color_str.Trim();
-            if (color_str.Length == 0)
-                return Evaluate(content, formatter);
-            else
-                return $"[{color_str}:{Evaluate(content, formatter)}]";
-        }
         /// <summary>
         /// Validates a condition on the form ?condition{content}.
         /// </summary>
@@ -248,21 +101,6 @@ namespace CommandLineParsing
         public string EvaluateFunction(string function, string[] args)
         {
             return null;
-        }
-
-        private static int findEnd(string text, int index, char open, char close)
-        {
-            int count = 0;
-            do
-            {
-                if (text[index] == '\\') { index += 2; continue; }
-                if (text[index] == open) count++;
-                else if (text[index] == close) count--;
-                index++;
-            } while (count > 0 && index < text.Length);
-            if (count == 0) index--;
-
-            return index;
         }
     }
 }
