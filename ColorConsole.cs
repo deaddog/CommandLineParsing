@@ -107,11 +107,21 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Evaluates <paramref name="format"/> given the current state of the <see cref="FormattedPrinter"/>, by applying the format translation.
+        /// Evaluates <paramref name="format"/> using a <see cref="IFormatter"/> to specify to string translation.
         /// </summary>
         /// <param name="format">The text that should be evaluated.</param>
         /// <param name="formatter">The <see cref="IFormatter"/> that should be used to define the available elements in the format.</param>
-        /// <returns>The result of the evaluation.</returns>
+        /// <returns>The result of the string translation.</returns>
+        /// <remarks>
+        /// Text in the <paramref name="format"/> string is printed literally with the following exceptions:
+        /// - <code>"$variable"</code> | Results in a call to <see cref="IFormatter.GetVariable(string)"/> with <code>"variable"</code> as parameter, replacing the variable with some other content.;
+        /// - <code>"$variable+"</code>, <code>"$+variable"</code> or <code>"$+variable+"</code> | Allows for padding of a variable by calling <see cref="IFormatter.GetAlignedLength(string)"/> with <code>"variable"</code> as parameter. The location of the + indicates which end of the variable that is padded. $+variable+ indicates centering.
+        /// - <code>"[color:text]"</code> | Prints <code>"text"</code> using <code>"color"</code> as color. The color string is looked up in <see cref="ColorConsole.Colors"/>.
+        /// - <code>"[auto:text $variable text]"</code> | As the above, but calls <see cref="IFormatter.GetAutoColor(string)"/> with <code>"variable"</code> as parameter to obtain the color used before looking it up.
+        /// - <code>"?condition{content}"</code> | Calls <see cref="IFormatter.ValidateCondition(string)"/> with <code>"condition"</code> as parameter and only prints <code>"content"</code> if the method returns true.
+        /// - <code>"@function{arg1@arg2@arg3...}</code> | Calls <see cref="IFormatter.EvaluateFunction(string, string[])"/> with <code>"function"</code> as first parameter and an array with <code>{ "arg1", "arg2", "arg3, ...}</code> as second parameter.
+        /// All of the above elements allow for nesting within each other.
+        /// </remarks>
         public static string EvaluateFormat(string format, IFormatter formatter)
         {
             int index = 0;

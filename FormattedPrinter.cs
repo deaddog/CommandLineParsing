@@ -14,16 +14,6 @@ namespace CommandLineParsing
         /// Initializes a new instance of the <see cref="FormattedPrinter"/> class.
         /// </summary>
         /// <param name="format">The format used by the <see cref="FormattedPrinter"/>.</param>
-        /// <remarks>
-        /// Text in the <paramref name="format"/> string is printed literally with the following exceptions:
-        /// - <code>"$variable"</code> | Results in a call to <see cref="GetVariable(string)"/> with <code>"variable"</code> as parameter, replacing the variable with some other content.;
-        /// - <code>"$variable+"</code>, <code>"$+variable"</code> or <code>"$+variable+"</code> | Allows for padding of a variable by calling <see cref="GetAlignedLength(string)"/> with <code>"variable"</code> as parameter. The location of the + indicates which end of the variable that is padded. $+variable+ indicates centering.
-        /// - <code>"[color:text]"</code> | Prints <code>"text"</code> using <code>"color"</code> as color. The color string is looked up in <see cref="ColorConsole.Colors"/>.
-        /// - <code>"[auto:text $variable text]"</code> | As the above, but calls <see cref="GetAutoColor(string)"/> with <code>"variable"</code> as parameter to obtain the color used before looking it up.
-        /// - <code>"?condition{content}"</code> | Calls <see cref="ValidateCondition(string)"/> with <code>"condition"</code> as parameter and only prints <code>"content"</code> if the method returns true.
-        /// - <code>"@function{arg1@arg2@arg3...}</code> | Calls <see cref="EvaluateFunction(string, string[])"/> with <code>"function"</code> as first parameter and an array with <code>{ "arg1", "arg2", "arg3, ...}</code> as second parameter.
-        /// All of the above allow for nesting within each other.
-        /// </remarks>
         public FormattedPrinter(string format)
         {
             this.format = format;
