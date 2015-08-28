@@ -56,8 +56,9 @@ namespace CommandLineParsing
         /// Evaluates <paramref name="text"/> given the current state of the <see cref="FormattedPrinter"/>, by applying the format translation.
         /// </summary>
         /// <param name="text">The text that should be evaluated.</param>
+        /// <param name="formatter">The <see cref="IFormatter"/> that should be used to define the available elements in the format.</param>
         /// <returns>The result of the evaluation.</returns>
-        protected string Evaluate(string text)
+        public static string Evaluate(string text, IFormatter formatter)
         {
             int index = 0;
 
@@ -68,7 +69,7 @@ namespace CommandLineParsing
                         {
                             int end = findEnd(text, index, '[', ']');
                             var block = text.Substring(index + 1, end - index - 1);
-                            string replace = colorBlock(block);
+                            string replace = colorBlock(block, formatter);
                             text = text.Substring(0, index) + replace + text.Substring(end + 1);
                             index += replace.Length;
                         }
@@ -81,11 +82,11 @@ namespace CommandLineParsing
                             var block = text.Substring(index + match.Value.Length + 1, end - index - match.Value.Length - 1);
 
                             string replace = "";
-                            var condition = ValidateCondition(match.Value.Substring(1));
+                            var condition = formatter.ValidateCondition(match.Value.Substring(1));
                             if (!condition.HasValue)
-                                replace = "?" + match.Value + "{" + Evaluate(block) + "}";
+                                replace = "?" + match.Value + "{" + Evaluate(block, formatter) + "}";
                             else if (condition.Value)
-                                replace = Evaluate(block);
+                                replace = Evaluate(block, formatter);
 
                             text = text.Substring(0, index) + replace + text.Substring(end + 1);
                             index += replace.Length;
@@ -100,7 +101,7 @@ namespace CommandLineParsing
                             var args = text.Substring(index + match.Value.Length + 1, end - index - match.Value.Length - 1);
                             string name = match.Value.Substring(1);
 
-                            string replace = EvaluateFunction(name, args.Split('@'));
+                            string replace = formatter.EvaluateFunction(name, args.Split('@'));
                             if (replace == null)
                                 replace = $"@{name}{{{args}}}";
 
@@ -113,7 +114,7 @@ namespace CommandLineParsing
                         {
                             var match = Regex.Match(text.Substring(index), @"^\$([a-z]|\+)+");
                             var end = match.Index + index + match.Length;
-                            string replace = getVariable(match.Value.Substring(1));
+                            string replace = getVariable(match.Value.Substring(1), formatter);
                             text = text.Substring(0, index) + replace + text.Substring(end);
                             index += replace.Length;
                         }
@@ -139,7 +140,7 @@ namespace CommandLineParsing
             return text;
         }
 
-        private string getVariable(string variable)
+        private static string getVariable(string variable, IFormatter formatter)
         {
             bool padLeft = variable[0] == '+';
             bool padRight = variable[variable.Length - 1] == '+';
@@ -147,13 +148,13 @@ namespace CommandLineParsing
             if (padLeft) variable = variable.Substring(1);
             if (padRight) variable = variable.Substring(0, variable.Length - 1);
 
-            string res = GetVariable(variable);
+            string res = formatter.GetVariable(variable);
             if (res == null)
                 return "$" + (padLeft ? "+" : "") + variable + (padRight ? "+" : "");
 
             if (padLeft || padRight)
             {
-                int? size = GetAlignedLength(variable);
+                int? size = formatter.GetAlignedLength(variable);
                 if (size.HasValue)
                 {
                     if (padLeft && padRight)
@@ -193,12 +194,12 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="variable">The variable for which automated coloring should be determined. For a string of "$+var" only "var" will be the input to the method.</param>
         /// <returns>The color that should be applied to the variable.</returns>
-        protected virtual string GetAutoColor(string variable)
+        public string GetAutoColor(string variable)
         {
             return string.Empty;
         }
 
-        private string colorBlock(string format)
+        private static string colorBlock(string format, IFormatter formatter)
         {
             Match m = Regex.Match(format, "^(?<color>[^:]+):(?<content>.*)$", RegexOptions.Singleline);
             if (!m.Success)
@@ -217,7 +218,7 @@ namespace CommandLineParsing
                     if (variable[0] == '+') variable = variable.Substring(1);
                     if (variable[variable.Length - 1] == '+') variable = variable.Substring(0, variable.Length - 1);
 
-                    color_str = GetAutoColor(variable) ?? string.Empty;
+                    color_str = formatter.GetAutoColor(variable) ?? string.Empty;
                 }
                 else
                     color_str = string.Empty;
@@ -225,9 +226,9 @@ namespace CommandLineParsing
 
             color_str = color_str.Trim();
             if (color_str.Length == 0)
-                return Evaluate(content);
+                return Evaluate(content, formatter);
             else
-                return $"[{color_str}:{Evaluate(content)}]";
+                return $"[{color_str}:{Evaluate(content, formatter)}]";
         }
         /// <summary>
         /// Validates a condition on the form ?condition{content}.
@@ -244,12 +245,12 @@ namespace CommandLineParsing
         /// <param name="function">The name of the function that is to be executed.</param>
         /// <param name="args">An array of arguments for execution of the function.</param>
         /// <returns>The result of evaluating the function.</returns>
-        protected virtual string EvaluateFunction(string function, string[] args)
+        public string EvaluateFunction(string function, string[] args)
         {
             return null;
         }
 
-        private int findEnd(string text, int index, char open, char close)
+        private static int findEnd(string text, int index, char open, char close)
         {
             int count = 0;
             do
