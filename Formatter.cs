@@ -43,15 +43,35 @@ namespace CommandLineParsing
 
         public string GetVariable(string variable)
         {
-            throw new NotImplementedException();
+            Variable v;
+            if (!variables.TryGet(variable, out v))
+                return null;
+
+            object item;
+            if (!items.TryGetValue(v.Type, out item))
+                return null;
+
+            return v.Replace.Invoke(item);
         }
         public string GetAutoColor(string variable)
         {
-            throw new NotImplementedException();
+            Variable v;
+            if (!variables.TryGet(variable, out v))
+                return null;
+
+            object item;
+            if (!items.TryGetValue(v.Type, out item))
+                return null;
+
+            return v.AutoColor?.Invoke(item);
         }
         public int? GetAlignedLength(string variable)
         {
-            throw new NotImplementedException();
+            Variable v;
+            if (!variables.TryGet(variable, out v))
+                return null;
+
+            return v.Padding;
         }
 
         public bool? ValidateCondition(string condition)
