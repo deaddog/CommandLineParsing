@@ -31,7 +31,7 @@ namespace CommandLineParsing
                 return elements.TryGetValue(identifier, out item);
             }
         }
-        
+
         public class Variable : Item
         {
             public readonly Func<object, string> Replace;
@@ -51,14 +51,28 @@ namespace CommandLineParsing
                 this.Padding = padding;
             }
         }
+        public class Condition : Item
+        {
+            public readonly Func<object, bool> Check;
+
+            internal Condition(Type type, Func<object, bool> check)
+                : base(type)
+            {
+                if (check == null)
+                    throw new ArgumentNullException(nameof(check));
+
+                this.Check = check;
+            }
+        }
+
         public class VariableCollection : Collection<Variable>
         {
         }
-        
-        public class ConditionCollection
+
+        public class ConditionCollection : Collection<Condition>
         {
         }
-        
+
         public class FunctionCollection
         {
         }

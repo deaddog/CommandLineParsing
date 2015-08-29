@@ -76,7 +76,15 @@ namespace CommandLineParsing
 
         public bool? ValidateCondition(string condition)
         {
-            throw new NotImplementedException();
+            Condition c;
+            if (!conditions.TryGet(condition, out c))
+                return null;
+
+            object item;
+            if (!items.TryGetValue(c.Type, out item))
+                return null;
+
+            return c.Check?.Invoke(item);
         }
         public string EvaluateFunction(string function, string[] args)
         {
