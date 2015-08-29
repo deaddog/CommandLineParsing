@@ -32,7 +32,26 @@ namespace CommandLineParsing
             }
         }
         
-        public class VariableCollection
+        public class Variable : Item
+        {
+            public readonly Func<object, string> Replace;
+            public readonly Func<object, string> AutoColor;
+            public readonly int? Padding;
+
+            internal Variable(Type type, Func<object, string> replace, Func<object, string> autoColor, int? padding)
+                : base(type)
+            {
+                if (replace == null)
+                    throw new ArgumentNullException(nameof(replace));
+
+                // providing null for the color function indicates that auto-color cannot be applied to the variable.
+
+                this.Replace = replace;
+                this.AutoColor = autoColor;
+                this.Padding = padding;
+            }
+        }
+        public class VariableCollection : Collection<Variable>
         {
         }
         
