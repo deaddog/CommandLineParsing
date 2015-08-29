@@ -64,6 +64,16 @@ namespace CommandLineParsing
                 this.Check = check;
             }
         }
+        public class Function : Item
+        {
+            public readonly Func<object, string[], string> Func;
+
+            internal Function(Type type, Func<object, string[], string> function)
+                : base(type)
+            {
+                this.Func = function;
+            }
+        }
 
         public class VariableCollection : Collection<Variable>
         {
@@ -75,6 +85,27 @@ namespace CommandLineParsing
 
         public class FunctionCollection
         {
+            private Dictionary<string, List<Function>> functions;
+
+            internal FunctionCollection()
+            {
+                this.functions = new Dictionary<string, List<Function>>();
+            }
+
+            internal bool TryGet(string name, out Function[] functions)
+            {
+                List<Function> list;
+                if (this.functions.TryGetValue(name, out list))
+                {
+                    functions = list.ToArray();
+                    return true;
+                }
+                else
+                {
+                    functions = null;
+                    return false;
+                }
+            }
         }
     }
 }
