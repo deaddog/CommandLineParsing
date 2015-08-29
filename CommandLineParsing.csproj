@@ -54,6 +54,7 @@
     <Compile Include="EditDistance.cs" />
     <Compile Include="FlagParameter.cs" />
     <Compile Include="FormattedPrinter.cs" />
+    <Compile Include="Formatter.cs" />
     <Compile Include="IConfiguration.cs" />
     <Compile Include="IFormatter.cs" />
     <Compile Include="IgnoreCase.cs" />
