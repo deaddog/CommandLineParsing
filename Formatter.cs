@@ -88,7 +88,22 @@ namespace CommandLineParsing
         }
         public string EvaluateFunction(string function, string[] args)
         {
-            throw new NotImplementedException();
+            Function[] f;
+            if (!functions.TryGet(function, out f))
+                return null;
+
+            for (int i = 0; i < f.Length; i++)
+            {
+                object item;
+                if (!items.TryGetValue(f[i].Type, out item))
+                    continue;
+
+                var res = f[i].Func(item, args);
+                if (res != null)
+                    return res;
+            }
+
+            return null;
         }
     }
 }
