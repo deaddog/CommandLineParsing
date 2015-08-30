@@ -53,7 +53,6 @@
     <Compile Include="Description.cs" />
     <Compile Include="EditDistance.cs" />
     <Compile Include="FlagParameter.cs" />
-    <Compile Include="FormattedPrinter.cs" />
     <Compile Include="Formatter.cs" />
     <Compile Include="Formatter.Types.cs" />
     <Compile Include="IConfiguration.cs" />
