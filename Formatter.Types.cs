@@ -216,6 +216,167 @@ namespace CommandLineParsing
 
                 Add(name, new Function(typeof(T), (x, arg) => function((T)x, arg)));
             }
+
+            /// <summary>
+            /// Adds a function to the <see cref="FunctionCollection"/>.
+            /// </summary>
+            /// <typeparam name="T">The type of elements this function will apply to.</typeparam>
+            /// <typeparam name="T1">The type of the first parameter (after the item) in the executed function.</typeparam>
+            /// <param name="name">The name of the function. Function overloading is supported by executing all same-name functions until one returns a non-null.</param>
+            /// <param name="function">The function that should be executed.</param>
+            public void Add<T, T1>(string name, Func<T, T1, string> function)
+            {
+                Func<T, string[], string> f = (i, arr) =>
+                {
+                    if (arr.Length != 1)
+                        return null;
+
+                    T1 val1;
+                    if (!ParserLookup.Table.GetParser<T1>(true)(arr[0], out val1))
+                        return null;
+
+                    return function(i, val1);
+                };
+                Add(name, f);
+            }
+            /// <summary>
+            /// Adds a function to the <see cref="FunctionCollection"/>.
+            /// </summary>
+            /// <typeparam name="T">The type of elements this function will apply to.</typeparam>
+            /// <typeparam name="T1">The type of the first parameter (after the item) in the executed function.</typeparam>
+            /// <typeparam name="T2">The type of the second parameter (after the item) in the executed function.</typeparam>
+            /// <param name="name">The name of the function. Function overloading is supported by executing all same-name functions until one returns a non-null.</param>
+            /// <param name="function">The function that should be executed.</param>
+            public void Add<T, T1, T2>(string name, Func<T, T1, T2, string> function)
+            {
+                Func<T, string[], string> f = (i, arr) =>
+                {
+                    if (arr.Length != 2)
+                        return null;
+
+                    T1 val1;
+                    if (!ParserLookup.Table.GetParser<T1>(true)(arr[0], out val1))
+                        return null;
+
+                    T2 val2;
+                    if (!ParserLookup.Table.GetParser<T2>(true)(arr[1], out val2))
+                        return null;
+
+                    return function(i, val1, val2);
+                };
+                Add(name, f);
+            }
+            /// <summary>
+            /// Adds a function to the <see cref="FunctionCollection"/>.
+            /// </summary>
+            /// <typeparam name="T">The type of elements this function will apply to.</typeparam>
+            /// <typeparam name="T1">The type of the first parameter (after the item) in the executed function.</typeparam>
+            /// <typeparam name="T2">The type of the second parameter (after the item) in the executed function.</typeparam>
+            /// <typeparam name="T3">The type of the third parameter (after the item) in the executed function.</typeparam>
+            /// <param name="name">The name of the function. Function overloading is supported by executing all same-name functions until one returns a non-null.</param>
+            /// <param name="function">The function that should be executed.</param>
+            public void Add<T, T1, T2, T3>(string name, Func<T, T1, T2, T3, string> function)
+            {
+                Func<T, string[], string> f = (i, arr) =>
+                {
+                    if (arr.Length != 3)
+                        return null;
+
+                    T1 val1;
+                    if (!ParserLookup.Table.GetParser<T1>(true)(arr[0], out val1))
+                        return null;
+
+                    T2 val2;
+                    if (!ParserLookup.Table.GetParser<T2>(true)(arr[1], out val2))
+                        return null;
+
+                    T3 val3;
+                    if (!ParserLookup.Table.GetParser<T3>(true)(arr[2], out val3))
+                        return null;
+
+                    return function(i, val1, val2, val3);
+                };
+                Add(name, f);
+            }
+            /// <summary>
+            /// Adds a function to the <see cref="FunctionCollection"/>.
+            /// </summary>
+            /// <typeparam name="T">The type of elements this function will apply to.</typeparam>
+            /// <typeparam name="T1">The type of the first parameter (after the item) in the executed function.</typeparam>
+            /// <typeparam name="T2">The type of the second parameter (after the item) in the executed function.</typeparam>
+            /// <typeparam name="T3">The type of the third parameter (after the item) in the executed function.</typeparam>
+            /// <typeparam name="T4">The type of the fourth parameter (after the item) in the executed function.</typeparam>
+            /// <param name="name">The name of the function. Function overloading is supported by executing all same-name functions until one returns a non-null.</param>
+            /// <param name="function">The function that should be executed.</param>
+            public void Add<T, T1, T2, T3, T4>(string name, Func<T, T1, T2, T3, T4, string> function)
+            {
+                Func<T, string[], string> f = (i, arr) =>
+                {
+                    if (arr.Length != 3)
+                        return null;
+
+                    T1 val1;
+                    if (!ParserLookup.Table.GetParser<T1>(true)(arr[0], out val1))
+                        return null;
+
+                    T2 val2;
+                    if (!ParserLookup.Table.GetParser<T2>(true)(arr[1], out val2))
+                        return null;
+
+                    T3 val3;
+                    if (!ParserLookup.Table.GetParser<T3>(true)(arr[2], out val3))
+                        return null;
+
+                    T4 val4;
+                    if (!ParserLookup.Table.GetParser<T4>(true)(arr[3], out val4))
+                        return null;
+
+                    return function(i, val1, val2, val3, val4);
+                };
+                Add(name, f);
+            }
+            /// <summary>
+            /// Adds a function to the <see cref="FunctionCollection"/>.
+            /// </summary>
+            /// <typeparam name="T">The type of elements this function will apply to.</typeparam>
+            /// <typeparam name="T1">The type of the first parameter (after the item) in the executed function.</typeparam>
+            /// <typeparam name="T2">The type of the second parameter (after the item) in the executed function.</typeparam>
+            /// <typeparam name="T3">The type of the third parameter (after the item) in the executed function.</typeparam>
+            /// <typeparam name="T4">The type of the fourth parameter (after the item) in the executed function.</typeparam>
+            /// <typeparam name="T5">The type of the fifth parameter (after the item) in the executed function.</typeparam>
+            /// <param name="name">The name of the function. Function overloading is supported by executing all same-name functions until one returns a non-null.</param>
+            /// <param name="function">The function that should be executed.</param>
+            public void Add<T, T1, T2, T3, T4, T5>(string name, Func<T, T1, T2, T3, T4, T5, string> function)
+            {
+                Func<T, string[], string> f = (i, arr) =>
+                {
+                    if (arr.Length != 3)
+                        return null;
+
+                    T1 val1;
+                    if (!ParserLookup.Table.GetParser<T1>(true)(arr[0], out val1))
+                        return null;
+
+                    T2 val2;
+                    if (!ParserLookup.Table.GetParser<T2>(true)(arr[1], out val2))
+                        return null;
+
+                    T3 val3;
+                    if (!ParserLookup.Table.GetParser<T3>(true)(arr[2], out val3))
+                        return null;
+
+                    T4 val4;
+                    if (!ParserLookup.Table.GetParser<T4>(true)(arr[3], out val4))
+                        return null;
+
+                    T5 val5;
+                    if (!ParserLookup.Table.GetParser<T5>(true)(arr[4], out val5))
+                        return null;
+
+                    return function(i, val1, val2, val3, val4, val5);
+                };
+                Add(name, f);
+            }
         }
     }
 }
