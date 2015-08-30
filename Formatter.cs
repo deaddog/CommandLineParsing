@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace CommandLineParsing
 {
+    /// <summary>
+    /// Uses a set of specialized collections to set up a custom formatter.
+    /// Setting up a <see cref="Formatter"/> is done with generic methods.
+    /// </summary>
     public partial class Formatter : IFormatter
     {
         private VariableCollection variables;
@@ -11,6 +15,9 @@ namespace CommandLineParsing
 
         private Dictionary<Type, object> items;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Formatter"/> class.
+        /// </summary>
         public Formatter()
         {
             this.variables = new VariableCollection();
@@ -20,19 +27,50 @@ namespace CommandLineParsing
             this.items = new Dictionary<Type, object>();
         }
 
+        /// <summary>
+        /// Gets the collection of variables associated with this <see cref="Formatter"/>.
+        /// </summary>
         public VariableCollection Variables => variables;
+        /// <summary>
+        /// Gets the collection of conditions associated with this <see cref="Formatter"/>.
+        /// </summary>
         public ConditionCollection Conditions => conditions;
+        /// <summary>
+        /// Gets the collection of functions associated with this <see cref="Formatter"/>.
+        /// </summary>
         public FunctionCollection Functions => functions;
 
+        /// <summary>
+        /// Writes an item to the console using the rules defined in this <see cref="Formatter"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of the item that should written to the console.</typeparam>
+        /// <param name="item">The item that should be written to console.</param>
+        /// <param name="format">The format applied by this <see cref="Formatter"/> when writing.
+        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
         public void Write<T>(T item, string format)
         {
             ColorConsole.Write(EvaluateFormat(item, format));
         }
+        /// <summary>
+        /// Writes an item to the console, followed by the current line terminator, using the rules defined in this <see cref="Formatter"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of the item that should written to the console.</typeparam>
+        /// <param name="item">The item that should be written to console.</param>
+        /// <param name="format">The format applied by this <see cref="Formatter"/> when writing.
+        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
         public void WriteLine<T>(T item, string format)
         {
             ColorConsole.WriteLine(EvaluateFormat(item, format));
         }
 
+        /// <summary>
+        /// Evaluates a format given a specific item.
+        /// </summary>
+        /// <typeparam name="T">The type of the item that should formatted.</typeparam>
+        /// <param name="item">The item that should be formatted.</param>
+        /// <param name="format">The format applied by this <see cref="Formatter"/> when evaluating.
+        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
+        /// <returns>The result of the string translation.</returns>
         public string EvaluateFormat<T>(T item, string format)
         {
             var type = typeof(T);
@@ -49,9 +87,18 @@ namespace CommandLineParsing
 
             return res;
         }
-        public string EvaluateFormat<T>(IEnumerable<T> items, string format, string separator1)
+        /// <summary>
+        /// Evaluates a format of each item in a collection of items, joining them by a string.
+        /// </summary>
+        /// <typeparam name="T">The type of the items that should be formatted.</typeparam>
+        /// <param name="collection">The collection of items that should be formatted.</param>
+        /// <param name="format">The format applied to each element in <paramref name="collection"/> by this <see cref="Formatter"/> when evaluating.
+        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
+        /// <param name="separator1">A string that is placed between the formatted items.</param>
+        /// <returns>The result of the string translation of each item.</returns>
+        public string EvaluateFormat<T>(IEnumerable<T> collection, string format, string separator1)
         {
-            using (var e = items.GetEnumerator())
+            using (var e = collection.GetEnumerator())
             {
                 if (!e.MoveNext())
                     return string.Empty;
@@ -64,9 +111,19 @@ namespace CommandLineParsing
                 return res;
             }
         }
-        public string EvaluateFormat<T>(IEnumerable<T> items, string format, string separator1, string separator2)
+        /// <summary>
+        /// Evaluates a format of each item in a collection of items, joining them by a string.
+        /// </summary>
+        /// <typeparam name="T">The type of the items that should be formatted.</typeparam>
+        /// <param name="collection">The collection of items that should be formatted.</param>
+        /// <param name="format">The format applied to each element in <paramref name="collection"/> by this <see cref="Formatter"/> when evaluating.
+        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
+        /// <param name="separator1">A string that is placed between the formatted items (except the final two).</param>
+        /// <param name="separator2">A string that is placed between the final two formatted items.</param>
+        /// <returns>The result of the string translation of each item.</returns>
+        public string EvaluateFormat<T>(IEnumerable<T> collection, string format, string separator1, string separator2)
         {
-            using (var e = items.GetEnumerator())
+            using (var e = collection.GetEnumerator())
             {
 
                 if (!e.MoveNext())
