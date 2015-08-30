@@ -22,7 +22,7 @@ namespace CommandLineParsing
         {
             this.variables = new VariableCollection();
             this.conditions = new ConditionCollection();
-            this.functions = new FunctionCollection();
+            this.functions = new FunctionCollection(this);
 
             this.items = new Dictionary<Type, object>();
         }

@@ -168,10 +168,12 @@ namespace CommandLineParsing
         /// </summary>
         public class FunctionCollection
         {
+            private Formatter formatter;
             private Dictionary<string, List<Function>> functions;
 
-            internal FunctionCollection()
+            internal FunctionCollection(Formatter formatter)
             {
+                this.formatter = formatter;
                 this.functions = new Dictionary<string, List<Function>>();
             }
 
