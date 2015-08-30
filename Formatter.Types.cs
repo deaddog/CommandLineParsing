@@ -379,6 +379,40 @@ namespace CommandLineParsing
                 };
                 Add(name, f);
             }
+
+            /// <summary>
+            /// Adds a function that will list any collection of elements using
+            /// the <see cref="Formatter.EvaluateFormat{T}(IEnumerable{T}, string, string)"/>
+            /// and <see cref="Formatter.EvaluateFormat{T}(IEnumerable{T}, string, string, string)"/>
+            /// methods.
+            /// The function will accept 1, 2 or 3 arguments as the following:
+            /// format[, separator1[, separator2]].
+            /// </summary>
+            /// <typeparam name="T">The type of elements this function applies to.</typeparam>
+            /// <typeparam name="TOut">The type of the elements that should be listed.</typeparam>
+            /// <param name="name">The name of the function. Function overloading is supported by executing all same-name functions until one returns a non-null.</param>
+            /// <param name="converter">A method that will extract the collection that should be listed from an item.</param>
+            /// <param name="defaultSeparator">The separator that should be used if no separator is specified in the format.
+            /// <c>null</c> (the default) specifies that a separator is required.</param>
+            public void AddList<T, TOut>(string name, Func<T, IEnumerable<TOut>> converter, string defaultSeparator = null)
+            {
+                Func<T, string[], string> f = (i, arr) =>
+                {
+                    switch (arr.Length)
+                    {
+                        case 1:
+                            if (defaultSeparator == null)
+                                return null;
+                            else
+                                return formatter.EvaluateFormat(converter(i), arr[0], defaultSeparator);
+                        case 2: return formatter.EvaluateFormat(converter(i), arr[0], arr[1]);
+                        case 3: return formatter.EvaluateFormat(converter(i), arr[0], arr[1], arr[2]);
+                        default:
+                            return null;
+                    }
+                };
+                Add(name, f);
+            }
         }
     }
 }
