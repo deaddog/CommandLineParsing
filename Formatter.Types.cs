@@ -5,82 +5,112 @@ namespace CommandLineParsing
 {
     public partial class Formatter
     {
-        public class Item
+        internal class Variable
         {
             public readonly Type Type;
-
-            internal Item(Type type)
-            {
-                if (type == null)
-                    throw new ArgumentNullException(nameof(type));
-
-                this.Type = type;
-            }
-        }
-        public class Collection<T> where T : Item
-        {
-            private Dictionary<string, T> elements;
-
-            internal Collection()
-            {
-                this.elements = new Dictionary<string, T>();
-            }
-
-            internal bool TryGet(string identifier, out T item)
-            {
-                return elements.TryGetValue(identifier, out item);
-            }
-        }
-
-        public class Variable : Item
-        {
             public readonly Func<object, string> Replace;
             public readonly Func<object, string> AutoColor;
             public readonly int? Padding;
 
-            internal Variable(Type type, Func<object, string> replace, Func<object, string> autoColor, int? padding)
-                : base(type)
+            public Variable(Type type, Func<object, string> replace, Func<object, string> autoColor, int? padding)
             {
+                if (type == null)
+                    throw new ArgumentNullException(nameof(type));
+
                 if (replace == null)
                     throw new ArgumentNullException(nameof(replace));
 
                 // providing null for the color function indicates that auto-color cannot be applied to the variable.
 
+                this.Type = type;
                 this.Replace = replace;
                 this.AutoColor = autoColor;
                 this.Padding = padding;
             }
         }
-        public class Condition : Item
+        internal class Condition
         {
+            public readonly Type Type;
             public readonly Func<object, bool> Check;
 
-            internal Condition(Type type, Func<object, bool> check)
-                : base(type)
+            public Condition(Type type, Func<object, bool> check)
             {
+                if (type == null)
+                    throw new ArgumentNullException(nameof(type));
+
                 if (check == null)
                     throw new ArgumentNullException(nameof(check));
 
+                this.Type = type;
                 this.Check = check;
             }
         }
-        public class Function : Item
+        internal class Function
         {
+            public readonly Type Type;
             public readonly Func<object, string[], string> Func;
 
-            internal Function(Type type, Func<object, string[], string> function)
-                : base(type)
+            public Function(Type type, Func<object, string[], string> function)
             {
+                if (type == null)
+                    throw new ArgumentNullException(nameof(type));
+
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
+                this.Type = type;
                 this.Func = function;
             }
         }
 
-        public class VariableCollection : Collection<Variable>
+        public class VariableCollection
         {
+            private Dictionary<string, Variable> elements;
+
+            internal VariableCollection()
+            {
+                this.elements = new Dictionary<string, Variable>();
+            }
+
+            internal void Add(string identifier, Variable variable)
+            {
+                if (identifier == null)
+                    throw new ArgumentNullException(nameof(identifier));
+
+                if (variable == null)
+                    throw new ArgumentNullException(nameof(variable));
+
+                elements.Add(identifier, variable);
+            }
+            internal bool TryGet(string identifier, out Variable variable)
+            {
+                return elements.TryGetValue(identifier, out variable);
+            }
         }
 
-        public class ConditionCollection : Collection<Condition>
+        public class ConditionCollection
         {
+            private Dictionary<string, Condition> elements;
+
+            internal ConditionCollection()
+            {
+                this.elements = new Dictionary<string, Condition>();
+            }
+
+            internal void Add(string identifier, Condition condition)
+            {
+                if (identifier == null)
+                    throw new ArgumentNullException(nameof(identifier));
+
+                if (condition == null)
+                    throw new ArgumentNullException(nameof(condition));
+
+                elements.Add(identifier, condition);
+            }
+            internal bool TryGet(string identifier, out Condition condition)
+            {
+                return elements.TryGetValue(identifier, out condition);
+            }
         }
 
         public class FunctionCollection
@@ -92,6 +122,19 @@ namespace CommandLineParsing
                 this.functions = new Dictionary<string, List<Function>>();
             }
 
+            private void Add(string name, Function function)
+            {
+                if (name == null)
+                    throw new ArgumentNullException(nameof(name));
+
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
+                if (!functions.ContainsKey(name))
+                    functions[name] = new List<Function>();
+
+                functions[name].Add(function);
+            }
             internal bool TryGet(string name, out Function[] functions)
             {
                 List<Function> list;
