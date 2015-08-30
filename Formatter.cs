@@ -49,6 +49,44 @@ namespace CommandLineParsing
 
             return res;
         }
+        public string EvaluateFormat<T>(IEnumerable<T> items, string format, string separator1)
+        {
+            using (var e = items.GetEnumerator())
+            {
+                if (!e.MoveNext())
+                    return string.Empty;
+
+                string res = EvaluateFormat(e.Current, format);
+
+                while (e.MoveNext())
+                    res += separator1 + EvaluateFormat(e.Current, format);
+
+                return res;
+            }
+        }
+        public string EvaluateFormat<T>(IEnumerable<T> items, string format, string separator1, string separator2)
+        {
+            using (var e = items.GetEnumerator())
+            {
+
+                if (!e.MoveNext())
+                    return string.Empty;
+
+                string res = EvaluateFormat(e.Current, format);
+
+                if (!e.MoveNext())
+                    return res;
+
+                var temp = e.Current;
+                while (e.MoveNext())
+                {
+                    res += separator1 + EvaluateFormat(temp, format);
+                    temp = e.Current;
+                }
+
+                return res + separator2 + EvaluateFormat(temp, format);
+            }
+        }
 
         public string GetVariable(string variable)
         {
