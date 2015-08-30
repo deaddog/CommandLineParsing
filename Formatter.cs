@@ -64,6 +64,44 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Writes each item in a collection to the console using the rules defined in this <see cref="Formatter"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of the items that should be writen to console.</typeparam>
+        /// <param name="collection">The collection of items that should be writen to console.</param>
+        /// <param name="format">The format applied to each element in <paramref name="collection"/> by this <see cref="Formatter"/> when evaluating.
+        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
+        /// <param name="separator1">A string that is placed between the formatted items.</param>
+        public void Write<T>(IEnumerable<T> collection, string format, string separator1)
+        {
+            ColorConsole.Write(EvaluateFormat(collection, format, separator1));
+        }
+        /// <summary>
+        /// Writes each item in a collection to the console using the rules defined in this <see cref="Formatter"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of the items that should be writen to console.</typeparam>
+        /// <param name="collection">The collection of items that should be writen to console.</param>
+        /// <param name="format">The format applied to each element in <paramref name="collection"/> by this <see cref="Formatter"/> when evaluating.
+        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
+        /// <param name="separator1">A string that is placed between the formatted items (except the final two).</param>
+        /// <param name="separator2">A string that is placed between the final two formatted items.</param>
+        public void Write<T>(IEnumerable<T> collection, string format, string separator1, string separator2)
+        {
+            ColorConsole.Write(EvaluateFormat(collection, format, separator1, separator2));
+        }
+        /// <summary>
+        /// Writes each item, followed by the current line terminator, in a collection to the console using the rules defined in this <see cref="Formatter"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of the items that should be writen to console.</typeparam>
+        /// <param name="collection">The collection of items that should be writen to console.</param>
+        /// <param name="format">The format applied to each element in <paramref name="collection"/> by this <see cref="Formatter"/> when evaluating.
+        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
+        public void WriteLines<T>(IEnumerable<T> collection, string format)
+        {
+            foreach (var item in collection)
+                WriteLine(item, format);
+        }
+
+        /// <summary>
         /// Evaluates a format given a specific item.
         /// </summary>
         /// <typeparam name="T">The type of the item that should formatted.</typeparam>
