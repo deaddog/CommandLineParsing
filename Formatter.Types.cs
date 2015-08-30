@@ -163,6 +163,9 @@ namespace CommandLineParsing
             }
         }
 
+        /// <summary>
+        /// Represents a collection of functions that can be executed when formatting a string.
+        /// </summary>
         public class FunctionCollection
         {
             private Dictionary<string, List<Function>> functions;
@@ -198,6 +201,20 @@ namespace CommandLineParsing
                     functions = null;
                     return false;
                 }
+            }
+
+            /// <summary>
+            /// Adds a function to the <see cref="FunctionCollection"/>.
+            /// </summary>
+            /// <typeparam name="T">The type of elements this function will apply to.</typeparam>
+            /// <param name="name">The name of the function. Function overloading is supported by executing all same-name functions until one returns a non-null.</param>
+            /// <param name="function">The function that should be executed.</param>
+            public void Add<T>(string name, Func<T, string[], string> function)
+            {
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
+                Add(name, new Function(typeof(T), (x, arg) => function((T)x, arg)));
             }
         }
     }
