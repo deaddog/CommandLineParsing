@@ -88,7 +88,7 @@ namespace CommandLineParsing
             }
         }
 
-        public string GetVariable(string variable)
+        string IFormatter.GetVariable(string variable)
         {
             Variable v;
             if (!variables.TryGet(variable, out v))
@@ -100,7 +100,7 @@ namespace CommandLineParsing
 
             return v.Replace.Invoke(item);
         }
-        public string GetAutoColor(string variable)
+        string IFormatter.GetAutoColor(string variable)
         {
             Variable v;
             if (!variables.TryGet(variable, out v))
@@ -112,7 +112,7 @@ namespace CommandLineParsing
 
             return v.AutoColor?.Invoke(item);
         }
-        public int? GetAlignedLength(string variable)
+        int? IFormatter.GetAlignedLength(string variable)
         {
             Variable v;
             if (!variables.TryGet(variable, out v))
@@ -121,7 +121,7 @@ namespace CommandLineParsing
             return v.Padding;
         }
 
-        public bool? ValidateCondition(string condition)
+        bool? IFormatter.ValidateCondition(string condition)
         {
             Condition c;
             if (!conditions.TryGet(condition, out c))
@@ -133,7 +133,7 @@ namespace CommandLineParsing
 
             return c.Check?.Invoke(item);
         }
-        public string EvaluateFunction(string function, string[] args)
+        string IFormatter.EvaluateFunction(string function, string[] args)
         {
             Function[] f;
             if (!functions.TryGet(function, out f))
