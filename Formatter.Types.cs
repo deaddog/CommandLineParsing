@@ -103,20 +103,7 @@ namespace CommandLineParsing
             /// <param name="padding">The padded with of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
             public void Add<T>(string variable, Func<T, object> replace, Func<T, string> autoColor, int? padding)
             {
-                Add(variable, x => replace(x).ToString(), autoColor, padding);
-            }
-            /// <summary>
-            /// Adds a rule for handling a variable to the <see cref="VariableCollection"/>.
-            /// </summary>
-            /// <typeparam name="T">The type of elements this rule will handle.</typeparam>
-            /// <param name="variable">The name of the variable.</param>
-            /// <param name="replace">A method that specifies the string that <paramref name="variable"/> should be replaced by.</param>
-            /// <param name="autoColor">A method that specifies which color should be applied to a string when auto is used to color <paramref name="variable"/>.
-            /// Specify <c>null</c> or a function that returns <c>null</c> if auto coloring does not apply.</param>
-            /// <param name="padding">The padded with of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
-            public void Add<T>(string variable, Func<T, string> replace, Func<T, string> autoColor, int? padding)
-            {
-                Func<object, string> r = x => replace((T)x);
+                Func<object, string> r = x => replace((T)x).ToString();
                 Func<object, string> c = x => autoColor((T)x);
 
                 Add(variable, new Variable(typeof(T), r, c, padding));
