@@ -24,6 +24,15 @@ namespace CommandLineParsing
         public ConditionCollection Conditions => conditions;
         public FunctionCollection Functions => functions;
 
+        public void Write<T>(T item, string format)
+        {
+            ColorConsole.Write(EvaluateFormat(item, format));
+        }
+        public void WriteLine<T>(T item, string format)
+        {
+            ColorConsole.WriteLine(EvaluateFormat(item, format));
+        }
+
         public string EvaluateFormat<T>(T item, string format)
         {
             var type = typeof(T);
