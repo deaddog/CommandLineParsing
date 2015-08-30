@@ -123,6 +123,9 @@ namespace CommandLineParsing
             }
         }
 
+        /// <summary>
+        /// Represents a collection of condtition-rules that can be tested when formatting a string.
+        /// </summary>
         public class ConditionCollection
         {
             private Dictionary<string, Condition> elements;
@@ -145,6 +148,18 @@ namespace CommandLineParsing
             internal bool TryGet(string identifier, out Condition condition)
             {
                 return elements.TryGetValue(identifier, out condition);
+            }
+
+            /// <summary>
+            /// Adds a condition rule to the <see cref="ConditionCollection"/>.
+            /// </summary>
+            /// <typeparam name="T">The type of elements this condition will apply to.</typeparam>
+            /// <param name="name">The name of the condition.</param>
+            /// <param name="condition">A method that returns whether <paramref name="name"/> can be considered true.
+            /// If the method returns <c>true</c> the format associated with the condition will be returned in evaluation; otherwise it will be skipped.</param>
+            public void Add<T>(string name, Func<T, bool> condition)
+            {
+                Add(name, new Condition(typeof(T), x => condition((T)x)));
             }
         }
 
