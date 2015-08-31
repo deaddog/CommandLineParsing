@@ -57,6 +57,8 @@ namespace CommandLineParsing
 
             parser = getParser<T>(enumIgnore);
             if (parser == null)
+                parser = convert<T>(getMessageParser<T>());
+            if (parser == null)
                 throw new NotSupportedException($"The type {type.Name} is not supported. It must provide a static non-generic implementation of either the {nameof(MessageTryParse<T>)} or the {nameof(TryParse<T>)} delegates.");
 
             if (enumIgnore)
@@ -99,6 +101,20 @@ namespace CommandLineParsing
                 method = typeof(ParserLookup).GetMethod("TryParseEnumNoCase", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
 
             return method.MakeGenericMethod(typeof(T)).CreateDelegate(typeof(TryParse<T>)) as TryParse<T>;
+        }
+        private static MessageTryParse<T> getMessageParser<T>()
+        {
+            var type = typeof(T);
+
+            var refType = type.MakeByRefType();
+
+            var methods = from m in type.GetMethods()
+                          where m.Name == "MessageTryParse" && m.IsStatic && !m.IsGenericMethod && m.ReturnType == typeof(Message)
+                          let par = m.GetParameters()
+                          where par.Length == 2 && par[0].ParameterType == typeof(string) && par[1].IsOut && par[1].ParameterType == refType
+                          select m;
+
+            return methods.FirstOrDefault()?.CreateDelegate(typeof(MessageTryParse<T>)) as MessageTryParse<T>;
         }
 
         private static bool TryParseEnumNoCase<T>(string value, out T result) where T : struct
