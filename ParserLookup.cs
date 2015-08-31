@@ -70,7 +70,30 @@ namespace CommandLineParsing
         }
         public MessageTryParse<T> GetMessageParser<T>(bool enumIgnore)
         {
-            throw new NotImplementedException();
+            Delegate parser;
+            bool found = false;
+            Type type = typeof(T);
+
+            if (enumIgnore)
+                found = knownMessageIgnore.TryGetValue(type, out parser);
+            else
+                found = knownMessage.TryGetValue(type, out parser);
+
+            if (found)
+                return parser as MessageTryParse<T>;
+
+            parser = getMessageParser<T>();
+            if (parser == null)
+                parser = convert<T>(getParser<T>(enumIgnore));
+            if (parser == null)
+                throw new NotSupportedException($"The type {type.Name} is not supported. It must provide a static non-generic implementation of either the {nameof(MessageTryParse<T>)} or the {nameof(TryParse<T>)} delegates.");
+
+            if (enumIgnore)
+                knownMessageIgnore.Add(type, parser);
+            else
+                knownMessage.Add(type, parser);
+
+            return parser as MessageTryParse<T>;
         }
 
         private static TryParse<T> getParser<T>(bool enumIgnore)
