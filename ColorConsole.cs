@@ -34,10 +34,65 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
         public static void Write(string value, bool allowcolor = true)
         {
-            if (allowcolor)
-                handle(value ?? string.Empty);
-            else
-                Console.Write(ClearColors(value ?? string.Empty));
+            value = value ?? string.Empty;
+
+            if (!allowcolor)
+            {
+                Console.Write(ClearColors(value).Replace("\\\\", "\\"));
+                return;
+            }
+
+            int index = 0;
+
+            while (index < value.Length)
+                switch (value[index])
+                {
+                    case '[': // Coloring
+                        {
+                            int end = findEnd(value, index, '[', ']');
+                            var block = value.Substring(index + 1, end - index - 1);
+                            int colon = block.IndexOf(':');
+                            if (colon != -1 && block[colon - 1] == '\\')
+                                colon = -1;
+
+                            if (colon == -1)
+                                Console.Write("[" + block + "]");
+                            else
+                            {
+                                var color = colors[block.Substring(0, colon)];
+                                string content = block.Substring(colon + 1);
+
+                                if (color.HasValue && content.Trim().Length > 0)
+                                {
+                                    ConsoleColor temp = Console.ForegroundColor;
+                                    Console.ForegroundColor = color.Value;
+                                    Write(content);
+                                    Console.ForegroundColor = temp;
+                                }
+                                else
+                                    Write(content);
+                            }
+                            index += block.Length + 2;
+                        }
+                        break;
+
+                    case '\\':
+                        if (value.Length == index + 1)
+                            index++;
+                        else
+                        {
+                            Console.Write(value[index + 1]);
+                            index += 2;
+                        }
+                        break;
+
+                    default: // Skip content
+                        int nIndex = value.IndexOfAny(new char[] { '[', '\\' }, index);
+                        if (nIndex < 0) nIndex = value.Length;
+                        Console.Write(value.Substring(index, nIndex - index));
+                        index = nIndex;
+                        break;
+                }
         }
         /// <summary>
         /// Writes the specified string value, followed by the current line terminator, to the standard output stream.
@@ -47,13 +102,202 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
         public static void WriteLine(string value, bool allowcolor = true)
         {
-            if (allowcolor)
+            Write(value, allowcolor);
+            Console.WriteLine();
+        }
+
+        /// <summary>
+        /// Evaluates <paramref name="format"/> using a <see cref="IFormatter"/> and writes the result to the standard output stream.
+        /// </summary>
+        /// <param name="format">The string format that should be written. See <see cref="EvaluateFormat(string, IFormatter)"/> for details about the format.</param>
+        /// <param name="formatter">The <see cref="IFormatter"/> that should be used to define the available elements in the format.</param>
+        /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
+        public static void WriteFormat(string format, IFormatter formatter, bool allowcolor = true)
+        {
+            Write(EvaluateFormat(format, formatter), allowcolor);
+        }
+        /// <summary>
+        /// Evaluates <paramref name="format"/> using a <see cref="IFormatter"/> and writes the result, followed by the current line terminator, to the standard output stream.
+        /// </summary>
+        /// <param name="format">The string format that should be written. See <see cref="EvaluateFormat(string, IFormatter)"/> for details about the format.</param>
+        /// <param name="formatter">The <see cref="IFormatter"/> that should be used to define the available elements in the format.</param>
+        /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
+        public static void WriteFormatLine(string format, IFormatter formatter, bool allowcolor = true)
+        {
+            WriteLine(EvaluateFormat(format, formatter), allowcolor);
+        }
+
+        /// <summary>
+        /// Evaluates <paramref name="format"/> using a <see cref="IFormatter"/> to specify to string translation.
+        /// </summary>
+        /// <param name="format">The string format that should be evaluated.</param>
+        /// <param name="formatter">The <see cref="IFormatter"/> that should be used to define the available elements in the format.</param>
+        /// <returns>The result of the string translation.</returns>
+        /// <remarks>
+        /// Text in the <paramref name="format"/> string is printed literally with the following exceptions:
+        /// - <code>"$variable"</code> | Results in a call to <see cref="IFormatter.GetVariable(string)"/> with <code>"variable"</code> as parameter, replacing the variable with some other content.;
+        /// - <code>"$variable+"</code>, <code>"$+variable"</code> or <code>"$+variable+"</code> | Allows for padding of a variable by calling <see cref="IFormatter.GetAlignedLength(string)"/> with <code>"variable"</code> as parameter. The location of the + indicates which end of the variable that is padded. $+variable+ indicates centering.
+        /// - <code>"[color:text]"</code> | Prints <code>"text"</code> using <code>"color"</code> as color. The color string is looked up in <see cref="ColorConsole.Colors"/>.
+        /// - <code>"[auto:text $variable text]"</code> | As the above, but calls <see cref="IFormatter.GetAutoColor(string)"/> with <code>"variable"</code> as parameter to obtain the color used before looking it up.
+        /// - <code>"?condition{content}"</code> | Calls <see cref="IFormatter.ValidateCondition(string)"/> with <code>"condition"</code> as parameter and only prints <code>"content"</code> if the method returns true.
+        /// - <code>"@function{arg1@arg2@arg3...}</code> | Calls <see cref="IFormatter.EvaluateFunction(string, string[])"/> with <code>"function"</code> as first parameter and an array with <code>{ "arg1", "arg2", "arg3, ...}</code> as second parameter.
+        /// All of the above elements allow for nesting within each other.
+        /// </remarks>
+        public static string EvaluateFormat(string format, IFormatter formatter)
+        {
+            int index = 0;
+
+            while (index < format.Length)
+                switch (format[index])
+                {
+                    case '[': // Coloring
+                        {
+                            int end = findEnd(format, index, '[', ']');
+                            var block = format.Substring(index + 1, end - index - 1);
+                            string replace = colorBlock(block, formatter);
+                            format = format.Substring(0, index) + replace + format.Substring(end + 1);
+                            index += replace.Length;
+                        }
+                        break;
+
+                    case '?': // Conditional
+                        {
+                            var match = Regex.Match(format.Substring(index), @"\?[^\{]*");
+                            var end = findEnd(format, index + match.Value.Length, '{', '}');
+                            var block = format.Substring(index + match.Value.Length + 1, end - index - match.Value.Length - 1);
+
+                            string replace = "";
+                            var condition = formatter.ValidateCondition(match.Value.Substring(1));
+                            if (!condition.HasValue)
+                                replace = "?" + match.Value + "{" + EvaluateFormat(block, formatter) + "}";
+                            else if (condition.Value)
+                                replace = EvaluateFormat(block, formatter);
+
+                            format = format.Substring(0, index) + replace + format.Substring(end + 1);
+                            index += replace.Length;
+                        }
+                        break;
+
+                    case '@': // Listing/Function
+                        {
+                            var match = Regex.Match(format.Substring(index), @"\@[^\{]*");
+                            var end = findEnd(format, index + match.Value.Length, '{', '}');
+
+                            var args = format.Substring(index + match.Value.Length + 1, end - index - match.Value.Length - 1);
+                            string name = match.Value.Substring(1);
+
+                            string replace = formatter.EvaluateFunction(name, args.Split('@'));
+                            if (replace == null)
+                                replace = $"@{name}{{{args}}}";
+
+                            format = format.Substring(0, index) + replace + format.Substring(end + 1);
+                            index += replace.Length;
+                        }
+                        break;
+
+                    case '$': // Variable
+                        {
+                            var match = Regex.Match(format.Substring(index), @"^\$([a-z]|\+)+");
+                            var end = match.Index + index + match.Length;
+                            string replace = getVariable(match.Value.Substring(1), formatter);
+                            format = format.Substring(0, index) + replace + format.Substring(end);
+                            index += replace.Length;
+                        }
+                        break;
+                    case '\\':
+                        if (format.Length == index + 1)
+                            index++;
+                        else if (format[index + 1] == '[' || format[index + 1] == ']')
+                            index += 2;
+                        else
+                        {
+                            format = format.Substring(0, index) + format.Substring(index + 1);
+                            index++;
+                        }
+                        break;
+
+                    default: // Skip content
+                        index = format.IndexOfAny(new char[] { '[', '?', '@', '$', '\\' }, index);
+                        if (index < 0) index = format.Length;
+                        break;
+                }
+
+            return format;
+        }
+
+        private static string getVariable(string variable, IFormatter formatter)
+        {
+            bool padLeft = variable[0] == '+';
+            bool padRight = variable[variable.Length - 1] == '+';
+
+            if (padLeft) variable = variable.Substring(1);
+            if (padRight) variable = variable.Substring(0, variable.Length - 1);
+
+            string res = formatter.GetVariable(variable);
+            if (res == null)
+                return "$" + (padLeft ? "+" : "") + variable + (padRight ? "+" : "");
+
+            if (padLeft || padRight)
             {
-                handle(value ?? string.Empty);
-                Console.WriteLine();
+                int? size = formatter.GetAlignedLength(variable);
+                if (size.HasValue)
+                {
+                    if (padLeft && padRight)
+                        res = res.PadLeft(size.Value / 2).PadRight(size.Value - (size.Value / 2));
+                    else if (padLeft)
+                        res = res.PadLeft(size.Value);
+                    else
+                        res = res.PadRight(size.Value);
+                }
             }
+
+            return res;
+        }
+        private static string colorBlock(string format, IFormatter formatter)
+        {
+            Match m = Regex.Match(format, "^(?<color>[^:]+):(?<content>.*)$", RegexOptions.Singleline);
+            if (!m.Success)
+                return string.Empty;
+
+            string color_str = m.Groups["color"].Value;
+            string content = m.Groups["content"].Value;
+
+            if (color_str.ToLower() == "auto")
+            {
+                Match autoColor = Regex.Match(content, @"\$([a-z]|\+)+");
+
+                if (autoColor.Success)
+                {
+                    string variable = autoColor.Value.Substring(1);
+                    if (variable[0] == '+') variable = variable.Substring(1);
+                    if (variable[variable.Length - 1] == '+') variable = variable.Substring(0, variable.Length - 1);
+
+                    color_str = formatter.GetAutoColor(variable) ?? string.Empty;
+                }
+                else
+                    color_str = string.Empty;
+            }
+
+            color_str = color_str.Trim();
+            if (color_str.Length == 0)
+                return EvaluateFormat(content, formatter);
             else
-                Console.WriteLine(ClearColors(value ?? string.Empty));
+                return $"[{color_str}:{EvaluateFormat(content, formatter)}]";
+        }
+
+        private static int findEnd(string text, int index, char open, char close)
+        {
+            int count = 0;
+            do
+            {
+                if (text[index] == '\\') { index += 2; continue; }
+                if (text[index] == open) count++;
+                else if (text[index] == close) count--;
+                index++;
+            } while (count > 0 && index < text.Length);
+            if (count == 0) index--;
+
+            return index;
         }
 
         /// <summary>
@@ -107,7 +351,6 @@ namespace CommandLineParsing
 
             return input;
         }
-
         /// <summary>
         /// Escapes color-coding information in a string such that it can be printed using the <see cref="ColorConsole"/> without color being applied.
         /// </summary>
@@ -117,7 +360,6 @@ namespace CommandLineParsing
         {
             return input?.Replace("[", "\\[")?.Replace("]", "\\]");
         }
-
         /// <summary>
         /// Determines whether the specified string includes coloring syntax.
         /// </summary>
@@ -160,75 +402,6 @@ namespace CommandLineParsing
                 }
 
             return false;
-        }
-
-        private static void handle(string input)
-        {
-            int index = 0;
-
-            while (index < input.Length)
-                switch (input[index])
-                {
-                    case '[': // Coloring
-                        {
-                            int end = findEnd(input, index, '[', ']');
-                            var block = input.Substring(index + 1, end - index - 1);
-                            int colon = block.IndexOf(':');
-                            if (colon != -1 && block[colon - 1] == '\\')
-                                colon = -1;
-
-                            if (colon == -1)
-                                Console.Write("[" + block + "]");
-                            else
-                            {
-                                var color = colors[block.Substring(0, colon)];
-                                string content = block.Substring(colon + 1);
-
-                                if (color.HasValue && content.Trim().Length > 0)
-                                {
-                                    ConsoleColor temp = Console.ForegroundColor;
-                                    Console.ForegroundColor = color.Value;
-                                    handle(content);
-                                    Console.ForegroundColor = temp;
-                                }
-                                else
-                                    handle(content);
-                            }
-                            index += block.Length + 2;
-                        }
-                        break;
-
-                    case '\\':
-                        if (input.Length == index + 1)
-                            index++;
-                        else
-                        {
-                            Console.Write(input[index + 1]);
-                            index += 2;
-                        }
-                        break;
-
-                    default: // Skip content
-                        int nIndex = input.IndexOfAny(new char[] { '[', '\\' }, index);
-                        if (nIndex < 0) nIndex = input.Length;
-                        Console.Write(input.Substring(index, nIndex - index));
-                        index = nIndex;
-                        break;
-                }
-        }
-        private static int findEnd(string text, int index, char open, char close)
-        {
-            int count = 0;
-            do
-            {
-                if (text[index] == '\\') { index += 2; continue; }
-                if (text[index] == open) count++;
-                else if (text[index] == close) count--;
-                index++;
-            } while (count > 0 && index < text.Length);
-            if (count == 0) index--;
-
-            return index;
         }
 
         /// <summary>
