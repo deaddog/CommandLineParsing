@@ -43,6 +43,10 @@ namespace CommandLineParsing
             }
             return parser as TryParse<T>;
         }
+        public MessageTryParse<T> GetMessageParser<T>(bool enumIgnore)
+        {
+            throw new NotImplementedException();
+        }
 
         private static TryParse<T> getParser<T>(bool enumIgnore)
         {
