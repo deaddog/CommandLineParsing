@@ -64,6 +64,7 @@
     <Compile Include="MenuSettings.cs" />
     <Compile Include="Menu.cs" />
     <Compile Include="Message.cs" />
+    <Compile Include="MessageTryParse.cs" />
     <Compile Include="Name.cs" />
     <Compile Include="NoName.cs" />
     <Compile Include="Parameter.cs" />
