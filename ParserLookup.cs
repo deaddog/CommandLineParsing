@@ -20,6 +20,14 @@ namespace CommandLineParsing
         {
             known = new Dictionary<Type, Delegate>();
             knownIgnore = new Dictionary<Type, Delegate>();
+
+            known.Add(typeof(string), (TryParse<string>)tryParseString);
+        }
+
+        private static bool tryParseString(string s, out string result)
+        {
+            result = s;
+            return true;
         }
 
         public TryParse<T> GetParser<T>(bool enumIgnore)
@@ -50,9 +58,6 @@ namespace CommandLineParsing
 
         private static TryParse<T> getParser<T>(bool enumIgnore)
         {
-            if (typeof(T) == typeof(string))
-                return wrapParser<string, T>(tryParseString);
-
             var type = typeof(T);
             if (type.IsEnum)
                 return getParserEnum<T>(enumIgnore);
@@ -88,17 +93,6 @@ namespace CommandLineParsing
         private static bool TryParseEnumNoCase<T>(string value, out T result) where T : struct
         {
             return Enum.TryParse<T>(value, true, out result);
-        }
-
-        private static bool tryParseString(string s, out string result)
-        {
-            result = s;
-            return true;
-        }
-
-        private static TryParse<TTo> wrapParser<TFrom, TTo>(TryParse<TFrom> parser)
-        {
-            return parser as TryParse<TTo>;
         }
     }
 }
