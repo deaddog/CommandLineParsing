@@ -44,22 +44,26 @@ namespace CommandLineParsing
         public TryParse<T> GetParser<T>(bool enumIgnore)
         {
             Delegate parser;
+            bool found = false;
+            Type type = typeof(T);
+
             if (enumIgnore)
-            {
-                if (!knownIgnore.TryGetValue(typeof(T), out parser))
-                {
-                    parser = getParser<T>(enumIgnore);
-                    knownIgnore.Add(typeof(T), parser);
-                }
-            }
+                found = knownIgnore.TryGetValue(type, out parser);
             else
-            {
-                if (!known.TryGetValue(typeof(T), out parser))
-                {
-                    parser = getParser<T>(enumIgnore);
-                    known.Add(typeof(T), parser);
-                }
-            }
+                found = known.TryGetValue(type, out parser);
+
+            if (found)
+                return parser as TryParse<T>;
+
+            parser = getParser<T>(enumIgnore);
+            if (parser == null)
+                throw new NotSupportedException($"The type {type.Name} is not supported. It must provide a static non-generic implementation of either the {nameof(MessageTryParse<T>)} or the {nameof(TryParse<T>)} delegates.");
+
+            if (enumIgnore)
+                knownIgnore.Add(type, parser);
+            else
+                known.Add(type, parser);
+
             return parser as TryParse<T>;
         }
         public MessageTryParse<T> GetMessageParser<T>(bool enumIgnore)
@@ -81,11 +85,7 @@ namespace CommandLineParsing
                           where par.Length == 2 && par[0].ParameterType == typeof(string) && par[1].IsOut && par[1].ParameterType == refType
                           select m;
 
-            var method = methods.FirstOrDefault();
-            if (method == null)
-                throw new NotSupportedException("The type " + typeof(T) + " is not supported. It must provide a static non-generic implementation of the TryParse delegate.");
-            else
-                return method.CreateDelegate(typeof(TryParse<T>)) as TryParse<T>;
+            return methods.FirstOrDefault()?.CreateDelegate(typeof(TryParse<T>)) as TryParse<T>;
         }
         private static TryParse<T> getParserEnum<T>(bool ignoreCase)
         {
