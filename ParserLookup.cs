@@ -94,5 +94,50 @@ namespace CommandLineParsing
         {
             return Enum.TryParse<T>(value, true, out result);
         }
+
+        #region Parser conversion
+
+        private static MessageTryParse<T> convert<T>(TryParse<T> parser)
+        {
+            return new messageDelegateObject<T>(parser).tryParse;
+        }
+        private static TryParse<T> convert<T>(MessageTryParse<T> parser)
+        {
+            return new delegateObject<T>(parser).tryParse;
+        }
+
+        private class messageDelegateObject<T>
+        {
+            private TryParse<T> parser;
+
+            public messageDelegateObject(TryParse<T> parser)
+            {
+                this.parser = parser;
+            }
+
+            public Message tryParse(string s, out T value)
+            {
+                if (!parser(s, out value))
+                    return s + " could not be parsed to a value of type " + typeof(T).Name;
+                else
+                    return Message.NoError;
+            }
+        }
+        private class delegateObject<T>
+        {
+            private MessageTryParse<T> parser;
+
+            public delegateObject(MessageTryParse<T> parser)
+            {
+                this.parser = parser;
+            }
+
+            public bool tryParse(string s, out T value)
+            {
+                return !parser(s, out value).IsError;
+            }
+        }
+
+        #endregion
     }
 }
