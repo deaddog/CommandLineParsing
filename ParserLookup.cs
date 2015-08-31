@@ -12,22 +12,33 @@ namespace CommandLineParsing
             get { return parserTable; }
         }
 
-
         private Dictionary<Type, Delegate> known;
         private Dictionary<Type, Delegate> knownIgnore;
+
+        private Dictionary<Type, Delegate> knownMessage;
+        private Dictionary<Type, Delegate> knownMessageIgnore;
 
         private ParserLookup()
         {
             known = new Dictionary<Type, Delegate>();
             knownIgnore = new Dictionary<Type, Delegate>();
 
+            knownMessage = new Dictionary<Type, Delegate>();
+            knownMessageIgnore = new Dictionary<Type, Delegate>();
+
             known.Add(typeof(string), (TryParse<string>)tryParseString);
+            knownMessage.Add(typeof(string), (MessageTryParse<string>)messageTryParseString);
         }
 
         private static bool tryParseString(string s, out string result)
         {
             result = s;
             return true;
+        }
+        private static Message messageTryParseString(string s, out string result)
+        {
+            result = s;
+            return Message.NoError;
         }
 
         public TryParse<T> GetParser<T>(bool enumIgnore)
