@@ -90,11 +90,10 @@ namespace CommandLineParsing
             return parser as MessageTryParse<T>;
         }
 
-        private static TryParse<T> getParser<T>(bool enumIgnore)
+        private static Delegate getParser(Type type, bool enumIgnore)
         {
-            var type = typeof(T);
             if (type.IsEnum)
-                return getParserEnum<T>(enumIgnore);
+                return getParserEnum(type, enumIgnore);
 
             var refType = type.MakeByRefType();
 
@@ -104,9 +103,9 @@ namespace CommandLineParsing
                           where par.Length == 2 && par[0].ParameterType == typeof(string) && par[1].IsOut && par[1].ParameterType == refType
                           select m;
 
-            return methods.FirstOrDefault()?.CreateDelegate(typeof(TryParse<T>)) as TryParse<T>;
+            return methods.FirstOrDefault()?.CreateDelegate(getTryParseType(type));
         }
-        private static TryParse<T> getParserEnum<T>(bool ignoreCase)
+        private static Delegate getParserEnum(Type type, bool ignoreCase)
         {
             System.Reflection.MethodInfo method;
 
@@ -117,12 +116,10 @@ namespace CommandLineParsing
             else
                 method = typeof(ParserLookup).GetMethod("TryParseEnumNoCase", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
 
-            return method.MakeGenericMethod(typeof(T)).CreateDelegate(typeof(TryParse<T>)) as TryParse<T>;
+            return method.MakeGenericMethod(type).CreateDelegate(getTryParseType(type));
         }
-        private static MessageTryParse<T> getMessageParser<T>()
+        private static Delegate getMessageParser(Type type)
         {
-            var type = typeof(T);
-
             var refType = type.MakeByRefType();
 
             var methods = from m in type.GetMethods()
@@ -131,7 +128,16 @@ namespace CommandLineParsing
                           where par.Length == 2 && par[0].ParameterType == typeof(string) && par[1].IsOut && par[1].ParameterType == refType
                           select m;
 
-            return methods.FirstOrDefault()?.CreateDelegate(typeof(MessageTryParse<T>)) as MessageTryParse<T>;
+            return methods.FirstOrDefault()?.CreateDelegate(getMessageTryParseType(type));
+        }
+
+        private static Type getTryParseType(Type type)
+        {
+            return typeof(TryParse<>).MakeGenericType(type);
+        }
+        private static Type getMessageTryParseType(Type type)
+        {
+            return typeof(MessageTryParse<>).MakeGenericType(type);
         }
 
         private static bool TryParseEnumNoCase<T>(string value, out T result) where T : struct
