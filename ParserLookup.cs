@@ -55,9 +55,9 @@ namespace CommandLineParsing
             if (found)
                 return parser as TryParse<T>;
 
-            parser = getParser<T>(enumIgnore);
+            parser = getParser(type, enumIgnore);
             if (parser == null)
-                parser = convert<T>(getMessageParser<T>());
+                parser = convert(type);
 
             if (enumIgnore)
                 knownIgnore.Add(type, parser);
@@ -80,7 +80,7 @@ namespace CommandLineParsing
             if (found)
                 return parser as MessageTryParse<T>;
 
-            parser = getMessageParser<T>();
+            parser = getMessageParser(type);
 
             if (enumIgnore)
                 knownMessageIgnore.Add(type, parser);
@@ -147,6 +147,15 @@ namespace CommandLineParsing
 
         #region Parser conversion
 
+        private static Delegate convert(Type type)
+        {
+            var parser = getMessageParser(type);
+            var delobjType = typeof(delegateObject<>).MakeGenericType(type);
+
+            object obj = Activator.CreateInstance(delobjType, new object[] { parser });
+
+            return delobjType.GetMethod("tryParse").CreateDelegate(getTryParseType(type), obj);
+        }
         private static TryParse<T> convert<T>(MessageTryParse<T> parser)
         {
             return new delegateObject<T>(parser).tryParse;
