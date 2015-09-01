@@ -43,17 +43,19 @@ namespace CommandLineParsing
 
         public TryParse<T> GetParser<T>(bool enumIgnore)
         {
+            return GetParser(typeof(T), enumIgnore) as TryParse<T>;
+        }
+        public Delegate GetParser(Type type, bool enumIgnore)
+        {
             Delegate parser;
             bool found;
-            Type type = typeof(T);
 
             if (enumIgnore)
                 found = knownIgnore.TryGetValue(type, out parser);
             else
                 found = known.TryGetValue(type, out parser);
 
-            if (found)
-                return parser as TryParse<T>;
+            if (found) return parser;
 
             parser = getParser(type, enumIgnore);
             if (parser == null)
@@ -64,21 +66,23 @@ namespace CommandLineParsing
             else
                 known.Add(type, parser);
 
-            return parser as TryParse<T>;
+            return parser;
         }
         public MessageTryParse<T> GetMessageParser<T>(bool enumIgnore)
         {
+            return GetMessageParser(typeof(T), enumIgnore) as MessageTryParse<T>;
+        }
+        public Delegate GetMessageParser(Type type, bool enumIgnore)
+        {
             Delegate parser;
             bool found;
-            Type type = typeof(T);
 
             if (enumIgnore)
                 found = knownMessageIgnore.TryGetValue(type, out parser);
             else
                 found = knownMessage.TryGetValue(type, out parser);
 
-            if (found)
-                return parser as MessageTryParse<T>;
+            if (found) return parser;
 
             parser = getMessageParser(type);
 
@@ -87,7 +91,7 @@ namespace CommandLineParsing
             else
                 knownMessage.Add(type, parser);
 
-            return parser as MessageTryParse<T>;
+            return parser;
         }
 
         private static Delegate getParser(Type type, bool enumIgnore)
