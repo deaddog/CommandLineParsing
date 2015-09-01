@@ -173,14 +173,6 @@ namespace CommandLineParsing
 
             return Message.NoError;
         }
-        internal override bool CanHandle(string value)
-        {
-            if (parser == null)
-                parser = ParserLookup.Table.GetParser<T>(enumIgnore);
-
-            T temp;
-            return parser(value, out temp);
-        }
 
         /// <summary>
         /// Returns a <see cref="string"/> that represents this <see cref="Parameter{T}"/>.

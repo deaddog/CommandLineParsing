@@ -44,10 +44,6 @@ namespace CommandLineParsing
 
             return Message.NoError;
         }
-        internal override bool CanHandle(string value)
-        {
-            return false;
-        }
 
         /// <summary>
         /// Returns a <see cref="string"/> that represents this <see cref="FlagParameter"/>.
