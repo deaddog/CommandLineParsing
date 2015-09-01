@@ -16,7 +16,6 @@ namespace CommandLineParsing
         private Dictionary<Type, Delegate> knownIgnore;
 
         private Dictionary<Type, Delegate> knownMessage;
-        private Dictionary<Type, Delegate> knownMessageIgnore;
 
         private ParserLookup()
         {
@@ -24,7 +23,6 @@ namespace CommandLineParsing
             knownIgnore = new Dictionary<Type, Delegate>();
 
             knownMessage = new Dictionary<Type, Delegate>();
-            knownMessageIgnore = new Dictionary<Type, Delegate>();
 
             known.Add(typeof(string), (TryParse<string>)tryParseString);
             knownMessage.Add(typeof(string), (MessageTryParse<string>)messageTryParseString);
@@ -68,28 +66,19 @@ namespace CommandLineParsing
 
             return parser;
         }
-        public MessageTryParse<T> GetMessageParser<T>(bool enumIgnore)
+        public MessageTryParse<T> GetMessageParser<T>()
         {
-            return GetMessageParser(typeof(T), enumIgnore) as MessageTryParse<T>;
+            return GetMessageParser(typeof(T)) as MessageTryParse<T>;
         }
-        public Delegate GetMessageParser(Type type, bool enumIgnore)
+        public Delegate GetMessageParser(Type type)
         {
             Delegate parser;
-            bool found;
 
-            if (enumIgnore)
-                found = knownMessageIgnore.TryGetValue(type, out parser);
-            else
-                found = knownMessage.TryGetValue(type, out parser);
-
-            if (found) return parser;
+            if (knownMessage.TryGetValue(type, out parser))
+                return parser;
 
             parser = getMessageParser(type);
-
-            if (enumIgnore)
-                knownMessageIgnore.Add(type, parser);
-            else
-                knownMessage.Add(type, parser);
+            knownMessage.Add(type, parser);
 
             return parser;
         }
