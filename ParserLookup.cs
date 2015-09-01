@@ -81,8 +81,6 @@ namespace CommandLineParsing
                 return parser as MessageTryParse<T>;
 
             parser = getMessageParser<T>();
-            if (parser == null)
-                parser = convert<T>(getParser<T>(enumIgnore));
 
             if (enumIgnore)
                 knownMessageIgnore.Add(type, parser);
@@ -143,32 +141,11 @@ namespace CommandLineParsing
 
         #region Parser conversion
 
-        private static MessageTryParse<T> convert<T>(TryParse<T> parser)
-        {
-            return new messageDelegateObject<T>(parser).tryParse;
-        }
         private static TryParse<T> convert<T>(MessageTryParse<T> parser)
         {
             return new delegateObject<T>(parser).tryParse;
         }
 
-        private class messageDelegateObject<T>
-        {
-            private TryParse<T> parser;
-
-            public messageDelegateObject(TryParse<T> parser)
-            {
-                this.parser = parser;
-            }
-
-            public Message tryParse(string s, out T value)
-            {
-                if (!parser(s, out value))
-                    return s + " could not be parsed to a value of type " + typeof(T).Name;
-                else
-                    return Message.NoError;
-            }
-        }
         private class delegateObject<T>
         {
             private MessageTryParse<T> parser;
