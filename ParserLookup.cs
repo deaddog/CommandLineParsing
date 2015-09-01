@@ -83,6 +83,38 @@ namespace CommandLineParsing
             return parser;
         }
 
+        public bool TryParse(Type type, bool enumIgnore, string s, out object result)
+        {
+            object[] args = new object[] { s, getDefault(type) };
+            bool r = (bool)GetParser(type, enumIgnore).DynamicInvoke(args);
+            result = args[1];
+            return r;
+        }
+        public bool TryParse<T>(bool enumIgnore, string s, out T result)
+        {
+            return GetParser<T>(enumIgnore)(s, out result);
+        }
+        public Message MessageTryParse(Type type, string s, out object result)
+        {
+            object[] args = new object[] { s, getDefault(type) };
+            Message r = (Message)GetMessageParser(type).DynamicInvoke(args);
+            result = args[1];
+            return r;
+        }
+        public Message MessageTryParse<T>(string s, out T result)
+        {
+            return GetMessageParser<T>()(s, out result);
+        }
+
+        private static object getDefault(Type type)
+        {
+            if (type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            return null;
+        }
+
         private static Delegate getParser(Type type, bool enumIgnore)
         {
             if (type.IsEnum)
