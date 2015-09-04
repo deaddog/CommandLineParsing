@@ -19,7 +19,7 @@ namespace CommandLineParsing
         protected T value;
 
         private SmartParser<T> parser;
-        internal void setParser(TryParse<T> parser) => this.parser = parser;
+        internal void setParser(ParameterTryParse<T> parser) => this.parser.Parser = parser;
 
         protected readonly Validator<T> validator;
 
@@ -86,13 +86,14 @@ namespace CommandLineParsing
         /// </value>
         public Func<string, Message> TypeErrorMessage
         {
-            get { return typeErrorMessage; }
+            get { return parser.TypeErrorMessage; }
             set
             {
-                if (typeErrorMessage == null)
+                if (value == null)
                     throw new ArgumentNullException("value");
 
-                typeErrorMessage = value;
+                parser.TypeErrorMessage = value;
+                parser.UseParserMessage = false;
             }
         }
         /// <summary>
@@ -104,7 +105,7 @@ namespace CommandLineParsing
         /// </value>
         public Message NoValueMessage
         {
-            get { return noValueMessage; }
+            get { return parser.NoValueMessage; }
             set
             {
                 if (value == null)
@@ -112,7 +113,7 @@ namespace CommandLineParsing
                 if (!value.IsError)
                     throw new ArgumentException("An error message cannot be the NoError message.", "value");
 
-                this.noValueMessage = value;
+                parser.NoValueMessage = value;
             }
         }
         /// <summary>
@@ -124,7 +125,7 @@ namespace CommandLineParsing
         /// </value>
         public Message MultipleValuesMessage
         {
-            get { return multipleValuesMessage; }
+            get { return parser.MultipleValuesMessage; }
             set
             {
                 if (value == null)
@@ -132,7 +133,7 @@ namespace CommandLineParsing
                 if (!value.IsError)
                     throw new ArgumentException("An error message cannot be the NoError message.", "value");
 
-                this.multipleValuesMessage = value;
+                parser.MultipleValuesMessage = value;
             }
         }
 
