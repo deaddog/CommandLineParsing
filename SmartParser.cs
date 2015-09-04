@@ -75,20 +75,25 @@ namespace CommandLineParsing
             else
                 throw new InvalidOperationException(noParserExceptionMessage);
         }
-        private Message parseArray(string[] args, out T values)
+        private Message parseArray(string[] args, out T result)
         {
-            var p = ParserLookup.Table.GetParser<T>(enumIgnore);
+            Type t = typeof(T).GetElementType();
+            Array arr = (Array)Activator.CreateInstance(typeof(T), new object[] { args.Length });
 
-            values = default(T);
+            result = default(T);
 
-            T[] temp = new T[args.Length];
+            if (ParserLookup.Table.HasTryParse(t, enumIgnore))
+                for (int i = 0; i < args.Length; i++)
+                {
+                    object o;
+                    if (!ParserLookup.Table.TryParse(t, enumIgnore, args[i], out o))
+                        return typeErrorMessage(args[i]);
+                    arr.SetValue(o, i);
+                }
+            else
+                throw new InvalidOperationException(noParserExceptionMessage);
 
-            for (int i = 0; i < args.Length; i++)
-            {
-                if (!p(args[i], out temp[i]))
-                    return typeErrorMessage(args[i]);
-            }
-
+            result = (T)(object)arr;
             return Message.NoError;
         }
     }
