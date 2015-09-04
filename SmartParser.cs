@@ -59,20 +59,21 @@ namespace CommandLineParsing
                 return parseSingle(args, out result);
         }
 
-        private Message parseSingle(string[] args, out T values)
+        private Message parseSingle(string[] args, out T result)
         {
-            var p = ParserLookup.Table.GetParser<T>(enumIgnore);
-
-            values = default(T);
+            result = default(T);
 
             if (args.Length == 0)
                 return noValueMessage;
             else if (args.Length > 1)
                 return multipleValuesMessage;
-            else if (!p(args[0], out values))
-                return typeErrorMessage(args[0]);
-
-            return Message.NoError;
+            else if (ParserLookup.Table.HasTryParse<T>(enumIgnore))
+                if (!ParserLookup.Table.TryParse(enumIgnore, args[0], out result))
+                    return typeErrorMessage(args[0]);
+                else
+                    return Message.NoError;
+            else
+                throw new InvalidOperationException(noParserExceptionMessage);
         }
         private Message parseArray(string[] args, out T values)
         {
