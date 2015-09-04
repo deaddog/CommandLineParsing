@@ -18,13 +18,8 @@ namespace CommandLineParsing
 
         protected T value;
 
-        protected readonly bool enumIgnore;
-        private TryParse<T> parser;
+        private SmartParser<T> parser;
         internal void setParser(TryParse<T> parser) => this.parser = parser;
-
-        private Func<string, Message> typeErrorMessage;
-        private Message noValueMessage;
-        private Message multipleValuesMessage;
 
         protected readonly Validator<T> validator;
 
@@ -43,12 +38,12 @@ namespace CommandLineParsing
         {
             this.value = default(T);
 
-            this.enumIgnore = enumIgnore;
-            this.parser = null;
-
-            this.typeErrorMessage = defaultTypeError;
-            this.noValueMessage = "No value provided for argument \"" + name + "\".";
-            this.multipleValuesMessage = "Only one value can be provided for argument \"" + name + "\".";
+            this.parser = new SmartParser<T>(
+                enumIgnore,
+                $"The type { typeof(T).Name } is not supported. Set a parser method using the {nameof(setParser)} method.",
+                $"No value provided for argument \"{name}\".",
+                $"Only one value can be provided for argument \"{name}\".",
+                defaultTypeError, true);
 
             this.validator = new Validator<T>();
         }
