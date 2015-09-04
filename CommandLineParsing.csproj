@@ -76,6 +76,7 @@
     <Compile Include="RegexLookup.cs" />
     <Compile Include="Required.cs" />
     <Compile Include="SelectionMenu.cs" />
+    <Compile Include="SmartParser.cs" />
     <Compile Include="ToStringExtension.cs" />
     <Compile Include="TryParse.cs" />
     <Compile Include="UnknownArgumentMessage.cs" />
