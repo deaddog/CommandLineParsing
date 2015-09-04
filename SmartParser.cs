@@ -40,14 +40,6 @@
             else if (!parser(args[0], out temp))
                 return typeErrorMessage(args[0]);
 
-            var msg = validator.Validate(temp);
-            if (msg.IsError)
-                return msg;
-
-            IsSet = true;
-            value = temp;
-            doCallback();
-
             return Message.NoError;
         }
         private Message parseArray(string[] args, out T values)
@@ -62,14 +54,6 @@
                 if (!parser(args[i], out temp[i]))
                     return TypeErrorMessage(args[i]);
             }
-
-            var msg = validator.Validate(temp);
-            if (msg.IsError)
-                return msg;
-
-            IsSet = true;
-            value = temp;
-            doCallback();
 
             return Message.NoError;
         }
