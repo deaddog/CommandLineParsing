@@ -11,13 +11,15 @@ namespace CommandLineParsing
         private Message noValueMessage;
         private Message multipleValuesMessage;
         private Func<string, Message> typeErrorMessage;
+        private bool useParserMessage;
 
         public SmartParser(
             bool enumIgnore,
             string noParserExceptionMessage,
             Message noValueMessage,
             Message multipleValuesMessage,
-            Func<string, Message> typeErrorMessage)
+            Func<string, Message> typeErrorMessage,
+            bool useParserMessage = true)
         {
             this.enumIgnore = enumIgnore;
             this.noParserExceptionMessage = noParserExceptionMessage;
@@ -25,6 +27,7 @@ namespace CommandLineParsing
             this.noValueMessage = noValueMessage;
             this.multipleValuesMessage = multipleValuesMessage;
             this.typeErrorMessage = typeErrorMessage;
+            this.useParserMessage = useParserMessage;
         }
 
         public ParameterTryParse<T> Parser
@@ -48,6 +51,11 @@ namespace CommandLineParsing
             get { return typeErrorMessage; }
             set { typeErrorMessage = value; }
         }
+        public bool UseParserMessage
+        {
+            get { return useParserMessage; }
+            set { useParserMessage = value; }
+        }
 
         public Message Parse(string[] args, out T result)
         {
@@ -67,6 +75,14 @@ namespace CommandLineParsing
                 return noValueMessage;
             else if (args.Length > 1)
                 return multipleValuesMessage;
+            else if (ParserLookup.Table.HasMessageTryParse<T>())
+            {
+                var msg = ParserLookup.Table.MessageTryParse(args[0], out result);
+                if (msg.IsError)
+                    return useParserMessage ? msg : typeErrorMessage(args[0]);
+                else
+                    return Message.NoError;
+            }
             else if (ParserLookup.Table.HasTryParse<T>(enumIgnore))
                 if (!ParserLookup.Table.TryParse(enumIgnore, args[0], out result))
                     return typeErrorMessage(args[0]);
@@ -82,7 +98,16 @@ namespace CommandLineParsing
 
             result = default(T);
 
-            if (ParserLookup.Table.HasTryParse(t, enumIgnore))
+            if (ParserLookup.Table.HasMessageTryParse(t))
+                for (int i = 0; i < args.Length; i++)
+                {
+                    object o;
+                    Message msg = ParserLookup.Table.MessageTryParse(t, args[i], out o);
+                    if (msg.IsError)
+                        return useParserMessage ? msg : typeErrorMessage(args[i]);
+                    arr.SetValue(o, i);
+                }
+            else if (ParserLookup.Table.HasTryParse(t, enumIgnore))
                 for (int i = 0; i < args.Length; i++)
                 {
                     object o;
