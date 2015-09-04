@@ -1,19 +1,48 @@
-﻿namespace CommandLineParsing
+﻿using System;
+
+namespace CommandLineParsing
 {
     internal class SmartParser<T>
     {
         private ParameterTryParse<T> parser;
         private bool enumIgnore;
 
-        public SmartParser(bool enumIgnore)
+        private Message noValueMessage;
+        private Message multipleValuesMessage;
+        private Func<string, Message> typeErrorMessage;
+
+        public SmartParser(
+            bool enumIgnore,
+            Message noValueMessage,
+            Message multipleValuesMessage,
+            Func<string, Message> typeErrorMessage)
         {
             this.enumIgnore = enumIgnore;
+            this.noValueMessage = noValueMessage;
+            this.multipleValuesMessage = multipleValuesMessage;
+            this.typeErrorMessage = typeErrorMessage;
         }
 
         public ParameterTryParse<T> Parser
         {
             get { return parser; }
             set { parser = value; }
+        }
+
+        public Message NoValueMessage
+        {
+            get { return noValueMessage; }
+            set { noValueMessage = value; }
+        }
+        public Message MultipleValuesMessage
+        {
+            get { return multipleValuesMessage; }
+            set { multipleValuesMessage = value; }
+        }
+        public Func<string, Message> TypeErrorMessage
+        {
+            get { return typeErrorMessage; }
+            set { typeErrorMessage = value; }
         }
 
         public Message Parse(string[] args, out T result)
