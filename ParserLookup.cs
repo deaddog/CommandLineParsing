@@ -91,6 +91,14 @@ namespace CommandLineParsing
         {
             return GetMessageParser(type) != null;
         }
+        public bool HasTryParse<T>(bool enumIgnore)
+        {
+            return GetParser<T>(enumIgnore) != null;
+        }
+        public bool HasMessageTryParse<T>()
+        {
+            return GetMessageParser<T>() != null;
+        }
 
         public bool TryParse(Type type, bool enumIgnore, string s, out object result)
         {
