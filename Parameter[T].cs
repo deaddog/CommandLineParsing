@@ -147,19 +147,14 @@ namespace CommandLineParsing
 
         internal override Message Handle(string[] values)
         {
-            if (parser == null)
-                parser = ParserLookup.Table.GetParser<T>(enumIgnore);
-
             T temp;
 
-            if (values.Length == 0)
-                return noValueMessage;
-            else if (values.Length > 1)
-                return multipleValuesMessage;
-            else if (!parser(values[0], out temp))
-                return typeErrorMessage(values[0]);
+            Message msg = parser.Parse(values, out temp);
 
-            var msg = validator.Validate(temp);
+            if (msg.IsError)
+                return msg;
+
+            msg = validator.Validate(temp);
             if (msg.IsError)
                 return msg;
 
