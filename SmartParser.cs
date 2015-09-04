@@ -6,6 +6,7 @@ namespace CommandLineParsing
     {
         private ParameterTryParse<T> parser;
         private bool enumIgnore;
+        private string noParserExceptionMessage;
 
         private Message noValueMessage;
         private Message multipleValuesMessage;
@@ -13,11 +14,14 @@ namespace CommandLineParsing
 
         public SmartParser(
             bool enumIgnore,
+            string noParserExceptionMessage,
             Message noValueMessage,
             Message multipleValuesMessage,
             Func<string, Message> typeErrorMessage)
         {
             this.enumIgnore = enumIgnore;
+            this.noParserExceptionMessage = noParserExceptionMessage;
+
             this.noValueMessage = noValueMessage;
             this.multipleValuesMessage = multipleValuesMessage;
             this.typeErrorMessage = typeErrorMessage;
