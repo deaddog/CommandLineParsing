@@ -16,7 +16,17 @@
             set { parser = value; }
         }
 
-        private Message HandleSingle(string[] args, out T values)
+        public Message Parse(string[] args, out T result)
+        {
+            if (parser != null)
+                return parser(args, out result);
+            else if (typeof(T).IsArray)
+                return parseArray(args, out result);
+            else
+                return parseSingle(args, out result);
+        }
+
+        private Message parseSingle(string[] args, out T values)
         {
             if (parser == null)
                 parser = ParserLookup.Table.GetParser<T>(enumIgnore);
@@ -40,7 +50,7 @@
 
             return Message.NoError;
         }
-        private Message HandleArray(string[] args, out T values)
+        private Message parseArray(string[] args, out T values)
         {
             if (parser == null)
                 parser = ParserLookup.Table.GetParser<T>(enumIgnore);
