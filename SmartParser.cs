@@ -2,7 +2,21 @@
 {
     internal class SmartParser<T>
     {
-        internal override Message HandleSingle(string[] args)
+        private ParameterTryParse<T> parser;
+        private bool enumIgnore;
+
+        public SmartParser(bool enumIgnore)
+        {
+            this.enumIgnore = enumIgnore;
+        }
+
+        public ParameterTryParse<T> Parser
+        {
+            get { return parser; }
+            set { parser = value; }
+        }
+
+        private Message HandleSingle(string[] args, out T values)
         {
             if (parser == null)
                 parser = ParserLookup.Table.GetParser<T>(enumIgnore);
@@ -26,7 +40,7 @@
 
             return Message.NoError;
         }
-        internal override Message HandleArray(string[] args)
+        private Message HandleArray(string[] args, out T values)
         {
             if (parser == null)
                 parser = ParserLookup.Table.GetParser<T>(enumIgnore);
