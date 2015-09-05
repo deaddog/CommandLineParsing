@@ -36,6 +36,11 @@ namespace CommandLineParsing
             : base(name, alternatives, description, required)
         {
             this.value = default(T);
+            if (typeof(T).IsArray)
+            {
+                Array arr = (Array)Activator.CreateInstance(typeof(T), new object[] { 0 });
+                this.value = (T)(object)arr;
+            }
 
             this.parser = new SmartParser<T>(
                 enumIgnore,
