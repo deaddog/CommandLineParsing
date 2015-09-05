@@ -21,6 +21,12 @@ namespace CommandLineParsing
                 parameter.SetParser(new TryParseWrap<T>(parameter, parser).Parse);
         }
 
+        /// <summary>
+        /// Sets the parser used by the <see cref="Parameter{T}"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of the values managed by the parameter.</typeparam>
+        /// <param name="parameter">The parameter.</param>
+        /// <param name="parser">The new parser.</param>
         public static void SetParser<T>(this Parameter<T[]> parameter, MessageTryParse<T> parser)
         {
             if (parser == null)

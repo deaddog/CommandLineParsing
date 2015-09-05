@@ -80,6 +80,10 @@ namespace CommandLineParsing
             this.IsSet = false;
         }
 
+        /// <summary>
+        /// Sets the parser used by the <see cref="Parameter{T}"/>.
+        /// </summary>
+        /// <param name="parser">The new parser.</param>
         public void SetParser(ParameterTryParse<T> parser) => this.parser.Parser = parser;
 
         /// <summary>
