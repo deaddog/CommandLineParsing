@@ -15,7 +15,37 @@ namespace CommandLineParsing
         /// <param name="parser">The new parser.</param>
         public static void SetParser<T>(this Parameter<T[]> parameter, TryParse<T> parser)
         {
-            (parameter as ArrayParameter<T>)?.setParser(parser);
+            if (parser == null)
+                parameter.SetParser((ParameterTryParse<T[]>)null);
+            else
+                parameter.SetParser(new TryParseWrap<T>(parameter, parser).Parse);
+        }
+
+        internal class TryParseWrap<T>
+        {
+            private Parameter<T[]> parameter;
+            private TryParse<T> parser;
+
+            public TryParseWrap(Parameter<T[]> parameter, TryParse<T> parser)
+            {
+                this.parameter = parameter;
+                this.parser = parser;
+            }
+
+            public Message Parse(string[] args, out T[] result)
+            {
+                T[] temp = new T[args.Length];
+                result = default(T[]);
+
+                for (int i = 0; i < args.Length; i++)
+                {
+                    if (!parser(args[i], out temp[i]))
+                        return parameter.TypeErrorMessage(args[i]);
+                }
+
+                result = temp;
+                return Message.NoError;
+            }
         }
     }
 }
