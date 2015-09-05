@@ -42,7 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArgumentQueue.cs" />
-    <Compile Include="ArrayParameter.cs" />
     <Compile Include="ColorConsole.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="Command.Reflection.cs" />
