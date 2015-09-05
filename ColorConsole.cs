@@ -111,7 +111,7 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="format">The string format that should be written. See <see cref="EvaluateFormat(string, IFormatter)"/> for details about the format.</param>
         /// <param name="formatter">The <see cref="IFormatter"/> that should be used to define the available elements in the format.</param>
-        /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
+        /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="format"/> is disregarded.</param>
         public static void WriteFormat(string format, IFormatter formatter, bool allowcolor = true)
         {
             Write(EvaluateFormat(format, formatter), allowcolor);
@@ -121,7 +121,7 @@ namespace CommandLineParsing
         /// </summary>
         /// <param name="format">The string format that should be written. See <see cref="EvaluateFormat(string, IFormatter)"/> for details about the format.</param>
         /// <param name="formatter">The <see cref="IFormatter"/> that should be used to define the available elements in the format.</param>
-        /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
+        /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="format"/> is disregarded.</param>
         public static void WriteFormatLine(string format, IFormatter formatter, bool allowcolor = true)
         {
             WriteLine(EvaluateFormat(format, formatter), allowcolor);
