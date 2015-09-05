@@ -19,7 +19,6 @@ namespace CommandLineParsing
         protected T value;
 
         private SmartParser<T> parser;
-        internal void setParser(ParameterTryParse<T> parser) => this.parser.Parser = parser;
 
         protected readonly Validator<T> validator;
 
@@ -40,7 +39,7 @@ namespace CommandLineParsing
 
             this.parser = new SmartParser<T>(
                 enumIgnore,
-                $"The type { typeof(T).Name } is not supported. Set a parser method using the {nameof(setParser)} method.",
+                $"The type { typeof(T).Name } is not supported. Set a parser method using the {nameof(SetParser)} method.",
                 $"No value provided for argument \"{name}\".",
                 $"Only one value can be provided for argument \"{name}\".",
                 defaultTypeError, true);
@@ -75,6 +74,8 @@ namespace CommandLineParsing
             this.value = value;
             this.IsSet = false;
         }
+
+        public void SetParser(ParameterTryParse<T> parser) => this.parser.Parser = parser;
 
         /// <summary>
         /// Gets or sets the function that is used to generate type error messages for this <see cref="Parameter{T}"/>.
