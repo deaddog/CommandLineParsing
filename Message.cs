@@ -104,6 +104,14 @@ namespace CommandLineParsing
             {
                 return message;
             }
+
+            public override string ToString()
+            {
+                if (!isError)
+                    return "[Not Error]";
+                else
+                    return message;
+            }
         }
 
         private class ConcatenatedMessage : Message
