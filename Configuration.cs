@@ -54,12 +54,22 @@ namespace CommandLineParsing
 
             string R_KEY = string.Format("{0}{1}*{2}", NAME, SUBNAME, KEY);
 
-            keyRegex = new Regex(R_KEY);
+            keyRegex = new Regex($"^{R_KEY}$");
             lineRegex = new Regex("^(?<name>" + R_KEY + @")[ \t]*=[ \t]*(?<value>[^ \t][^\r\n]*)");
         }
 
         private static readonly Regex keyRegex;
         private static readonly Regex lineRegex;
+
+        /// <summary>
+        /// Determines whether <paramref name="key"/> is a valid <see cref="Configuration"/> key.
+        /// </summary>
+        /// <param name="key">The key to test.</param>
+        /// <returns><c>true</c> if <paramref name="key"/> can be used as a key in a <see cref="Configuration"/> object; otherwise <c>false</c>.</returns>
+        public static bool IsKeyValid(string key)
+        {
+            return keyRegex.IsMatch(key);
+        }
 
         private string filePath;
         private Dictionary<string, string> values;
