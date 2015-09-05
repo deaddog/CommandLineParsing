@@ -14,13 +14,9 @@ namespace CommandLineParsing
     /// This type can be any type that has a static <see cref="TryParse{T}"/> method, an array of such a type or any enumeration type.</typeparam>
     public class Parameter<T> : Parameter
     {
-#pragma warning disable 1591
-
-        protected T value;
-
+        private T value;
         private SmartParser<T> parser;
-
-        protected readonly Validator<T> validator;
+        private readonly Validator<T> validator;
 
         private Message defaultTypeError(string input)
         {
@@ -29,9 +25,7 @@ namespace CommandLineParsing
             else
                 return $@"The ""{input}"" argument for the parameter ""{Name}"", could not be parsed to a value of type {typeof(T).Name}.";
         }
-
-#pragma warning restore
-
+        
         internal Parameter(string name, string[] alternatives, string description, Message required, bool enumIgnore)
             : base(name, alternatives, description, required)
         {
