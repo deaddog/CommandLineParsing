@@ -72,10 +72,16 @@ namespace CommandLineParsing
             result = default(T);
 
             if (args.Length == 0)
-                return noValueMessage;
+            {
+                if (noValueMessage.IsError)
+                    return noValueMessage;
+                else
+                    args = new string[] { string.Empty };
+            }
             else if (args.Length > 1)
                 return multipleValuesMessage;
-            else if (ParserLookup.Table.HasMessageTryParse<T>())
+
+            if (ParserLookup.Table.HasMessageTryParse<T>())
             {
                 var msg = ParserLookup.Table.MessageTryParse(args[0], out result);
                 if (msg.IsError)
