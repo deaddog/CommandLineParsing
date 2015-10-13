@@ -463,6 +463,48 @@ namespace CommandLineParsing
 
             return result;
         }
+        internal static T ReadLine<T>(SmartParser<T> parser, string prompt = null, string defaultString = null, Validator<T> validator = null)
+        {
+            if (prompt != null)
+                ColorConsole.Write(prompt);
+
+            int l = Console.CursorLeft, t = Console.CursorTop;
+            string input = "";
+            T result = default(T);
+            Message msg = Message.NoError;
+
+            do
+            {
+                Console.SetCursorPosition(l, t);
+                Console.Write(new string(' ', input.Length));
+                Console.SetCursorPosition(l, t);
+
+                input = ColorConsole.ReadLine(null, defaultString);
+                msg = parser.Parse(Command.SimulateParse(input), out result);
+
+                if (!msg.IsError)
+                    msg = validator == null ? Message.NoError : validator.Validate(result);
+
+                if (msg.IsError)
+                {
+                    Console.CursorVisible = false;
+                    Console.SetCursorPosition(l, t);
+                    Console.Write(new string(' ', input.Length));
+
+                    input = msg.GetMessage();
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.SetCursorPosition(l, t);
+                    Console.Write(input);
+                    Console.ResetColor();
+
+                    Console.ReadKey(true);
+                    Console.CursorVisible = true;
+                }
+            } while (msg.IsError);
+
+            return result;
+        }
+
         /// <summary>
         /// Reads a <see cref="string"/> from <see cref="Console"/>.
         /// </summary>
