@@ -13,21 +13,8 @@ namespace CommandLineParsing
         private Func<string, Message> typeErrorMessage;
         private bool useParserMessage;
 
-        public SmartParser(
-            bool enumIgnore,
-            string noParserExceptionMessage,
-            Message noValueMessage,
-            Message multipleValuesMessage,
-            Func<string, Message> typeErrorMessage,
-            bool useParserMessage = true)
+        public SmartParser()
         {
-            this.enumIgnore = enumIgnore;
-            this.noParserExceptionMessage = noParserExceptionMessage;
-
-            this.noValueMessage = noValueMessage;
-            this.multipleValuesMessage = multipleValuesMessage;
-            this.typeErrorMessage = typeErrorMessage;
-            this.useParserMessage = useParserMessage;
         }
 
         public ParameterTryParse<T> Parser
@@ -36,6 +23,16 @@ namespace CommandLineParsing
             set { parser = value; }
         }
 
+        public bool EnumIgnoreCase
+        {
+            get { return enumIgnore; }
+            set { enumIgnore = value; }
+        }
+        public string NoParserExceptionMessage
+        {
+            get { return noParserExceptionMessage; }
+            set { noParserExceptionMessage = value; }
+        }
         public Message NoValueMessage
         {
             get { return noValueMessage; }

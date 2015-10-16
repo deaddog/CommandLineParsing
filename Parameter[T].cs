@@ -25,7 +25,7 @@ namespace CommandLineParsing
             else
                 return $@"The ""{input}"" argument for the parameter ""{Name}"", could not be parsed to a value of type {typeof(T).Name}.";
         }
-        
+
         internal Parameter(string name, string[] alternatives, string description, Message required, bool enumIgnore)
             : base(name, alternatives, description, required)
         {
@@ -36,12 +36,15 @@ namespace CommandLineParsing
                 this.value = (T)(object)arr;
             }
 
-            this.parser = new SmartParser<T>(
-                enumIgnore,
-                $"The type { typeof(T).Name } is not supported. Set a parser method using the {nameof(SetParser)} method.",
-                $"No value provided for argument \"{name}\".",
-                $"Only one value can be provided for argument \"{name}\".",
-                defaultTypeError, true);
+            this.parser = new SmartParser<T>()
+            {
+                EnumIgnoreCase = enumIgnore,
+                NoParserExceptionMessage = $"The type { typeof(T).Name } is not supported. Set a parser method using the {nameof(SetParser)} method.",
+                NoValueMessage = $"No value provided for argument \"{name}\".",
+                MultipleValuesMessage = $"Only one value can be provided for argument \"{name}\".",
+                TypeErrorMessage = defaultTypeError,
+                UseParserMessage = true
+            };
 
             this.validator = new Validator<T>();
         }
