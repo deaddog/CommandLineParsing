@@ -404,6 +404,21 @@ namespace CommandLineParsing
             return false;
         }
 
+        private static SmartParser<T> getParser<T>()
+        {
+            string typename = typeof(T).Name;
+
+            return new SmartParser<T>()
+            {
+                EnumIgnoreCase = true,
+                NoParserExceptionMessage = $"The type { typename } is not supported. A {nameof(TryParse<T>)} or {nameof(MessageTryParse<T>)} method must be defined in {typename}.",
+                NoValueMessage = Message.NoError,
+                MultipleValuesMessage = "Only one value can be specified.",
+                TypeErrorMessage = x => $"{x} is not a {typename} value.",
+                UseParserMessage = true
+            };
+        }
+
         /// <summary>
         /// Writes <paramref name="prompt"/> to <see cref="Console"/>, reads user input and returns a parsed value.
         /// </summary>
