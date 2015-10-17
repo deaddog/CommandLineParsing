@@ -48,14 +48,10 @@ namespace CommandLineParsing
         static Configuration()
         {
             string KEYCHARS = "[a-zA-Z][a-zA-Z0-9]*";
-            string NAME = "(?<rootname>" + KEYCHARS + ")";
-            string SUBNAME = "(\\.(?<subname>" + KEYCHARS + "))";
-            string KEY = "\\.(?<key>" + KEYCHARS + ")";
 
-            string R_KEY = string.Format("{0}{1}*{2}", NAME, SUBNAME, KEY);
-
-            keyRegex = new Regex($"^{R_KEY}$");
-            lineRegex = new Regex("^(?<name>" + R_KEY + @")[ \t]*=[ \t]*(?<value>[^ \t][^\r\n]*)");
+            keyRegex = new Regex($@"^(?<root>{KEYCHARS})\.(?<key>({KEYCHARS}\.)*{KEYCHARS})$");
+            sectionRegex = new Regex($@"^\[(?<key>{KEYCHARS})\]");
+            lineRegex = new Regex($@"^(?<key>({KEYCHARS}\.)*{KEYCHARS})[ \t]*=[ \t]*(?<value>[^ \t][^\r\n]*)");
         }
 
         private static readonly Regex keyRegex;
