@@ -59,6 +59,7 @@ namespace CommandLineParsing
         }
 
         private static readonly Regex keyRegex;
+        private static readonly Regex sectionRegex;
         private static readonly Regex lineRegex;
 
         /// <summary>
