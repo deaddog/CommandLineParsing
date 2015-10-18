@@ -88,7 +88,6 @@ namespace CommandLineParsing
 
         private readonly Encoding encoding;
         private readonly string filePath;
-        private Dictionary<string, string> values;
 
         private KeySearchResult findKey(string key)
         {
@@ -125,18 +124,6 @@ namespace CommandLineParsing
             this.encoding = encoding;
 
             ensurePath(Path.GetDirectoryName(filePath));
-
-            values = new Dictionary<string, string>();
-            if (!File.Exists(filePath))
-                return;
-
-            var lines = File.ReadAllLines(filePath, Encoding.UTF8);
-            foreach (var l in lines)
-            {
-                var temp = loadKeyValuePair(l);
-                if (temp != null)
-                    values[temp.Item1] = temp.Item2;
-            }
         }
 
         /// <summary>
