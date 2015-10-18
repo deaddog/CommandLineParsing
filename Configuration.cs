@@ -33,6 +33,24 @@ namespace CommandLineParsing
             }
         }
 
+        private static string parseSection(string line)
+        {
+            var match = sectionRegex.Match(line.Trim());
+
+            return match.Success ? match.Groups["key"].Value.ToLower() : null;
+        }
+        private static Tuple<string, string> parseKey(string key)
+        {
+            var match = keyRegex.Match(key.Trim().ToLower());
+
+            return match.Success ? Tuple.Create(match.Groups["root"].Value, match.Groups["key"].Value) : null;
+        }
+        private static Tuple<string, string> parseLine(string line)
+        {
+            var match = lineRegex.Match(line.Trim());
+
+            return match.Success ? Tuple.Create(match.Groups["key"].Value.ToLower(), match.Groups["value"].Value) : null;
+        }
         private static Tuple<string, string> loadKeyValuePair(string line)
         {
             line = line.Trim();
