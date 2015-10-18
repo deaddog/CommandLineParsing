@@ -90,6 +90,15 @@ namespace CommandLineParsing
         private readonly string filePath;
         private Dictionary<string, string> values;
 
+        private KeySearchResult findKey(string key)
+        {
+            return KeySearchResult.FindKey(key, File.ReadAllLines(filePath, encoding));
+        }
+        private KeySearchResult findKey(string key, string[] lines)
+        {
+            return KeySearchResult.FindKey(key, lines);
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Configuration"/> class.
         /// </summary>
@@ -234,6 +243,65 @@ namespace CommandLineParsing
         {
             foreach (var pair in values)
                 yield return pair;
+        }
+
+        private class KeySearchResult
+        {
+            private int sectionIndex;
+            private int keyIndex;
+            private string[] lines;
+
+            private KeySearchResult(int sectionIndex, int keyIndex, string[] lines)
+            {
+                this.sectionIndex = sectionIndex;
+                this.keyIndex = keyIndex;
+                this.lines = lines;
+            }
+
+            public const int NOSECTION = -1;
+
+            public static KeySearchResult FindKey(string key, string[] lines)
+            {
+                key = key.ToLower();
+                var searchKey = parseKey(key);
+
+                int i = 0;
+                for (; i < lines.Length && parseSection(lines[i]) == null; i++)
+                {
+                    var pair = parseLine(lines[i]);
+                    if (pair == null)
+                        continue;
+
+                    if (pair.Item1 == key)
+                        return new KeySearchResult(NOSECTION, i, lines);
+                }
+
+                for (; i < lines.Length && parseSection(lines[i]) != searchKey.Item1; i++) { }
+
+                if (i == lines.Length)
+                    return new KeySearchResult(~i, ~(i + 1), lines);
+
+                int sectionIndex = i++;
+
+                for (; i < lines.Length && parseSection(lines[i]) == null; i++)
+                {
+                    var pair = parseLine(lines[i]);
+                    if (pair == null)
+                        continue;
+
+                    if (pair.Item1 == searchKey.Item2)
+                        return new KeySearchResult(sectionIndex, i, lines);
+                }
+
+                return new KeySearchResult(sectionIndex, ~i, lines);
+            }
+
+            public bool SectionExists => sectionIndex >= 0;
+            public bool Exists => keyIndex >= 0;
+
+            public int SectionIndex => sectionIndex < 0 ? ~sectionIndex : sectionIndex;
+            public int KeyIndex => keyIndex < 0 ? ~keyIndex : keyIndex;
+            public string[] Lines => lines;
         }
     }
 }
