@@ -86,7 +86,8 @@ namespace CommandLineParsing
             return keyRegex.IsMatch(key);
         }
 
-        private string filePath;
+        private readonly Encoding encoding;
+        private readonly string filePath;
         private Dictionary<string, string> values;
 
         /// <summary>
@@ -95,8 +96,24 @@ namespace CommandLineParsing
         /// <param name="filePath">The file containing the configuration details.
         /// If the file does not exist it is created when a key/value pair is added.</param>
         public Configuration(string filePath)
+            : this(filePath, Encoding.UTF8)
         {
+        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Configuration"/> class.
+        /// </summary>
+        /// <param name="filePath">The file containing the configuration details.
+        /// <param name="encoding">The encoding that should be used when performing IO operations.</param>
+        /// If the file does not exist it is created when a key/value pair is added.</param>
+        public Configuration(string filePath, Encoding encoding)
+        {
+            if (filePath == null)
+                throw new ArgumentNullException(nameof(filePath));
+            if (encoding == null)
+                throw new ArgumentNullException(nameof(encoding));
+
             this.filePath = filePath;
+            this.encoding = encoding;
 
             ensurePath(Path.GetDirectoryName(filePath));
 
