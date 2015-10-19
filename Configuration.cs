@@ -91,7 +91,8 @@ namespace CommandLineParsing
 
         private KeySearchResult findKey(string key)
         {
-            return KeySearchResult.FindKey(key, File.ReadAllLines(filePath, encoding));
+            string[] content = File.Exists(filePath) ? File.ReadAllLines(filePath, encoding) : new string[0];
+            return KeySearchResult.FindKey(key, content);
         }
         private KeySearchResult findKey(string key, string[] lines)
         {
@@ -218,8 +219,8 @@ namespace CommandLineParsing
         /// </summary>
         public void Clear()
         {
-            File.WriteAllText(filePath, "");
-            values.Clear();
+            if (File.Exists(filePath))
+                File.Delete(filePath);
         }
 
         /// <summary>
