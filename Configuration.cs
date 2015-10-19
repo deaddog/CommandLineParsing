@@ -229,8 +229,21 @@ namespace CommandLineParsing
         /// <returns>A collection of all key/value pairs in the configuration.</returns>
         public IEnumerable<KeyValuePair<string, string>> GetAll()
         {
-            foreach (var pair in values)
-                yield return pair;
+            string[] lines = File.Exists(filePath) ? File.ReadAllLines(filePath) : new string[0];
+            string section = null;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var newSection = parseSection(lines[i]);
+                if (newSection != null)
+                {
+                    section = newSection;
+                    continue;
+                }
+
+                var pair = parseLine(lines[i]);
+                yield return new KeyValuePair<string, string>(
+                    section == null ? pair.Item1 : (section + "." + pair.Item1), pair.Item2);
+            }
         }
 
         private class KeySearchResult
