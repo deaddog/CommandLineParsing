@@ -192,16 +192,22 @@ namespace CommandLineParsing
         /// <param name="key">The key that should be removed from the configuration.</param>
         public void Remove(string key)
         {
-            if (!Regex.IsMatch(key, "^[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*$"))
+            if (!keyRegex.IsMatch(key))
                 return;
 
-            var lines = File.ReadAllLines(filePath, Encoding.UTF8);
-            for (int i = 0; i < lines.Length; i++)
-                if (Regex.IsMatch(lines[i], key + " *="))
-                    lines[i] = null;
-            values.Remove(key);
+            var keyIndex = findKey(key);
+            if (!keyIndex.Exists)
+                return;
 
-            File.WriteAllText(filePath, string.Join("\n", lines.Where(x => x != null)) + "\n", Encoding.UTF8);
+            bool removeSection = keyIndex.SectionExists && (keyIndex.SectionIndex + 2 >= keyIndex.Lines.Length || sectionRegex.IsMatch(keyIndex.Lines[keyIndex.SectionIndex + 2]));
+            int first = removeSection ? keyIndex.SectionIndex : keyIndex.KeyIndex;
+            int length = removeSection ? 2 : 1;
+            string[] newConfig = new string[keyIndex.Lines.Length - length];
+
+            Array.Copy(keyIndex.Lines, 0, newConfig, 0, first);
+            Array.Copy(keyIndex.Lines, first + length, newConfig, first, newConfig.Length - first);
+
+            File.WriteAllLines(filePath, newConfig, encoding);
         }
 
         /// <summary>
