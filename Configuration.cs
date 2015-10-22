@@ -136,11 +136,14 @@ namespace CommandLineParsing
         {
             get
             {
-                key = key.ToLower();
+                if (!keyRegex.IsMatch(key))
+                    return null;
 
-                string result = null;
-                values.TryGetValue(key, out result);
-                return result;
+                var index = findKey(key);
+                if (!index.Exists)
+                    return null;
+
+                return parseLine(index.Lines[index.KeyIndex]).Item2;
             }
             set
             {
@@ -149,39 +152,44 @@ namespace CommandLineParsing
                 if (value == null)
                     throw new ArgumentNullException("value");
 
-                key = key.Trim().ToLower();
-                value = value.Trim();
+                var myKey = parseKey(key);
 
-                if (key.Length == 0)
-                    return;
-
-                if (!keyRegex.IsMatch(key))
-                    return;
+                if (myKey == null)
+                    throw new ArgumentException("Invalid key format: " + key, nameof(key));
                 if (value.Contains('\r') || value.Contains('\n'))
-                    return;
+                    throw new ArgumentException("Newlines cannot be included in configuration values", nameof(value));
 
-                string setting = string.Format("{0} = {1}", key, value);
+                var index = findKey(key);
+                string[] newConfig;
 
-                if (values.ContainsKey(key))
+                if (index.Exists)
                 {
-                    bool updated = false;
-                    var lines = File.ReadAllLines(filePath, Encoding.UTF8);
-                    for (int i = 0; i < lines.Length; i++)
-                        if (Regex.IsMatch(lines[i], key + " *="))
-                            if (updated)
-                                lines[i] = null;
-                            else
-                            {
-                                lines[i] = setting;
-                                updated = true;
-                            }
-
-                    File.WriteAllText(filePath, string.Join("\n", lines.Where(x => x != null)) + "\n", Encoding.UTF8);
+                    newConfig = new string[index.Lines.Length];
+                    index.Lines.CopyTo(newConfig, 0);
+                    newConfig[index.KeyIndex] = index.SectionExists ? $"{myKey.Item2} = {value}" : $"{myKey.Item1}.{myKey.Item2} = {value}";
+                }
+                else if (index.SectionExists)
+                {
+                    newConfig = new string[index.Lines.Length + 1];
+                    Array.Copy(index.Lines, 0, newConfig, 0, index.KeyIndex);
+                    newConfig[index.KeyIndex] = $"{myKey.Item2} = {value}";
+                    Array.Copy(index.Lines, index.KeyIndex, newConfig, index.KeyIndex + 1, index.Lines.Length - index.KeyIndex);
                 }
                 else
-                    File.AppendAllText(filePath, setting + "\n", Encoding.UTF8);
+                {
+                    newConfig = new string[index.Lines.Length + 2];
+                    index.Lines.CopyTo(newConfig, 0);
 
-                values[key] = value;
+                    if (index.SectionIndex != newConfig.Length - 2)
+                        throw new InvalidOperationException("Invalid index for new section.");
+                    if (index.KeyIndex != newConfig.Length - 1)
+                        throw new InvalidOperationException("Invalid index for new key.");
+
+                    newConfig[index.SectionIndex] = $"[{myKey.Item1}]";
+                    newConfig[index.KeyIndex] = $"{myKey.Item2} = {value}";
+                }
+
+                File.WriteAllLines(filePath, newConfig, encoding);
             }
         }
 
