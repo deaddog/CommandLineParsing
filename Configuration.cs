@@ -33,6 +33,24 @@ namespace CommandLineParsing
             }
         }
 
+        private static string parseSection(string line)
+        {
+            var match = sectionRegex.Match(line.Trim());
+
+            return match.Success ? match.Groups["key"].Value.ToLower() : null;
+        }
+        private static Tuple<string, string> parseKey(string key)
+        {
+            var match = keyRegex.Match(key.Trim().ToLower());
+
+            return match.Success ? Tuple.Create(match.Groups["root"].Value, match.Groups["key"].Value) : null;
+        }
+        private static Tuple<string, string> parseLine(string line)
+        {
+            var match = lineRegex.Match(line.Trim());
+
+            return match.Success ? Tuple.Create(match.Groups["key"].Value.ToLower(), match.Groups["value"].Value) : null;
+        }
         private static Tuple<string, string> loadKeyValuePair(string line)
         {
             line = line.Trim();
@@ -48,17 +66,14 @@ namespace CommandLineParsing
         static Configuration()
         {
             string KEYCHARS = "[a-zA-Z][a-zA-Z0-9]*";
-            string NAME = "(?<rootname>" + KEYCHARS + ")";
-            string SUBNAME = "(\\.(?<subname>" + KEYCHARS + "))";
-            string KEY = "\\.(?<key>" + KEYCHARS + ")";
 
-            string R_KEY = string.Format("{0}{1}*{2}", NAME, SUBNAME, KEY);
-
-            keyRegex = new Regex($"^{R_KEY}$");
-            lineRegex = new Regex("^(?<name>" + R_KEY + @")[ \t]*=[ \t]*(?<value>[^ \t][^\r\n]*)");
+            keyRegex = new Regex($@"^(?<root>{KEYCHARS})\.(?<key>({KEYCHARS}\.)*{KEYCHARS})$");
+            sectionRegex = new Regex($@"^\[(?<key>{KEYCHARS})\]");
+            lineRegex = new Regex($@"^(?<key>({KEYCHARS}\.)*{KEYCHARS})[ \t]*=[ \t]*(?<value>[^ \t][^\r\n]*)");
         }
 
         private static readonly Regex keyRegex;
+        private static readonly Regex sectionRegex;
         private static readonly Regex lineRegex;
 
         /// <summary>
@@ -71,8 +86,18 @@ namespace CommandLineParsing
             return keyRegex.IsMatch(key);
         }
 
-        private string filePath;
-        private Dictionary<string, string> values;
+        private readonly Encoding encoding;
+        private readonly string filePath;
+
+        private KeySearchResult findKey(string key)
+        {
+            string[] content = File.Exists(filePath) ? File.ReadAllLines(filePath, encoding) : new string[0];
+            return KeySearchResult.FindKey(key, content);
+        }
+        private KeySearchResult findKey(string key, string[] lines)
+        {
+            return KeySearchResult.FindKey(key, lines);
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Configuration"/> class.
@@ -80,22 +105,37 @@ namespace CommandLineParsing
         /// <param name="filePath">The file containing the configuration details.
         /// If the file does not exist it is created when a key/value pair is added.</param>
         public Configuration(string filePath)
+            : this(filePath, Encoding.UTF8)
         {
+        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Configuration"/> class.
+        /// </summary>
+        /// <param name="filePath">The file containing the configuration details.
+        /// <param name="encoding">The encoding that should be used when performing IO operations.</param>
+        /// If the file does not exist it is created when a key/value pair is added.</param>
+        public Configuration(string filePath, Encoding encoding)
+        {
+            if (filePath == null)
+                throw new ArgumentNullException(nameof(filePath));
+            if (encoding == null)
+                throw new ArgumentNullException(nameof(encoding));
+
             this.filePath = filePath;
+            this.encoding = encoding;
 
             ensurePath(Path.GetDirectoryName(filePath));
+        }
 
-            values = new Dictionary<string, string>();
-            if (!File.Exists(filePath))
-                return;
-
-            var lines = File.ReadAllLines(filePath, Encoding.UTF8);
-            foreach (var l in lines)
-            {
-                var temp = loadKeyValuePair(l);
-                if (temp != null)
-                    values[temp.Item1] = temp.Item2;
-            }
+        /// <summary>
+        /// Generates a new <see cref="Configuration"/> that is associated with a file in the same directory as the executing assembly.
+        /// </summary>
+        /// <param name="filename">The filename of the configuration file.</param>
+        /// <returns>The constructed <see cref="Configuration"/> object.</returns>
+        public static Configuration FromExecutingAssembly(string filename)
+        {
+            var dir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            return new Configuration(Path.Combine(dir, filename));
         }
 
         /// <summary>
@@ -107,11 +147,14 @@ namespace CommandLineParsing
         {
             get
             {
-                key = key.ToLower();
+                if (!keyRegex.IsMatch(key))
+                    return null;
 
-                string result = null;
-                values.TryGetValue(key, out result);
-                return result;
+                var index = findKey(key);
+                if (!index.Exists)
+                    return null;
+
+                return parseLine(index.Lines[index.KeyIndex]).Item2;
             }
             set
             {
@@ -120,39 +163,44 @@ namespace CommandLineParsing
                 if (value == null)
                     throw new ArgumentNullException("value");
 
-                key = key.Trim().ToLower();
-                value = value.Trim();
+                var myKey = parseKey(key);
 
-                if (key.Length == 0)
-                    return;
-
-                if (!keyRegex.IsMatch(key))
-                    return;
+                if (myKey == null)
+                    throw new ArgumentException("Invalid key format: " + key, nameof(key));
                 if (value.Contains('\r') || value.Contains('\n'))
-                    return;
+                    throw new ArgumentException("Newlines cannot be included in configuration values", nameof(value));
 
-                string setting = string.Format("{0} = {1}", key, value);
+                var index = findKey(key);
+                string[] newConfig;
 
-                if (values.ContainsKey(key))
+                if (index.Exists)
                 {
-                    bool updated = false;
-                    var lines = File.ReadAllLines(filePath, Encoding.UTF8);
-                    for (int i = 0; i < lines.Length; i++)
-                        if (Regex.IsMatch(lines[i], key + " *="))
-                            if (updated)
-                                lines[i] = null;
-                            else
-                            {
-                                lines[i] = setting;
-                                updated = true;
-                            }
-
-                    File.WriteAllText(filePath, string.Join("\n", lines.Where(x => x != null)) + "\n", Encoding.UTF8);
+                    newConfig = new string[index.Lines.Length];
+                    index.Lines.CopyTo(newConfig, 0);
+                    newConfig[index.KeyIndex] = index.SectionExists ? $"{myKey.Item2} = {value}" : $"{myKey.Item1}.{myKey.Item2} = {value}";
+                }
+                else if (index.SectionExists)
+                {
+                    newConfig = new string[index.Lines.Length + 1];
+                    Array.Copy(index.Lines, 0, newConfig, 0, index.KeyIndex);
+                    newConfig[index.KeyIndex] = $"{myKey.Item2} = {value}";
+                    Array.Copy(index.Lines, index.KeyIndex, newConfig, index.KeyIndex + 1, index.Lines.Length - index.KeyIndex);
                 }
                 else
-                    File.AppendAllText(filePath, setting + "\n", Encoding.UTF8);
+                {
+                    newConfig = new string[index.Lines.Length + 2];
+                    index.Lines.CopyTo(newConfig, 0);
 
-                values[key] = value;
+                    if (index.SectionIndex != newConfig.Length - 2)
+                        throw new InvalidOperationException("Invalid index for new section.");
+                    if (index.KeyIndex != newConfig.Length - 1)
+                        throw new InvalidOperationException("Invalid index for new key.");
+
+                    newConfig[index.SectionIndex] = $"[{myKey.Item1}]";
+                    newConfig[index.KeyIndex] = $"{myKey.Item2} = {value}";
+                }
+
+                File.WriteAllLines(filePath, newConfig, encoding);
             }
         }
 
@@ -163,16 +211,22 @@ namespace CommandLineParsing
         /// <param name="key">The key that should be removed from the configuration.</param>
         public void Remove(string key)
         {
-            if (!Regex.IsMatch(key, "^[a-zA-Z0-9]+(\\.[a-zA-Z0-9]+)*$"))
+            if (!keyRegex.IsMatch(key))
                 return;
 
-            var lines = File.ReadAllLines(filePath, Encoding.UTF8);
-            for (int i = 0; i < lines.Length; i++)
-                if (Regex.IsMatch(lines[i], key + " *="))
-                    lines[i] = null;
-            values.Remove(key);
+            var keyIndex = findKey(key);
+            if (!keyIndex.Exists)
+                return;
 
-            File.WriteAllText(filePath, string.Join("\n", lines.Where(x => x != null)) + "\n", Encoding.UTF8);
+            bool removeSection = keyIndex.SectionExists && (keyIndex.SectionIndex + 2 >= keyIndex.Lines.Length || sectionRegex.IsMatch(keyIndex.Lines[keyIndex.SectionIndex + 2]));
+            int first = removeSection ? keyIndex.SectionIndex : keyIndex.KeyIndex;
+            int length = removeSection ? 2 : 1;
+            string[] newConfig = new string[keyIndex.Lines.Length - length];
+
+            Array.Copy(keyIndex.Lines, 0, newConfig, 0, first);
+            Array.Copy(keyIndex.Lines, first + length, newConfig, first, newConfig.Length - first);
+
+            File.WriteAllLines(filePath, newConfig, encoding);
         }
 
         /// <summary>
@@ -182,7 +236,10 @@ namespace CommandLineParsing
         /// <returns><c>true</c>, if <paramref name="key"/> is defined in the configuration file; otherwise, <c>false</c>.</returns>
         public bool HasKey(string key)
         {
-            return values.ContainsKey(key);
+            if (!keyRegex.IsMatch(key))
+                return false;
+
+            return findKey(key).Exists;
         }
 
         /// <summary>
@@ -190,8 +247,8 @@ namespace CommandLineParsing
         /// </summary>
         public void Clear()
         {
-            File.WriteAllText(filePath, "");
-            values.Clear();
+            if (File.Exists(filePath))
+                File.Delete(filePath);
         }
 
         /// <summary>
@@ -200,8 +257,80 @@ namespace CommandLineParsing
         /// <returns>A collection of all key/value pairs in the configuration.</returns>
         public IEnumerable<KeyValuePair<string, string>> GetAll()
         {
-            foreach (var pair in values)
-                yield return pair;
+            string[] lines = File.Exists(filePath) ? File.ReadAllLines(filePath) : new string[0];
+            string section = null;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var newSection = parseSection(lines[i]);
+                if (newSection != null)
+                {
+                    section = newSection;
+                    continue;
+                }
+
+                var pair = parseLine(lines[i]);
+                yield return new KeyValuePair<string, string>(
+                    section == null ? pair.Item1 : (section + "." + pair.Item1), pair.Item2);
+            }
+        }
+
+        private class KeySearchResult
+        {
+            private int sectionIndex;
+            private int keyIndex;
+            private string[] lines;
+
+            private KeySearchResult(int sectionIndex, int keyIndex, string[] lines)
+            {
+                this.sectionIndex = sectionIndex;
+                this.keyIndex = keyIndex;
+                this.lines = lines;
+            }
+
+            public const int NOSECTION = -1;
+
+            public static KeySearchResult FindKey(string key, string[] lines)
+            {
+                key = key.ToLower();
+                var searchKey = parseKey(key);
+
+                int i = 0;
+                for (; i < lines.Length && parseSection(lines[i]) == null; i++)
+                {
+                    var pair = parseLine(lines[i]);
+                    if (pair == null)
+                        continue;
+
+                    if (pair.Item1 == key)
+                        return new KeySearchResult(NOSECTION, i, lines);
+                }
+
+                for (; i < lines.Length && parseSection(lines[i]) != searchKey.Item1; i++) { }
+
+                if (i == lines.Length)
+                    return new KeySearchResult(~i, ~(i + 1), lines);
+
+                int sectionIndex = i++;
+
+                for (; i < lines.Length && parseSection(lines[i]) == null; i++)
+                {
+                    var pair = parseLine(lines[i]);
+                    if (pair == null)
+                        continue;
+
+                    if (pair.Item1 == searchKey.Item2)
+                        return new KeySearchResult(sectionIndex, i, lines);
+                }
+
+                return new KeySearchResult(sectionIndex, ~i, lines);
+            }
+
+            public bool SectionExists => sectionIndex >= 0;
+            public bool Exists => keyIndex >= 0;
+
+            public int SectionIndex => sectionIndex < 0 ? ~sectionIndex : sectionIndex;
+            public int KeyIndex => keyIndex < 0 ? ~keyIndex : keyIndex;
+            public string[] Lines => lines;
         }
     }
 }
