@@ -56,7 +56,7 @@ namespace CommandLineParsing
             if (found) return parser;
 
             parser = getParser(type, enumIgnore);
-            if (parser == null)
+            if (parser == null && HasMessageTryParse(type))
                 parser = convert(type);
 
             if (enumIgnore)
