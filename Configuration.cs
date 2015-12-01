@@ -128,6 +128,17 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Generates a new <see cref="Configuration"/> that is associated with a file in the same directory as the executing assembly.
+        /// </summary>
+        /// <param name="filename">The filename of the configuration file.</param>
+        /// <returns>The constructed <see cref="Configuration"/> object.</returns>
+        public static Configuration FromExecutingAssembly(string filename)
+        {
+            var dir = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            return new Configuration(Path.Combine(dir, filename));
+        }
+
+        /// <summary>
         /// Gets or sets the value associated with a key.
         /// </summary>
         /// <param name="key">The key (name.name) that the value should be associated with.</param>
