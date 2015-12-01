@@ -458,7 +458,8 @@ namespace CommandLineParsing
                 Console.SetCursorPosition(l, t);
 
                 input = ColorConsole.ReadLine(null, defaultString);
-                msg = parser.Parse(Command.SimulateParse(input), out result);
+                string[] parseData = typeof(T).IsArray ? Command.SimulateParse(input) : new string[] { input };
+                msg = parser.Parse(parseData, out result);
 
                 if (!msg.IsError)
                     msg = validator == null ? Message.NoError : validator.Validate(result);
