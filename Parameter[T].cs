@@ -14,19 +14,9 @@ namespace CommandLineParsing
     /// This type can be any type that has a static <see cref="TryParse{T}"/> method, an array of such a type or any enumeration type.</typeparam>
     public class Parameter<T> : Parameter
     {
-#pragma warning disable 1591
-
-        protected T value;
-
-        protected readonly bool enumIgnore;
-        private TryParse<T> parser;
-        internal void setParser(TryParse<T> parser) => this.parser = parser;
-
-        private Func<string, Message> typeErrorMessage;
-        private Message noValueMessage;
-        private Message multipleValuesMessage;
-
-        protected readonly Validator<T> validator;
+        private T value;
+        private SmartParser<T> parser;
+        private readonly Validator<T> validator;
 
         private Message defaultTypeError(string input)
         {
@@ -36,19 +26,25 @@ namespace CommandLineParsing
                 return $@"The ""{input}"" argument for the parameter ""{Name}"", could not be parsed to a value of type {typeof(T).Name}.";
         }
 
-#pragma warning restore
-
         internal Parameter(string name, string[] alternatives, string description, Message required, bool enumIgnore)
             : base(name, alternatives, description, required)
         {
             this.value = default(T);
+            if (typeof(T).IsArray)
+            {
+                Array arr = (Array)Activator.CreateInstance(typeof(T), new object[] { 0 });
+                this.value = (T)(object)arr;
+            }
 
-            this.enumIgnore = enumIgnore;
-            this.parser = null;
-
-            this.typeErrorMessage = defaultTypeError;
-            this.noValueMessage = "No value provided for argument \"" + name + "\".";
-            this.multipleValuesMessage = "Only one value can be provided for argument \"" + name + "\".";
+            this.parser = new SmartParser<T>()
+            {
+                EnumIgnoreCase = enumIgnore,
+                NoParserExceptionMessage = $"The type { typeof(T).Name } is not supported. Set a parser method using the {nameof(SetParser)} method.",
+                NoValueMessage = $"No value provided for argument \"{name}\".",
+                MultipleValuesMessage = $"Only one value can be provided for argument \"{name}\".",
+                TypeErrorMessage = defaultTypeError,
+                UseParserMessage = true
+            };
 
             this.validator = new Validator<T>();
         }
@@ -82,6 +78,12 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Sets the parser used by the <see cref="Parameter{T}"/>.
+        /// </summary>
+        /// <param name="parser">The new parser.</param>
+        public void SetParser(ParameterTryParse<T> parser) => this.parser.Parser = parser;
+
+        /// <summary>
         /// Gets or sets the function that is used to generate type error messages for this <see cref="Parameter{T}"/>.
         /// Type error messages, are messages where the input string could not be parsed by the appropriate <see cref="TryParse{T}"/> method.
         /// The <see cref="string"/> parameter for the function is the string that the <see cref="Parameter{T}"/> could not parse.
@@ -91,13 +93,14 @@ namespace CommandLineParsing
         /// </value>
         public Func<string, Message> TypeErrorMessage
         {
-            get { return typeErrorMessage; }
+            get { return parser.TypeErrorMessage; }
             set
             {
-                if (typeErrorMessage == null)
+                if (value == null)
                     throw new ArgumentNullException("value");
 
-                typeErrorMessage = value;
+                parser.TypeErrorMessage = value;
+                parser.UseParserMessage = false;
             }
         }
         /// <summary>
@@ -109,7 +112,7 @@ namespace CommandLineParsing
         /// </value>
         public Message NoValueMessage
         {
-            get { return noValueMessage; }
+            get { return parser.NoValueMessage; }
             set
             {
                 if (value == null)
@@ -117,7 +120,7 @@ namespace CommandLineParsing
                 if (!value.IsError)
                     throw new ArgumentException("An error message cannot be the NoError message.", "value");
 
-                this.noValueMessage = value;
+                parser.NoValueMessage = value;
             }
         }
         /// <summary>
@@ -129,7 +132,7 @@ namespace CommandLineParsing
         /// </value>
         public Message MultipleValuesMessage
         {
-            get { return multipleValuesMessage; }
+            get { return parser.MultipleValuesMessage; }
             set
             {
                 if (value == null)
@@ -137,7 +140,7 @@ namespace CommandLineParsing
                 if (!value.IsError)
                     throw new ArgumentException("An error message cannot be the NoError message.", "value");
 
-                this.multipleValuesMessage = value;
+                parser.MultipleValuesMessage = value;
             }
         }
 
@@ -151,19 +154,14 @@ namespace CommandLineParsing
 
         internal override Message Handle(string[] values)
         {
-            if (parser == null)
-                parser = ParserLookup.Table.GetParser<T>(enumIgnore);
-
             T temp;
 
-            if (values.Length == 0)
-                return noValueMessage;
-            else if (values.Length > 1)
-                return multipleValuesMessage;
-            else if (!parser(values[0], out temp))
-                return typeErrorMessage(values[0]);
+            Message msg = parser.Parse(values, out temp);
 
-            var msg = validator.Validate(temp);
+            if (msg.IsError)
+                return msg;
+
+            msg = validator.Validate(temp);
             if (msg.IsError)
                 return msg;
 
@@ -172,14 +170,6 @@ namespace CommandLineParsing
             doCallback();
 
             return Message.NoError;
-        }
-        internal override bool CanHandle(string value)
-        {
-            if (parser == null)
-                parser = ParserLookup.Table.GetParser<T>(enumIgnore);
-
-            T temp;
-            return parser(value, out temp);
         }
 
         /// <summary>

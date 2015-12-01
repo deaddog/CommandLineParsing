@@ -75,6 +75,7 @@ namespace CommandLineParsing
         private static Message parseArguments(Command command, ArgumentQueue arguments)
         {
             Message msg = Message.NoError;
+            bool first = true;
 
             while (arguments.Count > 0)
             {
@@ -88,15 +89,19 @@ namespace CommandLineParsing
                     if (msg.IsError)
                         return msg;
                 }
+                else if (arguments.Peek == "--")
+                    arguments.Dequeue();
                 else
                 {
-                    if (command.Parameters.HasNoName && command.Parameters.NoName.CanHandle(arguments.Peek))
+                    if (command.Parameters.HasNoName)
                         arguments.Skip();
-                    else if (RegexLookup.SubcommandName.IsMatch(arguments.Peek))
+                    else if (first && RegexLookup.SubcommandName.IsMatch(arguments.Peek))
                         return UnknownArgumentMessage.FromSubcommands(command, arguments.Dequeue());
                     else
                         return NoUnnamed(arguments.Dequeue());
                 }
+
+                first = false;
             }
 
             msg = command.Parameters.FirstOrDefault(x => !x.IsSet && x.IsRequired)?.RequiredMessage ?? Message.NoError;
@@ -118,7 +123,7 @@ namespace CommandLineParsing
         }
         private static Message handleParameter(Command command, Parameter parameter, ArgumentQueue arguments)
         {
-            while (arguments.Count > 0 && !RegexLookup.ParameterName.IsMatch(arguments.Peek))
+            while (arguments.Count > 0 && !RegexLookup.ParameterName.IsMatch(arguments.Peek) && arguments.Peek != "--")
                 if (parameter is FlagParameter && command.Parameters.HasNoName)
                     arguments.Skip();
                 else

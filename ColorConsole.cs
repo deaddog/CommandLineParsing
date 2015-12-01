@@ -404,6 +404,21 @@ namespace CommandLineParsing
             return false;
         }
 
+        private static SmartParser<T> getParser<T>()
+        {
+            string typename = typeof(T).Name;
+
+            return new SmartParser<T>()
+            {
+                EnumIgnoreCase = true,
+                NoParserExceptionMessage = $"The type { typename } is not supported. A {nameof(TryParse<T>)} or {nameof(MessageTryParse<T>)} method must be defined in {typename}.",
+                NoValueMessage = Message.NoError,
+                MultipleValuesMessage = "Only one value can be specified.",
+                TypeErrorMessage = x => $"{x} is not a {typename} value.",
+                UseParserMessage = true
+            };
+        }
+
         /// <summary>
         /// Writes <paramref name="prompt"/> to <see cref="Console"/>, reads user input and returns a parsed value.
         /// </summary>
@@ -412,41 +427,46 @@ namespace CommandLineParsing
         /// <param name="defaultString">A <see cref="string"/> that the inputtext is initialized to.
         /// The <see cref="string"/> can be edited in the <see cref="Console"/> and is part of the parsed <see cref="string"/> if not modified.
         /// <c>null</c> indicates that no initial value should be used.</param>
+        /// <param name="parser">The <see cref="ParameterTryParse{T}"/> method that should be used when parsing the ReadLine input.<para />
+        /// <c>null</c> indicates that the static <see cref="TryParse{T}"/> or <see cref="MessageTryParse{T}"/> method defined in <typeparamref name="T"/> should be used for parsing.
+        /// An exception is thrown if such a method is not defined.</param>
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
-        public static T ReadLine<T>(string prompt = null, string defaultString = null, Validator<T> validator = null)
+        public static T ReadLine<T>(string prompt = null, string defaultString = null, ParameterTryParse<T> parser = null, Validator<T> validator = null)
+        {
+            var smartparser = getParser<T>();
+            if (parser != null)
+                smartparser.Parser = parser;
+
+            return ReadLine<T>(smartparser, prompt, defaultString, validator);
+        }
+        internal static T ReadLine<T>(SmartParser<T> parser, string prompt = null, string defaultString = null, Validator<T> validator = null)
         {
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
-            var tryparse = ParserLookup.Table.GetParser<T>(false);
-
             int l = Console.CursorLeft, t = Console.CursorTop;
             string input = "";
             T result = default(T);
-            bool parsed = false;
+            Message msg = Message.NoError;
 
-            while (!parsed)
+            do
             {
                 Console.SetCursorPosition(l, t);
                 Console.Write(new string(' ', input.Length));
                 Console.SetCursorPosition(l, t);
 
                 input = ColorConsole.ReadLine(null, defaultString);
-                parsed = tryparse(input, out result);
+                string[] parseData = typeof(T).IsArray ? Command.SimulateParse(input) : new string[] { input };
+                msg = parser.Parse(parseData, out result);
 
-                Message msg = Message.NoError;
-
-                if (parsed)
+                if (!msg.IsError)
                     msg = validator == null ? Message.NoError : validator.Validate(result);
-                else
-                    msg = $"{input} is not a {typeof(T).Name} value.";
 
                 if (msg.IsError)
                 {
                     Console.CursorVisible = false;
-                    parsed = false;
                     Console.SetCursorPosition(l, t);
                     Console.Write(new string(' ', input.Length));
 
@@ -459,10 +479,11 @@ namespace CommandLineParsing
                     Console.ReadKey(true);
                     Console.CursorVisible = true;
                 }
-            }
+            } while (msg.IsError);
 
             return result;
         }
+
         /// <summary>
         /// Reads a <see cref="string"/> from <see cref="Console"/>.
         /// </summary>

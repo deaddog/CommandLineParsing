@@ -43,7 +43,6 @@ namespace CommandLineParsing
         }
 
         internal abstract Message Handle(string[] values);
-        internal abstract bool CanHandle(string value);
 
         /// <summary>
         /// Manages the action that should be taken when this <see cref="Parameter"/> is identified in an argument set and its values are validated.

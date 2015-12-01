@@ -90,9 +90,7 @@ namespace CommandLineParsing
 
         private Parameter constructParameter(Type type, string name, string[] alternatives, string description, Message required, bool enumIgnore)
         {
-            Type paramType = type.IsArray ?
-                typeof(ArrayParameter<>).MakeGenericType(type.GetElementType()) :
-                typeof(Parameter<>).MakeGenericType(type);
+            Type paramType = typeof(Parameter<>).MakeGenericType(type);
 
             var ctr = paramType.GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0];
 
