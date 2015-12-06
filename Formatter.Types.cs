@@ -103,6 +103,9 @@ namespace CommandLineParsing
             /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
             public void Add<T>(string variable, Func<T, object> replace, Func<T, string> autoColor, int? padding)
             {
+                if (replace == null)
+                    throw new ArgumentNullException(nameof(replace));
+
                 Func<object, string> r = x => replace((T)x)?.ToString();
                 Func<object, string> c = x => autoColor?.Invoke((T)x);
 
@@ -123,6 +126,9 @@ namespace CommandLineParsing
             /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
             public void Add<T, V>(string variable, Func<T, V> select, Func<V, object> replace, Func<V, string> autoColor, int? padding)
             {
+                if (select == null)
+                    throw new ArgumentNullException(nameof(select));
+
                 Add<T>(variable, x => replace(select(x)), x => autoColor?.Invoke(select(x)), padding);
             }
         }
@@ -231,6 +237,9 @@ namespace CommandLineParsing
             /// <param name="function">The function that should be executed.</param>
             public void Add<T>(string name, Func<T, string> function)
             {
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
                 Func<T, string[], string> f = (i, arr) =>
                 {
                     if (arr.Length > 1 || (arr.Length == 1 && arr[0].Length > 0))
@@ -249,6 +258,9 @@ namespace CommandLineParsing
             /// <param name="function">The function that should be executed.</param>
             public void Add<T, T1>(string name, Func<T, T1, string> function)
             {
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
                 Func<T, string[], string> f = (i, arr) =>
                 {
                     if (arr.Length != 1)
@@ -272,6 +284,9 @@ namespace CommandLineParsing
             /// <param name="function">The function that should be executed.</param>
             public void Add<T, T1, T2>(string name, Func<T, T1, T2, string> function)
             {
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
                 Func<T, string[], string> f = (i, arr) =>
                 {
                     if (arr.Length != 2)
@@ -300,6 +315,9 @@ namespace CommandLineParsing
             /// <param name="function">The function that should be executed.</param>
             public void Add<T, T1, T2, T3>(string name, Func<T, T1, T2, T3, string> function)
             {
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
                 Func<T, string[], string> f = (i, arr) =>
                 {
                     if (arr.Length != 3)
@@ -333,6 +351,9 @@ namespace CommandLineParsing
             /// <param name="function">The function that should be executed.</param>
             public void Add<T, T1, T2, T3, T4>(string name, Func<T, T1, T2, T3, T4, string> function)
             {
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
                 Func<T, string[], string> f = (i, arr) =>
                 {
                     if (arr.Length != 3)
@@ -371,6 +392,9 @@ namespace CommandLineParsing
             /// <param name="function">The function that should be executed.</param>
             public void Add<T, T1, T2, T3, T4, T5>(string name, Func<T, T1, T2, T3, T4, T5, string> function)
             {
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
                 Func<T, string[], string> f = (i, arr) =>
                 {
                     if (arr.Length != 3)
@@ -417,6 +441,9 @@ namespace CommandLineParsing
             /// <c>null</c> (the default) specifies that a separator is required.</param>
             public void AddList<T, TOut>(string name, Func<T, IEnumerable<TOut>> converter, string defaultSeparator = null)
             {
+                if (converter == null)
+                    throw new ArgumentNullException(nameof(converter));
+
                 Func<T, string[], string> f = (i, arr) =>
                 {
                     switch (arr.Length)
