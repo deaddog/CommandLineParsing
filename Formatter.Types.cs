@@ -227,6 +227,23 @@ namespace CommandLineParsing
             /// Adds a function to the <see cref="FunctionCollection"/>.
             /// </summary>
             /// <typeparam name="T">The type of elements this function will apply to.</typeparam>
+            /// <param name="name">The name of the function. Function overloading is supported by executing all same-name functions until one returns a non-null.</param>
+            /// <param name="function">The function that should be executed.</param>
+            public void Add<T>(string name, Func<T, string> function)
+            {
+                Func<T, string[], string> f = (i, arr) =>
+                {
+                    if (arr.Length > 1 || (arr.Length == 1 && arr[0].Length > 0))
+                        return null;
+
+                    return function(i);
+                };
+                Add(name, f);
+            }
+            /// <summary>
+            /// Adds a function to the <see cref="FunctionCollection"/>.
+            /// </summary>
+            /// <typeparam name="T">The type of elements this function will apply to.</typeparam>
             /// <typeparam name="T1">The type of the first parameter (after the item) in the executed function.</typeparam>
             /// <param name="name">The name of the function. Function overloading is supported by executing all same-name functions until one returns a non-null.</param>
             /// <param name="function">The function that should be executed.</param>
