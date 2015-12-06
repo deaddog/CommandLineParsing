@@ -103,8 +103,8 @@ namespace CommandLineParsing
             /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
             public void Add<T>(string variable, Func<T, object> replace, Func<T, string> autoColor, int? padding)
             {
-                Func<object, string> r = x => replace((T)x).ToString();
-                Func<object, string> c = x => autoColor((T)x);
+                Func<object, string> r = x => replace((T)x)?.ToString();
+                Func<object, string> c = x => autoColor?.Invoke((T)x);
 
                 Add(variable, new Variable(typeof(T), r, c, padding));
             }
@@ -123,7 +123,7 @@ namespace CommandLineParsing
             /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
             public void Add<T, V>(string variable, Func<T, V> select, Func<V, object> replace, Func<V, string> autoColor, int? padding)
             {
-                Add<T>(variable, x => replace(select(x)), x => autoColor(select(x)), padding);
+                Add<T>(variable, x => replace(select(x)), x => autoColor?.Invoke(select(x)), padding);
             }
         }
 
