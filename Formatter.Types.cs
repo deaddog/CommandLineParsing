@@ -100,13 +100,30 @@ namespace CommandLineParsing
             /// The string representation of that object is used when formatting the item.</param>
             /// <param name="autoColor">A method that specifies which color should be applied to a string when auto is used to color <paramref name="variable"/>.
             /// Specify <c>null</c> or a function that returns <c>null</c> if auto coloring does not apply.</param>
-            /// <param name="padding">The padded with of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
+            /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
             public void Add<T>(string variable, Func<T, object> replace, Func<T, string> autoColor, int? padding)
             {
                 Func<object, string> r = x => replace((T)x).ToString();
                 Func<object, string> c = x => autoColor((T)x);
 
                 Add(variable, new Variable(typeof(T), r, c, padding));
+            }
+
+            /// <summary>
+            /// Adds a rule for handling a variable to the <see cref="VariableCollection"/>.
+            /// </summary>
+            /// <typeparam name="T">The type of elements this rule will handle.</typeparam>
+            /// <typeparam name="V">The type of elements that should be extracted from the <typeparamref name="T"/> element for handling.</typeparam>
+            /// <param name="variable">The name of the variable.</param>
+            /// <param name="select">A method that selects an object on which the <paramref name="replace"/> and <paramref name="autoColor"/> methods should be applied.</param>
+            /// <param name="replace">A method that specifies which object <paramref name="variable"/> should be replaced by.
+            /// The string representation of that object is used when formatting the item.</param>
+            /// <param name="autoColor">A method that specifies which color should be applied to a string when auto is used to color <paramref name="variable"/>.
+            /// Specify <c>null</c> or a function that returns <c>null</c> if auto coloring does not apply.</param>
+            /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
+            public void Add<T, V>(string variable, Func<T, V> select, Func<V, object> replace, Func<V, string> autoColor, int? padding)
+            {
+                Add<T>(variable, x => replace(select(x)), x => autoColor(select(x)), padding);
             }
         }
 
