@@ -100,13 +100,36 @@ namespace CommandLineParsing
             /// The string representation of that object is used when formatting the item.</param>
             /// <param name="autoColor">A method that specifies which color should be applied to a string when auto is used to color <paramref name="variable"/>.
             /// Specify <c>null</c> or a function that returns <c>null</c> if auto coloring does not apply.</param>
-            /// <param name="padding">The padded with of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
+            /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
             public void Add<T>(string variable, Func<T, object> replace, Func<T, string> autoColor, int? padding)
             {
-                Func<object, string> r = x => replace((T)x).ToString();
-                Func<object, string> c = x => autoColor((T)x);
+                if (replace == null)
+                    throw new ArgumentNullException(nameof(replace));
+
+                Func<object, string> r = x => replace((T)x)?.ToString();
+                Func<object, string> c = x => autoColor?.Invoke((T)x);
 
                 Add(variable, new Variable(typeof(T), r, c, padding));
+            }
+
+            /// <summary>
+            /// Adds a rule for handling a variable to the <see cref="VariableCollection"/>.
+            /// </summary>
+            /// <typeparam name="T">The type of elements this rule will handle.</typeparam>
+            /// <typeparam name="V">The type of elements that should be extracted from the <typeparamref name="T"/> element for handling.</typeparam>
+            /// <param name="variable">The name of the variable.</param>
+            /// <param name="select">A method that selects an object on which the <paramref name="replace"/> and <paramref name="autoColor"/> methods should be applied.</param>
+            /// <param name="replace">A method that specifies which object <paramref name="variable"/> should be replaced by.
+            /// The string representation of that object is used when formatting the item.</param>
+            /// <param name="autoColor">A method that specifies which color should be applied to a string when auto is used to color <paramref name="variable"/>.
+            /// Specify <c>null</c> or a function that returns <c>null</c> if auto coloring does not apply.</param>
+            /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
+            public void Add<T, V>(string variable, Func<T, V> select, Func<V, object> replace, Func<V, string> autoColor, int? padding)
+            {
+                if (select == null)
+                    throw new ArgumentNullException(nameof(select));
+
+                Add<T>(variable, x => replace(select(x)), x => autoColor?.Invoke(select(x)), padding);
             }
         }
 
@@ -210,11 +233,34 @@ namespace CommandLineParsing
             /// Adds a function to the <see cref="FunctionCollection"/>.
             /// </summary>
             /// <typeparam name="T">The type of elements this function will apply to.</typeparam>
+            /// <param name="name">The name of the function. Function overloading is supported by executing all same-name functions until one returns a non-null.</param>
+            /// <param name="function">The function that should be executed.</param>
+            public void Add<T>(string name, Func<T, string> function)
+            {
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
+                Func<T, string[], string> f = (i, arr) =>
+                {
+                    if (arr.Length > 1 || (arr.Length == 1 && arr[0].Length > 0))
+                        return null;
+
+                    return function(i);
+                };
+                Add(name, f);
+            }
+            /// <summary>
+            /// Adds a function to the <see cref="FunctionCollection"/>.
+            /// </summary>
+            /// <typeparam name="T">The type of elements this function will apply to.</typeparam>
             /// <typeparam name="T1">The type of the first parameter (after the item) in the executed function.</typeparam>
             /// <param name="name">The name of the function. Function overloading is supported by executing all same-name functions until one returns a non-null.</param>
             /// <param name="function">The function that should be executed.</param>
             public void Add<T, T1>(string name, Func<T, T1, string> function)
             {
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
                 Func<T, string[], string> f = (i, arr) =>
                 {
                     if (arr.Length != 1)
@@ -238,6 +284,9 @@ namespace CommandLineParsing
             /// <param name="function">The function that should be executed.</param>
             public void Add<T, T1, T2>(string name, Func<T, T1, T2, string> function)
             {
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
                 Func<T, string[], string> f = (i, arr) =>
                 {
                     if (arr.Length != 2)
@@ -266,6 +315,9 @@ namespace CommandLineParsing
             /// <param name="function">The function that should be executed.</param>
             public void Add<T, T1, T2, T3>(string name, Func<T, T1, T2, T3, string> function)
             {
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
                 Func<T, string[], string> f = (i, arr) =>
                 {
                     if (arr.Length != 3)
@@ -299,6 +351,9 @@ namespace CommandLineParsing
             /// <param name="function">The function that should be executed.</param>
             public void Add<T, T1, T2, T3, T4>(string name, Func<T, T1, T2, T3, T4, string> function)
             {
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
                 Func<T, string[], string> f = (i, arr) =>
                 {
                     if (arr.Length != 3)
@@ -337,6 +392,9 @@ namespace CommandLineParsing
             /// <param name="function">The function that should be executed.</param>
             public void Add<T, T1, T2, T3, T4, T5>(string name, Func<T, T1, T2, T3, T4, T5, string> function)
             {
+                if (function == null)
+                    throw new ArgumentNullException(nameof(function));
+
                 Func<T, string[], string> f = (i, arr) =>
                 {
                     if (arr.Length != 3)
@@ -383,6 +441,9 @@ namespace CommandLineParsing
             /// <c>null</c> (the default) specifies that a separator is required.</param>
             public void AddList<T, TOut>(string name, Func<T, IEnumerable<TOut>> converter, string defaultSeparator = null)
             {
+                if (converter == null)
+                    throw new ArgumentNullException(nameof(converter));
+
                 Func<T, string[], string> f = (i, arr) =>
                 {
                     switch (arr.Length)
