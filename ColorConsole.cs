@@ -162,12 +162,13 @@ namespace CommandLineParsing
 
                     case '?': // Conditional
                         {
-                            var match = Regex.Match(format.Substring(index), @"\?[^\{]*");
+                            var match = Regex.Match(format.Substring(index), @"\?([^\{]*)");
                             var end = findEnd(format, index + match.Value.Length, '{', '}');
                             var block = format.Substring(index + match.Value.Length + 1, end - index - match.Value.Length - 1);
 
                             string replace = "";
-                            var condition = formatter.ValidateCondition(match.Value.Substring(1));
+                            var condition = formatter.ValidateCondition(match.Groups[1].Value);
+
                             if (!condition.HasValue)
                                 replace = "?" + match.Value + "{" + EvaluateFormat(block, formatter) + "}";
                             else if (condition.Value)
