@@ -170,7 +170,7 @@ namespace CommandLineParsing
                             var condition = formatter.ValidateCondition(match.Groups[1].Value);
 
                             if (!condition.HasValue)
-                                replace = "?" + match.Value + "{" + EvaluateFormat(block, formatter) + "}";
+                                replace = match.Value + "{" + EvaluateFormat(block, formatter) + "}";
                             else if (condition.Value)
                                 replace = EvaluateFormat(block, formatter);
 
