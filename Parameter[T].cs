@@ -61,6 +61,23 @@ namespace CommandLineParsing
             get { return value; }
             set { this.value = value; }
         }
+        /// <summary>
+        /// Prompts the user for a value for the parameter using the specified prompt message.
+        /// The method only returns when the user has provided a new value that can be validated using <see cref="Validator"/>.
+        /// Existing value (if any) will be overwritten.
+        /// </summary>
+        /// <param name="promptMessage">The prompt message.</param>
+        public void Prompt(string promptMessage)
+        {
+            T temp = ColorConsole.ReadLine<T>(parser, promptMessage, validator: validator);
+            IsSet = true;
+            value = temp;
+            doCallback();
+        }
+        internal override void prompt(string promptMessage)
+        {
+            Prompt(promptMessage);
+        }
 
         /// <summary>
         /// Sets the default value for this <see cref="Parameter{T}"/>.

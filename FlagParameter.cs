@@ -22,6 +22,11 @@ namespace CommandLineParsing
             hasValueMessage = name + " is a flag argument, it does not support values.";
         }
 
+        internal override void prompt(string promptMessage)
+        {
+            throw new InvalidOperationException($"{nameof(FlagParameter)} does not support prompting. It's either there or it's not.");
+        }
+
         /// <summary>
         /// Gets or sets the <see cref="Message"/> that should be displayed if values are provided for this <see cref="FlagParameter"/>.
         /// </summary>

@@ -97,6 +97,8 @@ namespace CommandLineParsing
             get { return required; }
         }
 
+        internal abstract void prompt(string promptMessage);
+
         /// <summary>
         /// Gets a value indicating whether this <see cref="Parameter"/> has been used when executing its containing <see cref="Command"/>.
         /// If <c>false</c> any value contained by the <see cref="Parameter"/> is considered its default value.
