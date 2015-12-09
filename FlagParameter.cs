@@ -14,7 +14,7 @@ namespace CommandLineParsing
         private Message hasValueMessage;
 
         internal FlagParameter(string name, string[] alternatives, string description)
-            : base(name, alternatives, description, Message.NoError)
+            : base(name, alternatives, description, null, Message.NoError)
         {
             if (this.IsRequired)
                 throw new ArgumentException("A FlagParameter cannot be required.", "required");

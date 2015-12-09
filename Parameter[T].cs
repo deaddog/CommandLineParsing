@@ -26,8 +26,8 @@ namespace CommandLineParsing
                 return $@"The ""{input}"" argument for the parameter ""{Name}"", could not be parsed to a value of type {typeof(T).Name}.";
         }
 
-        internal Parameter(string name, string[] alternatives, string description, Message required, bool enumIgnore)
-            : base(name, alternatives, description, required)
+        internal Parameter(string name, string[] alternatives, string description, RequirementType? requirementType, Message required, bool enumIgnore)
+            : base(name, alternatives, description, requirementType, required)
         {
             this.value = default(T);
             if (typeof(T).IsArray)
