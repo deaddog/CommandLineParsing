@@ -58,7 +58,13 @@ namespace CommandLineParsing
         /// </value>
         public virtual T Value
         {
-            get { return value; }
+            get
+            {
+                if (!IsSet && RequirementType == CommandLineParsing.RequirementType.PromptWhenUsed)
+                    Prompt(RequiredMessage.GetMessage());
+
+                return value;
+            }
             set { this.value = value; }
         }
         /// <summary>
