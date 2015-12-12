@@ -35,9 +35,19 @@ namespace CommandLineParsing
             this.requirementType = requirementType;
         }
 
-        internal static Message defaultMessage(string name)
+        internal static Message defaultMessage(string name, RequirementType requirementType)
         {
-            return "No value specified for the required parameter \"" + name + "\"";
+            switch (requirementType)
+            {
+                case RequirementType.Error:
+                    return $"No value specified for the required parameter \"{name}\"";
+                case RequirementType.Prompt:
+                case RequirementType.PromptWhenUsed:
+                    return $"Specify a value for the \"{name}\" parameter: ";
+
+                default:
+                    throw new ArgumentException($"Invalid {nameof(RequirementType)} value.", nameof(requirementType));
+            }
         }
     }
 }

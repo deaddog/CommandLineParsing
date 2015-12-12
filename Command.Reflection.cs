@@ -68,8 +68,8 @@ namespace CommandLineParsing
                 string name = nonAtt != null ? null : (nameAtt?.name ?? $"--{f.Name}");
                 string[] alternatives = nameAtt?.alternatives ?? new string[0];
                 string description = descAtt?.description ?? string.Empty;
-                Message required = reqAtt == null ? Message.NoError : (reqAtt.message ?? Required.defaultMessage(name));
                 RequirementType? requirementType = reqAtt?.requirementType;
+                Message required = reqAtt == null ? Message.NoError : (reqAtt.message ?? Required.defaultMessage(name, reqAtt.requirementType));
                 bool ignore = ignAtt != null;
                 object defaultValue = defAtt?.value;
 
