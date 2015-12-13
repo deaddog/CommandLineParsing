@@ -75,7 +75,20 @@ namespace CommandLineParsing
         /// <param name="promptMessage">The prompt message.</param>
         public void Prompt(string promptMessage)
         {
-            T temp = ColorConsole.ReadLine<T>(parser, promptMessage, validator: validator);
+            T temp = default(T);
+            if (typeof(T).IsEnum)
+            {
+                ColorConsole.Write(promptMessage);
+                var left = Console.CursorLeft;
+                Console.WriteLine();
+
+                temp = ColorConsole.MenuSelectEnum<T>(new MenuSettings() { Cleanup = MenuCleanup.RemoveMenu });
+
+                Console.SetCursorPosition(left, Console.CursorTop - 1);
+                Console.WriteLine(temp);
+            }
+            else
+                temp = ColorConsole.ReadLine<T>(parser, promptMessage, validator: validator);
             IsSet = true;
             value = temp;
             doCallback();
