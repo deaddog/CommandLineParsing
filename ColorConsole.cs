@@ -640,6 +640,11 @@ namespace CommandLineParsing
 
             if (allowflags)
             {
+                if (settings == null)
+                    settings = new MenuSettings() { MinimumSelected = 1 };
+                if (settings.MinimumSelected == 0)
+                    settings = new MenuSettings(settings) { MinimumSelected = 1 };
+
                 var selection = values.MenuSelectMultiple(settings);
 
                 dynamic agg = selection[0];
