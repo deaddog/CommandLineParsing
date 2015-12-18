@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace CommandLineParsing
@@ -8,7 +7,7 @@ namespace CommandLineParsing
     /// Defines a collection of validation methods, that can be applied to data of the specified type <typeparamref name="T"/>.
     /// </summary>
     /// <typeparam name="T">The type of elements validated by the <see cref="Validator{T}"/>.</typeparam>
-    public class Validator<T> : IEnumerable<Func<T, Message>>
+    public class Validator<T>
     {
         private List<Func<T, Message>> validators;
 
@@ -76,17 +75,6 @@ namespace CommandLineParsing
             }
 
             return Message.NoError;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            foreach (var v in validators)
-                yield return v;
-        }
-        IEnumerator<Func<T, Message>> IEnumerable<Func<T, Message>>.GetEnumerator()
-        {
-            foreach (var v in validators)
-                yield return v;
         }
     }
 }

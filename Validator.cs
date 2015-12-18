@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace CommandLineParsing
@@ -7,7 +6,7 @@ namespace CommandLineParsing
     /// <summary>
     /// Defines a collection of validation methods.
     /// </summary>
-    public class Validator : IEnumerable<Func<Message>>
+    public class Validator
     {
         private List<Func<Message>> validators;
 
@@ -31,7 +30,7 @@ namespace CommandLineParsing
 
             this.validators.Add(validator);
         }
-        
+
         /// <summary>
         /// Provides a validation method for the <see cref="Validator"/>.
         /// </summary>
@@ -106,17 +105,6 @@ namespace CommandLineParsing
             }
 
             return Message.NoError;
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            foreach (var v in validators)
-                yield return v;
-        }
-        IEnumerator<Func<Message>> IEnumerable<Func<Message>>.GetEnumerator()
-        {
-            foreach (var v in validators)
-                yield return v;
         }
     }
 }
