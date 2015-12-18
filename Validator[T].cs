@@ -9,6 +9,8 @@ namespace CommandLineParsing
     /// <typeparam name="T">The type of elements validated by the <see cref="Validator{T}"/>.</typeparam>
     public class Validator<T>
     {
+        private EnsureCollection ensure;
+        private FailureCollection fail;
         private List<Func<T, Message>> validators;
 
         /// <summary>
@@ -17,6 +19,9 @@ namespace CommandLineParsing
         public Validator()
         {
             this.validators = new List<Func<T, Message>>();
+
+            this.ensure = new EnsureCollection(this);
+            this.fail = new FailureCollection(this);
         }
 
         /// <summary>
@@ -75,6 +80,54 @@ namespace CommandLineParsing
             }
 
             return Message.NoError;
+        }
+
+        /// <summary>
+        /// Gets an <see cref="EnsureCollection"/> that provides methods to ensure that certain conditions are met.
+        /// </summary>
+        public EnsureCollection Ensure => ensure;
+        /// <summary>
+        /// Gets a <see cref="FailureCollection"/> that provides methods to ensure that certain conditions are not met.
+        /// </summary>
+        public FailureCollection Fail => fail;
+
+        /// <summary>
+        /// Provides methods for describing validation methods that ensure conditions are true.
+        /// </summary>
+        public class EnsureCollection
+        {
+            private Validator<T> parent;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Validator{T}.EnsureCollection" /> class.
+            /// </summary>
+            /// <param name="validator">The <see cref="Validator{T}"/> to which this <see cref="Validator{T}.EnsureCollection"/> should add validation methods.</param>
+            public EnsureCollection(Validator<T> validator)
+            {
+                if (validator == null)
+                    throw new ArgumentNullException(nameof(validator));
+
+                this.parent = validator;
+            }
+        }
+        /// <summary>
+        /// Provides methods for describing validation methods that should cause validation to fail if true.
+        /// </summary>
+        public class FailureCollection
+        {
+            private Validator<T> parent;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Validator{T}.FailureCollection" /> class.
+            /// </summary>
+            /// <param name="validator">The <see cref="Validator{T}"/> to which this <see cref="Validator{T}.FailureCollection"/> should add validation methods.</param>
+            public FailureCollection(Validator<T> validator)
+            {
+                if (validator == null)
+                    throw new ArgumentNullException(nameof(validator));
+
+                this.parent = validator;
+            }
         }
     }
 }
