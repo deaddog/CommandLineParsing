@@ -56,16 +56,6 @@ namespace CommandLineParsing
             Add(x => validator(x) ? Message.NoError : errorMessage);
         }
         /// <summary>
-        /// Provides a validation method for the <see cref="Validator{T}"/>.
-        /// Errors in validation return a generic error message.
-        /// </summary>
-        /// <param name="validator">A function that takes the parsed value as input and returns <c>true</c> if the value is valid; otherwise is must return <c>false</c>.</param>
-        public void Add(Func<T, bool> validator)
-        {
-            Add(x => validator(x) ? Message.NoError : $"Invalid value '{x}'.");
-        }
-
-        /// <summary>
         /// Validates <paramref name="value"/> using the validation methods stored in this <see cref="Validator{T}"/>.
         /// </summary>
         /// <param name="value">The value to validate.</param>
