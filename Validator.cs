@@ -138,6 +138,13 @@ namespace CommandLineParsing
             /// <param name="errorMessage">The error message to return if <paramref name="condition"/> evaluates to <c>false</c>.</param>
             public void That(Func<bool> condition, Message errorMessage)
             {
+                if (condition == null)
+                    throw new ArgumentNullException(nameof(condition));
+                if (errorMessage == null)
+                    throw new ArgumentNullException(nameof(errorMessage));
+                if (!errorMessage.IsError)
+                    throw new ArgumentException($"Error message cannot be {nameof(Message.NoError)}.", nameof(errorMessage));
+
                 parent.Add(() => condition() ? Message.NoError : errorMessage);
             }
         }
@@ -168,6 +175,13 @@ namespace CommandLineParsing
             /// <param name="errorMessage">The error message to return if <paramref name="condition"/> evaluates to <c>true</c>.</param>
             public void If(Func<bool> condition, Message errorMessage)
             {
+                if (condition == null)
+                    throw new ArgumentNullException(nameof(condition));
+                if (errorMessage == null)
+                    throw new ArgumentNullException(nameof(errorMessage));
+                if (!errorMessage.IsError)
+                    throw new ArgumentException($"Error message cannot be {nameof(Message.NoError)}.", nameof(errorMessage));
+
                 parent.Add(() => condition() ? errorMessage : Message.NoError);
             }
         }
