@@ -26,7 +26,7 @@ namespace CommandLineParsing
         /// <summary>
         /// Provides a validation method for this <see cref="Validator"/>.
         /// </summary>
-        /// <param name="validator">A function that validates state and returns a <see cref="Message"/>.
+        /// <param name="validator">A function that performs some validation and returns a <see cref="Message"/> with the result.
         /// If the validation was successful <see cref="Message.NoError"/> should be returned by the method; otherwise an appropriate <see cref="Message"/> should be returned.</param>
         public void Add(Func<Message> validator)
         {
@@ -34,16 +34,6 @@ namespace CommandLineParsing
                 throw new ArgumentNullException("validator");
 
             this.validators.Add(validator);
-        }
-
-        /// <summary>
-        /// Provides a validation method for the <see cref="Validator"/>.
-        /// </summary>
-        /// <param name="validator">A function that takes state and returns <c>true</c> if the state was valid; otherwise is must return <c>false</c>.</param>
-        /// <param name="errorMessage">The error message that should be the validation result if <paramref name="validator"/> returns <c>false</c>.</param>
-        public void Add(Func<bool> validator, Message errorMessage)
-        {
-            Add(() => validator() ? Message.NoError : errorMessage);
         }
 
         /// <summary>
@@ -139,6 +129,17 @@ namespace CommandLineParsing
 
                 this.parent = validator;
             }
+
+            /// <summary>
+            /// Ensures that a certain condition is met before continuing the validation.
+            /// If it isn't <paramref name="errorMessage"/> is returned when validating.
+            /// </summary>
+            /// <param name="condition">The condition (expressed as a function) that should evaluate to <c>true</c> to pass validation.</param>
+            /// <param name="errorMessage">The error message to return if <paramref name="condition"/> evaluates to <c>false</c>.</param>
+            public void That(Func<bool> condition, Message errorMessage)
+            {
+                parent.Add(() => condition() ? Message.NoError : errorMessage);
+            }
         }
         /// <summary>
         /// Provides methods for describing validation methods that should cause validation to fail if true.
@@ -157,6 +158,17 @@ namespace CommandLineParsing
                     throw new ArgumentNullException(nameof(validator));
 
                 this.parent = validator;
+            }
+
+            /// <summary>
+            /// Tests if a failure condition (expressed as a function) is <c>true</c>.
+            /// If so, validation fails and returns <paramref name="errorMessage"/>.
+            /// </summary>
+            /// <param name="condition">The condition (expressed as a function) that should evaluate to <c>false</c> to pass validation.</param>
+            /// <param name="errorMessage">The error message to return if <paramref name="condition"/> evaluates to <c>true</c>.</param>
+            public void If(Func<bool> condition, Message errorMessage)
+            {
+                parent.Add(() => condition() ? errorMessage : Message.NoError);
             }
         }
     }
