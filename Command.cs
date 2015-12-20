@@ -17,7 +17,7 @@ namespace CommandLineParsing
         private CommandCollection subcommands;
         private ParameterCollection parameters;
 
-        private Validator preValid, postValid;
+        private CommandValidator preValid, postValid;
 
         private string description;
 
@@ -29,8 +29,8 @@ namespace CommandLineParsing
             this.subcommands = new CommandCollection(this);
             this.parameters = new ParameterCollection();
 
-            this.preValid = new Validator();
-            this.postValid = new Validator();
+            this.preValid = new CommandValidator();
+            this.postValid = new CommandValidator();
 
             this.description = this.GetType().GetCustomAttribute<Description>()?.description ?? string.Empty;
 
@@ -156,7 +156,7 @@ namespace CommandLineParsing
         /// Gets the <see cref="CommandLineParsing.Validator"/> that handles validation for this <see cref="Command"/>.
         /// This validation is executed before handling arguments.
         /// </summary>
-        public Validator PreValidator
+        public CommandValidator PreValidator
         {
             get { return preValid; }
         }
@@ -164,7 +164,7 @@ namespace CommandLineParsing
         /// Gets the <see cref="CommandLineParsing.Validator"/> that handles validation for this <see cref="Command"/>.
         /// This validation is executed after handling arguments.
         /// </summary>
-        public Validator Validator
+        public CommandValidator Validator
         {
             get { return postValid; }
         }
