@@ -38,24 +38,6 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Provides a validation method for this <see cref="Validator{T}"/>.
-        /// </summary>
-        /// <param name="validator">A function that takes the parsed value as input and returns <c>true</c> if the value is valid; otherwise is must return <c>false</c>.</param>
-        /// <param name="errorMessage">A function that generates the error message that should be the validation result if <paramref name="validator"/> returns <c>false</c>.</param>
-        public void Add(Func<T, bool> validator, Func<T, Message> errorMessage)
-        {
-            Add(x => validator(x) ? Message.NoError : errorMessage(x));
-        }
-        /// <summary>
-        /// Provides a validation method for the <see cref="Validator{T}"/>.
-        /// </summary>
-        /// <param name="validator">A function that takes the parsed value as input and returns <c>true</c> if the value is valid; otherwise is must return <c>false</c>.</param>
-        /// <param name="errorMessage">The error message that should be the validation result if <paramref name="validator"/> returns <c>false</c>.</param>
-        public void Add(Func<T, bool> validator, Message errorMessage)
-        {
-            Add(x => validator(x) ? Message.NoError : errorMessage);
-        }
-        /// <summary>
         /// Validates <paramref name="value"/> using the validation methods stored in this <see cref="Validator{T}"/>.
         /// </summary>
         /// <param name="value">The value to validate.</param>
@@ -99,6 +81,27 @@ namespace CommandLineParsing
 
                 this.parent = validator;
             }
+
+            /// <summary>
+            /// Ensures that a certain condition is met, given a value of type <typeparamref name="T"/>.
+            /// If it isn't <paramref name="errorMessage"/> is returned when validating.
+            /// </summary>
+            /// <param name="condition">A function that takes the parsed value as input and returns <c>true</c> if the value is valid; otherwise is must return <c>false</c>.</param>
+            /// <param name="errorMessage">A function that generates the error message to return if <paramref name="condition"/> evaluates to <c>false</c>.</param>
+            public void That(Func<T, bool> condition, Func<T, Message> errorMessage)
+            {
+                parent.Add(x => condition(x) ? Message.NoError : errorMessage(x));
+            }
+            /// <summary>
+            /// Ensures that a certain condition is met, given a value of type <typeparamref name="T"/>.
+            /// If it isn't <paramref name="errorMessage"/> is returned when validating.
+            /// </summary>
+            /// <param name="condition">A function that takes the parsed value as input and returns <c>true</c> if the value is valid; otherwise is must return <c>false</c>.</param>
+            /// <param name="errorMessage">The error message to return if <paramref name="condition"/> evaluates to <c>false</c>.</param>
+            public void That(Func<T, bool> condition, Message errorMessage)
+            {
+                parent.Add(x => condition(x) ? Message.NoError : errorMessage);
+            }
         }
         /// <summary>
         /// Provides methods for describing validation methods that should cause validation to fail if true.
@@ -117,6 +120,27 @@ namespace CommandLineParsing
                     throw new ArgumentNullException(nameof(validator));
 
                 this.parent = validator;
+            }
+
+            /// <summary>
+            /// Tests if a failure condition is <c>true</c>, given a value of type <typeparamref name="T"/>.
+            /// If so, validation fails and returns <paramref name="errorMessage"/>.
+            /// </summary>
+            /// <param name="condition">A function that takes the parsed value as input and returns <c>true</c> if the value is invalid; otherwise is must return <c>false</c>.</param>
+            /// <param name="errorMessage">A function that generates the error message to return if <paramref name="condition"/> evaluates to <c>true</c>.</param>
+            public void If(Func<T, bool> condition, Func<T, Message> errorMessage)
+            {
+                parent.Add(x => condition(x) ? errorMessage(x) : Message.NoError);
+            }
+            /// <summary>
+            /// Tests if a failure condition is <c>true</c>, given a value of type <typeparamref name="T"/>.
+            /// If so, validation fails and returns <paramref name="errorMessage"/>.
+            /// </summary>
+            /// <param name="condition">A function that takes the parsed value as input and returns <c>true</c> if the value is invalid; otherwise is must return <c>false</c>.</param>
+            /// <param name="errorMessage">The error message to return if <paramref name="condition"/> evaluates to <c>true</c>.</param>
+            public void If(Func<T, bool> condition, Message errorMessage)
+            {
+                parent.Add(x => condition(x) ? errorMessage : Message.NoError);
             }
         }
     }
