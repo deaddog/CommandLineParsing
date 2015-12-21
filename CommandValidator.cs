@@ -1,4 +1,6 @@
-﻿namespace CommandLineParsing
+﻿using System;
+
+namespace CommandLineParsing
 {
     /// <summary>
     /// Extends the <see cref="Validator"/> class with a set of validation methods for handling combinations of parameters.
@@ -62,6 +64,31 @@
                                     first.Name, first is FlagParameter ? "flag" : "parameter",
                                     parameters[i].Name, parameters[i] is FlagParameter ? "flag" : "parameter");
                         }
+
+                    return Message.NoError;
+                });
+            }
+
+            /// <summary>
+            /// Validates that if <paramref name="first"/> is set, none of <paramref name="parameters"/> are set.
+            /// </summary>
+            /// <param name="first">The first <see cref="Parameter"/>. If this is set, none of the remaining parameters can be set.</param>
+            /// <param name="parameters">The <see cref="Parameter"/>s to check, if <paramref name="first"/> is set.</param>
+            public void IfFirstNotRest(Parameter first, params Parameter[] parameters)
+            {
+                if (first == null)
+                    throw new ArgumentNullException(nameof(first));
+
+                Add(() =>
+                {
+                    if (!first.IsSet)
+                        return Message.NoError;
+
+                    for (int i = 0; i < parameters.Length; i++)
+                        if (parameters[i].IsSet)
+                            return string.Format("The {0} {1} cannot be used with the {2} {3}.",
+                                first.Name, first is FlagParameter ? "flag" : "parameter",
+                                parameters[i].Name, parameters[i] is FlagParameter ? "flag" : "parameter");
 
                     return Message.NoError;
                 });
