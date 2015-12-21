@@ -46,6 +46,7 @@
     <Compile Include="Command.cs" />
     <Compile Include="Command.Reflection.cs" />
     <Compile Include="CommandExecutor.cs" />
+    <Compile Include="CommandValidator.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationGroup.cs" />
     <Compile Include="Default.cs" />
