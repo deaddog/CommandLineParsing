@@ -137,20 +137,15 @@ namespace CommandLineParsing
         /// <summary>
         /// Provides methods for describing validation methods that ensure conditions are true.
         /// </summary>
-        public class EnsureCollection
+        public class EnsureCollection : ValidationAdder
         {
-            private Validator parent;
-
             /// <summary>
             /// Initializes a new instance of the <see cref="EnsureCollection" /> class.
             /// </summary>
             /// <param name="validator">The <see cref="Validator"/> to which this <see cref="EnsureCollection"/> should add validation methods.</param>
             public EnsureCollection(Validator validator)
+                : base(validator)
             {
-                if (validator == null)
-                    throw new ArgumentNullException(nameof(validator));
-
-                this.parent = validator;
             }
 
             /// <summary>
@@ -168,26 +163,21 @@ namespace CommandLineParsing
                 if (!errorMessage.IsError)
                     throw new ArgumentException($"Error message cannot be {nameof(Message.NoError)}.", nameof(errorMessage));
 
-                parent.Add(() => condition() ? Message.NoError : errorMessage);
+                Add(() => condition() ? Message.NoError : errorMessage);
             }
         }
         /// <summary>
         /// Provides methods for describing validation methods that should cause validation to fail if true.
         /// </summary>
-        public class FailureCollection
+        public class FailureCollection : ValidationAdder
         {
-            private Validator parent;
-
             /// <summary>
             /// Initializes a new instance of the <see cref="FailureCollection" /> class.
             /// </summary>
             /// <param name="validator">The <see cref="Validator"/> to which this <see cref="FailureCollection"/> should add validation methods.</param>
             public FailureCollection(Validator validator)
+                : base(validator)
             {
-                if (validator == null)
-                    throw new ArgumentNullException(nameof(validator));
-
-                this.parent = validator;
             }
 
             /// <summary>
@@ -205,7 +195,7 @@ namespace CommandLineParsing
                 if (!errorMessage.IsError)
                     throw new ArgumentException($"Error message cannot be {nameof(Message.NoError)}.", nameof(errorMessage));
 
-                parent.Add(() => condition() ? errorMessage : Message.NoError);
+                Add(() => condition() ? errorMessage : Message.NoError);
             }
         }
     }
