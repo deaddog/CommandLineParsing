@@ -112,6 +112,29 @@ namespace CommandLineParsing
         public FailureCollection Fail => fail;
 
         /// <summary>
+        /// Provides a convenient way to define complex validation methods for a <see cref="Validator"/> object.
+        /// </summary>
+        public class ValidationAdder
+        {
+            /// <summary>
+            /// A method that adds validation methods to the <see cref="Validator"/> that this <see cref="ValidationAdder"/> is associated with.
+            /// </summary>
+            protected readonly Action<Func<Message>> Add;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="ValidationAdder" /> class.
+            /// </summary>
+            /// <param name="validator">The <see cref="Validator"/> to which this <see cref="ValidationAdder"/> should add validation methods.</param>
+            public ValidationAdder(Validator validator)
+            {
+                if (validator == null)
+                    throw new ArgumentNullException(nameof(validator));
+
+                this.Add = validator.Add;
+            }
+        }
+
+        /// <summary>
         /// Provides methods for describing validation methods that ensure conditions are true.
         /// </summary>
         public class EnsureCollection
