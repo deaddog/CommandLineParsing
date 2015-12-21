@@ -40,6 +40,32 @@
                 : base(validator)
             {
             }
+
+            /// <summary>
+            /// Validates that at most one of <paramref name="parameters"/> is set.
+            /// </summary>
+            /// <param name="parameters">The collection of parameters to check.</param>
+            /// <returns><see cref="Message.NoError"/> if zero or one <see cref="Parameter"/> is set; otherwise an error message describing the problem.</returns>
+            public void ZeroOrOne(params Parameter[] parameters)
+            {
+                Add(() =>
+                {
+                    Parameter first = null;
+
+                    for (int i = 0; i < parameters.Length; i++)
+                        if (parameters[i].IsSet)
+                        {
+                            if (first == null)
+                                first = parameters[i];
+                            else
+                                return string.Format("The {0} {1} cannot be used with the {2} {3}.",
+                                    first.Name, first is FlagParameter ? "flag" : "parameter",
+                                    parameters[i].Name, parameters[i] is FlagParameter ? "flag" : "parameter");
+                        }
+
+                    return Message.NoError;
+                });
+            }
         }
 
         /// <summary>
