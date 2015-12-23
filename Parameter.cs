@@ -17,6 +17,7 @@ namespace CommandLineParsing
         private string[] alternatives;
         private string description;
 
+        private RequirementType? requirementType;
         private Message required;
         private bool isset;
 
@@ -25,7 +26,7 @@ namespace CommandLineParsing
 
 #pragma warning restore
 
-        internal Parameter(string name, string[] alternatives, string description, Message required)
+        internal Parameter(string name, string[] alternatives, string description, RequirementType? requirementType, Message required)
         {
             if (name != null && !RegexLookup.ParameterName.IsMatch(name))
                 throw new ArgumentException("Parameter name \"" + name + "\" is illformed.", "name");
@@ -36,8 +37,10 @@ namespace CommandLineParsing
                 if (!RegexLookup.ParameterName.IsMatch(n))
                     throw new ArgumentException("Parameter name \"" + n + "\" is illformed.", "alternatives");
             }
+
             this.alternatives = alternatives;
             this.description = description;
+            this.requirementType = requirementType;
             this.required = required;
             this.isset = false;
         }
@@ -88,10 +91,13 @@ namespace CommandLineParsing
         {
             get { return required.IsError; }
         }
+        internal RequirementType? RequirementType => requirementType;
         internal Message RequiredMessage
         {
             get { return required; }
         }
+
+        internal abstract void prompt(string promptMessage);
 
         /// <summary>
         /// Gets a value indicating whether this <see cref="Parameter"/> has been used when executing its containing <see cref="Command"/>.

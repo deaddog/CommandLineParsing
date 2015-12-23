@@ -14,12 +14,14 @@ namespace CommandLineParsing
         private Message hasValueMessage;
 
         internal FlagParameter(string name, string[] alternatives, string description)
-            : base(name, alternatives, description, Message.NoError)
+            : base(name, alternatives, description, null, Message.NoError)
         {
-            if (this.IsRequired)
-                throw new ArgumentException("A FlagParameter cannot be required.", "required");
-
             hasValueMessage = name + " is a flag argument, it does not support values.";
+        }
+
+        internal override void prompt(string promptMessage)
+        {
+            throw new InvalidOperationException($"{nameof(FlagParameter)} does not support prompting. It's either there or it's not.");
         }
 
         /// <summary>

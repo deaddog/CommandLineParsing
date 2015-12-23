@@ -104,9 +104,12 @@ namespace CommandLineParsing
                 first = false;
             }
 
-            msg = command.Parameters.FirstOrDefault(x => !x.IsSet && x.IsRequired)?.RequiredMessage ?? Message.NoError;
+            msg = command.Parameters.FirstOrDefault(x => !x.IsSet && x.RequirementType == RequirementType.Error)?.RequiredMessage ?? Message.NoError;
             if (msg.IsError)
                 return msg;
+
+            foreach (var p in command.Parameters.Where(x => !x.IsSet && x.RequirementType == RequirementType.Prompt))
+                p.prompt(p.RequiredMessage.GetMessage());
 
             string[] nonameArgs = arguments.PopSkipped();
             if (nonameArgs.Length > 0)

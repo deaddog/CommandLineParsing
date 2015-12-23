@@ -26,8 +26,8 @@ namespace CommandLineParsing
                 return $@"The ""{input}"" argument for the parameter ""{Name}"", could not be parsed to a value of type {typeof(T).Name}.";
         }
 
-        internal Parameter(string name, string[] alternatives, string description, Message required, bool enumIgnore)
-            : base(name, alternatives, description, required)
+        internal Parameter(string name, string[] alternatives, string description, RequirementType? requirementType, Message required, bool enumIgnore)
+            : base(name, alternatives, description, requirementType, required)
         {
             this.value = default(T);
             if (typeof(T).IsArray)
@@ -58,8 +58,44 @@ namespace CommandLineParsing
         /// </value>
         public virtual T Value
         {
-            get { return value; }
+            get
+            {
+                if (!IsSet && RequirementType == CommandLineParsing.RequirementType.PromptWhenUsed)
+                    Prompt(RequiredMessage.GetMessage());
+
+                return value;
+            }
             set { this.value = value; }
+        }
+        /// <summary>
+        /// Prompts the user for a value for the parameter using the specified prompt message.
+        /// The method only returns when the user has provided a new value that can be validated using <see cref="Validator"/>.
+        /// Existing value (if any) will be overwritten.
+        /// </summary>
+        /// <param name="promptMessage">The prompt message.</param>
+        public void Prompt(string promptMessage)
+        {
+            T temp = default(T);
+            if (typeof(T).IsEnum)
+            {
+                ColorConsole.Write(promptMessage);
+                var left = Console.CursorLeft;
+                Console.WriteLine();
+
+                temp = ColorConsole.MenuSelectEnum<T>(new MenuSettings() { Cleanup = MenuCleanup.RemoveMenu });
+
+                Console.SetCursorPosition(left, Console.CursorTop - 1);
+                Console.WriteLine(temp);
+            }
+            else
+                temp = ColorConsole.ReadLine<T>(parser, promptMessage, validator: validator);
+            IsSet = true;
+            value = temp;
+            doCallback();
+        }
+        internal override void prompt(string promptMessage)
+        {
+            Prompt(promptMessage);
         }
 
         /// <summary>

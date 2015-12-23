@@ -68,7 +68,8 @@ namespace CommandLineParsing
                 string name = nonAtt != null ? null : (nameAtt?.name ?? $"--{f.Name}");
                 string[] alternatives = nameAtt?.alternatives ?? new string[0];
                 string description = descAtt?.description ?? string.Empty;
-                Message required = reqAtt == null ? Message.NoError : (reqAtt.message ?? Required.defaultMessage(name));
+                RequirementType? requirementType = reqAtt?.requirementType;
+                Message required = reqAtt == null ? Message.NoError : (reqAtt.message ?? Required.defaultMessage(name, reqAtt.requirementType));
                 bool ignore = ignAtt != null;
                 object defaultValue = defAtt?.value;
 
@@ -76,7 +77,7 @@ namespace CommandLineParsing
                 if (isFlag)
                     par = new FlagParameter(name, alternatives, description);
                 else if (f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>))
-                    par = constructParameter(paramType, name, alternatives, description, required, ignore);
+                    par = constructParameter(paramType, name, alternatives, description, requirementType, required, ignore);
                 else
                     throw new InvalidOperationException($"Unknown parameter type: {f.FieldType}");
 
@@ -88,13 +89,13 @@ namespace CommandLineParsing
             }
         }
 
-        private Parameter constructParameter(Type type, string name, string[] alternatives, string description, Message required, bool enumIgnore)
+        private Parameter constructParameter(Type type, string name, string[] alternatives, string description, RequirementType? requirementType, Message required, bool enumIgnore)
         {
             Type paramType = typeof(Parameter<>).MakeGenericType(type);
 
             var ctr = paramType.GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0];
 
-            return (Parameter)ctr.Invoke(new object[] { name, alternatives, description, required, enumIgnore });
+            return (Parameter)ctr.Invoke(new object[] { name, alternatives, description, requirementType, required, enumIgnore });
         }
 
         private FieldInfo[] getParameterFields()

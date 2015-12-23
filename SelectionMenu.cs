@@ -92,8 +92,12 @@ namespace CommandLineParsing
                     ColorConsole.WriteLine($"{settings.Indentation}  {prefix}: {options[i].Text}");
             }
 
-            ColorConsole.WriteLine(settings.Indentation + "  0: " + doneText);
+            int selectionCount = options.Count(x => x.selected);
 
+            if (countInRange(selectionCount, settings))
+                ColorConsole.WriteLine(settings.Indentation + "  0: " + doneText);
+            else
+                ColorConsole.WriteLine("");
 
             int finalPosition = Console.CursorTop;
             Console.SetCursorPosition(indentW, cursorPosition);
@@ -121,6 +125,10 @@ namespace CommandLineParsing
                             nextPos = lastPos;
                         else if (nextPos > lastPos)
                             nextPos = zeroPosition;
+
+                        if (nextPos == lastPos && !countInRange(selectionCount, settings))
+                            nextPos = key.Key == ConsoleKey.DownArrow ? 0 : (nextPos - 1);
+
                         Console.SetCursorPosition(indentW, cursorPosition);
                         Console.Write(' ');
                         Console.SetCursorPosition(indentW, nextPos);
@@ -134,11 +142,32 @@ namespace CommandLineParsing
                 }
 
                 if (selected == options.Count)
-                    break;
+                {
+                    if (countInRange(selectionCount, settings))
+                        break;
+                    else
+                        continue;
+                }
 
                 options[selected].selected = !options[selected].selected;
                 Console.SetCursorPosition(indentW + 5, zeroPosition + selected);
                 ColorConsole.Write(options[selected].Text);
+
+                var newcount = selectionCount + (options[selected].selected ? 1 : -1);
+                var isVisible = countInRange(selectionCount, settings);
+                var beVisible = countInRange(newcount, settings);
+                selectionCount = newcount;
+
+                if (isVisible && !beVisible)
+                {
+                    Console.SetCursorPosition(0, finalPosition - 1);
+                    Console.WriteLine(new string(' ', settings.Indentation.Length + 5 + ColorConsole.ClearColors(doneText).Length));
+                }
+                else if (!isVisible && beVisible)
+                {
+                    Console.SetCursorPosition(0, finalPosition - 1);
+                    ColorConsole.WriteLine(settings.Indentation + "  0: " + doneText);
+                }
             }
 
             if (settings.Cleanup == MenuCleanup.RemoveMenu || settings.Cleanup == MenuCleanup.RemoveMenuShowChoice)
@@ -161,6 +190,11 @@ namespace CommandLineParsing
                         ColorConsole.WriteLine($"Selected {prefixFromIndex(i, settings.Labeling)}: {options[i].Text}");
 
             return options.Where(o => o.selected).ToArray();
+        }
+
+        private static bool countInRange(int count, MenuSettings settings)
+        {
+            return count >= settings.MinimumSelected && count <= settings.MaximumSelected;
         }
 
         private char prefixFromIndex(int index, MenuLabeling labeling)
