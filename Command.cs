@@ -56,16 +56,18 @@ namespace CommandLineParsing
         /// <param name="prefix">A string that is printed as part of the prompt, simulating a call to the application.</param>
         /// <param name="exit">A keyword that should end the read-evaluate-print-loop.</param>
         /// <param name="help">A string that identifies a keyword that can be used to display the help message for any command/subcommand when executing this <see cref="Command"/>.</param>
-        public static void SimulateREPL(Func<Command> command, string prefix, string exit, string help = null)
+        public static void SimulateREPL(Func<Command> command, string prefix = null, string exit = null, string help = null)
         {
             prefix = prefix?.Trim() ?? string.Empty;
-            if (prefix == string.Empty) prefix = System.Reflection.Assembly.GetExecutingAssembly().CodeBase;
+            if (prefix == string.Empty)
+            {
+                prefix = System.Reflection.Assembly.GetEntryAssembly().CodeBase;
+                prefix = System.IO.Path.GetFileName(prefix);
+                prefix = System.IO.Path.ChangeExtension(prefix, null);
+            }
             if (prefix.Length > 0) prefix += " ";
-
-            if (exit == null)
-                throw new ArgumentNullException(nameof(exit));
-
-            exit = exit.Trim();
+            
+            exit = exit?.Trim() ?? "exit";
             if (exit.Length == 0)
                 throw new ArgumentException("To end the REPL an exit command must be supplied.", nameof(exit));
 
