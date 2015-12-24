@@ -6,7 +6,7 @@ namespace CommandLineParsing
     /// Represents a size (width, height) in the <see cref="Console"/>.
     /// This type can be used with the <see cref="ColorConsole"/>.
     /// </summary>
-    public struct ConsoleSize
+    public struct ConsoleSize : IEquatable<ConsoleSize>
     {
         private int width;
         private int height;
@@ -20,6 +20,63 @@ namespace CommandLineParsing
         {
             this.width = width;
             this.height = height;
+        }
+
+        /// <summary>
+        /// Determines if the two sizes are equal.
+        /// </summary>
+        /// <param name="s1">The first size to compare.</param>
+        /// <param name="s2">The second size to compare.</param>
+        /// <returns>
+        /// <c>true</c> if the two sizes are equal; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool operator ==(ConsoleSize s1, ConsoleSize s2) => s1.Equals(s2);
+        /// <summary>
+        /// Determines if the two sizes are not equal.
+        /// </summary>
+        /// <param name="s1">The first size to compare.</param>
+        /// <param name="s2">The second size to compare.</param>
+        /// <returns>
+        /// <c>true</c> if the two sizes are not equal; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool operator !=(ConsoleSize s1, ConsoleSize s2) => !s1.Equals(s2);
+        /// <summary>
+        /// Returns a hash code for this <see cref="ConsoleSize"/>.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this <see cref="ConsoleSize"/>, suitable for use in hashing algorithms and data structures like a hash table.
+        /// </returns>
+        public override int GetHashCode()
+        {
+            return width.GetHashCode() ^ height.GetHashCode();
+        }
+
+        /// <summary>
+        /// Determines whether the specified <see cref="object"/>, is equal to this <see cref="ConsoleSize"/>.
+        /// </summary>
+        /// <param name="obj">The <see cref="object"/> to compare with this <see cref="ConsoleSize"/>.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="object" /> is equal to this <see cref="ConsoleSize"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(obj, null))
+                return false;
+            else if (obj is ConsoleSize)
+                return Equals((ConsoleSize)obj);
+            else
+                return false;
+        }
+        /// <summary>
+        /// Determines whether the specified <see cref="ConsoleSize"/>, is equal to this <see cref="ConsoleSize"/>.
+        /// </summary>
+        /// <param name="other">The <see cref="ConsoleSize"/> to compare with this <see cref="ConsoleSize"/>.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified <see cref="ConsoleSize" /> is equal to this <see cref="ConsoleSize"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public bool Equals(ConsoleSize other)
+        {
+            return width == other.width && height == other.height;
         }
 
         /// <summary>
