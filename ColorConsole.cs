@@ -27,6 +27,39 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Gets or sets the position of the cursor within the buffer area.
+        /// </summary>
+        public static ConsolePoint CursorPosition
+        {
+            get { return new ConsolePoint(Console.CursorLeft, Console.CursorTop); }
+            set { Console.SetCursorPosition(value.Left, value.Top); }
+        }
+        /// <summary>
+        /// Gets or sets the position of the window area, relative to the screen buffer.
+        /// </summary>
+        public static ConsolePoint WindowPosition
+        {
+            get { return new ConsolePoint(Console.WindowLeft, Console.WindowTop); }
+            set { Console.SetWindowPosition(value.Left, value.Top); }
+        }
+        /// <summary>
+        /// Gets or sets the size of the console window.
+        /// </summary>
+        public static ConsoleSize WindowSize
+        {
+            get { return new ConsoleSize(Console.WindowWidth, Console.WindowHeight); }
+            set { Console.SetWindowSize(value.Width, value.Height); }
+        }
+        /// <summary>
+        /// Gets or sets the size of the buffer area.
+        /// </summary>
+        public static ConsoleSize BufferSize
+        {
+            get { return new ConsoleSize(Console.BufferWidth, Console.BufferHeight); }
+            set { Console.SetBufferSize(value.Width, value.Height); }
+        }
+
+        /// <summary>
         /// Writes the specified string value to the standard output stream.
         /// </summary>
         /// <param name="value">The string format to write, included color information.
