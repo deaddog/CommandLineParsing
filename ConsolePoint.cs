@@ -23,6 +23,25 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Adds a size to a point effectively "moving" the point.
+        /// </summary>
+        /// <param name="p">The <see cref="ConsolePoint"/> that should be moved.</param>
+        /// <param name="s">The <see cref="ConsoleSize"/> that the point should be moved.</param>
+        /// <returns>
+        /// The resulting, "moved", <see cref="ConsolePoint"/>.
+        /// </returns>
+        public static ConsolePoint operator +(ConsolePoint p, ConsoleSize s) => new ConsolePoint(p.left + s.Width, p.top + s.Height);
+        /// <summary>
+        /// Sutracts a size to a point effectively "moving" the point.
+        /// </summary>
+        /// <param name="p">The <see cref="ConsolePoint"/> that should be moved.</param>
+        /// <param name="s">The <see cref="ConsoleSize"/> that the point should be moved (negatively).</param>
+        /// <returns>
+        /// The resulting, "moved", <see cref="ConsolePoint"/>.
+        /// </returns>
+        public static ConsolePoint operator -(ConsolePoint p, ConsoleSize s) => new ConsolePoint(p.left - s.Width, p.top - s.Height);
+
+        /// <summary>
         /// Determines if the two points are equal.
         /// </summary>
         /// <param name="p1">The first point to compare.</param>

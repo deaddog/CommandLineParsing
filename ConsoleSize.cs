@@ -23,6 +23,25 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Sums two size into one.
+        /// </summary>
+        /// <param name="s1">The first <see cref="ConsoleSize"/>.</param>
+        /// <param name="s2">The second <see cref="ConsoleSize"/>.</param>
+        /// <returns>
+        /// The new <see cref="ConsoleSize"/>, which is the sum of the two.
+        /// </returns>
+        public static ConsoleSize operator +(ConsoleSize s1, ConsoleSize s2) => new ConsoleSize(s1.width + s2.width, s1.height + s2.height);
+        /// <summary>
+        /// Subtracts one sum from the other.
+        /// </summary>
+        /// <param name="s1">The first <see cref="ConsoleSize"/>.</param>
+        /// <param name="s2">The second <see cref="ConsoleSize"/>.</param>
+        /// <returns>
+        /// The new <see cref="ConsoleSize"/>, which is the result of subtracting <paramref name="s2"/>'s size from <paramref name="s1"/>.
+        /// </returns>
+        public static ConsoleSize operator -(ConsoleSize s1, ConsoleSize s2) => new ConsoleSize(s1.width - s2.width, s1.height - s2.height);
+
+        /// <summary>
         /// Determines if the two sizes are equal.
         /// </summary>
         /// <param name="s1">The first size to compare.</param>
