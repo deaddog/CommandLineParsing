@@ -8,6 +8,8 @@ namespace CommandLineParsing
     /// </summary>
     public class ConsoleCache
     {
+        #region Capture console cache
+
         internal class Builder
         {
             private static readonly char[] control = new char[] { '\n', '\t', '\r', '\b', '\a' };
@@ -112,12 +114,16 @@ namespace CommandLineParsing
             }
         }
 
+        #endregion
+
         private ConsoleLine[] lines;
 
         private ConsoleCache(ConsoleLine[] lines)
         {
             this.lines = lines;
         }
+
+        #region Write console cache
 
         private class LineWriter
         {
@@ -181,5 +187,7 @@ namespace CommandLineParsing
             public int Visible => visible.Count;
             public int Hidden => hidden.Count;
         }
+
+        #endregion
     }
 }
