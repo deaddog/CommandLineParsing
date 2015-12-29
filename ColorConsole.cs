@@ -50,14 +50,18 @@ namespace CommandLineParsing
             /// Ends caching.
             /// Anything that is printed when caching was enabled will be included in the resulting <see cref="ConsoleCache"/> object.
             /// </summary>
+            /// <param name="write">If <c>true</c>, the cached result is written to the console using the default parameters for <see cref="ConsoleCache.Write(string, Action{ConsoleKeyInfo, ConsoleCache.DisplayChange})"/>.
+            /// If <c>false</c>, nothing is written.</param>
             /// <returns>A <see cref="ConsoleCache"/> with all the lines that were captured by the caching.</returns>
-            public static ConsoleCache End()
+            public static ConsoleCache End(bool write = false)
             {
                 if (cacheBuilder == null)
                     throw new InvalidOperationException($"Caching must first be started, see {nameof(Start)}.");
 
                 var cache = cacheBuilder.ConstructCache();
                 cacheBuilder = null;
+                if (write)
+                    cache.Write();
 
                 return cache;
             }
