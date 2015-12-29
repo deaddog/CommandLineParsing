@@ -27,6 +27,14 @@ namespace CommandLineParsing
             this.BackgroundColor = background;
         }
 
+        public static Tuple<ConsoleSegment, ConsoleSegment> Split(ConsoleSegment segment, int lengthOfFirst)
+        {
+            var first = new ConsoleSegment(segment.Text.Substring(0, lengthOfFirst), segment.ForegroundColor, segment.BackgroundColor);
+            var second = new ConsoleSegment(segment.Text.Substring(lengthOfFirst), segment.ForegroundColor, segment.BackgroundColor);
+
+            return Tuple.Create(first, second);
+        }
+
         public override string ToString() => Text;
     }
 }
