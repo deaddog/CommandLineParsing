@@ -118,5 +118,68 @@ namespace CommandLineParsing
         {
             this.lines = lines;
         }
+
+        private class LineWriter
+        {
+            public readonly int FirstLine;
+            public int Offset => Console.CursorTop - FirstLine - Console.WindowHeight + 1;
+
+            private Stack<ConsoleLine> visible;
+            private Stack<ConsoleLine> hidden;
+
+            public LineWriter(ConsoleLine[] lines)
+            {
+                this.FirstLine = Console.CursorTop;
+
+                this.visible = new Stack<ConsoleLine>();
+                this.hidden = new Stack<ConsoleLine>();
+
+                for (int i = lines.Length - 1; i >= 0; i--)
+                    hidden.Push(lines[i]);
+            }
+
+            public bool ShowLine()
+            {
+                if (hidden.Count > 0)
+                {
+                    var temp = hidden.Pop();
+                    visible.Push(temp);
+                    temp.WriteToConsole();
+
+                    return true;
+                }
+                else
+                    return false;
+            }
+            public bool HideLine()
+            {
+                if (Offset == 0)
+                    return false;
+
+                hidden.Push(visible.Pop());
+                Console.SetCursorPosition(0, Console.CursorTop - 1);
+                Console.Write(new string(' ', Console.WindowWidth));
+                Console.SetCursorPosition(0, Console.CursorTop - 1);
+                Console.WindowTop--;
+
+                return true;
+            }
+
+            public void ShowLines(int count)
+            {
+                for (int i = 0; i < count; i++)
+                    if (!ShowLine())
+                        return;
+            }
+            public void HideLines(int count)
+            {
+                for (int i = 0; i < count; i++)
+                    if (!HideLine())
+                        return;
+            }
+
+            public int Visible => visible.Count;
+            public int Hidden => hidden.Count;
+        }
     }
 }
