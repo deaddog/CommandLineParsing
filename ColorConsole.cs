@@ -12,10 +12,12 @@ namespace CommandLineParsing
     public static class ColorConsole
     {
         private static readonly ColorTable colors;
+        private static ConsoleCache.Builder cacheBuilder;
 
         static ColorConsole()
         {
             colors = new ColorTable();
+            cacheBuilder = null;
         }
 
         /// <summary>
@@ -24,6 +26,84 @@ namespace CommandLineParsing
         public static ColorTable Colors
         {
             get { return colors; }
+        }
+
+        /// <summary>
+        /// Provides functionality for caching the console output.
+        /// Cached output can be printed one line at a time, supporting up/down movement.
+        /// </summary>
+        public static class Caching
+        {
+            /// <summary>
+            /// Starts caching the console output.
+            /// Any calls to write content using the <see cref="ColorConsole"/> will not be visible in the console, but stored in the cache.
+            /// Use <see cref="End"/> to retrieve the <see cref="ConsoleCache"/> constructed.
+            /// </summary>
+            public static void Start()
+            {
+                if (cacheBuilder != null)
+                    throw new InvalidOperationException($"Caching is already started. End with {nameof(End)} or use the {nameof(Enabled)} property to check.");
+
+                cacheBuilder = new ConsoleCache.Builder();
+            }
+            /// <summary>
+            /// Ends caching.
+            /// Anything that is printed when caching was enabled will be included in the resulting <see cref="ConsoleCache"/> object.
+            /// </summary>
+            /// <param name="write">If <c>true</c>, the cached result is written to the console using the default parameters for <see cref="ConsoleCache.Write(string, Action{ConsoleKeyInfo, ConsoleCache.DisplayChange})"/>.
+            /// If <c>false</c>, nothing is written.</param>
+            /// <returns>A <see cref="ConsoleCache"/> with all the lines that were captured by the caching.</returns>
+            public static ConsoleCache End(bool write = false)
+            {
+                if (cacheBuilder == null)
+                    throw new InvalidOperationException($"Caching must first be started, see {nameof(Start)}.");
+
+                var cache = cacheBuilder.ConstructCache();
+                cacheBuilder = null;
+                if (write)
+                    cache.Write();
+
+                return cache;
+            }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether <see cref="Caching"/> is enabled.
+            /// If it is, it can be ended using the <see cref="End"/> method; otherwise it can be started using the <see cref="Start"/> method.
+            /// </summary>
+            public static bool Enabled => cacheBuilder != null;
+        }
+
+        /// <summary>
+        /// Gets or sets the position of the cursor within the buffer area.
+        /// </summary>
+        public static ConsolePoint CursorPosition
+        {
+            get { return new ConsolePoint(Console.CursorLeft, Console.CursorTop); }
+            set { Console.SetCursorPosition(value.Left, value.Top); }
+        }
+        /// <summary>
+        /// Gets or sets the position of the window area, relative to the screen buffer.
+        /// </summary>
+        public static ConsolePoint WindowPosition
+        {
+            get { return new ConsolePoint(Console.WindowLeft, Console.WindowTop); }
+            set { Console.SetWindowPosition(value.Left, value.Top); }
+        }
+        /// <summary>
+        /// Gets or sets the size of the console window.
+        /// </summary>
+        public static ConsoleSize WindowSize
+        {
+            get { return new ConsoleSize(Console.WindowWidth, Console.WindowHeight); }
+            set { Console.SetWindowSize(value.Width, value.Height); }
+        }
+        /// <summary>
+        /// Gets or sets the size of the buffer area.
+        /// </summary>
+        public static ConsoleSize BufferSize
+        {
+            get { return new ConsoleSize(Console.BufferWidth, Console.BufferHeight); }
+            set { Console.SetBufferSize(value.Width, value.Height); }
         }
 
         /// <summary>
@@ -38,7 +118,7 @@ namespace CommandLineParsing
 
             if (!allowcolor)
             {
-                Console.Write(ClearColors(value).Replace("\\\\", "\\"));
+                write(ClearColors(value).Replace("\\\\", "\\"));
                 return;
             }
 
@@ -56,7 +136,7 @@ namespace CommandLineParsing
                                 colon = -1;
 
                             if (colon == -1)
-                                Console.Write("[" + block + "]");
+                                write("[" + block + "]");
                             else
                             {
                                 var color = colors[block.Substring(0, colon)];
@@ -81,7 +161,7 @@ namespace CommandLineParsing
                             index++;
                         else
                         {
-                            Console.Write(value[index + 1]);
+                            write(value[index + 1].ToString());
                             index += 2;
                         }
                         break;
@@ -89,7 +169,7 @@ namespace CommandLineParsing
                     default: // Skip content
                         int nIndex = value.IndexOfAny(new char[] { '[', '\\' }, index);
                         if (nIndex < 0) nIndex = value.Length;
-                        Console.Write(value.Substring(index, nIndex - index));
+                        write(value.Substring(index, nIndex - index));
                         index = nIndex;
                         break;
                 }
@@ -102,8 +182,15 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
         public static void WriteLine(string value, bool allowcolor = true)
         {
-            Write(value, allowcolor);
-            Console.WriteLine();
+            Write(value + "\n", allowcolor);
+        }
+
+        private static void write(string value)
+        {
+            if (cacheBuilder != null)
+                cacheBuilder.WriteString(value);
+            else
+                Console.Write(value);
         }
 
         /// <summary>
@@ -445,6 +532,9 @@ namespace CommandLineParsing
         }
         internal static T ReadLine<T>(SmartParser<T> parser, string prompt = null, string defaultString = null, Validator<T> validator = null)
         {
+            if (ColorConsole.Caching.Enabled)
+                throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
+
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
@@ -496,6 +586,9 @@ namespace CommandLineParsing
         /// <returns>A <see cref="string"/> containing the user input.</returns>
         public static string ReadLine(string prompt = null, string defaultString = null)
         {
+            if (ColorConsole.Caching.Enabled)
+                throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
+
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
@@ -571,6 +664,9 @@ namespace CommandLineParsing
         /// <returns>A <see cref="string"/> containing the password.</returns>
         public static string ReadPassword(string prompt = null, char? passChar = '*', bool singleSymbol = true)
         {
+            if (ColorConsole.Caching.Enabled)
+                throw new InvalidOperationException("ReadPassword cannot be used while caching is enabled.");
+
             if (prompt != null)
                 ColorConsole.Write(prompt);
 

@@ -49,6 +49,11 @@
     <Compile Include="CommandValidator.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationGroup.cs" />
+    <Compile Include="ConsoleCache.cs" />
+    <Compile Include="ConsoleLine.cs" />
+    <Compile Include="ConsolePoint.cs" />
+    <Compile Include="ConsoleSegment.cs" />
+    <Compile Include="ConsoleSize.cs" />
     <Compile Include="Default.cs" />
     <Compile Include="Description.cs" />
     <Compile Include="EditDistance.cs" />
