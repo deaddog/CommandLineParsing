@@ -31,6 +31,7 @@ namespace CommandLineParsing
             {
                 lines.Add(current);
                 current = new ConsoleLine();
+                left = 0;
             }
 
             public void WriteString(string value)
@@ -47,7 +48,9 @@ namespace CommandLineParsing
                     switch (value[index])
                     {
                         case '\n':
-                            throw new NotImplementedException();
+                            addCurrent();
+                            index++;
+                            break;
 
                         case '\t':
                             throw new NotImplementedException();
@@ -74,7 +77,6 @@ namespace CommandLineParsing
                                     len = lineWidth - left;
                                     current.InsertSegment(new ConsoleSegment(value.Substring(index, len), fore, back), left);
                                     addCurrent();
-                                    left = 0;
                                     index += len;
                                 }
                                 else
