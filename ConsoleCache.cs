@@ -10,6 +10,8 @@ namespace CommandLineParsing
     {
         internal class Builder
         {
+            private static readonly char[] control = new char[] { '\n', '\t', '\r', '\b', '\a' };
+
             private List<ConsoleLine> lines = new List<ConsoleLine>();
             private ConsoleLine current;
 
@@ -27,7 +29,33 @@ namespace CommandLineParsing
 
             public void WriteString(string value)
             {
-                throw new NotImplementedException();
+                if (value == null || value.Length == 0)
+                    return;
+
+                int index = 0;
+                while (index < value.Length)
+                {
+                    switch (value[index])
+                    {
+                        case '\n':
+                            throw new NotImplementedException();
+
+                        case '\t':
+                            throw new NotImplementedException();
+
+                        case '\r':
+                            throw new NotImplementedException();
+
+                        case '\b':
+                            throw new NotImplementedException();
+
+                        case '\a':
+                            throw new NotImplementedException();
+
+                        default:
+                            throw new NotImplementedException();
+                    }
+                }
             }
 
             public ConsoleCache ConstructCache()
