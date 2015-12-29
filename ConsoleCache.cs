@@ -62,7 +62,8 @@ namespace CommandLineParsing
                             throw new NotImplementedException();
 
                         case '\a':
-                            throw new NotImplementedException();
+                            index++;
+                            break;
 
                         default:
                             int nIndex = value.IndexOfAny(control, index);
