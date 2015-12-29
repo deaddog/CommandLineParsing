@@ -53,7 +53,11 @@ namespace CommandLineParsing
                             break;
 
                         case '\t':
-                            throw new NotImplementedException();
+                            int l = left % 8 == 0 ? 8 : left % 8;
+                            current.InsertSegment(new ConsoleSegment(new string(' ', l)), left);
+                            left += l;
+                            index++;
+                            break;
 
                         case '\r':
                             left = 0;
