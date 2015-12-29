@@ -528,6 +528,9 @@ namespace CommandLineParsing
         }
         internal static T ReadLine<T>(SmartParser<T> parser, string prompt = null, string defaultString = null, Validator<T> validator = null)
         {
+            if (ColorConsole.Caching.Enabled)
+                throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
+
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
@@ -579,6 +582,9 @@ namespace CommandLineParsing
         /// <returns>A <see cref="string"/> containing the user input.</returns>
         public static string ReadLine(string prompt = null, string defaultString = null)
         {
+            if (ColorConsole.Caching.Enabled)
+                throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
+
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
@@ -654,6 +660,9 @@ namespace CommandLineParsing
         /// <returns>A <see cref="string"/> containing the password.</returns>
         public static string ReadPassword(string prompt = null, char? passChar = '*', bool singleSymbol = true)
         {
+            if (ColorConsole.Caching.Enabled)
+                throw new InvalidOperationException("ReadPassword cannot be used while caching is enabled.");
+
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
