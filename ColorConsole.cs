@@ -12,10 +12,12 @@ namespace CommandLineParsing
     public static class ColorConsole
     {
         private static readonly ColorTable colors;
+        private static ConsoleCache.Builder cacheBuilder;
 
         static ColorConsole()
         {
             colors = new ColorTable();
+            cacheBuilder = null;
         }
 
         /// <summary>
@@ -71,7 +73,7 @@ namespace CommandLineParsing
 
             if (!allowcolor)
             {
-                Console.Write(ClearColors(value).Replace("\\\\", "\\"));
+                write(ClearColors(value).Replace("\\\\", "\\"));
                 return;
             }
 
@@ -89,7 +91,7 @@ namespace CommandLineParsing
                                 colon = -1;
 
                             if (colon == -1)
-                                Console.Write("[" + block + "]");
+                                write("[" + block + "]");
                             else
                             {
                                 var color = colors[block.Substring(0, colon)];
@@ -114,7 +116,7 @@ namespace CommandLineParsing
                             index++;
                         else
                         {
-                            Console.Write(value[index + 1]);
+                            write(value[index + 1].ToString());
                             index += 2;
                         }
                         break;
@@ -122,7 +124,7 @@ namespace CommandLineParsing
                     default: // Skip content
                         int nIndex = value.IndexOfAny(new char[] { '[', '\\' }, index);
                         if (nIndex < 0) nIndex = value.Length;
-                        Console.Write(value.Substring(index, nIndex - index));
+                        write(value.Substring(index, nIndex - index));
                         index = nIndex;
                         break;
                 }
@@ -135,8 +137,15 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
         public static void WriteLine(string value, bool allowcolor = true)
         {
-            Write(value, allowcolor);
-            Console.WriteLine();
+            Write(value + "\n", allowcolor);
+        }
+
+        private static void write(string value)
+        {
+            if (cacheBuilder != null)
+                cacheBuilder.WriteString(value);
+            else
+                Console.Write(value);
         }
 
         /// <summary>
