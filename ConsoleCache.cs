@@ -192,6 +192,80 @@ namespace CommandLineParsing
             }
         }
 
+        /// <summary>
+        /// Represents a state-change when using the <see cref="ConsoleCache.Write(string, Action{ConsoleKeyInfo, DisplayChange})"/> method.
+        /// </summary>
+        public class DisplayChange
+        {
+            private int offset;
+            private bool quit;
+
+            /// <summary>
+            /// Initializes a new instance of the <see cref="DisplayChange"/> class.
+            /// </summary>
+            public DisplayChange()
+            {
+                this.offset = 0;
+                this.quit = false;
+            }
+
+            /// <summary>
+            /// Indicates that an additional line should be visible.
+            /// Call multiple times for multiple lines.
+            /// </summary>
+            public void ShowLine()
+            {
+                offset++;
+            }
+            /// <summary>
+            /// Indicates that a line should be hidden.
+            /// Call multiple times for multiple lines.
+            /// </summary>
+            public void HideLine()
+            {
+                offset--;
+            }
+            /// <summary>
+            /// Indicates that an additional page should be visible.
+            /// Call multiple times for multiple pages.
+            /// </summary>
+            public void ShowPage()
+            {
+                offset += Console.WindowHeight - 1;
+            }
+            /// <summary>
+            /// Indicates that a full page should be hidden.
+            /// Call multiple times for multiple pages.
+            /// </summary>
+            public void HidePage()
+            {
+                offset -= Console.WindowHeight - 1;
+            }
+
+            /// <summary>
+            /// Gets or sets the change in line offset.
+            /// A positive value of x will display x additional lines.
+            /// A negative value of x will hide x lines.
+            /// </summary>
+            public int Offset
+            {
+                get { return offset; }
+                set { offset = value; }
+            }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether the active <see cref="ConsoleCache.Write(string, Action{ConsoleKeyInfo, DisplayChange})"/> should termine.
+            /// </summary>
+            /// <value>
+            ///   <c>true</c> if line-writing should quit; otherwise, <c>false</c>.
+            /// </value>
+            public bool Quit
+            {
+                get { return quit; }
+                set { quit = value; }
+            }
+        }
+
         #region Write console cache
 
         private class LineWriter
