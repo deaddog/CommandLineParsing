@@ -56,10 +56,14 @@ namespace CommandLineParsing
                             throw new NotImplementedException();
 
                         case '\r':
-                            throw new NotImplementedException();
+                            left = 0;
+                            index++;
+                            break;
 
                         case '\b':
-                            throw new NotImplementedException();
+                            if (left > 0) left--;
+                            index++;
+                            break;
 
                         case '\a':
                             index++;
