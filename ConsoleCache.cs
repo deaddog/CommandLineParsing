@@ -123,6 +123,75 @@ namespace CommandLineParsing
             this.lines = lines;
         }
 
+        /// <summary>
+        /// Writes all the lines contained by this <see cref="ConsoleCache"/>.
+        /// </summary>
+        public void WriteAll()
+        {
+            if (Console.CursorLeft > 0)
+                Console.WriteLine();
+
+            if (lines.Length == 0)
+                return;
+
+            foreach (var l in lines)
+                l.WriteToConsole();
+        }
+
+        /// <summary>
+        /// Writes a page of the lines contained by this <see cref="ConsoleCache"/> and allows the user to moved up/down through lines.
+        /// </summary>
+        /// <param name="message">The message that should be displayed below the visible lines.</param>
+        public void Write(string message = ":")
+        {
+            if (Console.CursorLeft > 0)
+                Console.WriteLine();
+
+            if (lines.Length == 0)
+                return;
+
+            if (message == null)
+                message = "";
+
+            if (message.Length >= Console.BufferWidth)
+                throw new ArgumentOutOfRangeException(nameof(message), "Message must be smaller than the width of the console buffer.");
+
+            LineWriter writer = new LineWriter(lines);
+
+            while (writer.Offset < 0)
+                if (!writer.ShowLine() || writer.Hidden == 0)
+                    return;
+
+            while (true)
+            {
+                Console.Write(message);
+                var key = Console.ReadKey(true);
+                Console.Write("\r" + new string(' ', message.Length) + "\r");
+
+                switch (key.Key)
+                {
+                    case ConsoleKey.DownArrow:
+                        writer.ShowLine();
+                        break;
+
+                    case ConsoleKey.UpArrow:
+                        writer.HideLine();
+                        break;
+
+                    case ConsoleKey.PageDown:
+                        writer.ShowLines(Console.WindowHeight - 1);
+                        break;
+
+                    case ConsoleKey.PageUp:
+                        writer.HideLines(Console.WindowHeight - 1);
+                        break;
+
+                    case ConsoleKey.Q:
+                        return;
+                }
+            }
+        }
+
         #region Write console cache
 
         private class LineWriter
