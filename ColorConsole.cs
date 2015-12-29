@@ -29,6 +29,47 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Provides functionality for caching the console output.
+        /// Cached output can be printed one line at a time, supporting up/down movement.
+        /// </summary>
+        public static class Caching
+        {
+            /// <summary>
+            /// Starts caching the console output.
+            /// Any calls to write content using the <see cref="ColorConsole"/> will not be visible in the console, but stored in the cache.
+            /// Use <see cref="End"/> to retrieve the <see cref="ConsoleCache"/> constructed.
+            /// </summary>
+            public static void Start()
+            {
+                if (cacheBuilder != null)
+                    throw new InvalidOperationException($"Caching is already started. End with {nameof(End)} or use the {nameof(Enabled)} property to check.");
+
+                cacheBuilder = new ConsoleCache.Builder();
+            }
+            /// <summary>
+            /// Ends caching.
+            /// Anything that is printed when caching was enabled will be included in the resulting <see cref="ConsoleCache"/> object.
+            /// </summary>
+            /// <returns>A <see cref="ConsoleCache"/> with all the lines that were captured by the caching.</returns>
+            public static ConsoleCache End()
+            {
+                if (cacheBuilder == null)
+                    throw new InvalidOperationException($"Caching must first be started, see {nameof(Start)}.");
+
+                var cache = cacheBuilder.ConstructCache();
+                cacheBuilder = null;
+
+                return cache;
+            }
+
+            /// <summary>
+            /// Gets or sets a value indicating whether <see cref="Caching"/> is enabled.
+            /// If it is, it can be ended using the <see cref="End"/> method; otherwise it can be started using the <see cref="Start"/> method.
+            /// </summary>
+            public static bool Enabled => cacheBuilder != null;
+        }
+
+        /// <summary>
         /// Gets or sets the position of the cursor within the buffer area.
         /// </summary>
         public static ConsolePoint CursorPosition
