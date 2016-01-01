@@ -782,11 +782,14 @@ namespace CommandLineParsing
                 {
                     if (name == null)
                         throw new ArgumentNullException(nameof(name));
-                    if (name.Trim().Length == 0)
+                    else
+                        name = name.Trim().ToLowerInvariant();
+
+                    if (name.Length == 0)
                         throw new ArgumentException("Color name must be non-empty.", nameof(name));
 
                     ConsoleColor c;
-                    if (!colors.TryGetValue(name.ToLowerInvariant(), out c))
+                    if (!colors.TryGetValue(name, out c))
                         return null;
                     else
                         return c;
@@ -795,11 +798,14 @@ namespace CommandLineParsing
                 {
                     if (name == null)
                         throw new ArgumentNullException(nameof(name));
-                    if (name.Trim().Length == 0)
+                    else
+                        name = name.Trim().ToLowerInvariant();
+
+                    if (name.Length == 0)
                         throw new ArgumentException("Color name must be non-empty.", nameof(name));
 
                     if (value.HasValue)
-                        colors[name.ToLowerInvariant()] = value.Value;
+                        colors[name] = value.Value;
                     else
                         colors.Remove(name.ToLowerInvariant());
                 }
