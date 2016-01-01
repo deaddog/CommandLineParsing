@@ -786,7 +786,7 @@ namespace CommandLineParsing
                         name = name.Trim().ToLowerInvariant();
 
                     if (name.Length == 0)
-                        throw new ArgumentException("Color name must be non-empty.", nameof(name));
+                        return null;
 
                     ConsoleColor c;
                     if (!colors.TryGetValue(name, out c))
