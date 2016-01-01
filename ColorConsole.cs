@@ -132,7 +132,7 @@ namespace CommandLineParsing
                             int end = findEnd(value, index, '[', ']');
                             var block = value.Substring(index + 1, end - index - 1);
                             int colon = block.IndexOf(':');
-                            if (colon != -1 && block[colon - 1] == '\\')
+                            if (colon > 0 && block[colon - 1] == '\\')
                                 colon = -1;
 
                             if (colon == -1)
@@ -407,7 +407,7 @@ namespace CommandLineParsing
                             int end = findEnd(input, index, '[', ']');
                             var block = input.Substring(index + 1, end - index - 1);
                             int colon = block.IndexOf(':');
-                            if (colon != -1 && block[colon - 1] == '\\')
+                            if (colon > 0 && block[colon - 1] == '\\')
                                 colon = -1;
 
                             if (colon == -1)
@@ -466,7 +466,7 @@ namespace CommandLineParsing
                             int end = findEnd(input, index, '[', ']');
                             var block = input.Substring(index + 1, end - index - 1);
                             int colon = block.IndexOf(':');
-                            if (colon != -1 && block[colon - 1] == '\\')
+                            if (colon > 0 && block[colon - 1] == '\\')
                                 colon = -1;
 
                             if (colon != -1)
