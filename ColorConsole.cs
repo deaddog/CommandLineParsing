@@ -132,7 +132,7 @@ namespace CommandLineParsing
                             int end = findEnd(value, index, '[', ']');
                             var block = value.Substring(index + 1, end - index - 1);
                             int colon = block.IndexOf(':');
-                            if (colon != -1 && block[colon - 1] == '\\')
+                            if (colon > 0 && block[colon - 1] == '\\')
                                 colon = -1;
 
                             if (colon == -1)
@@ -407,7 +407,7 @@ namespace CommandLineParsing
                             int end = findEnd(input, index, '[', ']');
                             var block = input.Substring(index + 1, end - index - 1);
                             int colon = block.IndexOf(':');
-                            if (colon != -1 && block[colon - 1] == '\\')
+                            if (colon > 0 && block[colon - 1] == '\\')
                                 colon = -1;
 
                             if (colon == -1)
@@ -466,7 +466,7 @@ namespace CommandLineParsing
                             int end = findEnd(input, index, '[', ']');
                             var block = input.Substring(index + 1, end - index - 1);
                             int colon = block.IndexOf(':');
-                            if (colon != -1 && block[colon - 1] == '\\')
+                            if (colon > 0 && block[colon - 1] == '\\')
                                 colon = -1;
 
                             if (colon != -1)
@@ -782,11 +782,14 @@ namespace CommandLineParsing
                 {
                     if (name == null)
                         throw new ArgumentNullException(nameof(name));
-                    if (name.Trim().Length == 0)
-                        throw new ArgumentException("Color name must be non-empty.", nameof(name));
+                    else
+                        name = name.Trim().ToLowerInvariant();
+
+                    if (name.Length == 0)
+                        return null;
 
                     ConsoleColor c;
-                    if (!colors.TryGetValue(name.ToLowerInvariant(), out c))
+                    if (!colors.TryGetValue(name, out c))
                         return null;
                     else
                         return c;
@@ -795,11 +798,14 @@ namespace CommandLineParsing
                 {
                     if (name == null)
                         throw new ArgumentNullException(nameof(name));
-                    if (name.Trim().Length == 0)
+                    else
+                        name = name.Trim().ToLowerInvariant();
+
+                    if (name.Length == 0)
                         throw new ArgumentException("Color name must be non-empty.", nameof(name));
 
                     if (value.HasValue)
-                        colors[name.ToLowerInvariant()] = value.Value;
+                        colors[name] = value.Value;
                     else
                         colors.Remove(name.ToLowerInvariant());
                 }
