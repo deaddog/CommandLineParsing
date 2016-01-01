@@ -10,7 +10,7 @@ namespace CommandLineParsing
             public readonly Type Type;
             public readonly Func<object, string> Replace;
             public readonly Func<object, string> AutoColor;
-            public readonly int? Padding;
+            public int? Padding;
 
             public Variable(Type type, Func<object, string> replace, Func<object, string> autoColor, int? padding)
             {
@@ -110,6 +110,21 @@ namespace CommandLineParsing
                 Func<object, string> c = x => autoColor?.Invoke((T)x);
 
                 Add(variable, new Variable(typeof(T), r, c, padding));
+            }
+
+            /// <summary>
+            /// Sets the padding of a pre-defined variable.
+            /// This will override any existing padding associated with the variable.
+            /// </summary>
+            /// <param name="variable">The name of the variable for which padding should be specified.</param>
+            /// <param name="padding">The new padding for the variable.</param>
+            public void SetPadding(string variable, int? padding)
+            {
+                Variable v;
+                if (!elements.TryGetValue(variable, out v))
+                    throw new ArgumentOutOfRangeException(nameof(variable), "Unknown formatter variable: " + variable);
+                else
+                    v.Padding = padding;
             }
 
             /// <summary>
