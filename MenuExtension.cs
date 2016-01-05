@@ -14,10 +14,40 @@ namespace CommandLineParsing
         /// <typeparam name="T">The type of element in <paramref name="collection"/>.</typeparam>
         /// <param name="collection">The collection of element from which the <see cref="Menu{T}"/> should be created.</param>
         /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
+        /// <param name="cancel">If not <c>null</c>, this string is displayed as a "cancel option" in the menu.
+        /// The default value for <typeparamref name="T"/> will be returned if this option is selected.</param>
         /// <returns>The element that was selected using the displayed <see cref="Menu{T}"/>.</returns>
-        public static T MenuSelect<T>(this IEnumerable<T> collection, MenuSettings settings)
+        public static T MenuSelect<T>(this IEnumerable<T> collection, MenuSettings settings, string cancel = null)
         {
-            return MenuSelect(collection, settings, x => x.ToString());
+            return MenuSelect(collection, settings, x => x.ToString(), cancel, default(T));
+        }
+        /// <summary>
+        /// Displays a <see cref="Menu{T}"/> where an element from the collection can be selected.
+        /// </summary>
+        /// <typeparam name="T">The type of element in <paramref name="collection"/>.</typeparam>
+        /// <param name="collection">The collection of element from which the <see cref="Menu{T}"/> should be created.</param>
+        /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
+        /// <param name="cancelKey">If not <c>null</c>, this string is displayed as a "cancel option" in the menu.</param>
+        /// <param name="cancelValue">The value associated with the cancel option. If <paramref name="cancelKey"/> is <c>null</c> this value is ignored.</param>
+        /// <returns>The element that was selected using the displayed <see cref="Menu{T}"/>.</returns>
+        public static T MenuSelect<T>(this IEnumerable<T> collection, MenuSettings settings, string cancelKey, T cancelValue)
+        {
+            return MenuSelect(collection, settings, x => x.ToString(), cancelKey, cancelValue);
+        }
+
+        /// <summary>
+        /// Displays a <see cref="Menu{T}"/> where an element from the collection can be selected.
+        /// </summary>
+        /// <typeparam name="T">The type of element in <paramref name="collection"/>.</typeparam>
+        /// <param name="collection">The collection of element from which the <see cref="Menu{T}"/> should be created.</param>
+        /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
+        /// <param name="keySelector">A function that gets the <see cref="String"/> that should be displayed for an item in the collection</param>
+        /// <param name="cancel">If not <c>null</c>, this string is displayed as a "cancel option" in the menu.
+        /// The default value for <typeparamref name="T"/> will be returned if this option is selected.</param>
+        /// <returns>The element that was selected using the displayed <see cref="Menu{T}"/>.</returns>
+        public static T MenuSelect<T>(this IEnumerable<T> collection, MenuSettings settings, Func<T, string> keySelector, string cancel = null)
+        {
+            return MenuSelect(collection, settings, keySelector, cancel, default(T));
         }
         /// <summary>
         /// Displays a <see cref="Menu{T}"/> where an element from the collection can be selected.
@@ -26,13 +56,18 @@ namespace CommandLineParsing
         /// <param name="collection">The collection of element from which the <see cref="Menu{T}"/> should be created.</param>
         /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
         /// <param name="keySelector">A function that gets the <see cref="String"/> that should be displayed for an item in the collection</param>
+        /// <param name="cancelKey">If not <c>null</c>, this string is displayed as a "cancel option" in the menu.</param>
+        /// <param name="cancelValue">The value associated with the cancel option. If <paramref name="cancelKey"/> is <c>null</c> this value is ignored.</param>
         /// <returns>The element that was selected using the displayed <see cref="Menu{T}"/>.</returns>
-        public static T MenuSelect<T>(this IEnumerable<T> collection, MenuSettings settings, Func<T, string> keySelector)
+        public static T MenuSelect<T>(this IEnumerable<T> collection, MenuSettings settings, Func<T, string> keySelector, string cancelKey, T cancelValue)
         {
             Menu<T> menu = new Menu<T>();
 
             foreach (var item in collection)
                 menu.Add(keySelector(item), item);
+
+            if (cancelKey != null)
+                menu.SetCancel(cancelKey, cancelValue);
 
             return menu.ShowAndSelect(settings).Value;
         }
@@ -45,10 +80,27 @@ namespace CommandLineParsing
         /// <typeparam name="TValue">The type of the Value part of elements in <paramref name="collection"/>.</typeparam>
         /// <param name="collection">The collection of element from which the <see cref="Menu{T}"/> should be created.</param>
         /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
+        /// <param name="cancel">If not <c>null</c>, this string is displayed as a "cancel option" in the menu.
+        /// The default value for <typeparamref name="TValue"/> will be returned if this option is selected.</param>
         /// <returns>The element that was selected using the displayed <see cref="Menu{T}"/>.</returns>
-        public static TValue MenuSelect<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> collection, MenuSettings settings)
+        public static TValue MenuSelect<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> collection, MenuSettings settings, string cancel = null)
         {
-            return MenuSelect(collection, settings, x => x.Key.ToString()).Value;
+            return MenuSelect(collection, settings, cancel, default(TValue));
+        }
+        /// <summary>
+        /// Displays a <see cref="Menu{T}"/> where an element from the collection can be selected.
+        /// Displays the key part of each element in the menu and returns the selected value part.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the Key part of elements in <paramref name="collection"/>.</typeparam>
+        /// <typeparam name="TValue">The type of the Value part of elements in <paramref name="collection"/>.</typeparam>
+        /// <param name="collection">The collection of element from which the <see cref="Menu{T}"/> should be created.</param>
+        /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
+        /// <param name="cancelKey">If not <c>null</c>, this string is displayed as a "cancel option" in the menu.</param>
+        /// <param name="cancelValue">The value associated with the cancel option. If <paramref name="cancelKey"/> is <c>null</c> this value is ignored.</param>
+        /// <returns>The element that was selected using the displayed <see cref="Menu{T}"/>.</returns>
+        public static TValue MenuSelect<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> collection, MenuSettings settings, string cancelKey, TValue cancelValue)
+        {
+            return MenuSelect(collection, settings, x => x.Key.ToString(), cancelKey, new KeyValuePair<TKey, TValue>(default(TKey), cancelValue)).Value;
         }
 
         /// <summary>
