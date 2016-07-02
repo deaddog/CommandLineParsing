@@ -836,7 +836,65 @@ namespace CommandLineParsing
             }
             private static IEnumerable<Pair> evaluate(string value, string currentColor)
             {
-                throw new NotImplementedException();
+                value = value ?? string.Empty;
+
+                if (!allowcolor)
+                {
+                    write(ClearColors(value).Replace("\\\\", "\\"));
+                    return;
+                }
+
+                int index = 0;
+
+                while (index < value.Length)
+                    switch (value[index])
+                    {
+                        case '[': // Coloring
+                            {
+                                int end = findEnd(value, index, '[', ']');
+                                var block = value.Substring(index + 1, end - index - 1);
+                                int colon = block.IndexOf(':');
+                                if (colon > 0 && block[colon - 1] == '\\')
+                                    colon = -1;
+
+                                if (colon == -1)
+                                    write("[" + block + "]");
+                                else
+                                {
+                                    var color = colors[block.Substring(0, colon)];
+                                    string content = block.Substring(colon + 1);
+
+                                    if (color.HasValue && content.Trim().Length > 0)
+                                    {
+                                        ConsoleColor temp = Console.ForegroundColor;
+                                        Console.ForegroundColor = color.Value;
+                                        Write(content);
+                                        Console.ForegroundColor = temp;
+                                    }
+                                    else
+                                        Write(content);
+                                }
+                                index += block.Length + 2;
+                            }
+                            break;
+
+                        case '\\':
+                            if (value.Length == index + 1)
+                                index++;
+                            else
+                            {
+                                write(value[index + 1].ToString());
+                                index += 2;
+                            }
+                            break;
+
+                        default: // Skip content
+                            int nIndex = value.IndexOfAny(new char[] { '[', '\\' }, index);
+                            if (nIndex < 0) nIndex = value.Length;
+                            write(value.Substring(index, nIndex - index));
+                            index = nIndex;
+                            break;
+                    }
             }
         }
     }
