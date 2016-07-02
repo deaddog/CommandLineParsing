@@ -811,5 +811,29 @@ namespace CommandLineParsing
                 }
             }
         }
+
+        private static class SimpleEvaluation
+        {
+            public struct Pair
+            {
+                public readonly string Content;
+                public readonly string Color;
+
+                public bool HasColor => Color != null;
+
+                public Pair(string content, string color)
+                {
+                    this.Content = content;
+                    this.Color = color;
+                }
+
+                public override string ToString() => HasColor ? $"[{Color}:{Content}]" : Content;
+            }
+
+            public static IEnumerable<Pair> Evaluate(string value)
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }
