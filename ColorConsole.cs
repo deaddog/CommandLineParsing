@@ -836,13 +836,8 @@ namespace CommandLineParsing
             }
             private static IEnumerable<Pair> evaluate(string value, string currentColor)
             {
-                value = value ?? string.Empty;
-
-                if (!allowcolor)
-                {
-                    write(ClearColors(value).Replace("\\\\", "\\"));
-                    return;
-                }
+                if (string.IsNullOrEmpty(value))
+                    yield break;
 
                 int index = 0;
 
@@ -858,21 +853,14 @@ namespace CommandLineParsing
                                     colon = -1;
 
                                 if (colon == -1)
-                                    write("[" + block + "]");
+                                    yield return new Pair($"[{block}]", currentColor);
                                 else
                                 {
-                                    var color = colors[block.Substring(0, colon)];
+                                    var color = block.Substring(0, colon);
                                     string content = block.Substring(colon + 1);
 
-                                    if (color.HasValue && content.Trim().Length > 0)
-                                    {
-                                        ConsoleColor temp = Console.ForegroundColor;
-                                        Console.ForegroundColor = color.Value;
-                                        Write(content);
-                                        Console.ForegroundColor = temp;
-                                    }
-                                    else
-                                        Write(content);
+                                    foreach (var p in evaluate(content, color))
+                                        yield return p;
                                 }
                                 index += block.Length + 2;
                             }
@@ -883,7 +871,7 @@ namespace CommandLineParsing
                                 index++;
                             else
                             {
-                                write(value[index + 1].ToString());
+                                yield return new Pair(value[index + 1].ToString(), currentColor);
                                 index += 2;
                             }
                             break;
@@ -891,7 +879,7 @@ namespace CommandLineParsing
                         default: // Skip content
                             int nIndex = value.IndexOfAny(new char[] { '[', '\\' }, index);
                             if (nIndex < 0) nIndex = value.Length;
-                            write(value.Substring(index, nIndex - index));
+                            yield return new Pair(value.Substring(index, nIndex - index), currentColor);
                             index = nIndex;
                             break;
                     }
