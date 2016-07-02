@@ -832,6 +832,10 @@ namespace CommandLineParsing
 
             public static IEnumerable<Pair> Evaluate(string value)
             {
+                return evaluate(value, null);
+            }
+            private static IEnumerable<Pair> evaluate(string value, string currentColor)
+            {
                 throw new NotImplementedException();
             }
         }
