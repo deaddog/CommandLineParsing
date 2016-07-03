@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -114,65 +115,19 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
         public static void Write(string value, bool allowcolor = true)
         {
-            value = value ?? string.Empty;
-
-            if (!allowcolor)
+            foreach (var p in SimpleEvaluation.Evaluate(value))
             {
-                write(ClearColors(value).Replace("\\\\", "\\"));
-                return;
-            }
-
-            int index = 0;
-
-            while (index < value.Length)
-                switch (value[index])
+                var color = p.HasColor ? colors[p.Color] : null;
+                if (allowcolor && color.HasValue)
                 {
-                    case '[': // Coloring
-                        {
-                            int end = findEnd(value, index, '[', ']');
-                            var block = value.Substring(index + 1, end - index - 1);
-                            int colon = block.IndexOf(':');
-                            if (colon > 0 && block[colon - 1] == '\\')
-                                colon = -1;
-
-                            if (colon == -1)
-                                write("[" + block + "]");
-                            else
-                            {
-                                var color = colors[block.Substring(0, colon)];
-                                string content = block.Substring(colon + 1);
-
-                                if (color.HasValue && content.Trim().Length > 0)
-                                {
-                                    ConsoleColor temp = Console.ForegroundColor;
-                                    Console.ForegroundColor = color.Value;
-                                    Write(content);
-                                    Console.ForegroundColor = temp;
-                                }
-                                else
-                                    Write(content);
-                            }
-                            index += block.Length + 2;
-                        }
-                        break;
-
-                    case '\\':
-                        if (value.Length == index + 1)
-                            index++;
-                        else
-                        {
-                            write(value[index + 1].ToString());
-                            index += 2;
-                        }
-                        break;
-
-                    default: // Skip content
-                        int nIndex = value.IndexOfAny(new char[] { '[', '\\' }, index);
-                        if (nIndex < 0) nIndex = value.Length;
-                        write(value.Substring(index, nIndex - index));
-                        index = nIndex;
-                        break;
+                    ConsoleColor temp = Console.ForegroundColor;
+                    Console.ForegroundColor = color.Value;
+                    write(p.Content);
+                    Console.ForegroundColor = temp;
                 }
+                else
+                    write(p.Content);
+            }
         }
         /// <summary>
         /// Writes the specified string value, followed by the current line terminator, to the standard output stream.
@@ -397,48 +352,7 @@ namespace CommandLineParsing
         /// <returns>A new string, without any color information.</returns>
         public static string ClearColors(string input)
         {
-            int index = 0;
-
-            while (index < input.Length)
-                switch (input[index])
-                {
-                    case '[': // Coloring
-                        {
-                            int end = findEnd(input, index, '[', ']');
-                            var block = input.Substring(index + 1, end - index - 1);
-                            int colon = block.IndexOf(':');
-                            if (colon > 0 && block[colon - 1] == '\\')
-                                colon = -1;
-
-                            if (colon == -1)
-                                return input;
-                            else
-                            {
-                                string content = block.Substring(colon + 1);
-                                input = input.Substring(0, index) + content + input.Substring(end + 1);
-                                index += content.Length;
-                            }
-                        }
-                        break;
-
-                    case '\\':
-                        if (input.Length == index + 1)
-                            input = input.Substring(0, input.Length - 1);
-                        else
-                        {
-                            input = input.Substring(0, index) + input.Substring(index + 1);
-                            index++;
-                        }
-                        break;
-
-                    default: // Skip content
-                        int nIndex = input.IndexOfAny(new char[] { '[', '\\' }, index);
-                        if (nIndex < 0) nIndex = input.Length;
-                        index = nIndex;
-                        break;
-                }
-
-            return input;
+            return SimpleEvaluation.Evaluate(input).Aggregate("", (r, t) => r + t.Content);
         }
         /// <summary>
         /// Escapes color-coding information in a string such that it can be printed using the <see cref="ColorConsole"/> without color being applied.
@@ -456,41 +370,7 @@ namespace CommandLineParsing
         /// <returns><c>true</c>, if <paramref name="input"/> contains any "[Color:Text]" strings; otherwise, <c>false</c>.</returns>
         public static bool HasColors(string input)
         {
-            int index = 0;
-
-            while (index < input.Length)
-                switch (input[index])
-                {
-                    case '[': // Coloring
-                        {
-                            int end = findEnd(input, index, '[', ']');
-                            var block = input.Substring(index + 1, end - index - 1);
-                            int colon = block.IndexOf(':');
-                            if (colon > 0 && block[colon - 1] == '\\')
-                                colon = -1;
-
-                            if (colon != -1)
-                                return true;
-
-                            index += block.Length + 2;
-                        }
-                        break;
-
-                    case '\\':
-                        if (input.Length == index + 1)
-                            return false;
-                        else
-                            index += 2;
-                        break;
-
-                    default: // Skip content
-                        int nIndex = input.IndexOfAny(new char[] { '[', '\\' }, index);
-                        if (nIndex < 0) nIndex = input.Length;
-                        index = nIndex;
-                        break;
-                }
-
-            return false;
+            return SimpleEvaluation.Evaluate(input).Any(x => x.HasColor);
         }
 
         private static SmartParser<T> getParser<T>()
