@@ -712,7 +712,7 @@ namespace CommandLineParsing
 
             public static IEnumerable<Pair> Evaluate(string value, bool maintainEscape)
             {
-                return evaluate(value, maintainEscape, null);
+                return mergeByColor(evaluate(value, maintainEscape, null));
             }
             private static IEnumerable<Pair> evaluate(string value, bool maintainEscape, string currentColor)
             {
@@ -767,6 +767,27 @@ namespace CommandLineParsing
                             index = nIndex;
                             break;
                     }
+            }
+
+            private static IEnumerable<Pair> mergeByColor(IEnumerable<Pair> pairs)
+            {
+                var e = pairs.GetEnumerator();
+
+                if (!e.MoveNext())
+                    yield break;
+
+                var temp = e.Current;
+
+                while (e.MoveNext())
+                    if (temp.Color == e.Current.Color)
+                        temp = new Pair(temp.Content + e.Current.Content, temp.Color);
+                    else
+                    {
+                        yield return temp;
+                        temp = e.Current;
+                    }
+
+                yield return temp;
             }
         }
     }
