@@ -115,7 +115,7 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
         public static void Write(string value, bool allowcolor = true)
         {
-            foreach (var p in SimpleEvaluation.Evaluate(value))
+            foreach (var p in SimpleEvaluation.Evaluate(value, false))
             {
                 var color = p.HasColor ? colors[p.Color] : null;
                 if (allowcolor && color.HasValue)
@@ -352,7 +352,7 @@ namespace CommandLineParsing
         /// <returns>A new string, without any color information.</returns>
         public static string ClearColors(string input)
         {
-            return SimpleEvaluation.Evaluate(input).Aggregate("", (r, t) => r + t.Content);
+            return SimpleEvaluation.Evaluate(input, true).Aggregate("", (r, t) => r + t.Content);
         }
         /// <summary>
         /// Escapes color-coding information in a string such that it can be printed using the <see cref="ColorConsole"/> without color being applied.
@@ -370,7 +370,7 @@ namespace CommandLineParsing
         /// <returns><c>true</c>, if <paramref name="input"/> contains any "[Color:Text]" strings; otherwise, <c>false</c>.</returns>
         public static bool HasColors(string input)
         {
-            return SimpleEvaluation.Evaluate(input).Any(x => x.HasColor);
+            return SimpleEvaluation.Evaluate(input, false).Any(x => x.HasColor);
         }
 
         private static SmartParser<T> getParser<T>()
@@ -710,11 +710,11 @@ namespace CommandLineParsing
                 public override string ToString() => HasColor ? $"[{Color}:{Content}]" : Content;
             }
 
-            public static IEnumerable<Pair> Evaluate(string value)
+            public static IEnumerable<Pair> Evaluate(string value, bool maintainEscape)
             {
-                return evaluate(value, null);
+                return evaluate(value, maintainEscape, null);
             }
-            private static IEnumerable<Pair> evaluate(string value, string currentColor)
+            private static IEnumerable<Pair> evaluate(string value, bool maintainEscape, string currentColor)
             {
                 if (string.IsNullOrEmpty(value))
                     yield break;
@@ -739,7 +739,7 @@ namespace CommandLineParsing
                                     var color = block.Substring(0, colon);
                                     string content = block.Substring(colon + 1);
 
-                                    foreach (var p in evaluate(content, color))
+                                    foreach (var p in evaluate(content, maintainEscape, color))
                                         yield return p;
                                 }
                                 index += block.Length + 2;
@@ -751,7 +751,11 @@ namespace CommandLineParsing
                                 index++;
                             else
                             {
-                                yield return new Pair(value[index + 1].ToString(), currentColor);
+                                if (maintainEscape)
+                                    yield return new Pair(value.Substring(index, 2), currentColor);
+                                else
+                                    yield return new Pair(value[index + 1].ToString(), currentColor);
+
                                 index += 2;
                             }
                             break;
