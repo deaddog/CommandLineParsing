@@ -355,13 +355,14 @@ namespace CommandLineParsing
             return SimpleEvaluation.Evaluate(input, true).Aggregate("", (r, t) => r + t.Content);
         }
         /// <summary>
-        /// Escapes color-coding information in a string such that it can be printed using the <see cref="ColorConsole"/> without color being applied.
+        /// Escapes any special characters (including color-coding) such that a string can be printed literally using the <see cref="ColorConsole"/>.
         /// </summary>
-        /// <param name="input">The string in which color-coding should be escaped.</param>
-        /// <returns>A new string, where all color-coding is escaped.</returns>
-        public static string EscapeColor(string input)
+        /// <param name="input">The string in which characters should be escaped.</param>
+        /// <param name="escapeColor">If set to <c>true</c> color-coding information is escaped.</param>
+        /// <returns>A new string, where all special characters are escaped.</returns>
+        public static string EscapeSpecialCharacters(string input, bool escapeColor = true)
         {
-            return input?.Replace("[", "\\[")?.Replace("]", "\\]");
+            return SimpleEvaluation.EscapeSpecialCharacters(input, escapeColor);
         }
         /// <summary>
         /// Determines whether the specified string includes coloring syntax.
@@ -788,6 +789,18 @@ namespace CommandLineParsing
                     }
 
                 yield return temp;
+            }
+
+            public static string EscapeSpecialCharacters(string value, bool escapeColor)
+            {
+                if (escapeColor)
+                    return value
+                        .Replace("\\", "\\\\")
+                        .Replace("[", "\\[")
+                        .Replace("]", "\\]");
+                else
+                    return value
+                        .Replace("\\", "\\\\");
             }
         }
     }
