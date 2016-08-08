@@ -100,7 +100,11 @@ namespace CommandLineParsing
 
         private FieldInfo[] getParameterFields()
         {
-            var fields = this.GetType().GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+            return getParameterFields(GetType());
+        }
+        private static FieldInfo[] getParameterFields(Type commandType)
+        {
+            var fields = commandType.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
             var accepted = new List<FieldInfo>();
 
             for (int i = 0; i < fields.Length; i++)
@@ -117,9 +121,12 @@ namespace CommandLineParsing
                 accepted.Add(fields[i]);
             }
 
+            if (commandType.BaseType != typeof(Command))
+                accepted.AddRange(getParameterFields(commandType.BaseType));
+
             return accepted.ToArray();
         }
-        private bool isFieldTypeParameter(Type fieldType)
+        private static bool isFieldTypeParameter(Type fieldType)
         {
             if (fieldType == typeof(FlagParameter))
                 return true;
