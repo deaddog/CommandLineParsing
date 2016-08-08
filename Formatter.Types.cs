@@ -100,7 +100,8 @@ namespace CommandLineParsing
             /// The string representation of that object is used when formatting the item.</param>
             /// <param name="autoColor">A method that specifies which color should be applied to a string when auto is used to color <paramref name="variable"/>.
             /// Specify <c>null</c> or a function that returns <c>null</c> if auto coloring does not apply.</param>
-            /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
+            /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.
+            /// Note that padding can be updated using <see cref="SetPadding(string, int?)"/>.</param>
             public void Add<T>(string variable, Func<T, object> replace, Func<T, string> autoColor = null, int? padding = null)
             {
                 if (replace == null)
@@ -138,7 +139,8 @@ namespace CommandLineParsing
             /// The string representation of that object is used when formatting the item.</param>
             /// <param name="autoColor">A method that specifies which color should be applied to a string when auto is used to color <paramref name="variable"/>.
             /// Specify <c>null</c> or a function that returns <c>null</c> if auto coloring does not apply.</param>
-            /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.</param>
+            /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.
+            /// Note that padding can be updated using <see cref="SetPadding(string, int?)"/>.</param>
             public void Add<T, V>(string variable, Func<T, V> select, Func<V, object> replace, Func<V, string> autoColor, int? padding = null)
             {
                 if (select == null)
