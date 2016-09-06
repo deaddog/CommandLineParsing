@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>deaddog.commandlineparsing</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>deaddog</authors>
+    <owners>deaddog</owners>
+    <projectUrl>https://github.com/deaddog/CommandLineParsing</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Provides a range of functionalities for creating command line applications using the .NET framework.</description>
+    <releaseNotes>First NuGet package release.</releaseNotes>
+    <copyright>Copyright 2016</copyright>
+    <tags>cli commandline parse parsing console</tags>
+  </metadata>
+</package>
