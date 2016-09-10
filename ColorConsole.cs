@@ -284,11 +284,16 @@ namespace CommandLineParsing
             if (res == null)
                 return "$" + variable;
 
+            bool preserveColor = formatter.GetPreserveColor(variableName);
+
             if (padLeft || padRight)
             {
                 int? size = formatter.GetAlignedLength(variableName);
                 if (size.HasValue)
                 {
+                    if (preserveColor)
+                        size += res.Length - ClearColors(res).Length;
+
                     if (padLeft && padRight)
                         res = res.PadLeft(size.Value / 2).PadRight(size.Value - (size.Value / 2));
                     else if (padLeft)
@@ -298,7 +303,7 @@ namespace CommandLineParsing
                 }
             }
 
-            return res;
+            return EscapeSpecialCharacters(res, !preserveColor);
         }
         private static string colorBlock(string format, IFormatter formatter)
         {
