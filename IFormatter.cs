@@ -16,6 +16,7 @@
         /// <summary>
         /// Gets the content of a domain-specific variable.
         /// </summary>
+        /// <param name="variable">The variable for which content should be inserted. For a string of "$+var" only "var" will be the input to the method.</param>
         /// <returns>The string that the variable should be replaced by, if the variable is known; otherwise <c>null</c>.</returns>
         string GetVariable(string variable);
         /// <summary>
