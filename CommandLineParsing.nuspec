@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/deaddog/CommandLineParsing</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Provides a range of functionalities for creating command line applications using the .NET framework.</description>
-    <releaseNotes>First NuGet package release.</releaseNotes>
+    <releaseNotes>Unified string evaluation. Updated special character escapes and applied them automatically to format-variables. Included error-messages for missing variables/functions/conditions in format.</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>cli commandline parse parsing console</tags>
   </metadata>
