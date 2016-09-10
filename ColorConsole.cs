@@ -271,14 +271,16 @@ namespace CommandLineParsing
 
         private static string getVariable(string variable, IFormatter formatter)
         {
+            var match = Regex.Match(variable, @"^\+?([^\+]+)\+?$");
+            if (!match.Success)
+                return "$" + variable;
+
             bool padLeft = variable[0] == '+';
             bool padRight = variable[variable.Length - 1] == '+';
-            string variableName = variable;
-
-            if (padLeft) variableName = variableName.Substring(1);
-            if (padRight) variableName = variableName.Substring(0, variableName.Length - 1);
+            string variableName = match.Groups[1].Value;
 
             string res = formatter.GetVariable(variableName);
+
             if (res == null)
                 return "$" + variable;
 
