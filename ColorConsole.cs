@@ -169,6 +169,10 @@ namespace CommandLineParsing
             WriteLine(EvaluateFormat(format, formatter), allowcolor);
         }
 
+        private const string NO_CONDITION_FORMAT = "[red:UNKNOWN CONDITION '{0}']";
+        private const string NO_FUNCTION_FORMAT = "[red:UNKNOWN FUNCTION/PARAMETER '{0}']";
+        private const string NO_VARIABLE_FORMAT = "[red:UNKNOWN VARIABLE '{0}']";
+
         /// <summary>
         /// Evaluates <paramref name="format"/> using a <see cref="IFormatter"/> to specify to string translation.
         /// </summary>
@@ -213,7 +217,7 @@ namespace CommandLineParsing
                             var negate = match.Groups[1].Value == "!";
 
                             if (!condition.HasValue)
-                                replace = match.Value + "{" + EvaluateFormat(block, formatter) + "}";
+                                replace = string.Format(NO_CONDITION_FORMAT, match.Groups[2].Value);
                             else if (condition.Value ^ negate)
                                 replace = EvaluateFormat(block, formatter);
 
@@ -232,7 +236,7 @@ namespace CommandLineParsing
 
                             string replace = formatter.EvaluateFunction(name, args.Split('@'));
                             if (replace == null)
-                                replace = $"@{name}{{{args}}}";
+                                replace = string.Format(NO_FUNCTION_FORMAT, name);
 
                             format = format.Substring(0, index) + replace + format.Substring(end + 1);
                             index += replace.Length;
@@ -273,7 +277,7 @@ namespace CommandLineParsing
         {
             var match = Regex.Match(variable, @"^\+?([^\+]+)\+?$");
             if (!match.Success)
-                return "$" + variable;
+                return string.Format(NO_VARIABLE_FORMAT, variable);
 
             bool padLeft = variable[0] == '+';
             bool padRight = variable[variable.Length - 1] == '+';
@@ -282,7 +286,7 @@ namespace CommandLineParsing
             string res = formatter.GetVariable(variableName);
 
             if (res == null)
-                return "$" + variable;
+                return string.Format(NO_VARIABLE_FORMAT, variableName);
 
             bool preserveColor = formatter.GetPreserveColor(variableName);
 
