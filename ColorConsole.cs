@@ -273,17 +273,18 @@ namespace CommandLineParsing
         {
             bool padLeft = variable[0] == '+';
             bool padRight = variable[variable.Length - 1] == '+';
+            string variableName = variable;
 
-            if (padLeft) variable = variable.Substring(1);
-            if (padRight) variable = variable.Substring(0, variable.Length - 1);
+            if (padLeft) variableName = variableName.Substring(1);
+            if (padRight) variableName = variableName.Substring(0, variableName.Length - 1);
 
-            string res = formatter.GetVariable(variable);
+            string res = formatter.GetVariable(variableName);
             if (res == null)
-                return "$" + (padLeft ? "+" : "") + variable + (padRight ? "+" : "");
+                return "$" + variable;
 
             if (padLeft || padRight)
             {
-                int? size = formatter.GetAlignedLength(variable);
+                int? size = formatter.GetAlignedLength(variableName);
                 if (size.HasValue)
                 {
                     if (padLeft && padRight)
