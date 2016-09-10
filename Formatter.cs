@@ -195,6 +195,18 @@ namespace CommandLineParsing
 
             return v.Replace.Invoke(item);
         }
+        bool IFormatter.GetPreserveColor(string variable)
+        {
+            Variable v;
+            if (!variables.TryGet(variable, out v))
+                return false;
+
+            object item;
+            if (!items.TryGetValue(v.Type, out item))
+                return false;
+
+            return v.PreserveColor;
+        }
         string IFormatter.GetAutoColor(string variable)
         {
             Variable v;

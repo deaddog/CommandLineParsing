@@ -271,21 +271,29 @@ namespace CommandLineParsing
 
         private static string getVariable(string variable, IFormatter formatter)
         {
+            var match = Regex.Match(variable, @"^\+?([^\+]+)\+?$");
+            if (!match.Success)
+                return "$" + variable;
+
             bool padLeft = variable[0] == '+';
             bool padRight = variable[variable.Length - 1] == '+';
+            string variableName = match.Groups[1].Value;
 
-            if (padLeft) variable = variable.Substring(1);
-            if (padRight) variable = variable.Substring(0, variable.Length - 1);
+            string res = formatter.GetVariable(variableName);
 
-            string res = formatter.GetVariable(variable);
             if (res == null)
-                return "$" + (padLeft ? "+" : "") + variable + (padRight ? "+" : "");
+                return "$" + variable;
+
+            bool preserveColor = formatter.GetPreserveColor(variableName);
 
             if (padLeft || padRight)
             {
-                int? size = formatter.GetAlignedLength(variable);
+                int? size = formatter.GetAlignedLength(variableName);
                 if (size.HasValue)
                 {
+                    if (preserveColor)
+                        size += res.Length - ClearColors(res).Length;
+
                     if (padLeft && padRight)
                         res = res.PadLeft(size.Value / 2).PadRight(size.Value - (size.Value / 2));
                     else if (padLeft)
@@ -295,7 +303,7 @@ namespace CommandLineParsing
                 }
             }
 
-            return res;
+            return EscapeSpecialCharacters(res, !preserveColor);
         }
         private static string colorBlock(string format, IFormatter formatter)
         {
@@ -355,13 +363,14 @@ namespace CommandLineParsing
             return SimpleEvaluation.Evaluate(input, true).Aggregate("", (r, t) => r + t.Content);
         }
         /// <summary>
-        /// Escapes color-coding information in a string such that it can be printed using the <see cref="ColorConsole"/> without color being applied.
+        /// Escapes any special characters (including color-coding) such that a string can be printed literally using the <see cref="ColorConsole"/>.
         /// </summary>
-        /// <param name="input">The string in which color-coding should be escaped.</param>
-        /// <returns>A new string, where all color-coding is escaped.</returns>
-        public static string EscapeColor(string input)
+        /// <param name="input">The string in which characters should be escaped.</param>
+        /// <param name="escapeColor">If set to <c>true</c> color-coding information is escaped.</param>
+        /// <returns>A new string, where all special characters are escaped.</returns>
+        public static string EscapeSpecialCharacters(string input, bool escapeColor = true)
         {
-            return input?.Replace("[", "\\[")?.Replace("]", "\\]");
+            return SimpleEvaluation.EscapeSpecialCharacters(input, escapeColor);
         }
         /// <summary>
         /// Determines whether the specified string includes coloring syntax.
@@ -788,6 +797,18 @@ namespace CommandLineParsing
                     }
 
                 yield return temp;
+            }
+
+            public static string EscapeSpecialCharacters(string value, bool escapeColor)
+            {
+                if (escapeColor)
+                    return value
+                        .Replace("\\", "\\\\")
+                        .Replace("[", "\\[")
+                        .Replace("]", "\\]");
+                else
+                    return value
+                        .Replace("\\", "\\\\");
             }
         }
     }

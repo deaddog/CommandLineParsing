@@ -16,8 +16,16 @@
         /// <summary>
         /// Gets the content of a domain-specific variable.
         /// </summary>
+        /// <param name="variable">The variable for which content should be inserted. For a string of "$+var" only "var" will be the input to the method.</param>
         /// <returns>The string that the variable should be replaced by, if the variable is known; otherwise <c>null</c>.</returns>
         string GetVariable(string variable);
+        /// <summary>
+        /// Determines if color-information in a variable value should be preserved when rendering the variables content.
+        /// If color-information is not preserved, any color markup is escaped and the string is rendered literally.
+        /// </summary>
+        /// <param name="variable">The variable for which color-information should/should not be preserved. For a string of "$+var" only "var" will be the input to the method.</param>
+        /// <returns><c>true</c>, if color-information should be preserved; <c>false</c> otherwise.</returns>
+        bool GetPreserveColor(string variable);
         /// <summary>
         /// Gets the color from a variable. This will typically apply to variables where color is determined from some state (open or closed).
         /// </summary>
