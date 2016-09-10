@@ -11,8 +11,9 @@ namespace CommandLineParsing
             public readonly Func<object, string> Replace;
             public readonly Func<object, string> AutoColor;
             public int? Padding;
+            public readonly bool PreserveColor;
 
-            public Variable(Type type, Func<object, string> replace, Func<object, string> autoColor, int? padding)
+            public Variable(Type type, Func<object, string> replace, Func<object, string> autoColor, int? padding, bool preserveColor)
             {
                 if (type == null)
                     throw new ArgumentNullException(nameof(type));
@@ -26,6 +27,7 @@ namespace CommandLineParsing
                 this.Replace = replace;
                 this.AutoColor = autoColor;
                 this.Padding = padding;
+                this.PreserveColor = preserveColor;
             }
         }
         internal class Condition
@@ -102,7 +104,8 @@ namespace CommandLineParsing
             /// Specify <c>null</c> or a function that returns <c>null</c> if auto coloring does not apply.</param>
             /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.
             /// Note that padding can be updated using <see cref="SetPadding(string, int?)"/>.</param>
-            public void Add<T>(string variable, Func<T, object> replace, Func<T, string> autoColor = null, int? padding = null)
+            /// <param name="preserveColor">A boolean value indicating if color-information should be preserved for <paramref name="variable"/>.</param>
+            public void Add<T>(string variable, Func<T, object> replace, Func<T, string> autoColor = null, int? padding = null, bool preserveColor = false)
             {
                 if (replace == null)
                     throw new ArgumentNullException(nameof(replace));
@@ -110,7 +113,7 @@ namespace CommandLineParsing
                 Func<object, string> r = x => replace((T)x)?.ToString();
                 Func<object, string> c = x => autoColor?.Invoke((T)x);
 
-                Add(variable, new Variable(typeof(T), r, c, padding));
+                Add(variable, new Variable(typeof(T), r, c, padding, preserveColor));
             }
 
             /// <summary>
@@ -141,12 +144,13 @@ namespace CommandLineParsing
             /// Specify <c>null</c> or a function that returns <c>null</c> if auto coloring does not apply.</param>
             /// <param name="padding">The padded width of the string representation of <paramref name="variable"/>; or <c>null</c> if padding does not apply.
             /// Note that padding can be updated using <see cref="SetPadding(string, int?)"/>.</param>
-            public void Add<T, V>(string variable, Func<T, V> select, Func<V, object> replace, Func<V, string> autoColor, int? padding = null)
+            /// <param name="preserveColor">A boolean value indicating if color-information should be preserved for <paramref name="variable"/>.</param>
+            public void Add<T, V>(string variable, Func<T, V> select, Func<V, object> replace, Func<V, string> autoColor, int? padding = null, bool preserveColor = false)
             {
                 if (select == null)
                     throw new ArgumentNullException(nameof(select));
 
-                Add<T>(variable, x => replace(select(x)), x => autoColor?.Invoke(select(x)), padding);
+                Add<T>(variable, x => replace(select(x)), x => autoColor?.Invoke(select(x)), padding, preserveColor);
             }
         }
 
