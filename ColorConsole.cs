@@ -169,6 +169,10 @@ namespace CommandLineParsing
             WriteLine(EvaluateFormat(format, formatter), allowcolor);
         }
 
+        private const string NO_CONDITION_FORMAT = "[red:UNKNOWN CONDITION '{0}']";
+        private const string NO_FUNCTION_FORMAT = "[red:UNKNOWN FUNCTION/PARAMETER '{0}']";
+        private const string NO_VARIABLE_FORMAT = "[red:UNKNOWN VARIABLE '{0}']";
+
         /// <summary>
         /// Evaluates <paramref name="format"/> using a <see cref="IFormatter"/> to specify to string translation.
         /// </summary>
