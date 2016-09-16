@@ -13,5 +13,25 @@ namespace CommandLineParsing.Internals
             position = Console.CursorLeft;
             sb = new StringBuilder();
         }
+
+        public int Length => sb.Length;
+
+        public int Index
+        {
+            get { return Console.CursorLeft - position; }
+            set
+            {
+                if (value > Index)
+                {
+                    if (value <= sb.Length)
+                        Console.CursorLeft = value + position;
+                }
+                else if (value < Index)
+                {
+                    if (value >= 0)
+                        Console.CursorLeft = value + position;
+                }
+            }
+        }
     }
 }
