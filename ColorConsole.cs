@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLineParsing.Internals;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -485,10 +486,8 @@ namespace CommandLineParsing
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
-            int pos = Console.CursorLeft;
-            Console.Write(defaultString);
-
-            StringBuilder sb = new StringBuilder(defaultString);
+            var readline = new ReadLineHelper();
+            readline.Insert(defaultString);
 
             while (true)
             {
