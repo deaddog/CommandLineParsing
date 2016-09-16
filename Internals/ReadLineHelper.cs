@@ -69,5 +69,39 @@ namespace CommandLineParsing.Internals
                 Console.CursorLeft = temp + 1;
             }
         }
+
+        public void Delete(int length)
+        {
+            if (length < 0)
+            {
+                if (Index == 0)
+                    return;
+                if (Index < -length)
+                    length = -Index;
+
+                sb.Remove(Index + length, -length);
+
+                var replace = new string(' ', -length);
+                if (Index != Length - length)
+                    replace = sb.ToString().Substring(Index + length) + replace;
+
+                int temp = Console.CursorLeft;
+                Console.CursorLeft += length;
+                Console.Write(replace);
+                Console.CursorLeft = temp + length;
+            }
+            else if (length > 0)
+            {
+                if (Index == Length)
+                    return;
+                if (Index + length > Length)
+                    length = Length - Index;
+
+                int temp = Console.CursorLeft;
+                sb.Remove(Index, length);
+                Console.Write(sb.ToString().Substring(Index) + new string(' ', length));
+                Console.CursorLeft = temp;
+            }
+        }
     }
 }

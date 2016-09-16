@@ -495,36 +495,10 @@ namespace CommandLineParsing
                 switch (info.Key)
                 {
                     case ConsoleKey.Backspace:
-                        {
-                            if (Console.CursorLeft <= pos) continue;
-                            sb.Remove(Console.CursorLeft - pos - 1, 1);
-                            if (Console.CursorLeft == pos + sb.Length + 1)
-                            {
-                                Console.CursorLeft -= 1;
-                                Console.Write(' ');
-                                Console.CursorLeft -= 1;
-                            }
-                            else
-                            {
-                                int temp = Console.CursorLeft;
-                                Console.CursorLeft -= 1;
-                                var cover = sb.ToString().Substring(Console.CursorLeft - pos) + " ";
-                                Console.Write(sb.ToString().Substring(Console.CursorLeft - pos) + " ");
-                                Console.CursorLeft = temp - 1;
-                            }
-
-                        }
+                        readline.Delete(-1);
                         break;
-
                     case ConsoleKey.Delete:
-                        {
-                            if (Console.CursorLeft == pos + sb.Length) continue;
-
-                            int temp = Console.CursorLeft;
-                            sb.Remove(Console.CursorLeft - pos, 1);
-                            Console.Write(sb.ToString().Substring(Console.CursorLeft - pos) + " ");
-                            Console.CursorLeft = temp;
-                        }
+                        readline.Delete(1);
                         break;
 
                     case ConsoleKey.Enter:
