@@ -495,10 +495,16 @@ namespace CommandLineParsing
                 switch (info.Key)
                 {
                     case ConsoleKey.Backspace:
-                        readline.Delete(-1);
+                        if (info.Modifiers == ConsoleModifiers.Control)
+                            readline.Delete(readline.IndexOfPrevious(' ') - readline.Index);
+                        else
+                            readline.Delete(-1);
                         break;
                     case ConsoleKey.Delete:
-                        readline.Delete(1);
+                        if (info.Modifiers == ConsoleModifiers.Control)
+                            readline.Delete(readline.IndexOfNext(' ') - readline.Index);
+                        else
+                            readline.Delete(1);
                         break;
 
                     case ConsoleKey.Enter:
@@ -506,10 +512,16 @@ namespace CommandLineParsing
                         return readline.Value;
 
                     case ConsoleKey.LeftArrow:
-                        readline.Index--;
+                        if (info.Modifiers == ConsoleModifiers.Control)
+                            readline.Index = readline.IndexOfPrevious(' ');
+                        else
+                            readline.Index--;
                         break;
                     case ConsoleKey.RightArrow:
-                        readline.Index++;
+                        if (info.Modifiers == ConsoleModifiers.Control)
+                            readline.Index = readline.IndexOfNext(' ');
+                        else
+                            readline.Index++;
                         break;
                     case ConsoleKey.Home:
                         readline.Index = 0;
