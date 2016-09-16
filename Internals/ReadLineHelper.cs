@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 
 namespace CommandLineParsing.Internals
@@ -102,6 +103,22 @@ namespace CommandLineParsing.Internals
                 Console.Write(sb.ToString().Substring(Index) + new string(' ', length));
                 Console.CursorLeft = temp;
             }
+        }
+
+        public int IndexOfPrevious(params char[] chars)
+        {
+            int index = Index;
+            if (index == 0)
+                return 0;
+
+            int i = Value.Substring(0, index - 1).LastIndexOf(' ') + 1;
+            if (i == index - 1)
+            {
+                while (i > 0 && chars.Contains(Value[i - 1]))
+                    i--;
+            }
+
+            return i;
         }
     }
 }
