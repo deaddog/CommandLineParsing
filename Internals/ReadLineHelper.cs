@@ -6,6 +6,19 @@ namespace CommandLineParsing.Internals
 {
     internal class ReadLineHelper
     {
+        public static bool IsInputCharacter(ConsoleKeyInfo info)
+        {
+            return IsInputCharacter(info.KeyChar);
+        }
+        public static bool IsInputCharacter(char character)
+        {
+            return
+                char.IsLetterOrDigit(character) ||
+                char.IsPunctuation(character) ||
+                char.IsSymbol(character) ||
+                char.IsSeparator(character);
+        }
+
         private readonly int position;
         private readonly StringBuilder sb;
 

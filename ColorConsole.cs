@@ -531,7 +531,7 @@ namespace CommandLineParsing
                         break;
 
                     default:
-                        if (isConsoleChar(info))
+                        if (ReadLineHelper.IsInputCharacter(info))
                             readline.Insert(info.KeyChar);
                         break;
                 }
@@ -570,7 +570,7 @@ namespace CommandLineParsing
 
                 else if (info.Key == ConsoleKey.Enter) { Console.Write(Environment.NewLine); break; }
 
-                else if (isConsoleChar(info))
+                else if (ReadLineHelper.IsInputCharacter(info))
                 {
                     sb.Append(info.KeyChar);
                     if (passChar.HasValue)
@@ -581,11 +581,6 @@ namespace CommandLineParsing
                 }
             }
             return sb.ToString();
-        }
-
-        private static bool isConsoleChar(ConsoleKeyInfo info)
-        {
-            return char.IsLetterOrDigit(info.KeyChar) || char.IsPunctuation(info.KeyChar) || char.IsSymbol(info.KeyChar) || char.IsSeparator(info.KeyChar);
         }
 
         /// <summary>
