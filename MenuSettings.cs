@@ -5,7 +5,7 @@ namespace CommandLineParsing
     /// <summary>
     /// Encapsulates settings for how a menu is displayed.
     /// </summary>
-    public class MenuSettings : ICloneable
+    public class MenuSettings
     {
         private MenuLabeling labeling;
         private MenuCleanup cleanup;
@@ -39,11 +39,6 @@ namespace CommandLineParsing
             this.indentation = settings.indentation;
             this.minimum = settings.minimum;
             this.maximum = settings.maximum;
-        }
-
-        object ICloneable.Clone()
-        {
-            return new MenuSettings(this);
         }
 
         /// <summary>
