@@ -14,6 +14,7 @@ namespace CommandLineParsing.Internals
             sb = new StringBuilder();
         }
 
+        public string Value => sb.ToString();
         public int Length => sb.Length;
 
         public int Index

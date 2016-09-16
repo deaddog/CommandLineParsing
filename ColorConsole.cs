@@ -529,7 +529,7 @@ namespace CommandLineParsing
 
                     case ConsoleKey.Enter:
                         Console.Write(Environment.NewLine);
-                        return sb.ToString();
+                        return readline.Value;
 
                     case ConsoleKey.LeftArrow:
                         readline.Index--;
