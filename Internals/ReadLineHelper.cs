@@ -120,5 +120,22 @@ namespace CommandLineParsing.Internals
 
             return i;
         }
+        public int IndexOfNext(params char[] chars)
+        {
+            int index = Index;
+            if (index == Length)
+                return index;
+
+            int i = Value.Substring(index + 1).IndexOf(' ') + index + 1;
+            if (i == index)
+                i = Length;
+            else if (i == index + 1)
+            {
+                while (i < Length && chars.Contains(Value[i]))
+                    i++;
+            }
+
+            return i;
+        }
     }
 }
