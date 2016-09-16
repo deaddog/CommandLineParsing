@@ -532,18 +532,16 @@ namespace CommandLineParsing
                         return sb.ToString();
 
                     case ConsoleKey.LeftArrow:
-                        if (Console.CursorLeft > pos)
-                            Console.CursorLeft--;
+                        readline.Index--;
                         break;
                     case ConsoleKey.RightArrow:
-                        if (Console.CursorLeft < pos + sb.Length)
-                            Console.CursorLeft++;
+                        readline.Index++;
                         break;
                     case ConsoleKey.Home:
-                        Console.CursorLeft = pos;
+                        readline.Index = 0;
                         break;
                     case ConsoleKey.End:
-                        Console.CursorLeft = pos + sb.Length;
+                        readline.Index = readline.Length;
                         break;
 
                     default:
