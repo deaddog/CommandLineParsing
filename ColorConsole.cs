@@ -546,20 +546,7 @@ namespace CommandLineParsing
 
                     default:
                         if (isConsoleChar(info))
-                        {
-                            if (Console.CursorLeft == pos + sb.Length)
-                            {
-                                Console.Write(info.KeyChar);
-                                sb.Append(info.KeyChar);
-                            }
-                            else
-                            {
-                                int temp = Console.CursorLeft;
-                                sb.Insert(Console.CursorLeft - pos, info.KeyChar);
-                                Console.Write(sb.ToString().Substring(Console.CursorLeft - pos));
-                                Console.CursorLeft = temp + 1;
-                            }
-                        }
+                            readline.Insert(info.KeyChar);
                         break;
                 }
             }
