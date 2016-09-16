@@ -487,66 +487,85 @@ namespace CommandLineParsing
 
             int pos = Console.CursorLeft;
             Console.Write(defaultString);
-            ConsoleKeyInfo info;
 
             StringBuilder sb = new StringBuilder(defaultString);
 
             while (true)
             {
-                info = Console.ReadKey(true);
-                if (info.Key == ConsoleKey.Backspace)
+                var info = Console.ReadKey(true);
+                switch (info.Key)
                 {
-                    if (Console.CursorLeft <= pos) continue;
-                    sb.Remove(Console.CursorLeft - pos - 1, 1);
-                    if (Console.CursorLeft == pos + sb.Length + 1)
-                    {
-                        Console.CursorLeft -= 1;
-                        Console.Write(' ');
-                        Console.CursorLeft -= 1;
-                    }
-                    else
-                    {
-                        int temp = Console.CursorLeft;
-                        Console.CursorLeft -= 1;
-                        var cover = sb.ToString().Substring(Console.CursorLeft - pos) + " ";
-                        Console.Write(sb.ToString().Substring(Console.CursorLeft - pos) + " ");
-                        Console.CursorLeft = temp - 1;
-                    }
+                    case ConsoleKey.Backspace:
+                        {
+                            if (Console.CursorLeft <= pos) continue;
+                            sb.Remove(Console.CursorLeft - pos - 1, 1);
+                            if (Console.CursorLeft == pos + sb.Length + 1)
+                            {
+                                Console.CursorLeft -= 1;
+                                Console.Write(' ');
+                                Console.CursorLeft -= 1;
+                            }
+                            else
+                            {
+                                int temp = Console.CursorLeft;
+                                Console.CursorLeft -= 1;
+                                var cover = sb.ToString().Substring(Console.CursorLeft - pos) + " ";
+                                Console.Write(sb.ToString().Substring(Console.CursorLeft - pos) + " ");
+                                Console.CursorLeft = temp - 1;
+                            }
 
-                }
-                else if (info.Key == ConsoleKey.Delete)
-                {
-                    if (Console.CursorLeft == pos + sb.Length) continue;
+                        }
+                        break;
 
-                    int temp = Console.CursorLeft;
-                    sb.Remove(Console.CursorLeft - pos, 1);
-                    Console.Write(sb.ToString().Substring(Console.CursorLeft - pos) + " ");
-                    Console.CursorLeft = temp;
-                }
+                    case ConsoleKey.Delete:
+                        {
+                            if (Console.CursorLeft == pos + sb.Length) continue;
 
-                else if (info.Key == ConsoleKey.Enter) { Console.Write(Environment.NewLine); break; }
-                else if (info.Key == ConsoleKey.LeftArrow) { if (Console.CursorLeft > pos) Console.CursorLeft--; }
-                else if (info.Key == ConsoleKey.RightArrow) { if (Console.CursorLeft < pos + sb.Length) Console.CursorLeft++; }
-                else if (info.Key == ConsoleKey.Home) Console.CursorLeft = pos;
-                else if (info.Key == ConsoleKey.End) Console.CursorLeft = pos + sb.Length;
+                            int temp = Console.CursorLeft;
+                            sb.Remove(Console.CursorLeft - pos, 1);
+                            Console.Write(sb.ToString().Substring(Console.CursorLeft - pos) + " ");
+                            Console.CursorLeft = temp;
+                        }
+                        break;
 
-                else if (isConsoleChar(info))
-                {
-                    if (Console.CursorLeft == pos + sb.Length)
-                    {
-                        Console.Write(info.KeyChar);
-                        sb.Append(info.KeyChar);
-                    }
-                    else
-                    {
-                        int temp = Console.CursorLeft;
-                        sb.Insert(Console.CursorLeft - pos, info.KeyChar);
-                        Console.Write(sb.ToString().Substring(Console.CursorLeft - pos));
-                        Console.CursorLeft = temp + 1;
-                    }
+                    case ConsoleKey.Enter:
+                        Console.Write(Environment.NewLine);
+                        return sb.ToString();
+
+                    case ConsoleKey.LeftArrow:
+                        if (Console.CursorLeft > pos)
+                            Console.CursorLeft--;
+                        break;
+                    case ConsoleKey.RightArrow:
+                        if (Console.CursorLeft < pos + sb.Length)
+                            Console.CursorLeft++;
+                        break;
+                    case ConsoleKey.Home:
+                        Console.CursorLeft = pos;
+                        break;
+                    case ConsoleKey.End:
+                        Console.CursorLeft = pos + sb.Length;
+                        break;
+
+                    default:
+                        if (isConsoleChar(info))
+                        {
+                            if (Console.CursorLeft == pos + sb.Length)
+                            {
+                                Console.Write(info.KeyChar);
+                                sb.Append(info.KeyChar);
+                            }
+                            else
+                            {
+                                int temp = Console.CursorLeft;
+                                sb.Insert(Console.CursorLeft - pos, info.KeyChar);
+                                Console.Write(sb.ToString().Substring(Console.CursorLeft - pos));
+                                Console.CursorLeft = temp + 1;
+                            }
+                        }
+                        break;
                 }
             }
-            return sb.ToString();
         }
         /// <summary>
         /// Reads a password from <see cref="Console"/> without printing the input characters.
