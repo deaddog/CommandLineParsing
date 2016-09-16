@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLineParsing.Internals;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -485,68 +486,56 @@ namespace CommandLineParsing
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
-            int pos = Console.CursorLeft;
-            Console.Write(defaultString);
-            ConsoleKeyInfo info;
-
-            StringBuilder sb = new StringBuilder(defaultString);
+            var readline = new ReadLineHelper();
+            readline.Insert(defaultString);
 
             while (true)
             {
-                info = Console.ReadKey(true);
-                if (info.Key == ConsoleKey.Backspace)
+                var info = Console.ReadKey(true);
+                switch (info.Key)
                 {
-                    if (Console.CursorLeft <= pos) continue;
-                    sb.Remove(Console.CursorLeft - pos - 1, 1);
-                    if (Console.CursorLeft == pos + sb.Length + 1)
-                    {
-                        Console.CursorLeft -= 1;
-                        Console.Write(' ');
-                        Console.CursorLeft -= 1;
-                    }
-                    else
-                    {
-                        int temp = Console.CursorLeft;
-                        Console.CursorLeft -= 1;
-                        var cover = sb.ToString().Substring(Console.CursorLeft - pos) + " ";
-                        Console.Write(sb.ToString().Substring(Console.CursorLeft - pos) + " ");
-                        Console.CursorLeft = temp - 1;
-                    }
+                    case ConsoleKey.Backspace:
+                        if (info.Modifiers == ConsoleModifiers.Control)
+                            readline.Delete(readline.IndexOfPrevious(' ') - readline.Index);
+                        else
+                            readline.Delete(-1);
+                        break;
+                    case ConsoleKey.Delete:
+                        if (info.Modifiers == ConsoleModifiers.Control)
+                            readline.Delete(readline.IndexOfNext(' ') - readline.Index);
+                        else
+                            readline.Delete(1);
+                        break;
 
-                }
-                else if (info.Key == ConsoleKey.Delete)
-                {
-                    if (Console.CursorLeft == pos + sb.Length) continue;
+                    case ConsoleKey.Enter:
+                        Console.Write(Environment.NewLine);
+                        return readline.Value;
 
-                    int temp = Console.CursorLeft;
-                    sb.Remove(Console.CursorLeft - pos, 1);
-                    Console.Write(sb.ToString().Substring(Console.CursorLeft - pos) + " ");
-                    Console.CursorLeft = temp;
-                }
+                    case ConsoleKey.LeftArrow:
+                        if (info.Modifiers == ConsoleModifiers.Control)
+                            readline.Index = readline.IndexOfPrevious(' ');
+                        else
+                            readline.Index--;
+                        break;
+                    case ConsoleKey.RightArrow:
+                        if (info.Modifiers == ConsoleModifiers.Control)
+                            readline.Index = readline.IndexOfNext(' ');
+                        else
+                            readline.Index++;
+                        break;
+                    case ConsoleKey.Home:
+                        readline.Index = 0;
+                        break;
+                    case ConsoleKey.End:
+                        readline.Index = readline.Length;
+                        break;
 
-                else if (info.Key == ConsoleKey.Enter) { Console.Write(Environment.NewLine); break; }
-                else if (info.Key == ConsoleKey.LeftArrow) { if (Console.CursorLeft > pos) Console.CursorLeft--; }
-                else if (info.Key == ConsoleKey.RightArrow) { if (Console.CursorLeft < pos + sb.Length) Console.CursorLeft++; }
-                else if (info.Key == ConsoleKey.Home) Console.CursorLeft = pos;
-                else if (info.Key == ConsoleKey.End) Console.CursorLeft = pos + sb.Length;
-
-                else if (isConsoleChar(info))
-                {
-                    if (Console.CursorLeft == pos + sb.Length)
-                    {
-                        Console.Write(info.KeyChar);
-                        sb.Append(info.KeyChar);
-                    }
-                    else
-                    {
-                        int temp = Console.CursorLeft;
-                        sb.Insert(Console.CursorLeft - pos, info.KeyChar);
-                        Console.Write(sb.ToString().Substring(Console.CursorLeft - pos));
-                        Console.CursorLeft = temp + 1;
-                    }
+                    default:
+                        if (ReadLineHelper.IsInputCharacter(info))
+                            readline.Insert(info.KeyChar);
+                        break;
                 }
             }
-            return sb.ToString();
         }
         /// <summary>
         /// Reads a password from <see cref="Console"/> without printing the input characters.
@@ -581,7 +570,7 @@ namespace CommandLineParsing
 
                 else if (info.Key == ConsoleKey.Enter) { Console.Write(Environment.NewLine); break; }
 
-                else if (isConsoleChar(info))
+                else if (ReadLineHelper.IsInputCharacter(info))
                 {
                     sb.Append(info.KeyChar);
                     if (passChar.HasValue)
@@ -592,11 +581,6 @@ namespace CommandLineParsing
                 }
             }
             return sb.ToString();
-        }
-
-        private static bool isConsoleChar(ConsoleKeyInfo info)
-        {
-            return char.IsLetterOrDigit(info.KeyChar) || char.IsPunctuation(info.KeyChar) || char.IsSymbol(info.KeyChar) || char.IsSeparator(info.KeyChar);
         }
 
         /// <summary>
