@@ -33,5 +33,40 @@ namespace CommandLineParsing.Internals
                 }
             }
         }
+
+        public void Insert(string text)
+        {
+            if (Console.CursorLeft == position + sb.Length)
+            {
+                Console.Write(text);
+                sb.Append(text);
+            }
+            else
+            {
+                int temp = Console.CursorLeft;
+
+                sb.Insert(Index, text);
+                Console.Write(sb.ToString().Substring(Index));
+
+                Console.CursorLeft = temp + text.Length;
+            }
+        }
+        public void Insert(char info)
+        {
+            if (Index == Length)
+            {
+                Console.Write(info);
+                sb.Append(info);
+            }
+            else
+            {
+                int temp = Console.CursorLeft;
+
+                sb.Insert(Console.CursorLeft - position, info);
+                Console.Write(sb.ToString().Substring(Console.CursorLeft - position));
+
+                Console.CursorLeft = temp + 1;
+            }
+        }
     }
 }
