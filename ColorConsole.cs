@@ -430,6 +430,7 @@ namespace CommandLineParsing
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
 
+            var promptPosition = CursorPosition;
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
@@ -467,6 +468,19 @@ namespace CommandLineParsing
                     Console.CursorVisible = true;
                 }
             } while (msg.IsError);
+
+            if (cleanup != ReadLineCleanup.None)
+            {
+                CursorPosition = valuePosition;
+                Console.Write(new string(' ', input.Length));
+
+                CursorPosition = promptPosition;
+                Console.Write(new string(' ', ClearColors(prompt).Length));
+                CursorPosition = promptPosition;
+
+                if (cleanup == ReadLineCleanup.RemovePrompt)
+                    Console.WriteLine(input);
+            }
 
             return result;
         }
