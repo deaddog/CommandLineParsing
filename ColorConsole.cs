@@ -496,7 +496,9 @@ namespace CommandLineParsing
         /// <returns>A <see cref="string"/> containing the user input.</returns>
         public static string ReadLine(string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
         {
-            return readLine(false, prompt, defaultString, cleanup);
+            string result;
+            readLine(out result, false, prompt, defaultString, cleanup);
+            return result;
         }
         /// <summary>
         /// Reads a <see cref="string"/> from <see cref="Console"/>, allowing the user to cancel input by pressing escape.
@@ -511,9 +513,7 @@ namespace CommandLineParsing
         /// <returns>A <see cref="string"/> containing the user input.</returns>
         public static bool TryReadLine(out string result, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll)
         {
-            result = readLine(true, prompt, defaultString, cleanup, escapeCleanup);
-
-            return result != null;
+            return readLine(out result, true, prompt, defaultString, cleanup, escapeCleanup);
         }
         /// <summary>
         /// Reads a password from <see cref="Console"/> without printing the input characters.
@@ -561,7 +561,7 @@ namespace CommandLineParsing
             return sb.ToString();
         }
 
-        private static string readLine(bool allowEscape, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.None)
+        private static bool readLine(out string result, bool allowEscape, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.None)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
@@ -598,7 +598,8 @@ namespace CommandLineParsing
                             continue;
                         var value = readline.Value;
                         readline.ApplyCleanup(escape ? escapeCleanup : cleanup, prompt);
-                        return escape ? null : value;
+                        result = value;
+                        return !escape;
 
                     case ConsoleKey.LeftArrow:
                         if (info.Modifiers == ConsoleModifiers.Control)
