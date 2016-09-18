@@ -499,6 +499,22 @@ namespace CommandLineParsing
             return readLine(false, prompt, defaultString, cleanup);
         }
         /// <summary>
+        /// Reads a <see cref="string"/> from <see cref="Console"/>, allowing the user to cancel input by pressing escape.
+        /// </summary>
+        /// <param name="result">The string that was read from <see cref="Console"/>, if input was not cancelled.</param>
+        /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
+        /// <param name="defaultString">A <see cref="string"/> that the inputtext is initialized to.
+        /// The <see cref="string"/> can be edited in the <see cref="Console"/> and is part of the returned <see cref="string"/> if not modified.
+        /// <c>null</c> indicates that no initial value should be used.</param>
+        /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
+        /// <returns>A <see cref="string"/> containing the user input.</returns>
+        public static bool TryReadLine(out string result, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
+        {
+            result = readLine(true, prompt, defaultString, cleanup);
+
+            return result != null;
+        }
+        /// <summary>
         /// Reads a password from <see cref="Console"/> without printing the input characters.
         /// </summary>
         /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
