@@ -526,20 +526,7 @@ namespace CommandLineParsing
 
                     case ConsoleKey.Enter:
                         var value = readline.Value;
-                        if (cleanup == ReadLineCleanup.None)
-                            Console.Write(Environment.NewLine);
-                        else
-                        {
-                            readline.Index = 0;
-                            readline.Delete(value.Length);
-
-                            CursorPosition = promptPosition;
-                            Console.Write(new string(' ', ClearColors(prompt).Length));
-                            CursorPosition = promptPosition;
-
-                            if (cleanup == ReadLineCleanup.RemovePrompt)
-                                Console.WriteLine(value);
-                        }
+                        readline.ApplyCleanup(cleanup, prompt);
                         return value;
 
                     case ConsoleKey.LeftArrow:

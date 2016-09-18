@@ -118,6 +118,47 @@ namespace CommandLineParsing.Internals
             }
         }
 
+        public void ApplyCleanup(ReadLineCleanup cleanup, string prompt = null)
+        {
+            var promptLength = prompt == null ?
+                (int?)null :
+                ColorConsole.ClearColors(prompt).Length;
+
+            ApplyCleanup(cleanup, promptLength);
+        }
+        public void ApplyCleanup(ReadLineCleanup cleanup, int? promptLength = null)
+        {
+            switch (cleanup)
+            {
+                case ReadLineCleanup.None:
+                    Console.Write(Environment.NewLine);
+                    break;
+
+                case ReadLineCleanup.RemovePrompt:
+                case ReadLineCleanup.RemoveAll:
+                    {
+                        var value = Value;
+
+                        Index = 0;
+                        Delete(value.Length);
+
+                        if (promptLength.HasValue)
+                        {
+                            Console.CursorLeft -= promptLength.Value;
+                            Console.Write(new string(' ', promptLength.Value));
+                            Console.CursorLeft -= promptLength.Value;
+                        }
+
+                        if (cleanup == ReadLineCleanup.RemovePrompt)
+                            Console.WriteLine(value);
+                    }
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(cleanup));
+            }
+        }
+
         public int IndexOfPrevious(params char[] chars)
         {
             int index = Index;
