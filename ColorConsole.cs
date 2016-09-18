@@ -496,6 +496,56 @@ namespace CommandLineParsing
         /// <returns>A <see cref="string"/> containing the user input.</returns>
         public static string ReadLine(string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
         {
+            return readLine(prompt, defaultString, cleanup);
+        }
+        /// <summary>
+        /// Reads a password from <see cref="Console"/> without printing the input characters.
+        /// </summary>
+        /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
+        /// <param name="passChar">An optional character to display in place of input symbols. <c>null</c> will display nothing to the user.</param>
+        /// <param name="singleSymbol">if set to <c>true</c> <paramref name="passChar"/> will only be printed once, on input.</param>
+        /// <returns>A <see cref="string"/> containing the password.</returns>
+        public static string ReadPassword(string prompt = null, char? passChar = '*', bool singleSymbol = true)
+        {
+            if (ColorConsole.Caching.Enabled)
+                throw new InvalidOperationException("ReadPassword cannot be used while caching is enabled.");
+
+            if (prompt != null)
+                ColorConsole.Write(prompt);
+
+            int pos = Console.CursorLeft;
+            ConsoleKeyInfo info;
+
+            StringBuilder sb = new StringBuilder(string.Empty);
+
+            while (true)
+            {
+                info = Console.ReadKey(true);
+                if (info.Key == ConsoleKey.Backspace)
+                {
+                    Console.CursorLeft = pos;
+                    Console.Write(new string(' ', (singleSymbol || !passChar.HasValue) ? 1 : sb.Length));
+                    Console.CursorLeft = pos;
+                    sb.Clear();
+                }
+
+                else if (info.Key == ConsoleKey.Enter) { Console.Write(Environment.NewLine); break; }
+
+                else if (ReadLineHelper.IsInputCharacter(info))
+                {
+                    sb.Append(info.KeyChar);
+                    if (passChar.HasValue)
+                    {
+                        if (!singleSymbol || sb.Length == 1)
+                            Console.Write(passChar.Value);
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+
+        private static string readLine(string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
+        {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
 
@@ -554,51 +604,6 @@ namespace CommandLineParsing
                         break;
                 }
             }
-        }
-        /// <summary>
-        /// Reads a password from <see cref="Console"/> without printing the input characters.
-        /// </summary>
-        /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
-        /// <param name="passChar">An optional character to display in place of input symbols. <c>null</c> will display nothing to the user.</param>
-        /// <param name="singleSymbol">if set to <c>true</c> <paramref name="passChar"/> will only be printed once, on input.</param>
-        /// <returns>A <see cref="string"/> containing the password.</returns>
-        public static string ReadPassword(string prompt = null, char? passChar = '*', bool singleSymbol = true)
-        {
-            if (ColorConsole.Caching.Enabled)
-                throw new InvalidOperationException("ReadPassword cannot be used while caching is enabled.");
-
-            if (prompt != null)
-                ColorConsole.Write(prompt);
-
-            int pos = Console.CursorLeft;
-            ConsoleKeyInfo info;
-
-            StringBuilder sb = new StringBuilder(string.Empty);
-
-            while (true)
-            {
-                info = Console.ReadKey(true);
-                if (info.Key == ConsoleKey.Backspace)
-                {
-                    Console.CursorLeft = pos;
-                    Console.Write(new string(' ', (singleSymbol || !passChar.HasValue) ? 1 : sb.Length));
-                    Console.CursorLeft = pos;
-                    sb.Clear();
-                }
-
-                else if (info.Key == ConsoleKey.Enter) { Console.Write(Environment.NewLine); break; }
-
-                else if (ReadLineHelper.IsInputCharacter(info))
-                {
-                    sb.Append(info.KeyChar);
-                    if (passChar.HasValue)
-                    {
-                        if (!singleSymbol || sb.Length == 1)
-                            Console.Write(passChar.Value);
-                    }
-                }
-            }
-            return sb.ToString();
         }
 
         /// <summary>
