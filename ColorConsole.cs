@@ -410,40 +410,42 @@ namespace CommandLineParsing
         /// <param name="defaultString">A <see cref="string"/> that the inputtext is initialized to.
         /// The <see cref="string"/> can be edited in the <see cref="Console"/> and is part of the parsed <see cref="string"/> if not modified.
         /// <c>null</c> indicates that no initial value should be used.</param>
+        /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
         /// <param name="parser">The <see cref="ParameterTryParse{T}"/> method that should be used when parsing the ReadLine input.<para />
         /// <c>null</c> indicates that the static <see cref="TryParse{T}"/> or <see cref="MessageTryParse{T}"/> method defined in <typeparamref name="T"/> should be used for parsing.
         /// An exception is thrown if such a method is not defined.</param>
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
-        public static T ReadLine<T>(string prompt = null, string defaultString = null, ParameterTryParse<T> parser = null, Validator<T> validator = null)
+        public static T ReadLine<T>(string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ParameterTryParse<T> parser = null, Validator<T> validator = null)
         {
             var smartparser = getParser<T>();
             if (parser != null)
                 smartparser.Parser = parser;
 
-            return ReadLine<T>(smartparser, prompt, defaultString, validator);
+            return ReadLine<T>(smartparser, prompt, defaultString, cleanup, validator);
         }
-        internal static T ReadLine<T>(SmartParser<T> parser, string prompt = null, string defaultString = null, Validator<T> validator = null)
+        internal static T ReadLine<T>(SmartParser<T> parser, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, Validator<T> validator = null)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
 
+            var promptPosition = CursorPosition;
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
-            int l = Console.CursorLeft, t = Console.CursorTop;
+            var valuePosition = CursorPosition;
             string input = "";
             T result = default(T);
             Message msg = Message.NoError;
 
             do
             {
-                Console.SetCursorPosition(l, t);
+                CursorPosition = valuePosition;
                 Console.Write(new string(' ', input.Length));
-                Console.SetCursorPosition(l, t);
+                CursorPosition = valuePosition;
 
-                input = ColorConsole.ReadLine(null, defaultString);
+                input = ColorConsole.ReadLine(null, defaultString, ReadLineCleanup.None);
                 string[] parseData = typeof(T).IsArray ? Command.SimulateParse(input) : new string[] { input };
                 msg = parser.Parse(parseData, out result);
 
@@ -453,12 +455,12 @@ namespace CommandLineParsing
                 if (msg.IsError)
                 {
                     Console.CursorVisible = false;
-                    Console.SetCursorPosition(l, t);
+                    CursorPosition = valuePosition;
                     Console.Write(new string(' ', input.Length));
 
                     input = msg.GetMessage();
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.SetCursorPosition(l, t);
+                    CursorPosition = valuePosition;
                     Console.Write(input);
                     Console.ResetColor();
 
@@ -466,6 +468,19 @@ namespace CommandLineParsing
                     Console.CursorVisible = true;
                 }
             } while (msg.IsError);
+
+            if (cleanup != ReadLineCleanup.None)
+            {
+                CursorPosition = valuePosition;
+                Console.Write(new string(' ', input.Length));
+
+                CursorPosition = promptPosition;
+                Console.Write(new string(' ', ClearColors(prompt).Length));
+                CursorPosition = promptPosition;
+
+                if (cleanup == ReadLineCleanup.RemovePrompt)
+                    Console.WriteLine(input);
+            }
 
             return result;
         }
@@ -477,12 +492,14 @@ namespace CommandLineParsing
         /// <param name="defaultString">A <see cref="string"/> that the inputtext is initialized to.
         /// The <see cref="string"/> can be edited in the <see cref="Console"/> and is part of the returned <see cref="string"/> if not modified.
         /// <c>null</c> indicates that no initial value should be used.</param>
+        /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
         /// <returns>A <see cref="string"/> containing the user input.</returns>
-        public static string ReadLine(string prompt = null, string defaultString = null)
+        public static string ReadLine(string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
 
+            var promptPosition = CursorPosition;
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
@@ -508,8 +525,9 @@ namespace CommandLineParsing
                         break;
 
                     case ConsoleKey.Enter:
-                        Console.Write(Environment.NewLine);
-                        return readline.Value;
+                        var value = readline.Value;
+                        readline.ApplyCleanup(cleanup, prompt);
+                        return value;
 
                     case ConsoleKey.LeftArrow:
                         if (info.Modifiers == ConsoleModifiers.Control)

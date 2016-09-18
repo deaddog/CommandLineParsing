@@ -8,7 +8,7 @@ namespace CommandLineParsing
     public enum MenuCleanup
     {
         /// <summary>
-        /// None cleanup is applied.
+        /// No cleanup is applied.
         /// </summary>
         None,
         /// <summary>
