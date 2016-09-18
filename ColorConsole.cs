@@ -496,7 +496,7 @@ namespace CommandLineParsing
         /// <returns>A <see cref="string"/> containing the user input.</returns>
         public static string ReadLine(string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
         {
-            return readLine(prompt, defaultString, cleanup);
+            return readLine(false, prompt, defaultString, cleanup);
         }
         /// <summary>
         /// Reads a password from <see cref="Console"/> without printing the input characters.
@@ -544,7 +544,7 @@ namespace CommandLineParsing
             return sb.ToString();
         }
 
-        private static string readLine(string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
+        private static string readLine(bool allowEscape, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
@@ -574,10 +574,13 @@ namespace CommandLineParsing
                             readline.Delete(1);
                         break;
 
+                    case ConsoleKey.Escape:
                     case ConsoleKey.Enter:
+                        if (info.Key == ConsoleKey.Escape && !allowEscape)
+                            continue;
                         var value = readline.Value;
                         readline.ApplyCleanup(cleanup, prompt);
-                        return value;
+                        return info.Key == ConsoleKey.Escape ? null : value;
 
                     case ConsoleKey.LeftArrow:
                         if (info.Modifiers == ConsoleModifiers.Control)
