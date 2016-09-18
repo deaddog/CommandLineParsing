@@ -499,6 +499,7 @@ namespace CommandLineParsing
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
 
+            var promptPosition = CursorPosition;
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
@@ -524,8 +525,22 @@ namespace CommandLineParsing
                         break;
 
                     case ConsoleKey.Enter:
-                        Console.Write(Environment.NewLine);
-                        return readline.Value;
+                        var value = readline.Value;
+                        if (cleanup == ReadLineCleanup.None)
+                            Console.Write(Environment.NewLine);
+                        else
+                        {
+                            readline.Index = 0;
+                            readline.Delete(value.Length);
+
+                            CursorPosition = promptPosition;
+                            Console.Write(new string(' ', ClearColors(prompt).Length));
+                            CursorPosition = promptPosition;
+
+                            if (cleanup == ReadLineCleanup.RemovePrompt)
+                                Console.WriteLine(value);
+                        }
+                        return value;
 
                     case ConsoleKey.LeftArrow:
                         if (info.Modifiers == ConsoleModifiers.Control)
