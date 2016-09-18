@@ -507,10 +507,11 @@ namespace CommandLineParsing
         /// The <see cref="string"/> can be edited in the <see cref="Console"/> and is part of the returned <see cref="string"/> if not modified.
         /// <c>null</c> indicates that no initial value should be used.</param>
         /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
+        /// <param name="escapeCleanup">Determines the type of cleanup that should be applied if the readline did not complete succesfully.</param>
         /// <returns>A <see cref="string"/> containing the user input.</returns>
-        public static bool TryReadLine(out string result, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
+        public static bool TryReadLine(out string result, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll)
         {
-            result = readLine(true, prompt, defaultString, cleanup);
+            result = readLine(true, prompt, defaultString, cleanup, escapeCleanup);
 
             return result != null;
         }
@@ -560,7 +561,7 @@ namespace CommandLineParsing
             return sb.ToString();
         }
 
-        private static string readLine(bool allowEscape, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
+        private static string readLine(bool allowEscape, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.None)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
@@ -592,11 +593,12 @@ namespace CommandLineParsing
 
                     case ConsoleKey.Escape:
                     case ConsoleKey.Enter:
-                        if (info.Key == ConsoleKey.Escape && !allowEscape)
+                        var escape = info.Key == ConsoleKey.Escape;
+                        if (escape && !allowEscape)
                             continue;
                         var value = readline.Value;
-                        readline.ApplyCleanup(cleanup, prompt);
-                        return info.Key == ConsoleKey.Escape ? null : value;
+                        readline.ApplyCleanup(escape ? escapeCleanup : cleanup, prompt);
+                        return escape ? null : value;
 
                     case ConsoleKey.LeftArrow:
                         if (info.Modifiers == ConsoleModifiers.Control)
