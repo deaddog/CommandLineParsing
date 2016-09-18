@@ -427,6 +427,10 @@ namespace CommandLineParsing
         }
         internal static T ReadLine<T>(SmartParser<T> parser, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, Validator<T> validator = null)
         {
+            return readLine(parser, prompt, defaultString, cleanup, validator);
+        }
+        private static T readLine<T>(SmartParser<T> parser, string prompt, string defaultString, ReadLineCleanup cleanup, Validator<T> validator)
+        {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
 
