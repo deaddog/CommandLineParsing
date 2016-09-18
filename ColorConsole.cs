@@ -497,7 +497,7 @@ namespace CommandLineParsing
         public static string ReadLine(string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
         {
             string result;
-            readLine(out result, false, prompt, defaultString, cleanup);
+            readLine(out result, false, prompt, defaultString, cleanup, ReadLineCleanup.None);
             return result;
         }
         /// <summary>
@@ -561,7 +561,7 @@ namespace CommandLineParsing
             return sb.ToString();
         }
 
-        private static bool readLine(out string result, bool allowEscape, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.None)
+        private static bool readLine(out string result, bool allowEscape, string prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
