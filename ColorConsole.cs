@@ -432,16 +432,16 @@ namespace CommandLineParsing
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
-            int l = Console.CursorLeft, t = Console.CursorTop;
+            var valuePosition = CursorPosition;
             string input = "";
             T result = default(T);
             Message msg = Message.NoError;
 
             do
             {
-                Console.SetCursorPosition(l, t);
+                CursorPosition = valuePosition;
                 Console.Write(new string(' ', input.Length));
-                Console.SetCursorPosition(l, t);
+                CursorPosition = valuePosition;
 
                 input = ColorConsole.ReadLine(null, defaultString);
                 string[] parseData = typeof(T).IsArray ? Command.SimulateParse(input) : new string[] { input };
@@ -453,12 +453,12 @@ namespace CommandLineParsing
                 if (msg.IsError)
                 {
                     Console.CursorVisible = false;
-                    Console.SetCursorPosition(l, t);
+                    CursorPosition = valuePosition;
                     Console.Write(new string(' ', input.Length));
 
                     input = msg.GetMessage();
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.SetCursorPosition(l, t);
+                    CursorPosition = valuePosition;
                     Console.Write(input);
                     Console.ResetColor();
 
