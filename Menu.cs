@@ -90,7 +90,7 @@ namespace CommandLineParsing
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("Menus cannot be displayed while caching is enabled.");
 
-            if (settings == null) settings = new MenuSettings();
+            if (settings == null) settings = new MenuSettings(MenuSettings.DefaultSettings);
 
             Console.CursorVisible = false;
 
