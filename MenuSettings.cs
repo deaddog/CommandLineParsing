@@ -13,6 +13,10 @@ namespace CommandLineParsing
         private uint minimum, maximum;
 
         private static MenuSettings defaultSettings;
+        /// <summary>
+        /// Gets or sets the default settings used when displayiong menus.
+        /// This value will be injected when a menu is displayed using <c>null</c> as settings argument.
+        /// </summary>
         public static MenuSettings DefaultSettings
         {
             get
