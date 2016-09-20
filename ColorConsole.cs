@@ -427,9 +427,11 @@ namespace CommandLineParsing
         }
         internal static T ReadLine<T>(SmartParser<T> parser, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, Validator<T> validator = null)
         {
-            return readLine(parser, prompt, defaultString, cleanup, validator);
+            T result;
+            readLine(parser, out result, prompt, defaultString, cleanup, ReadLineCleanup.None, validator);
+            return result;
         }
-        private static T readLine<T>(SmartParser<T> parser, string prompt, string defaultString, ReadLineCleanup cleanup, Validator<T> validator)
+        private static bool readLine<T>(SmartParser<T> parser, out T result, string prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup, Validator<T> validator)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
@@ -439,8 +441,9 @@ namespace CommandLineParsing
                 ColorConsole.Write(prompt);
 
             var valuePosition = CursorPosition;
+            bool cancelled = false;
             string input = "";
-            T result = default(T);
+            result = default(T);
             Message msg = Message.NoError;
 
             do
@@ -449,9 +452,13 @@ namespace CommandLineParsing
                 Console.Write(new string(' ', input.Length));
                 CursorPosition = valuePosition;
 
-                input = ColorConsole.ReadLine(null, defaultString, ReadLineCleanup.None);
+                cancelled = !ColorConsole.TryReadLine(out input, null, defaultString, ReadLineCleanup.None, ReadLineCleanup.None);
+
                 string[] parseData = typeof(T).IsArray ? Command.SimulateParse(input) : new string[] { input };
                 msg = parser.Parse(parseData, out result);
+
+                if (cancelled)
+                    break;
 
                 if (!msg.IsError)
                     msg = validator == null ? Message.NoError : validator.Validate(result);
@@ -473,7 +480,8 @@ namespace CommandLineParsing
                 }
             } while (msg.IsError);
 
-            if (cleanup != ReadLineCleanup.None)
+            var cl = cancelled ? escapeCleanup : cleanup;
+            if (cl != ReadLineCleanup.None)
             {
                 CursorPosition = valuePosition;
                 Console.Write(new string(' ', input.Length));
@@ -482,11 +490,11 @@ namespace CommandLineParsing
                 Console.Write(new string(' ', ClearColors(prompt).Length));
                 CursorPosition = promptPosition;
 
-                if (cleanup == ReadLineCleanup.RemovePrompt)
+                if (cl == ReadLineCleanup.RemovePrompt)
                     Console.WriteLine(input);
             }
 
-            return result;
+            return !cancelled;
         }
 
         /// <summary>
