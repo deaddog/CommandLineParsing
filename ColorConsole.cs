@@ -699,7 +699,7 @@ namespace CommandLineParsing
             if (allowflags)
             {
                 if (settings == null)
-                    settings = new MenuSettings() { MinimumSelected = 1 };
+                    settings = new MenuSettings(MenuSettings.DefaultSettings);
                 if (settings.MinimumSelected == 0)
                     settings = new MenuSettings(settings) { MinimumSelected = 1 };
 
