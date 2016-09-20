@@ -12,6 +12,24 @@ namespace CommandLineParsing
         private string indentation;
         private uint minimum, maximum;
 
+        private static MenuSettings defaultSettings;
+        public static MenuSettings DefaultSettings
+        {
+            get
+            {
+                if (defaultSettings == null)
+                    defaultSettings = new MenuSettings();
+                return defaultSettings;
+            }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+                else
+                    defaultSettings = value;
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MenuSettings"/> class.
         /// All options are set trough properties.
