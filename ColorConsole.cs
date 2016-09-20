@@ -551,7 +551,7 @@ namespace CommandLineParsing
         /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
         /// <param name="escapeCleanup">Determines the type of cleanup that should be applied if the readline did not complete succesfully.</param>
         /// <returns>A <see cref="bool"/> indicating weather the call completed without the user pressing escape.</returns>
-        public static bool TryReadLine(out string result, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll)
+        public static bool TryReadLine(out string result, string prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
         {
             return readLine(out result, true, prompt, defaultString, cleanup, escapeCleanup);
         }
