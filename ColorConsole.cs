@@ -427,6 +427,40 @@ namespace CommandLineParsing
         }
         internal static T ReadLine<T>(SmartParser<T> parser, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, Validator<T> validator = null)
         {
+            T result;
+            readLine(parser, out result, prompt, defaultString, cleanup, ReadLineCleanup.None, validator);
+            return result;
+        }
+        /// <summary>
+        /// Reads and parses user input from <see cref="Console"/>, allowing the user to cancel input by pressing escape.
+        /// </summary>
+        /// <typeparam name="T">The type of input that the method should accept.</typeparam>
+        /// <param name="result">The <typeparamref name="T"/> elememnt parsed from user input. If input could not be parsed on escape, this value is unknown.</param>
+        /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
+        /// <param name="defaultString">A <see cref="string"/> that the inputtext is initialized to.
+        /// The <see cref="string"/> can be edited in the <see cref="Console"/> and is part of the returned <see cref="string"/> if not modified.
+        /// <c>null</c> indicates that no initial value should be used.</param>
+        /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
+        /// <param name="escapeCleanup">Determines the type of cleanup that should be applied if the readline did not complete succesfully.</param>
+        /// <param name="parser">The parser.</param>
+        /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
+        /// <c>null</c> indicates that no validation should be applied.</param>
+        /// <returns>A <see cref="bool"/> indicating weather the call completed without the user pressing escape.</returns>
+        public static bool TryReadLine<T>(out T result, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, ParameterTryParse<T> parser = null, Validator<T> validator = null)
+        {
+            var smartparser = getParser<T>();
+            if (parser != null)
+                smartparser.Parser = parser;
+
+            return TryReadLine<T>(smartparser, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
+        }
+        internal static bool TryReadLine<T>(SmartParser<T> parser, out T result, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, Validator<T> validator = null)
+        {
+            return readLine(parser, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
+        }
+
+        private static bool readLine<T>(SmartParser<T> parser, out T result, string prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup, Validator<T> validator)
+        {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
 
@@ -435,8 +469,9 @@ namespace CommandLineParsing
                 ColorConsole.Write(prompt);
 
             var valuePosition = CursorPosition;
+            bool cancelled = false;
             string input = "";
-            T result = default(T);
+            result = default(T);
             Message msg = Message.NoError;
 
             do
@@ -445,9 +480,13 @@ namespace CommandLineParsing
                 Console.Write(new string(' ', input.Length));
                 CursorPosition = valuePosition;
 
-                input = ColorConsole.ReadLine(null, defaultString, ReadLineCleanup.None);
+                cancelled = !ColorConsole.TryReadLine(out input, null, defaultString, ReadLineCleanup.None, ReadLineCleanup.None);
+
                 string[] parseData = typeof(T).IsArray ? Command.SimulateParse(input) : new string[] { input };
                 msg = parser.Parse(parseData, out result);
+
+                if (cancelled)
+                    break;
 
                 if (!msg.IsError)
                     msg = validator == null ? Message.NoError : validator.Validate(result);
@@ -469,7 +508,8 @@ namespace CommandLineParsing
                 }
             } while (msg.IsError);
 
-            if (cleanup != ReadLineCleanup.None)
+            var cl = cancelled ? escapeCleanup : cleanup;
+            if (cl != ReadLineCleanup.None)
             {
                 CursorPosition = valuePosition;
                 Console.Write(new string(' ', input.Length));
@@ -478,11 +518,11 @@ namespace CommandLineParsing
                 Console.Write(new string(' ', ClearColors(prompt).Length));
                 CursorPosition = promptPosition;
 
-                if (cleanup == ReadLineCleanup.RemovePrompt)
+                if (cl == ReadLineCleanup.RemovePrompt)
                     Console.WriteLine(input);
             }
 
-            return result;
+            return !cancelled;
         }
 
         /// <summary>
@@ -496,64 +536,24 @@ namespace CommandLineParsing
         /// <returns>A <see cref="string"/> containing the user input.</returns>
         public static string ReadLine(string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
         {
-            if (ColorConsole.Caching.Enabled)
-                throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
-
-            var promptPosition = CursorPosition;
-            if (prompt != null)
-                ColorConsole.Write(prompt);
-
-            var readline = new ReadLineHelper();
-            readline.Insert(defaultString);
-
-            while (true)
-            {
-                var info = Console.ReadKey(true);
-                switch (info.Key)
-                {
-                    case ConsoleKey.Backspace:
-                        if (info.Modifiers == ConsoleModifiers.Control)
-                            readline.Delete(readline.IndexOfPrevious(' ') - readline.Index);
-                        else
-                            readline.Delete(-1);
-                        break;
-                    case ConsoleKey.Delete:
-                        if (info.Modifiers == ConsoleModifiers.Control)
-                            readline.Delete(readline.IndexOfNext(' ') - readline.Index);
-                        else
-                            readline.Delete(1);
-                        break;
-
-                    case ConsoleKey.Enter:
-                        var value = readline.Value;
-                        readline.ApplyCleanup(cleanup, prompt);
-                        return value;
-
-                    case ConsoleKey.LeftArrow:
-                        if (info.Modifiers == ConsoleModifiers.Control)
-                            readline.Index = readline.IndexOfPrevious(' ');
-                        else
-                            readline.Index--;
-                        break;
-                    case ConsoleKey.RightArrow:
-                        if (info.Modifiers == ConsoleModifiers.Control)
-                            readline.Index = readline.IndexOfNext(' ');
-                        else
-                            readline.Index++;
-                        break;
-                    case ConsoleKey.Home:
-                        readline.Index = 0;
-                        break;
-                    case ConsoleKey.End:
-                        readline.Index = readline.Length;
-                        break;
-
-                    default:
-                        if (ReadLineHelper.IsInputCharacter(info))
-                            readline.Insert(info.KeyChar);
-                        break;
-                }
-            }
+            string result;
+            readLine(out result, false, prompt, defaultString, cleanup, ReadLineCleanup.None);
+            return result;
+        }
+        /// <summary>
+        /// Reads a <see cref="string"/> from <see cref="Console"/>, allowing the user to cancel input by pressing escape.
+        /// </summary>
+        /// <param name="result">The string that was read from <see cref="Console"/>. This value is the same regardless if input was cancelled.</param>
+        /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
+        /// <param name="defaultString">A <see cref="string"/> that the inputtext is initialized to.
+        /// The <see cref="string"/> can be edited in the <see cref="Console"/> and is part of the returned <see cref="string"/> if not modified.
+        /// <c>null</c> indicates that no initial value should be used.</param>
+        /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
+        /// <param name="escapeCleanup">Determines the type of cleanup that should be applied if the readline did not complete succesfully.</param>
+        /// <returns>A <see cref="bool"/> indicating weather the call completed without the user pressing escape.</returns>
+        public static bool TryReadLine(out string result, string prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
+        {
+            return readLine(out result, true, prompt, defaultString, cleanup, escapeCleanup);
         }
         /// <summary>
         /// Reads a password from <see cref="Console"/> without printing the input characters.
@@ -599,6 +599,73 @@ namespace CommandLineParsing
                 }
             }
             return sb.ToString();
+        }
+
+        private static bool readLine(out string result, bool allowEscape, string prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
+        {
+            if (ColorConsole.Caching.Enabled)
+                throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
+
+            var promptPosition = CursorPosition;
+            if (prompt != null)
+                ColorConsole.Write(prompt);
+
+            var readline = new ReadLineHelper();
+            readline.Insert(defaultString);
+
+            while (true)
+            {
+                var info = Console.ReadKey(true);
+                switch (info.Key)
+                {
+                    case ConsoleKey.Backspace:
+                        if (info.Modifiers == ConsoleModifiers.Control)
+                            readline.Delete(readline.IndexOfPrevious(' ') - readline.Index);
+                        else
+                            readline.Delete(-1);
+                        break;
+                    case ConsoleKey.Delete:
+                        if (info.Modifiers == ConsoleModifiers.Control)
+                            readline.Delete(readline.IndexOfNext(' ') - readline.Index);
+                        else
+                            readline.Delete(1);
+                        break;
+
+                    case ConsoleKey.Escape:
+                    case ConsoleKey.Enter:
+                        var escape = info.Key == ConsoleKey.Escape;
+                        if (escape && !allowEscape)
+                            continue;
+                        var value = readline.Value;
+                        readline.ApplyCleanup(escape ? escapeCleanup : cleanup, prompt);
+                        result = value;
+                        return !escape;
+
+                    case ConsoleKey.LeftArrow:
+                        if (info.Modifiers == ConsoleModifiers.Control)
+                            readline.Index = readline.IndexOfPrevious(' ');
+                        else
+                            readline.Index--;
+                        break;
+                    case ConsoleKey.RightArrow:
+                        if (info.Modifiers == ConsoleModifiers.Control)
+                            readline.Index = readline.IndexOfNext(' ');
+                        else
+                            readline.Index++;
+                        break;
+                    case ConsoleKey.Home:
+                        readline.Index = 0;
+                        break;
+                    case ConsoleKey.End:
+                        readline.Index = readline.Length;
+                        break;
+
+                    default:
+                        if (ReadLineHelper.IsInputCharacter(info))
+                            readline.Insert(info.KeyChar);
+                        break;
+                }
+            }
         }
 
         /// <summary>
