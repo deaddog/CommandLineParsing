@@ -431,6 +431,34 @@ namespace CommandLineParsing
             readLine(parser, out result, prompt, defaultString, cleanup, ReadLineCleanup.None, validator);
             return result;
         }
+        /// <summary>
+        /// Reads and parses user input from <see cref="Console"/>, allowing the user to cancel input by pressing escape.
+        /// </summary>
+        /// <typeparam name="T">The type of input that the method should accept.</typeparam>
+        /// <param name="result">The <typeparamref name="T"/> elememnt parsed from user input. If input could not be parsed on escape, this value is unknown.</param>
+        /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
+        /// <param name="defaultString">A <see cref="string"/> that the inputtext is initialized to.
+        /// The <see cref="string"/> can be edited in the <see cref="Console"/> and is part of the returned <see cref="string"/> if not modified.
+        /// <c>null</c> indicates that no initial value should be used.</param>
+        /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
+        /// <param name="escapeCleanup">Determines the type of cleanup that should be applied if the readline did not complete succesfully.</param>
+        /// <param name="parser">The parser.</param>
+        /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
+        /// <c>null</c> indicates that no validation should be applied.</param>
+        /// <returns>A <see cref="bool"/> indicating weather the call completed without the user pressing escape.</returns>
+        public static bool TryReadLine<T>(out T result, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, ParameterTryParse<T> parser = null, Validator<T> validator = null)
+        {
+            var smartparser = getParser<T>();
+            if (parser != null)
+                smartparser.Parser = parser;
+
+            return TryReadLine<T>(smartparser, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
+        }
+        internal static bool TryReadLine<T>(SmartParser<T> parser, out T result, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, Validator<T> validator = null)
+        {
+            return readLine(parser, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
+        }
+
         private static bool readLine<T>(SmartParser<T> parser, out T result, string prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup, Validator<T> validator)
         {
             if (ColorConsole.Caching.Enabled)
