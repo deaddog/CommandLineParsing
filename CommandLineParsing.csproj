@@ -69,6 +69,8 @@
     <Compile Include="MenuLabeling.cs" />
     <Compile Include="MenuSettings.cs" />
     <Compile Include="Menu.cs" />
+    <Compile Include="Input\MenuDisplay.cs" />
+    <Compile Include="Input\MenuOption.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="MessageTryParse.cs" />
     <Compile Include="Name.cs" />
