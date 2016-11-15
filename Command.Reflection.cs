@@ -34,8 +34,8 @@ namespace CommandLineParsing
                 {
                     if (isFlag)
                         throw new TypeAccessException($"A {nameof(FlagParameter)} cannot be marked with the {nameof(IgnoreCase)} attribute.");
-                    if (isEnum)
-                        throw new TypeAccessException($"The {nameof(IgnoreCase)} attribute only applies to enumerations.");
+                    if (!isEnum)
+                        throw new TypeAccessException($"The {nameof(IgnoreCase)} attribute only applies to enum types.");
                 }
 
                 if (defAtt != null)
