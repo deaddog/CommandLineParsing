@@ -73,6 +73,7 @@
     <Compile Include="MessageTryParse.cs" />
     <Compile Include="Name.cs" />
     <Compile Include="NoName.cs" />
+    <Compile Include="Output\ConsoleString.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="ParameterExtension.cs" />
     <Compile Include="ParameterTryParse.cs" />
@@ -91,6 +92,9 @@
     <Compile Include="ValidationExtension.cs" />
     <Compile Include="Validator.cs" />
     <Compile Include="Validator[T].cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Output\ConsoleString.Segment.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
