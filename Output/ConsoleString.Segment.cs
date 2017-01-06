@@ -9,10 +9,13 @@ namespace CommandLineParsing.Output
             public readonly string Content;
             public readonly string Color;
 
+            public readonly bool HasColor;
+
             public Segment(string content, string color)
             {
                 Content = content;
                 Color = color;
+                HasColor = color != null;
             }
 
             public static IEnumerable<Segment> Parse(string value, bool maintainEscape)

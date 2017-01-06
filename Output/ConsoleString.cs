@@ -11,6 +11,7 @@ namespace CommandLineParsing.Output
     {
         private readonly Segment[] content;
         private readonly Lazy<int> length;
+        private readonly Lazy<bool> hasColors;
 
         /// <summary>
         /// Concatenates the two <see cref="ConsoleString"/>s together. Similar to <c>string + string</c>.
@@ -49,8 +50,8 @@ namespace CommandLineParsing.Output
         {
             content = segments.ToArray();
             length = new Lazy<int>(() => content.Length == 0 ? 0 : content.Sum(x => x.Content.Length));
+            hasColors = new Lazy<bool>(() => content.Any(x => x.HasColor));
         }
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleString"/> class, representing an empty string.
         /// </summary>
@@ -70,8 +71,24 @@ namespace CommandLineParsing.Output
         }
 
         /// <summary>
+        /// Gets a value indicating whether any part of this console string has colors.
+        /// </summary>
+        /// <remarks>
+        /// Colors can be removed by calling <see cref="ClearColors"/>.
+        /// </remarks>
+        public bool HasColors => hasColors.Value;
+        /// <summary>
         /// Gets the number of characters in the <see cref="ConsoleString"/>.
         /// </summary>
         public int Length => length.Value;
+
+        /// <summary>
+        /// Returns a new <see cref="ConsoleString"/> that has been stripped of coloring.
+        /// </summary>
+        /// <returns>A <see cref="ConsoleString"/> that has been stripped of coloring.</returns>
+        public ConsoleString ClearColors()
+        {
+            return new ConsoleString(new Segment[] { new Segment(string.Concat(content.Select(x => x.Content)), null) });
+        }
     }
 }
