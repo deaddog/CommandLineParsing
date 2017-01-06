@@ -63,10 +63,16 @@ namespace CommandLineParsing.Output
         /// Initializes a new instance of the <see cref="ConsoleString"/> class from a string.
         /// Any color-encoding will be parsed by the constructor.
         /// </summary>
-        /// <param name="content">The content that should be contained by the <see cref="ConsoleString"/>.
-        /// The string "[Color:Text]" will translate to a <see cref="ConsoleString"/> using Color as the foreground color.</param>
-        public ConsoleString(string content)
-            : this(Segment.Parse(content, true))
+        /// <param name="content">
+        /// The content that should be contained by the <see cref="ConsoleString"/>.
+        /// The string "[Color:Text]" will translate to a <see cref="ConsoleString"/> using Color as the foreground color.
+        /// </param>
+        /// <param name="maintainEscape">
+        /// Determines if escaped characters should remain escaped when parsing <paramref name="content"/>.
+        /// If <c>true</c> any escaped character (such as "\[") will remain in its escaped state, otherwise it will be converted into the unescaped version (such as "[").
+        /// </param>
+        public ConsoleString(string content, bool maintainEscape = false)
+            : this(Segment.Parse(content, maintainEscape))
         {
         }
 
@@ -89,6 +95,28 @@ namespace CommandLineParsing.Output
         public ConsoleString ClearColors()
         {
             return new ConsoleString(new Segment[] { new Segment(string.Concat(content.Select(x => x.Content)), null) });
+        }
+
+        /// <summary>
+        /// Evaluates the contents of this <see cref="ConsoleString"/>.
+        /// </summary>
+        /// <param name="maintainEscape">
+        /// Determines if escaped characters should remain escaped when parsing.
+        /// If <c>true</c> any escaped character (such as "\[") will remain in its escaped state, otherwise it will be converted into the unescaped version (such as "[").
+        /// </param>
+        /// <returns>A new <see cref="ConsoleString"/> representing the parsed contents.</returns>
+        public ConsoleString EvaluateSegments(bool maintainEscape = false)
+        {
+            return new ConsoleString(content.SelectMany(x =>
+            {
+                var str = new ConsoleString(x.Content, maintainEscape);
+
+                var segments = str.content;
+                if (x.HasColor)
+                    segments = segments.Select(s => new Segment(s.Content, s.Color ?? x.Color)).ToArray();
+
+                return segments;
+            }));
         }
     }
 }
