@@ -10,7 +10,7 @@ namespace CommandLineParsing.Output
     public partial class ConsoleString
     {
         private readonly Segment[] content;
-        private readonly Lazy<int> length;
+        private readonly Lazy<string> text;
         private readonly Lazy<bool> hasColors;
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace CommandLineParsing.Output
         private ConsoleString(IEnumerable<Segment> segments)
         {
             content = segments.ToArray();
-            length = new Lazy<int>(() => content.Length == 0 ? 0 : content.Sum(x => x.Content.Length));
+            text = new Lazy<string>(() => string.Concat(content.Select(x => x.Content)));
             hasColors = new Lazy<bool>(() => content.Any(x => x.HasColor));
         }
         /// <summary>
@@ -84,9 +84,13 @@ namespace CommandLineParsing.Output
         /// </remarks>
         public bool HasColors => hasColors.Value;
         /// <summary>
+        /// Gets the text content of this <see cref="ConsoleString"/>, ignoring the color information.
+        /// </summary>
+        public string Content => text.Value;
+        /// <summary>
         /// Gets the number of characters in the <see cref="ConsoleString"/>.
         /// </summary>
-        public int Length => length.Value;
+        public int Length => text.Value.Length;
 
         /// <summary>
         /// Returns a new <see cref="ConsoleString"/> that has been stripped of coloring.
