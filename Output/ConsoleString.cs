@@ -13,6 +13,12 @@ namespace CommandLineParsing.Output
         private readonly Lazy<string> text;
         private readonly Lazy<bool> hasColors;
 
+        internal IEnumerable<Segment> GetSegments()
+        {
+            foreach (var s in content)
+                yield return s;
+        }
+
         /// <summary>
         /// Concatenates the two <see cref="ConsoleString"/>s together. Similar to <c>string + string</c>.
         /// </summary>
