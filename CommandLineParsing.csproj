@@ -73,6 +73,7 @@
     <Compile Include="MessageTryParse.cs" />
     <Compile Include="Name.cs" />
     <Compile Include="NoName.cs" />
+    <Compile Include="Output\ColorTable.cs" />
     <Compile Include="Output\ConsoleString.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="ParameterExtension.cs" />
