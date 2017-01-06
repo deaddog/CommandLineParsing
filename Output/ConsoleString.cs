@@ -96,6 +96,14 @@ namespace CommandLineParsing.Output
         {
             return new ConsoleString(new Segment[] { new Segment(string.Concat(content.Select(x => x.Content)), null) });
         }
+        /// <summary>
+        /// Returns a new <see cref="ConsoleString"/> where the currently parsed color-information is escaped.
+        /// </summary>
+        /// <returns>A new <see cref="ConsoleString"/> where the currently parsed color-information is escaped.</returns>
+        public ConsoleString EscapeColors()
+        {
+            return new ConsoleString(new Segment[] { new Segment(string.Concat(content.Select(x => $@"\[{x.Color}:{x.Content}\]")), null) });
+        }
 
         /// <summary>
         /// Evaluates the contents of this <see cref="ConsoleString"/>.
