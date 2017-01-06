@@ -1,4 +1,5 @@
 ﻿using CommandLineParsing.Internals;
+using CommandLineParsing.Output;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -116,7 +117,9 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
         public static void Write(string value, bool allowcolor = true)
         {
-            foreach (var p in SimpleEvaluation.Evaluate(value, false))
+            var parsed = new ConsoleString(value, false);
+
+            foreach (var p in parsed.GetSegments())
             {
                 var color = p.HasColor ? colors[p.Color] : null;
                 if (allowcolor && color.HasValue)
@@ -308,7 +311,11 @@ namespace CommandLineParsing
                 }
             }
 
-            return EscapeSpecialCharacters(res, !preserveColor);
+            var consoleString = new ConsoleString(res, false);
+            if (preserveColor)
+                consoleString = consoleString.EscapeColors();
+
+            return consoleString.Content;
         }
         private static string colorBlock(string format, IFormatter formatter)
         {
@@ -365,17 +372,7 @@ namespace CommandLineParsing
         /// <returns>A new string, without any color information.</returns>
         public static string ClearColors(string input)
         {
-            return SimpleEvaluation.Evaluate(input, true).Aggregate("", (r, t) => r + t.Content);
-        }
-        /// <summary>
-        /// Escapes any special characters (including color-coding) such that a string can be printed literally using the <see cref="ColorConsole"/>.
-        /// </summary>
-        /// <param name="input">The string in which characters should be escaped.</param>
-        /// <param name="escapeColor">If set to <c>true</c> color-coding information is escaped.</param>
-        /// <returns>A new string, where all special characters are escaped.</returns>
-        public static string EscapeSpecialCharacters(string input, bool escapeColor = true)
-        {
-            return SimpleEvaluation.EscapeSpecialCharacters(input, escapeColor);
+            return new ConsoleString(input, true).ClearColors().Content;
         }
         /// <summary>
         /// Determines whether the specified string includes coloring syntax.
@@ -384,7 +381,7 @@ namespace CommandLineParsing
         /// <returns><c>true</c>, if <paramref name="input"/> contains any "[Color:Text]" strings; otherwise, <c>false</c>.</returns>
         public static bool HasColors(string input)
         {
-            return SimpleEvaluation.Evaluate(input, false).Any(x => x.HasColor);
+            return new ConsoleString(input, false).HasColors;
         }
 
         private static SmartParser<T> getParser<T>()
@@ -771,117 +768,6 @@ namespace CommandLineParsing
                     else
                         colors.Remove(name.ToLowerInvariant());
                 }
-            }
-        }
-
-        private static class SimpleEvaluation
-        {
-            public struct Pair
-            {
-                public readonly string Content;
-                public readonly string Color;
-
-                public bool HasColor => Color != null;
-
-                public Pair(string content, string color)
-                {
-                    this.Content = content;
-                    this.Color = color;
-                }
-
-                public override string ToString() => HasColor ? $"[{Color}:{Content}]" : Content;
-            }
-
-            public static IEnumerable<Pair> Evaluate(string value, bool maintainEscape)
-            {
-                return mergeByColor(evaluate(value, maintainEscape, null));
-            }
-            private static IEnumerable<Pair> evaluate(string value, bool maintainEscape, string currentColor)
-            {
-                if (string.IsNullOrEmpty(value))
-                    yield break;
-
-                int index = 0;
-
-                while (index < value.Length)
-                    switch (value[index])
-                    {
-                        case '[': // Coloring
-                            {
-                                int end = findEnd(value, index, '[', ']');
-                                var block = value.Substring(index + 1, end - index - 1);
-                                int colon = block.IndexOf(':');
-                                if (colon > 0 && block[colon - 1] == '\\')
-                                    colon = -1;
-
-                                if (colon == -1)
-                                    yield return new Pair($"[{block}]", currentColor);
-                                else
-                                {
-                                    var color = block.Substring(0, colon);
-                                    string content = block.Substring(colon + 1);
-
-                                    foreach (var p in evaluate(content, maintainEscape, color))
-                                        yield return p;
-                                }
-                                index += block.Length + 2;
-                            }
-                            break;
-
-                        case '\\':
-                            if (value.Length == index + 1)
-                                index++;
-                            else
-                            {
-                                if (maintainEscape)
-                                    yield return new Pair(value.Substring(index, 2), currentColor);
-                                else
-                                    yield return new Pair(value[index + 1].ToString(), currentColor);
-
-                                index += 2;
-                            }
-                            break;
-
-                        default: // Skip content
-                            int nIndex = value.IndexOfAny(new char[] { '[', '\\' }, index);
-                            if (nIndex < 0) nIndex = value.Length;
-                            yield return new Pair(value.Substring(index, nIndex - index), currentColor);
-                            index = nIndex;
-                            break;
-                    }
-            }
-
-            private static IEnumerable<Pair> mergeByColor(IEnumerable<Pair> pairs)
-            {
-                var e = pairs.GetEnumerator();
-
-                if (!e.MoveNext())
-                    yield break;
-
-                var temp = e.Current;
-
-                while (e.MoveNext())
-                    if (temp.Color == e.Current.Color)
-                        temp = new Pair(temp.Content + e.Current.Content, temp.Color);
-                    else
-                    {
-                        yield return temp;
-                        temp = e.Current;
-                    }
-
-                yield return temp;
-            }
-
-            public static string EscapeSpecialCharacters(string value, bool escapeColor)
-            {
-                if (escapeColor)
-                    return value
-                        .Replace("\\", "\\\\")
-                        .Replace("[", "\\[")
-                        .Replace("]", "\\]");
-                else
-                    return value
-                        .Replace("\\", "\\\\");
             }
         }
     }
