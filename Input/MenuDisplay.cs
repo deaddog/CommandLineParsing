@@ -59,8 +59,26 @@ namespace CommandLineParsing.Input
                 if (value == null)
                     throw new ArgumentNullException(nameof(value));
 
+                if (value == prompt)
+                    return;
+
+                var lengthDiff = value.Length - (prompt?.Length ?? 0);
+
                 prompt = value;
                 noPrompt = new string(' ', prompt.Length);
+
+                if (lengthDiff != 0)
+                    for (int i = 0; i < options.Count; i++)
+                    {
+                        var newText = options[i].Text;
+                        if (lengthDiff < 0)
+                            newText += new string(' ', -lengthDiff);
+
+                        if (i == SelectedIndex)
+                            (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(prompt + newText));
+                        else
+                            (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(noPrompt + newText));
+                    }
             }
         }
 
