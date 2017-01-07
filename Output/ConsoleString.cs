@@ -6,6 +6,7 @@ namespace CommandLineParsing.Output
 {
     /// <summary>
     /// Represents a string with embedded color-information.
+    /// A string is implicitly converted into a <see cref="ConsoleString"/>.
     /// </summary>
     public partial class ConsoleString
     {
@@ -17,6 +18,19 @@ namespace CommandLineParsing.Output
         {
             foreach (var s in content)
                 yield return s;
+        }
+
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="ConsoleString"/>.
+        /// With this a format can be specified simply as a string when used as a parameter.
+        /// </summary>
+        /// <param name="text">The text that is parsed to a <see cref="ConsoleString"/>. See <see cref="ConsoleString.ConsoleString(string, bool)"/>.</param>
+        /// <returns>
+        /// A new <see cref="ConsoleString"/> that represents the format found in <paramref name="text"/>.
+        /// </returns>
+        public static implicit operator ConsoleString(string text)
+        {
+            return new ConsoleString(text, false);
         }
 
         /// <summary>
