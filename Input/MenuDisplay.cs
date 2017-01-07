@@ -1,4 +1,6 @@
-﻿namespace CommandLineParsing.Input
+﻿using CommandLineParsing.Output;
+
+namespace CommandLineParsing.Input
 {
     /// <summary>
     /// Provides methods for managing a menu in the console.
@@ -8,6 +10,9 @@
     {
         private readonly ConsolePoint origin;
         private readonly MenuOptionCollection<T> options;
+
+        private ConsoleString prompt;
+        private string noPrompt;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MenuDisplay{T}"/> class.
@@ -25,6 +30,7 @@
         {
             origin = point;
             options = new MenuOptionCollection<T>(this);
+            Prompt = new ConsoleString("> ");
         }
         /// <summary>
         /// Initializes a new instance of the <see cref="MenuDisplay{T}"/> class.
@@ -39,5 +45,20 @@
         /// Gets a collection of the <see cref="MenuOption{T}"/> elements displayed by this <see cref="MenuDisplay{T}"/>.
         /// </summary>
         public MenuOptionCollection<T> Options => options;
+        /// <summary>
+        /// Gets or sets the text that is prefixed on the currently selected option.
+        /// </summary>
+        public ConsoleString Prompt
+        {
+            get { return prompt; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+
+                prompt = value;
+                noPrompt = new string(' ', prompt.Length);
+            }
+        }
     }
 }
