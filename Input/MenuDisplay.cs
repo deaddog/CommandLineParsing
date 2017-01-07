@@ -1,5 +1,5 @@
 ﻿using CommandLineParsing.Output;
-﻿using System;
+using System;
 
 namespace CommandLineParsing.Input
 {
@@ -90,6 +90,22 @@ namespace CommandLineParsing.Input
 
                 index = value;
             }
+        }
+
+        internal void UpdateOption(MenuOption<T> option, string oldText)
+        {
+            UpdateOption(options.IndexOf(option), oldText, option.Text);
+        }
+        internal void UpdateOption(int index, string oldText, string newText)
+        {
+            var offset = new ConsoleSize(prompt.Length, index);
+
+            ColorConsole.TemporaryShift(origin + offset, () =>
+            {
+                int oldLen = ColorConsole.ClearColors(oldText).Length;
+                Console.Write(new string(' ', oldLen) + new string('\b', oldLen));
+                ColorConsole.Write(newText);
+            });
         }
     }
 }

@@ -21,5 +21,22 @@ namespace CommandLineParsing.Input
         /// Gets the number of options in the collection.
         /// </summary>
         public int Count => _options.Count;
+
+        /// <summary>
+        /// Gets the <see cref="MenuOption{T}"/> at the specified index.
+        /// </summary>
+        /// <param name="index">The index.</param>
+        /// <returns>The <see cref="MenuOption{T}"/> at the specified index.</returns>
+        public MenuOption<T> this[int index] => _options[index];
+
+        /// <summary>
+        /// Gets the index of a specific <see cref="MenuOption{T}"/> in the collection.
+        /// </summary>
+        /// <param name="option">The option to look for.</param>
+        /// <returns>The index of <paramref name="option"/>, or <c>-1</c> if it doesn't exist.</returns>
+        public int IndexOf(MenuOption<T> option)
+        {
+            return _options.IndexOf(option);
+        }
     }
 }
