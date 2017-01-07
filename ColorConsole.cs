@@ -108,6 +108,36 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Executes an operation and then restores <see cref="CursorPosition"/> to where it was when this method was called.
+        /// </summary>
+        /// <param name="action">The action to execute.</param>
+        /// <param name="hideCursor">if set to <c>true</c> the cursor will be hidden while executing <paramref name="action"/>.</param>
+        public static void TemporaryShift(Action action, bool hideCursor = true)
+        {
+            bool wasVisible = Console.CursorVisible;
+
+            var temp = ColorConsole.CursorPosition;
+            if (hideCursor && wasVisible)
+                Console.CursorVisible = false;
+
+            action();
+
+            if (hideCursor && wasVisible)
+                Console.CursorVisible = true;
+            ColorConsole.CursorPosition = temp;
+        }
+        /// <summary>
+        /// Sets <see cref="CursorPosition"/> to <paramref name="point"/>, executes an operation and then restores <see cref="CursorPosition"/> to where it was when this method was called.
+        /// </summary>
+        /// <param name="point">The point to which <see cref="CursorPosition"/> should be shifted temporarily.</param>
+        /// <param name="action">The action to execute.</param>
+        /// <param name="hideCursor">if set to <c>true</c> the cursor will be hidden while executing <paramref name="action"/>.</param>
+        public static void TemporaryShift(this ConsolePoint point, Action action, bool hideCursor = true)
+        {
+            TemporaryShift(() => { CursorPosition = point; action(); }, hideCursor);
+        }
+
+        /// <summary>
         /// Writes the specified string value to the standard output stream.
         /// </summary>
         /// <param name="value">The string format to write, included color information.
