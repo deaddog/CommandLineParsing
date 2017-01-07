@@ -3,12 +3,14 @@
     /// <summary>
     /// Provides methods for managing a menu in the console.
     /// </summary>
-    public class MenuDisplay
+    /// <typeparam name="T">The type of the values selectable from the <see cref="MenuDisplay{T}"/>.</typeparam>
+    public class MenuDisplay<T>
     {
         private readonly ConsolePoint origin;
+        private readonly MenuOptionCollection<T> options;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MenuDisplay"/> class.
+        /// Initializes a new instance of the <see cref="MenuDisplay{T}"/> class.
         /// The menu will be displayed at the current cursor position.
         /// </summary>
         public MenuDisplay()
@@ -16,13 +18,13 @@
         {
         }
         /// <summary>
-        /// Initializes a new instance of the <see cref="MenuDisplay"/> class.
+        /// Initializes a new instance of the <see cref="MenuDisplay{T}"/> class.
         /// </summary>
         /// <param name="point">The point where the menu should be displayed.</param>
         public MenuDisplay(ConsolePoint point)
         {
             origin = point;
-            options = new List<MenuOption<T>>();
+            options = new MenuOptionCollection<T>(this);
         }
         /// <summary>
         /// Initializes a new instance of the <see cref="MenuDisplay{T}"/> class.
@@ -32,5 +34,10 @@
             : this(ColorConsole.CursorPosition + offset)
         {
         }
+
+        /// <summary>
+        /// Gets a collection of the <see cref="MenuOption{T}"/> elements displayed by this <see cref="MenuDisplay{T}"/>.
+        /// </summary>
+        public MenuOptionCollection<T> Options => options;
     }
 }
