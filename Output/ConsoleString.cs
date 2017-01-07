@@ -34,12 +34,12 @@ namespace CommandLineParsing.Output
         }
 
         /// <summary>
-        /// Concatenates the two <see cref="ConsoleString"/>s together. Similar to <c>string + string</c>.
+        /// Concatenates the two <see cref="ConsoleString"/>s. Similar to <c>string + string</c>.
         /// </summary>
         /// <param name="s1">The first string operand.</param>
         /// <param name="s2">The second string operand.</param>
         /// <returns>
-        /// A new <see cref="ConsoleString"/> that is the result of concatenating the two strings, preserving color details.
+        /// A new <see cref="ConsoleString"/> that is the result of concatenating the two strings, preserving color details from both.
         /// </returns>
         public static ConsoleString operator +(ConsoleString s1, ConsoleString s2)
         {
@@ -59,6 +59,30 @@ namespace CommandLineParsing.Output
             }
             else
                 return new ConsoleString(s1.content.Concat(s2.content));
+        }
+        /// <summary>
+        /// Concatenates a string and a <see cref="ConsoleString"/>. Similar to <c>string + string</c>.
+        /// </summary>
+        /// <param name="text">The text.</param>
+        /// <param name="str">The <see cref="ConsoleString"/>.</param>
+        /// <returns>
+        /// A new <see cref="ConsoleString"/> that is the result of concatenating the two strings, preserving color details from both.
+        /// </returns>
+        public static ConsoleString operator +(string text, ConsoleString str)
+        {
+            return (ConsoleString)text + str;
+        }
+        /// <summary>
+        /// Concatenates a <see cref="ConsoleString"/> and a string. Similar to <c>string + string</c>.
+        /// </summary>
+        /// <param name="str">The <see cref="ConsoleString"/>.</param>
+        /// <param name="text">The text.</param>
+        /// <returns>
+        /// A new <see cref="ConsoleString"/> that is the result of concatenating the two strings, preserving color details from both.
+        /// </returns>
+        public static ConsoleString operator +(ConsoleString str, string text)
+        {
+            return str + (ConsoleString)text;
         }
 
         /// <summary>
