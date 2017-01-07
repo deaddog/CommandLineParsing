@@ -16,5 +16,10 @@ namespace CommandLineParsing.Input
             _display = display;
             _options = new List<MenuOption<T>>();
         }
+
+        /// <summary>
+        /// Gets the number of options in the collection.
+        /// </summary>
+        public int Count => _options.Count;
     }
 }

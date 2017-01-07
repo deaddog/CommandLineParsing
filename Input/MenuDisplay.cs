@@ -1,4 +1,5 @@
 ﻿using CommandLineParsing.Output;
+﻿using System;
 
 namespace CommandLineParsing.Input
 {
@@ -10,6 +11,7 @@ namespace CommandLineParsing.Input
     {
         private readonly ConsolePoint origin;
         private readonly MenuOptionCollection<T> options;
+        private int index;
 
         private ConsoleString prompt;
         private string noPrompt;
@@ -30,6 +32,7 @@ namespace CommandLineParsing.Input
         {
             origin = point;
             options = new MenuOptionCollection<T>(this);
+            index = -1;
             Prompt = new ConsoleString("> ");
         }
         /// <summary>
@@ -58,6 +61,34 @@ namespace CommandLineParsing.Input
 
                 prompt = value;
                 noPrompt = new string(' ', prompt.Length);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the index of the selected option in the menu.
+        /// A value of <c>-1</c> indicates that no element is selected.
+        /// </summary>
+        public int SelectedIndex
+        {
+            get { return index; }
+            set
+            {
+                if (value < -1)
+                    throw new ArgumentOutOfRangeException(nameof(value), "Index cannot be less than -1.");
+
+                if (value >= options.Count)
+                    throw new ArgumentOutOfRangeException(nameof(value), $"No option available at index {value}. There are {options.Count} options.");
+
+                if (value == index)
+                    return;
+
+                if (index != -1)
+                    (origin + new ConsoleSize(0, index)).TemporaryShift(() => ColorConsole.Write(noPrompt));
+
+                if (value != -1)
+                    (origin + new ConsoleSize(0, value)).TemporaryShift(() => ColorConsole.Write(prompt));
+
+                index = value;
             }
         }
     }
