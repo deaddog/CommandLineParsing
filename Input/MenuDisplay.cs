@@ -7,7 +7,7 @@ namespace CommandLineParsing.Input
     /// Provides methods for managing a menu in the console.
     /// </summary>
     /// <typeparam name="T">The type of the values selectable from the <see cref="MenuDisplay{T}"/>.</typeparam>
-    public class MenuDisplay<T>
+    public class MenuDisplay<T> : IConsoleInput
     {
         private readonly ConsolePoint origin;
         private readonly MenuOptionCollection<T> options;
@@ -89,6 +89,47 @@ namespace CommandLineParsing.Input
                     (origin + new ConsoleSize(0, value)).TemporaryShift(() => ColorConsole.Write(prompt));
 
                 index = value;
+            }
+        }
+
+        /// <summary>
+        /// Handles the specified key by updating the state of the <see cref="MenuDisplay{T}"/>.
+        /// </summary>
+        /// <param name="key">The key to process.</param>
+        public void HandleKey(ConsoleKeyInfo key)
+        {
+            if (Options.Count == 0)
+                return;
+
+            switch (key.Key)
+            {
+                case ConsoleKey.DownArrow:
+                    if (SelectedIndex == Options.Count - 1)
+                        SelectedIndex = 0;
+                    else
+                        SelectedIndex++;
+                    break;
+
+                case ConsoleKey.UpArrow:
+                    if (SelectedIndex <= 0)
+                        SelectedIndex = Options.Count - 1;
+                    else
+                        SelectedIndex--;
+                    break;
+
+                case ConsoleKey.Home:
+                    SelectedIndex = 0;
+                    break;
+
+                case ConsoleKey.End:
+                    SelectedIndex = Options.Count - 1;
+                    break;
+
+                case ConsoleKey.Backspace:
+                case ConsoleKey.Delete:
+                    if (SelectedIndex >= 0)
+                        Options.RemoveAt(SelectedIndex);
+                    break;
             }
         }
 
