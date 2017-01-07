@@ -86,6 +86,31 @@ namespace CommandLineParsing.Output
         }
 
         /// <summary>
+        /// Determines if two <see cref="ConsoleString"/> are the same value, including color information.
+        /// </summary>
+        /// <param name="s1">The first <see cref="ConsoleString"/> to compare.</param>
+        /// <param name="s2">The second <see cref="ConsoleString"/> to compare.</param>
+        /// <returns>
+        /// <c>true</c> if the value and colors of <paramref name="s1"/> are the same as the value and colors of <paramref name="s2"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool operator ==(ConsoleString s1, ConsoleString s2)
+        {
+            return s1.Equals(s2);
+        }
+        /// <summary>
+        /// Determines if two <see cref="ConsoleString"/> are not the same value, including color information.
+        /// </summary>
+        /// <param name="s1">The first <see cref="ConsoleString"/> to compare.</param>
+        /// <param name="s2">The second <see cref="ConsoleString"/> to compare.</param>
+        /// <returns>
+        /// <c>true</c> if the value and colors of <paramref name="s1"/> are not the same as the value and colors of <paramref name="s2"/>; otherwise, <c>false</c>.
+        /// </returns>
+        public static bool operator !=(ConsoleString s1, ConsoleString s2)
+        {
+            return !s1.Equals(s2);
+        }
+
+        /// <summary>
         /// Gets a <see cref="ConsoleString"/> that represents the empty string.
         /// </summary>
         public static ConsoleString Empty => new ConsoleString();
@@ -118,6 +143,55 @@ namespace CommandLineParsing.Output
         public ConsoleString(string content, bool maintainEscape = false)
             : this(Segment.Parse(content, maintainEscape))
         {
+        }
+
+        /// <summary>
+        /// Returns a hash code for this <see cref="ConsoleString"/>.
+        /// </summary>
+        /// <returns>
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// </returns>
+        public override int GetHashCode()
+        {
+            return text.Value.GetHashCode();
+        }
+        /// <summary>
+        /// Determines whether the specified <see cref="object"/>, is equal to this <see cref="ConsoleString"/>.
+        /// </summary>
+        /// <param name="obj">The <see cref="object" /> to compare with this <see cref="ConsoleString"/>.</param>
+        /// <returns><c>true</c> if the specified <see cref="object" /> is equal to this <see cref="ConsoleString"/>; otherwise, <c>false</c>.</returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(obj, null))
+                return false;
+            else if (obj is ConsoleString)
+                return Equals(obj as ConsoleString);
+            else
+                return false;
+        }
+        /// <summary>
+        /// Determines whether the specified <see cref="ConsoleString" />, is equal to this <see cref="ConsoleString"/>.
+        /// </summary>
+        /// <param name="obj">The <see cref="ConsoleString"/> to compare with this <see cref="ConsoleString"/>.</param>
+        /// <returns><c>true</c> if the specified <see cref="ConsoleString" /> is equal to this <see cref="ConsoleString"/>; otherwise, <c>false</c>.</returns>
+        public bool Equals(ConsoleString obj)
+        {
+            if (ReferenceEquals(obj, null))
+                return false;
+            else if (ReferenceEquals(obj, this))
+                return true;
+            else if (obj.GetHashCode() != this.GetHashCode())
+                return false;
+            else if (obj.content.Length != this.content.Length)
+                return false;
+            else
+            {
+                for (int i = 0; i < obj.content.Length; i++)
+                    if (obj.content[i].Color != this.content[i].Color || obj.content[i].Content != this.content[i].Content)
+                        return false;
+
+                return true;
+            }
         }
 
         /// <summary>
