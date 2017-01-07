@@ -87,8 +87,6 @@ namespace CommandLineParsing.Input
 
             _display.UpdateOption(_options.Count - 1, "", option.Text);
 
-            if (_display.SelectedIndex == -1)
-                _display.SelectedIndex = 0;
         }
         /// <summary>
         /// Inserts an option in the menu display at the specified index.
@@ -113,8 +111,8 @@ namespace CommandLineParsing.Input
                 _display.UpdateOption(i, _options[i + 1].Text, _options[i].Text);
             _display.UpdateOption(_options.Count - 1, "", _options[_options.Count - 1].Text);
 
-            if (_display.SelectedIndex == -1)
-                _display.SelectedIndex = 0;
+            if (index <= _display.SelectedIndex)
+                _display.SelectedIndex++;
         }
 
         /// <summary>
@@ -156,6 +154,9 @@ namespace CommandLineParsing.Input
             }
 
             _display.UpdateOption(_options.Count, last.Text, null);
+
+            if (index < _display.SelectedIndex || _options.Count == _display.SelectedIndex)
+                _display.SelectedIndex--;
         }
 
         /// <summary>
