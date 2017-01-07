@@ -113,11 +113,12 @@ namespace CommandLineParsing
         /// <param name="value">The string format to write, included color information.
         /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
-        public static void Write(string value, bool allowcolor = true)
+        public static void Write(ConsoleString value, bool allowcolor = true)
         {
-            var parsed = new ConsoleString(value, false);
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
 
-            foreach (var p in parsed.GetSegments())
+            foreach (var p in value.GetSegments())
             {
                 var color = p.HasColor ? colors[p.Color] : null;
                 if (allowcolor && color.HasValue)
@@ -137,9 +138,9 @@ namespace CommandLineParsing
         /// <param name="value">The string format to write, included color information.
         /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
-        public static void WriteLine(string value, bool allowcolor = true)
+        public static void WriteLine(ConsoleString value, bool allowcolor = true)
         {
-            Write(value + "\n", allowcolor);
+            Write(value + new ConsoleString("\n", false), allowcolor);
         }
 
         private static void write(string value)
@@ -158,7 +159,7 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="format"/> is disregarded.</param>
         public static void WriteFormat(string format, IFormatter formatter, bool allowcolor = true)
         {
-            Write(EvaluateFormat(format, formatter), allowcolor);
+            Write(new ConsoleString(EvaluateFormat(format, formatter), false), allowcolor);
         }
         /// <summary>
         /// Evaluates <paramref name="format"/> using a <see cref="IFormatter"/> and writes the result, followed by the current line terminator, to the standard output stream.
@@ -168,7 +169,7 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="format"/> is disregarded.</param>
         public static void WriteFormatLine(string format, IFormatter formatter, bool allowcolor = true)
         {
-            WriteLine(EvaluateFormat(format, formatter), allowcolor);
+            WriteLine(new ConsoleString(EvaluateFormat(format, formatter), false), allowcolor);
         }
 
         private const string NO_CONDITION_FORMAT = "[red:UNKNOWN CONDITION '{0}']";
@@ -412,7 +413,7 @@ namespace CommandLineParsing
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
-        public static T ReadLine<T>(string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ParameterTryParse<T> parser = null, Validator<T> validator = null)
+        public static T ReadLine<T>(ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ParameterTryParse<T> parser = null, Validator<T> validator = null)
         {
             var smartparser = getParser<T>();
             if (parser != null)
@@ -420,7 +421,7 @@ namespace CommandLineParsing
 
             return ReadLine<T>(smartparser, prompt, defaultString, cleanup, validator);
         }
-        internal static T ReadLine<T>(SmartParser<T> parser, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, Validator<T> validator = null)
+        internal static T ReadLine<T>(SmartParser<T> parser, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, Validator<T> validator = null)
         {
             T result;
             readLine(parser, out result, prompt, defaultString, cleanup, ReadLineCleanup.None, validator);
@@ -441,7 +442,7 @@ namespace CommandLineParsing
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <see cref="bool"/> indicating weather the call completed without the user pressing escape.</returns>
-        public static bool TryReadLine<T>(out T result, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, ParameterTryParse<T> parser = null, Validator<T> validator = null)
+        public static bool TryReadLine<T>(out T result, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, ParameterTryParse<T> parser = null, Validator<T> validator = null)
         {
             var smartparser = getParser<T>();
             if (parser != null)
@@ -449,12 +450,12 @@ namespace CommandLineParsing
 
             return TryReadLine<T>(smartparser, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
         }
-        internal static bool TryReadLine<T>(SmartParser<T> parser, out T result, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, Validator<T> validator = null)
+        internal static bool TryReadLine<T>(SmartParser<T> parser, out T result, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, Validator<T> validator = null)
         {
             return readLine(parser, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
         }
 
-        private static bool readLine<T>(SmartParser<T> parser, out T result, string prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup, Validator<T> validator)
+        private static bool readLine<T>(SmartParser<T> parser, out T result, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup, Validator<T> validator)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
@@ -510,7 +511,7 @@ namespace CommandLineParsing
                 Console.Write(new string(' ', input.Length));
 
                 CursorPosition = promptPosition;
-                Console.Write(new string(' ', ClearColors(prompt).Length));
+                Console.Write(new string(' ', prompt.Length));
                 CursorPosition = promptPosition;
 
                 if (cl == ReadLineCleanup.RemovePrompt)
@@ -529,7 +530,7 @@ namespace CommandLineParsing
         /// <c>null</c> indicates that no initial value should be used.</param>
         /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
         /// <returns>A <see cref="string"/> containing the user input.</returns>
-        public static string ReadLine(string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
+        public static string ReadLine(ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
         {
             string result;
             readLine(out result, false, prompt, defaultString, cleanup, ReadLineCleanup.None);
@@ -546,7 +547,7 @@ namespace CommandLineParsing
         /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
         /// <param name="escapeCleanup">Determines the type of cleanup that should be applied if the readline did not complete succesfully.</param>
         /// <returns>A <see cref="bool"/> indicating weather the call completed without the user pressing escape.</returns>
-        public static bool TryReadLine(out string result, string prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
+        public static bool TryReadLine(out string result, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
         {
             return readLine(out result, true, prompt, defaultString, cleanup, escapeCleanup);
         }
@@ -557,7 +558,7 @@ namespace CommandLineParsing
         /// <param name="passChar">An optional character to display in place of input symbols. <c>null</c> will display nothing to the user.</param>
         /// <param name="singleSymbol">if set to <c>true</c> <paramref name="passChar"/> will only be printed once, on input.</param>
         /// <returns>A <see cref="string"/> containing the password.</returns>
-        public static string ReadPassword(string prompt = null, char? passChar = '*', bool singleSymbol = true)
+        public static string ReadPassword(ConsoleString prompt = null, char? passChar = '*', bool singleSymbol = true)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadPassword cannot be used while caching is enabled.");
@@ -596,7 +597,7 @@ namespace CommandLineParsing
             return sb.ToString();
         }
 
-        private static bool readLine(out string result, bool allowEscape, string prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
+        private static bool readLine(out string result, bool allowEscape, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
@@ -632,7 +633,7 @@ namespace CommandLineParsing
                         if (escape && !allowEscape)
                             continue;
                         var value = readline.Value;
-                        readline.ApplyCleanup(escape ? escapeCleanup : cleanup, prompt);
+                        readline.ApplyCleanup(escape ? escapeCleanup : cleanup, prompt?.Length);
                         result = value;
                         return !escape;
 
