@@ -34,7 +34,16 @@ namespace CommandLineParsing.Input
             get { return _options[index]; }
             set
             {
-                throw new NotImplementedException();
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+
+                var old = _options[index];
+                old.TextChanged -= _display.UpdateOption;
+
+                _options[index] = value;
+                value.TextChanged += _display.UpdateOption;
+
+                _display.UpdateOption(index, old.Text, value.Text);
             }
         }
 
@@ -45,35 +54,117 @@ namespace CommandLineParsing.Input
         /// <returns>The index of <paramref name="option"/>, or <c>-1</c> if it doesn't exist.</returns>
         public int IndexOf(MenuOption<T> option)
         {
+            if (option == null)
+                throw new ArgumentNullException(nameof(option));
+
             return _options.IndexOf(option);
         }
 
-        public bool Contains(MenuOption<T> item)
+        /// <summary>
+        /// Determines whether an option is part of this collection.
+        /// </summary>
+        /// <param name="option">The option.</param>
+        /// <returns><c>true</c> if <paramref name="option"/> is found in the collection; otherwise, <c>false</c>.</returns>
+        public bool Contains(MenuOption<T> option)
         {
-            throw new NotImplementedException();
+            if (option == null)
+                throw new ArgumentNullException(nameof(option));
+
+            return _options.Contains(option);
         }
 
-        public void Add(MenuOption<T> item)
+        /// <summary>
+        /// Adds an option to the menu display.
+        /// </summary>
+        /// <param name="option">The option to add.</param>
+        public void Add(MenuOption<T> option)
         {
-            throw new NotImplementedException();
+            if (option == null)
+                throw new ArgumentNullException(nameof(option));
+
+            _options.Add(option);
+            option.TextChanged += _display.UpdateOption;
+
+            _display.UpdateOption(_options.Count - 1, "", option.Text);
+
+            if (_display.SelectedIndex == -1)
+                _display.SelectedIndex = 0;
         }
-        public void Insert(int index, MenuOption<T> item)
+        /// <summary>
+        /// Inserts an option in the menu display at the specified index.
+        /// </summary>
+        /// <param name="index">The index.</param>
+        /// <param name="option">The option to add.</param>
+        public void Insert(int index, MenuOption<T> option)
         {
-            throw new NotImplementedException();
+            if (option == null)
+                throw new ArgumentNullException(nameof(option));
+
+            if (index == _options.Count)
+            {
+                Add(option);
+                return;
+            }
+
+            _options.Insert(index, option);
+            option.TextChanged += _display.UpdateOption;
+
+            for (int i = index; i < _options.Count - 1; i++)
+                _display.UpdateOption(i, _options[i + 1].Text, _options[i].Text);
+            _display.UpdateOption(_options.Count - 1, "", _options[_options.Count - 1].Text);
+
+            if (_display.SelectedIndex == -1)
+                _display.SelectedIndex = 0;
         }
 
-        public bool Remove(MenuOption<T> item)
+        /// <summary>
+        /// Removes the specified option from the menu display.
+        /// </summary>
+        /// <param name="option">The option to remove.</param>
+        /// <returns>
+        /// <c>true</c> if options is successfully removed; otherwise, <c>false</c>.
+        /// This method also returns <c>false</c> if the option was not found in the collection.</returns>
+        public bool Remove(MenuOption<T> option)
         {
-            throw new NotImplementedException();
+            if (option == null)
+                throw new ArgumentNullException(nameof(option));
+
+            int index = _options.IndexOf(option);
+
+            if (index == -1)
+                return false;
+            else
+            {
+                RemoveAt(index);
+                return true;
+            }
         }
+        /// <summary>
+        /// Removes the option at the specified index.
+        /// </summary>
+        /// <param name="index">The index to remove from.</param>
         public void RemoveAt(int index)
         {
-            throw new NotImplementedException();
+            var last = _options[index];
+            last.TextChanged -= _display.UpdateOption;
+            _options.RemoveAt(index);
+
+            for (int i = index; i < _options.Count; i++)
+            {
+                _display.UpdateOption(i, last.Text, _options[i].Text);
+                last = _options[i];
+            }
+
+            _display.UpdateOption(_options.Count, last.Text, null);
         }
 
+        /// <summary>
+        /// Removes all options from the menu display.
+        /// </summary>
         public void Clear()
         {
-            throw new NotImplementedException();
+            while (_options.Count > 0)
+                RemoveAt(_options.Count - 1);
         }
 
         bool ICollection<MenuOption<T>>.IsReadOnly => false;
