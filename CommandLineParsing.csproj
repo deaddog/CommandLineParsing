@@ -63,6 +63,7 @@
     <Compile Include="IConfiguration.cs" />
     <Compile Include="IFormatter.cs" />
     <Compile Include="IgnoreCase.cs" />
+    <Compile Include="Input\MenuOptionTextChanged.cs" />
     <Compile Include="Internals\ReadLineHelper.cs" />
     <Compile Include="MenuCleanup.cs" />
     <Compile Include="MenuExtension.cs" />
