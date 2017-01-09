@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CommandLineParsing.Input
 {
-    internal class ReadLineHelper
+    internal class ConsoleReader
     {
         public static bool IsInputCharacter(ConsoleKeyInfo info)
         {
@@ -22,7 +22,7 @@ namespace CommandLineParsing.Input
         private readonly int position;
         private readonly StringBuilder sb;
 
-        public ReadLineHelper()
+        public ConsoleReader()
         {
             position = Console.CursorLeft;
             sb = new StringBuilder();

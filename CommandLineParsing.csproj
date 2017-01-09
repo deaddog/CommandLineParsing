@@ -66,7 +66,7 @@
     <Compile Include="Input\IConsoleInput.cs" />
     <Compile Include="Input\MenuOptionCollection.cs" />
     <Compile Include="Input\MenuOptionTextChanged.cs" />
-    <Compile Include="Input\ReadLineHelper.cs" />
+    <Compile Include="Input\ConsoleReader.cs" />
     <Compile Include="MenuCleanup.cs" />
     <Compile Include="MenuExtension.cs" />
     <Compile Include="MenuLabeling.cs" />

@@ -614,7 +614,7 @@ namespace CommandLineParsing
 
                 else if (info.Key == ConsoleKey.Enter) { Console.Write(Environment.NewLine); break; }
 
-                else if (ReadLineHelper.IsInputCharacter(info))
+                else if (ConsoleReader.IsInputCharacter(info))
                 {
                     sb.Append(info.KeyChar);
                     if (passChar.HasValue)
@@ -636,7 +636,7 @@ namespace CommandLineParsing
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
-            var readline = new ReadLineHelper();
+            var readline = new ConsoleReader();
             readline.Insert(defaultString);
 
             while (true)
@@ -687,7 +687,7 @@ namespace CommandLineParsing
                         break;
 
                     default:
-                        if (ReadLineHelper.IsInputCharacter(info))
+                        if (ConsoleReader.IsInputCharacter(info))
                             readline.Insert(info.KeyChar);
                         break;
                 }
