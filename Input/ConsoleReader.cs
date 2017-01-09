@@ -31,6 +31,11 @@ namespace CommandLineParsing.Input
         public string Value => sb.ToString();
         public int Length => sb.Length;
 
+        /// <summary>
+        /// Occurs when <see cref="Value"/> changes value.
+        /// </summary>
+        public event ConsoleReaderTextChanged TextChanged;
+
         public int Index
         {
             get { return Console.CursorLeft - position; }
@@ -51,6 +56,8 @@ namespace CommandLineParsing.Input
 
         public void Insert(string text)
         {
+            var old = Value;
+
             if (Console.CursorLeft == position + sb.Length)
             {
                 Console.Write(text);
@@ -65,9 +72,13 @@ namespace CommandLineParsing.Input
 
                 Console.CursorLeft = temp + text.Length;
             }
+
+            TextChanged?.Invoke(this, old);
         }
         public void Insert(char info)
         {
+            var old = Value;
+
             if (Index == Length)
             {
                 Console.Write(info);
@@ -82,10 +93,14 @@ namespace CommandLineParsing.Input
 
                 Console.CursorLeft = temp + 1;
             }
+
+            TextChanged?.Invoke(this, old);
         }
 
         public void Delete(int length)
         {
+            var old = Value;
+
             if (length < 0)
             {
                 if (Index == 0)
@@ -116,6 +131,8 @@ namespace CommandLineParsing.Input
                 Console.Write(sb.ToString().Substring(Index) + new string(' ', length));
                 Console.CursorLeft = temp;
             }
+
+            TextChanged?.Invoke(this, old);
         }
 
         public void ApplyCleanup(ReadLineCleanup cleanup, string prompt = null)
