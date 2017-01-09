@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace CommandLineParsing.Internals
+namespace CommandLineParsing.Input
 {
     internal class ReadLineHelper
     {

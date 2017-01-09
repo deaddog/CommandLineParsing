@@ -66,7 +66,7 @@
     <Compile Include="Input\IConsoleInput.cs" />
     <Compile Include="Input\MenuOptionCollection.cs" />
     <Compile Include="Input\MenuOptionTextChanged.cs" />
-    <Compile Include="Internals\ReadLineHelper.cs" />
+    <Compile Include="Input\ReadLineHelper.cs" />
     <Compile Include="MenuCleanup.cs" />
     <Compile Include="MenuExtension.cs" />
     <Compile Include="MenuLabeling.cs" />
@@ -102,6 +102,7 @@
   <ItemGroup>
     <Compile Include="Output\ConsoleString.Segment.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

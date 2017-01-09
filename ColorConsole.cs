@@ -1,4 +1,4 @@
-﻿using CommandLineParsing.Internals;
+﻿using CommandLineParsing.Input;
 using CommandLineParsing.Output;
 using System;
 using System.Text;
