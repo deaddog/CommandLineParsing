@@ -662,7 +662,7 @@ namespace CommandLineParsing
                         var escape = info.Key == ConsoleKey.Escape;
                         if (escape && !allowEscape)
                             continue;
-                        var value = readline.Value;
+                        var value = readline.Text;
                         readline.ApplyCleanup(escape ? escapeCleanup : cleanup, prompt?.Length);
                         result = value;
                         return !escape;
