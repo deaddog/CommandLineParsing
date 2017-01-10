@@ -92,6 +92,11 @@ namespace CommandLineParsing.Input
         }
 
         /// <summary>
+        /// Gets or sets the type of cleanup that should be applied when disposing the <see cref="ConsoleReader" />.
+        /// </summary>
+        public InputCleanup Cleanup { get; set; }
+
+        /// <summary>
         /// Inserts the specified text at the cursors current position (<see cref="Index"/>).
         /// </summary>
         /// <param name="text">The text to insert.</param>
@@ -187,41 +192,6 @@ namespace CommandLineParsing.Input
 
             TextChanged?.Invoke(this, old);
         }
-        
-        public void ApplyCleanup(ReadLineCleanup cleanup)
-        {
-            int? promptLength = prompt?.Length;
-
-            switch (cleanup)
-            {
-                case ReadLineCleanup.None:
-                    Console.Write(Environment.NewLine);
-                    break;
-
-                case ReadLineCleanup.RemovePrompt:
-                case ReadLineCleanup.RemoveAll:
-                    {
-                        var value = Text;
-
-                        Index = 0;
-                        Delete(value.Length);
-
-                        if (promptLength.HasValue)
-                        {
-                            Console.CursorLeft -= promptLength.Value;
-                            Console.Write(new string(' ', promptLength.Value));
-                            Console.CursorLeft -= promptLength.Value;
-                        }
-
-                        if (cleanup == ReadLineCleanup.RemovePrompt)
-                            Console.WriteLine(value);
-                    }
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(cleanup));
-            }
-        }
 
         private int IndexOfPrevious(params char[] chars)
         {
@@ -300,6 +270,40 @@ namespace CommandLineParsing.Input
                     if (ConsoleReader.IsInputCharacter(key))
                         Insert(key.KeyChar);
                     break;
+            }
+        }
+
+        /// <summary>
+        /// Performs cleanup of the reader as specified by <see cref="Cleanup"/>.
+        /// </summary>
+        public void Dispose()
+        {
+            int? promptLength = prompt?.Length;
+
+            switch (Cleanup)
+            {
+                case InputCleanup.None:
+                    Console.Write(Environment.NewLine);
+                    break;
+
+                case InputCleanup.Clean:
+                    {
+                        var value = Text;
+
+                        Index = 0;
+                        Delete(value.Length);
+
+                        if (promptLength.HasValue)
+                        {
+                            Console.CursorLeft -= promptLength.Value;
+                            Console.Write(new string(' ', promptLength.Value));
+                            Console.CursorLeft -= promptLength.Value;
+                        }
+                    }
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(Cleanup));
             }
         }
     }
