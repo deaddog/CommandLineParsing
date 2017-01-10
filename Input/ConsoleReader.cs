@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLineParsing.Output;
+using System;
 using System.Linq;
 using System.Text;
 
@@ -36,14 +37,20 @@ namespace CommandLineParsing.Input
                 char.IsSeparator(character);
         }
 
+        private readonly ConsoleString prompt;
         private readonly int position;
         private readonly StringBuilder sb;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleReader"/> class.
         /// </summary>
-        public ConsoleReader()
+        /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
+        public ConsoleReader(ConsoleString prompt = null)
         {
+            this.prompt = prompt;
+            if (prompt != null)
+                ColorConsole.Write(prompt);
+
             position = Console.CursorLeft;
             sb = new StringBuilder();
         }
@@ -180,17 +187,11 @@ namespace CommandLineParsing.Input
 
             TextChanged?.Invoke(this, old);
         }
-
-        public void ApplyCleanup(ReadLineCleanup cleanup, string prompt = null)
+        
+        public void ApplyCleanup(ReadLineCleanup cleanup)
         {
-            var promptLength = prompt == null ?
-                (int?)null :
-                ColorConsole.ClearColors(prompt).Length;
+            int? promptLength = prompt?.Length;
 
-            ApplyCleanup(cleanup, promptLength);
-        }
-        public void ApplyCleanup(ReadLineCleanup cleanup, int? promptLength = null)
-        {
             switch (cleanup)
             {
                 case ReadLineCleanup.None:
