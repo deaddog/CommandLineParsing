@@ -644,19 +644,6 @@ namespace CommandLineParsing
                 var info = Console.ReadKey(true);
                 switch (info.Key)
                 {
-                    case ConsoleKey.Backspace:
-                        if (info.Modifiers == ConsoleModifiers.Control)
-                            readline.Delete(readline.IndexOfPrevious(' ') - readline.Index);
-                        else
-                            readline.Delete(-1);
-                        break;
-                    case ConsoleKey.Delete:
-                        if (info.Modifiers == ConsoleModifiers.Control)
-                            readline.Delete(readline.IndexOfNext(' ') - readline.Index);
-                        else
-                            readline.Delete(1);
-                        break;
-
                     case ConsoleKey.Escape:
                     case ConsoleKey.Enter:
                         var escape = info.Key == ConsoleKey.Escape;
@@ -667,28 +654,8 @@ namespace CommandLineParsing
                         result = value;
                         return !escape;
 
-                    case ConsoleKey.LeftArrow:
-                        if (info.Modifiers == ConsoleModifiers.Control)
-                            readline.Index = readline.IndexOfPrevious(' ');
-                        else
-                            readline.Index--;
-                        break;
-                    case ConsoleKey.RightArrow:
-                        if (info.Modifiers == ConsoleModifiers.Control)
-                            readline.Index = readline.IndexOfNext(' ');
-                        else
-                            readline.Index++;
-                        break;
-                    case ConsoleKey.Home:
-                        readline.Index = 0;
-                        break;
-                    case ConsoleKey.End:
-                        readline.Index = readline.Length;
-                        break;
-
                     default:
-                        if (ConsoleReader.IsInputCharacter(info))
-                            readline.Insert(info.KeyChar);
+                        readline.HandleKey(info);
                         break;
                 }
             }

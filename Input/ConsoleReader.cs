@@ -222,7 +222,7 @@ namespace CommandLineParsing.Input
             }
         }
 
-        public int IndexOfPrevious(params char[] chars)
+        private int IndexOfPrevious(params char[] chars)
         {
             int index = Index;
             if (index == 0)
@@ -237,7 +237,7 @@ namespace CommandLineParsing.Input
 
             return i;
         }
-        public int IndexOfNext(params char[] chars)
+        private int IndexOfNext(params char[] chars)
         {
             int index = Index;
             if (index == Length)
