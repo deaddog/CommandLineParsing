@@ -7,7 +7,7 @@ namespace CommandLineParsing.Input
     /// <summary>
     /// Provides methods for reading input from the console.
     /// </summary>
-    public class ConsoleReader
+    public class ConsoleReader : IConsoleInput
     {
         /// <summary>
         /// Determines whether a <see cref="ConsoleKeyInfo"/> is a printable character, that can be used as raw text input.
@@ -253,6 +253,53 @@ namespace CommandLineParsing.Input
             }
 
             return i;
+        }
+
+        /// <summary>
+        /// Handles the specified key by updating the <see cref="Text"/> property.
+        /// </summary>
+        /// <param name="key">The key to process.</param>
+        public void HandleKey(ConsoleKeyInfo key)
+        {
+            switch (key.Key)
+            {
+                case ConsoleKey.Backspace:
+                    if (key.Modifiers == ConsoleModifiers.Control)
+                        Delete(IndexOfPrevious(' ') - Index);
+                    else
+                        Delete(-1);
+                    break;
+                case ConsoleKey.Delete:
+                    if (key.Modifiers == ConsoleModifiers.Control)
+                        Delete(IndexOfNext(' ') - Index);
+                    else
+                        Delete(1);
+                    break;
+
+                case ConsoleKey.LeftArrow:
+                    if (key.Modifiers == ConsoleModifiers.Control)
+                        Index = IndexOfPrevious(' ');
+                    else
+                        Index--;
+                    break;
+                case ConsoleKey.RightArrow:
+                    if (key.Modifiers == ConsoleModifiers.Control)
+                        Index = IndexOfNext(' ');
+                    else
+                        Index++;
+                    break;
+                case ConsoleKey.Home:
+                    Index = 0;
+                    break;
+                case ConsoleKey.End:
+                    Index = Length;
+                    break;
+
+                default:
+                    if (ConsoleReader.IsInputCharacter(key))
+                        Insert(key.KeyChar);
+                    break;
+            }
         }
     }
 }
