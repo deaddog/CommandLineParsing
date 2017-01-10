@@ -111,6 +111,11 @@ namespace CommandLineParsing.Input
         }
 
         /// <summary>
+        /// Gets the type of cleanup that should be applied when disposing the <see cref="MenuDisplay{T}"/>.
+        /// </summary>
+        public InputCleanup Cleanup { get; set; }
+
+        /// <summary>
         /// Handles the specified key by updating the state of the <see cref="MenuDisplay{T}"/>.
         /// </summary>
         /// <param name="key">The key to process.</param>
@@ -165,6 +170,22 @@ namespace CommandLineParsing.Input
                 Console.Write(new string(' ', oldLen) + new string('\b', oldLen));
                 ColorConsole.Write(newText);
             });
+        }
+
+        /// <summary>
+        /// Performs cleanup of the menu display as specified by <see cref="Cleanup"/>.
+        /// </summary>
+        public void Dispose()
+        {
+            if (Cleanup == InputCleanup.Clean)
+            {
+                ColorConsole.TemporaryShift(origin, () =>
+                {
+                    ColorConsole.CursorPosition = origin;
+                    for (int i = 0; i < options.Count; i++)
+                        ColorConsole.WriteLine(new string(' ', options[i].Text.Length + prompt.Length));
+                });
+            }
         }
     }
 }
