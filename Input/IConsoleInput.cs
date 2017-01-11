@@ -3,7 +3,7 @@
 namespace CommandLineParsing.Input
 {
     /// <summary>
-    /// Provides a method for handling keyboard input in console applications.
+    /// Provides methods for handling input in console applications.
     /// </summary>
     public interface IConsoleInput : IDisposable
     {
@@ -17,5 +17,10 @@ namespace CommandLineParsing.Input
         /// Gets the type of cleanup that should be applied when disposing the <see cref="IConsoleInput"/>.
         /// </summary>
         InputCleanup Cleanup { get; }
+
+        /// <summary>
+        /// Gets the location where the input is displayed (upper-left corner).
+        /// </summary>
+        ConsolePoint Origin { get; }
     }
 }

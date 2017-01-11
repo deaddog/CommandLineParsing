@@ -38,6 +38,7 @@ namespace CommandLineParsing.Input
         }
 
         private readonly ConsoleString prompt;
+        private readonly ConsolePoint origin;
         private readonly int position;
         private readonly StringBuilder sb;
 
@@ -47,6 +48,8 @@ namespace CommandLineParsing.Input
         /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
         public ConsoleReader(ConsoleString prompt = null)
         {
+            origin = ColorConsole.CursorPosition;
+
             this.prompt = prompt;
             if (prompt != null)
                 ColorConsole.Write(prompt);
@@ -90,6 +93,11 @@ namespace CommandLineParsing.Input
                 }
             }
         }
+
+        /// <summary>
+        /// Gets the location where the readline is displayed. If a prompt was passed to the constructer, this points to the start of that prompt.
+        /// </summary>
+        public ConsolePoint Origin => origin;
 
         /// <summary>
         /// Gets or sets the type of cleanup that should be applied when disposing the <see cref="ConsoleReader" />.

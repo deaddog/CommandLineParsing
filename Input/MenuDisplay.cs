@@ -111,6 +111,11 @@ namespace CommandLineParsing.Input
         }
 
         /// <summary>
+        /// Gets the location where the readline is displayed. If 
+        /// </summary>
+        public ConsolePoint Origin => origin;
+
+        /// <summary>
         /// Gets the type of cleanup that should be applied when disposing the <see cref="MenuDisplay{T}"/>.
         /// </summary>
         public InputCleanup Cleanup { get; set; }
