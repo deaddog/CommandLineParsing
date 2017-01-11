@@ -631,30 +631,48 @@ namespace CommandLineParsing
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
-            
-            var readline = new ConsoleReader(prompt);
-            readline.Insert(defaultString);
 
-            while (true)
+            result = null;
+            bool resultOk = false;
+            ReadLineCleanup finalCleanup = ReadLineCleanup.None;
+
+            bool done = false;
+
+            using (var readline = new ConsoleReader(prompt))
             {
-                var info = Console.ReadKey(true);
-                switch (info.Key)
-                {
-                    case ConsoleKey.Escape:
-                    case ConsoleKey.Enter:
-                        var escape = info.Key == ConsoleKey.Escape;
-                        if (escape && !allowEscape)
-                            continue;
-                        var value = readline.Text;
-                        readline.ApplyCleanup(escape ? escapeCleanup : cleanup);
-                        result = value;
-                        return !escape;
+                readline.Insert(defaultString);
 
-                    default:
-                        readline.HandleKey(info);
-                        break;
+                while (!done)
+                {
+                    var info = Console.ReadKey(true);
+                    switch (info.Key)
+                    {
+                        case ConsoleKey.Escape:
+                        case ConsoleKey.Enter:
+                            var escape = info.Key == ConsoleKey.Escape;
+                            if (escape && !allowEscape)
+                                continue;
+                            var value = readline.Text;
+
+                            finalCleanup = escape ? escapeCleanup : cleanup;
+                            readline.Cleanup = finalCleanup == ReadLineCleanup.None ? InputCleanup.None : InputCleanup.Clean;
+
+                            result = value;
+                            resultOk = !escape;
+                            done = true;
+                            break;
+
+                        default:
+                            readline.HandleKey(info);
+                            break;
+                    }
                 }
             }
+
+            if (finalCleanup == ReadLineCleanup.RemovePrompt)
+                Console.WriteLine(result);
+
+            return resultOk;
         }
 
         /// <summary>
