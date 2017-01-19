@@ -67,18 +67,7 @@ namespace CommandLineParsing.Input
                 prompt = value;
                 noPrompt = new string(' ', prompt.Length);
 
-                if (lengthDiff != 0)
-                    for (int i = 0; i < options.Count; i++)
-                    {
-                        var newText = options[i].Text;
-                        if (lengthDiff < 0)
-                            newText += new string(' ', -lengthDiff);
-
-                        if (i == SelectedIndex)
-                            (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(prompt + newText));
-                        else
-                            (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(noPrompt + newText));
-                    }
+                UpdateAll(lengthDiff);
             }
         }
 
@@ -161,6 +150,29 @@ namespace CommandLineParsing.Input
             }
         }
 
+        private void UpdateAll(int lengthDiff)
+        {
+            if (lengthDiff != 0)
+                for (int i = 0; i < options.Count; i++)
+                {
+                    var newText = options[i].Text;
+                    if (lengthDiff < 0)
+                        newText += new string(' ', -lengthDiff);
+
+                    if (i == SelectedIndex)
+                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(prompt + newText));
+                    else
+                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(noPrompt + newText));
+                }
+            else
+                for (int i = 0; i < options.Count; i++)
+                {
+                    if (i == SelectedIndex)
+                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(prompt));
+                    else
+                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(noPrompt));
+                }
+        }
         internal void UpdateOption(MenuOption<T> option, string oldText)
         {
             UpdateOption(options.IndexOf(option), oldText, option.Text);
