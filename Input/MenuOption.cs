@@ -4,7 +4,7 @@
     /// Represemts a single option in a menu.
     /// </summary>
     /// <typeparam name="T">The type of the value associated with the <see cref="MenuOption{T}"/>.</typeparam>
-    public class MenuOption<T>
+    public class MenuOption<T> : IMenuOption
     {
         private string text;
 
@@ -43,6 +43,6 @@
         /// <summary>
         /// Occurs when <see cref="Text"/> changes value.
         /// </summary>
-        public event MenuOptionTextChanged<T> TextChanged;
+        public event MenuOptionTextChanged TextChanged;
     }
 }

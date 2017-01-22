@@ -65,6 +65,7 @@
     <Compile Include="IgnoreCase.cs" />
     <Compile Include="Input\ConsoleReaderTextChanged.cs" />
     <Compile Include="Input\IConsoleInput.cs" />
+    <Compile Include="Input\IMenuOption.cs" />
     <Compile Include="Input\InputCleanup.cs" />
     <Compile Include="Input\MenuOptionCollection.cs" />
     <Compile Include="Input\MenuOptionTextChanged.cs" />
