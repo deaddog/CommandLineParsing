@@ -16,6 +16,9 @@ namespace CommandLineParsing.Input
         private ConsoleString prompt;
         private string noPrompt;
 
+        private readonly PrefixKeyCollection _prefixTop;
+        private readonly PrefixKeyCollection _prefixBottom;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MenuDisplay{T}"/> class.
         /// The menu will be displayed at the current cursor position.
@@ -34,6 +37,9 @@ namespace CommandLineParsing.Input
             options = new MenuOptionCollection<T>(this);
             index = -1;
             Prompt = new ConsoleString("> ");
+
+            _prefixTop = new PrefixKeyCollection();
+            _prefixBottom = new PrefixKeyCollection();
         }
         /// <summary>
         /// Initializes a new instance of the <see cref="MenuDisplay{T}"/> class.
@@ -70,6 +76,17 @@ namespace CommandLineParsing.Input
                 UpdateAll(lengthDiff);
             }
         }
+
+
+        /// <summary>
+        /// Gets the collection of prefixes shown at the top of a menu.
+        /// </summary>
+        public PrefixKeyCollection PrefixesTop => _prefixTop;
+        /// <summary>
+        /// Gets the collection of prefixes shown at the bottom of a menu.
+        /// Note that these are applied bottom-up, and take precedence over <see cref="PrefixesTop"/>.
+        /// </summary>
+        public PrefixKeyCollection PrefixesBottom => _prefixBottom;
 
         /// <summary>
         /// Gets or sets the index of the selected option in the menu.
