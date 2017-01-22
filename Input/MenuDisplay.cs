@@ -201,17 +201,17 @@ namespace CommandLineParsing.Input
                         newText += new string(' ', -lengthDiff);
 
                     if (i == SelectedIndex)
-                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(prompt + newText));
+                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(prompt + GetPrefix(i) + newText));
                     else
-                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(noPrompt + newText));
+                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(noPrompt + GetPrefix(i) + newText));
                 }
             else
                 for (int i = 0; i < options.Count; i++)
                 {
                     if (i == SelectedIndex)
-                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(prompt));
+                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(prompt + GetPrefix(i)));
                     else
-                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(noPrompt));
+                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(noPrompt + GetPrefix(i)));
                 }
         }
         internal void UpdateOption(MenuOption<T> option, string oldText)
@@ -220,14 +220,35 @@ namespace CommandLineParsing.Input
         }
         internal void UpdateOption(int index, string oldText, string newText)
         {
+            var oldPrefix = GetPrefix(index);
+            var newPrefix = string.IsNullOrEmpty(newText) ? "" : oldPrefix;
+
             var offset = new ConsoleSize(prompt.Length, index);
 
             ColorConsole.TemporaryShift(origin + offset, () =>
             {
-                int oldLen = ColorConsole.ClearColors(oldText).Length;
+                int oldLen = ColorConsole.ClearColors(oldPrefix + oldText).Length;
                 Console.Write(new string(' ', oldLen) + new string('\b', oldLen));
-                ColorConsole.Write(newText);
+                ColorConsole.Write(newPrefix + newText);
             });
+
+            if (string.IsNullOrEmpty(oldText) || string.IsNullOrEmpty(newText))
+                UpdateAll(0);
+        }
+
+        private string GetPrefix(int index)
+        {
+            if (_prefixTop.Count == 0 && _prefixBottom.Count == 0)
+                return "";
+
+            char? prefix =
+                _prefixBottom.PrefixFromIndex(options.Count - index - 1) ??
+                _prefixTop.PrefixFromIndex(index);
+
+            if (prefix.HasValue)
+                return prefix + ": ";
+            else
+                return "   ";
         }
 
         /// <summary>
@@ -237,11 +258,13 @@ namespace CommandLineParsing.Input
         {
             if (Cleanup == InputCleanup.Clean)
             {
+                var prefixLength = GetPrefix(0).Length;
+
                 ColorConsole.TemporaryShift(origin, () =>
                 {
                     ColorConsole.CursorPosition = origin;
                     for (int i = 0; i < options.Count; i++)
-                        ColorConsole.WriteLine(new string(' ', options[i].Text.Length + prompt.Length));
+                        ColorConsole.WriteLine(new string(' ', options[i].Text.Length + prompt.Length + prefixLength));
                 });
             }
         }
