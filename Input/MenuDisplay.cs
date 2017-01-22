@@ -18,6 +18,7 @@ namespace CommandLineParsing.Input
 
         private readonly PrefixKeyCollection _prefixTop;
         private readonly PrefixKeyCollection _prefixBottom;
+        private bool _hasPrefix;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MenuDisplay{T}"/> class.
@@ -40,6 +41,10 @@ namespace CommandLineParsing.Input
 
             _prefixTop = new PrefixKeyCollection();
             _prefixBottom = new PrefixKeyCollection();
+            _hasPrefix = false;
+
+            _prefixTop.PrefixSetChanged += UpdatePrefixChange;
+            _prefixBottom.PrefixSetChanged += UpdatePrefixChange;
         }
         /// <summary>
         /// Initializes a new instance of the <see cref="MenuDisplay{T}"/> class.
@@ -191,6 +196,18 @@ namespace CommandLineParsing.Input
             }
         }
 
+        private void UpdatePrefixChange()
+        {
+            var oldHas = _hasPrefix;
+            _hasPrefix = _prefixTop.Count > 0 || _prefixTop.Count > 0;
+
+            if (_hasPrefix == oldHas)
+                UpdateAll(0);
+            else if (!_hasPrefix)
+                UpdateAll(-3);
+            else
+                UpdateAll(3);
+        }
         private void UpdateAll(int lengthDiff)
         {
             if (lengthDiff != 0)
