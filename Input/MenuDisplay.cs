@@ -6,11 +6,11 @@ namespace CommandLineParsing.Input
     /// <summary>
     /// Provides methods for managing a menu in the console.
     /// </summary>
-    /// <typeparam name="T">The type of the values selectable from the <see cref="MenuDisplay{T}"/>.</typeparam>
-    public class MenuDisplay<T> : IConsoleInput
+    /// <typeparam name="TOption">The type of the options selectable from the <see cref="MenuDisplay{TOption}"/>.</typeparam>
+    public class MenuDisplay<TOption> : IConsoleInput where TOption : class, IMenuOption
     {
         private readonly ConsolePoint origin;
-        private readonly MenuOptionCollection<T> options;
+        private readonly MenuOptionCollection<TOption> options;
         private int index;
 
         private ConsoleString prompt;
@@ -35,7 +35,7 @@ namespace CommandLineParsing.Input
         public MenuDisplay(ConsolePoint point)
         {
             origin = point;
-            options = new MenuOptionCollection<T>(this);
+            options = new MenuOptionCollection<TOption>(this);
             index = -1;
             Prompt = new ConsoleString("> ");
 
@@ -56,9 +56,9 @@ namespace CommandLineParsing.Input
         }
 
         /// <summary>
-        /// Gets a collection of the <see cref="MenuOption{T}"/> elements displayed by this <see cref="MenuDisplay{T}"/>.
+        /// Gets a collection of the <see cref="IMenuOption"/> elements displayed by this <see cref="MenuDisplay{T}"/>.
         /// </summary>
-        public MenuOptionCollection<T> Options => options;
+        public MenuOptionCollection<TOption> Options => options;
         /// <summary>
         /// Gets or sets the text that is prefixed on the currently selected option.
         /// </summary>
@@ -230,10 +230,6 @@ namespace CommandLineParsing.Input
                     else
                         (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(noPrompt + GetPrefix(i)));
                 }
-        }
-        internal void UpdateOption(MenuOption<T> option, string oldText)
-        {
-            UpdateOption(options.IndexOf(option), oldText, option.Text);
         }
         internal void UpdateOption(int index, string oldText, string newText)
         {

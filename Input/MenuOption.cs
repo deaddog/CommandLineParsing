@@ -28,7 +28,7 @@
         /// Gets the value associated with this menu option.
         /// </summary>
         public T Value { get; }
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MenuOption{T}"/> class.
         /// </summary>
