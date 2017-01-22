@@ -89,6 +89,24 @@ namespace CommandLineParsing.Input
         public PrefixKeyCollection PrefixesBottom => _prefixBottom;
 
         /// <summary>
+        /// Gets the index in the <see cref="MenuDisplay{T}"/> based on a prefix character.
+        /// </summary>
+        /// <param name="prefixChar">The prefix character.</param>
+        /// <returns>If <paramref name="prefixChar"/> is part of <see cref="PrefixesTop"/> or <see cref="PrefixesBottom"/>, the index of the menu option that corresponds to the prefix; otherwise <c>-1</c>.</returns>
+        public int IndexFromPrefix(char prefixChar)
+        {
+            var bottomIndex = _prefixBottom.IndexFromPrefix(prefixChar);
+            if (bottomIndex >= 0 && bottomIndex < options.Count)
+                return options.Count - bottomIndex - 1;
+
+            var topIndex = _prefixTop.IndexFromPrefix(prefixChar);
+            if (topIndex >= 0 && topIndex < options.Count && options.Count - _prefixBottom.Count > topIndex)
+                return topIndex;
+
+            return -1;
+        }
+
+        /// <summary>
         /// Gets or sets the index of the selected option in the menu.
         /// A value of <c>-1</c> indicates that no element is selected.
         /// </summary>
@@ -163,6 +181,12 @@ namespace CommandLineParsing.Input
                 case ConsoleKey.Delete:
                     if (SelectedIndex >= 0)
                         Options.RemoveAt(SelectedIndex);
+                    break;
+
+                default:
+                    int prefixIndex = IndexFromPrefix(key.KeyChar);
+                    if (prefixIndex >= 0)
+                        SelectedIndex = prefixIndex;
                     break;
             }
         }
