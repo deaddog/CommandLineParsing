@@ -1,4 +1,6 @@
-﻿namespace CommandLineParsing.Input
+﻿using CommandLineParsing.Output;
+
+namespace CommandLineParsing.Input
 {
     /// <summary>
     /// Represemts a single option in a menu.
@@ -6,12 +8,12 @@
     /// <typeparam name="T">The type of the value associated with the <see cref="MenuOption{T}"/>.</typeparam>
     public class MenuOption<T> : IMenuOption
     {
-        private string text;
+        private ConsoleString text;
 
         /// <summary>
         /// Gets or sets the text displayed in the menu for this option.
         /// </summary>
-        public string Text
+        public ConsoleString Text
         {
             get { return text; }
             set
@@ -34,7 +36,7 @@
         /// </summary>
         /// <param name="text">The text displayed in the menu for this option. The value can be updated while the menu is displayed.</param>
         /// <param name="value">The value associated with this menu option.</param>
-        public MenuOption(string text, T value)
+        public MenuOption(ConsoleString text, T value)
         {
             Text = text;
             Value = value;

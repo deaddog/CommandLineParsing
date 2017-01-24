@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLineParsing.Output;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -19,7 +20,7 @@ namespace CommandLineParsing.Input
             _options = new List<TOption>();
         }
 
-        private void OptionUpdateHelper(IMenuOption option, string oldText)
+        private void OptionUpdateHelper(IMenuOption option, ConsoleString oldText)
         {
             _display.UpdateOption(IndexOf(option), oldText, option.Text);
         }

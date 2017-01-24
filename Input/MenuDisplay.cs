@@ -231,25 +231,25 @@ namespace CommandLineParsing.Input
                         (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(noPrompt + GetPrefix(i)));
                 }
         }
-        internal void UpdateOption(int index, string oldText, string newText)
+        internal void UpdateOption(int index, ConsoleString oldText, ConsoleString newText)
         {
             var oldPrefix = GetPrefix(index);
-            var newPrefix = string.IsNullOrEmpty(newText) ? "" : oldPrefix;
+            var newPrefix = string.IsNullOrEmpty(newText.Content) ? "" : oldPrefix;
 
             var offset = new ConsoleSize(prompt.Length, index);
 
             ColorConsole.TemporaryShift(origin + offset, () =>
             {
-                int oldLen = ColorConsole.ClearColors(oldPrefix + oldText).Length;
+                int oldLen = (oldPrefix + oldText).Length;
                 Console.Write(new string(' ', oldLen) + new string('\b', oldLen));
                 ColorConsole.Write(newPrefix + newText);
             });
 
-            if (string.IsNullOrEmpty(oldText) || string.IsNullOrEmpty(newText))
+            if (string.IsNullOrEmpty(oldText.Content) || string.IsNullOrEmpty(newText.Content))
                 UpdateAll(0);
         }
 
-        private string GetPrefix(int index)
+        private ConsoleString GetPrefix(int index)
         {
             if (_prefixTop.Count == 0 && _prefixBottom.Count == 0)
                 return "";
