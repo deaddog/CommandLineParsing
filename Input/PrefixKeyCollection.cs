@@ -51,7 +51,7 @@ namespace CommandLineParsing.Input
             else
                 return null;
         }
-        
+
         /// <summary>
         /// Sets the prefix keys used by the collection.
         /// </summary>
@@ -62,6 +62,36 @@ namespace CommandLineParsing.Input
             _keys.AddRange(prefixChars);
 
             PrefixSetChanged?.Invoke();
+        }
+        /// <summary>
+        /// Sets the prefix keys used by the collection from one of the <see cref="MenuLabeling"/> values.
+        /// </summary>
+        /// <param name="label">The set of prefix keys to use.</param>
+        public void SetKeys(MenuLabeling label)
+        {
+            switch (label)
+            {
+                case MenuLabeling.None: SetKeys(new char[0]); break;
+                case MenuLabeling.Numbers: SetKeys(GetRange('1', '9')); break;
+                case MenuLabeling.Letters: SetKeys(GetRange('a', 'z')); break;
+                case MenuLabeling.LettersUpper: SetKeys(GetRange('A', 'Z')); break;
+                case MenuLabeling.NumbersAndLetters: SetKeys(GetRange('1', '9').Concat(GetRange('a', 'z'))); break;
+                case MenuLabeling.NumbersAndLettersUpper: SetKeys(GetRange('1', '9').Concat(GetRange('A', 'Z'))); break;
+            }
+        }
+        private IEnumerable<char> GetRange(char from, char to)
+        {
+            if (from > to)
+            {
+                var temp = from;
+                from = to;
+                to = temp;
+            }
+
+            while (from < to)
+                yield return from++;
+
+            yield return to;
         }
     }
 }
