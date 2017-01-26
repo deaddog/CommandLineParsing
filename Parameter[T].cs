@@ -82,7 +82,7 @@ namespace CommandLineParsing
                 var left = Console.CursorLeft;
                 Console.WriteLine();
 
-                temp = ColorConsole.MenuSelectEnum<T>(new MenuSettings(MenuSettings.DefaultSettings) { Cleanup = MenuCleanup.RemoveMenu });
+                temp = ColorConsole.MenuSelectEnum<T>(cleanup: MenuCleanup.RemoveMenu);
 
                 Console.SetCursorPosition(left, Console.CursorTop - 1);
                 Console.WriteLine(temp);
