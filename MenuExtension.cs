@@ -208,6 +208,33 @@ namespace CommandLineParsing
             return MenuSelect(collection, settings, x => x.Key.ToString(), cancelKey, new KeyValuePair<TKey, TValue>(default(TKey), cancelValue)).Value;
         }
 
+        private class OnOffOption<T> : MenuOption<T>
+        {
+            private readonly ConsoleString _onText, _offText;
+            private bool _on;
+
+            public OnOffOption(ConsoleString onText, ConsoleString offText, bool on, T value)
+                : base(on ? onText : offText, value)
+            {
+                _onText = onText;
+                _offText = offText;
+                _on = on;
+            }
+
+            public bool On
+            {
+                get { return _on; }
+                set
+                {
+                    if (_on == value)
+                        return;
+
+                    _on = value;
+                    Text = _on ? _onText : _offText;
+                }
+            }
+        }
+
         /// <summary>
         /// Displays a <see cref="SelectionMenu{T}"/> where a set of elements from the collection can be selected.
         /// </summary>
