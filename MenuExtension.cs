@@ -326,8 +326,15 @@ namespace CommandLineParsing
 
                 if (doneText == null)
                     doneText = "Done";
-                var doneOption = new OnOffOption<T>(doneText, $"[DarkGray:{doneText.Content}]", false, default(T));
+                var doneOption = new OnOffOption<T>(doneText, $"[DarkGray:{doneText.Content}]", true, default(T));
                 display.Options.Add(doneOption);
+
+                Func<bool> CheckCanExit = () =>
+                {
+                    var onCount = display.Options.Count(x => x != doneOption && x.On);
+                    return onCount >= minimum && onCount <= maximum;
+                };
+                doneOption.On = CheckCanExit();
 
                 display.SelectedIndex = 0;
 
@@ -355,9 +362,7 @@ namespace CommandLineParsing
                                 else if (option != doneOption)
                                 {
                                     option.On = !option.On;
-
-                                    var onCount = display.Options.Count(x => x != doneOption && x.On);
-                                    doneOption.On = onCount >= minimum && onCount <= maximum;
+                                    doneOption.On = CheckCanExit();
                                 }
                             }
                             break;
