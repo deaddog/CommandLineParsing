@@ -1,6 +1,8 @@
 ﻿using CommandLineParsing.Input;
 using CommandLineParsing.Output;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -720,6 +722,62 @@ namespace CommandLineParsing
             }
             else
                 return values.MenuSelect(settings);
+        }
+
+        /// <summary>
+        /// Displays a menu where a enumeration value of type <typeparamref name="TEnum"/> can be selected.
+        /// </summary>
+        /// <typeparam name="TEnum">The type of the enum.</typeparam>
+        /// <param name="keySelector">A function that gets the <see cref="ConsoleString"/> that should be displayed for each enum value.</param>
+        /// <param name="labeling">The type of labeling (option prefix) that should be applied when displaying the menu.</param>
+        /// <param name="cleanup">The cleanup applied after displaying the menu.</param>
+        /// <param name="allowflags">If set to <c>true</c> a combination of values can be selected; otherwise only a single value can be selected.
+        /// <c>null</c> indicates that multiple values can be selected if the type has the <see cref="FlagsAttribute"/>.
+        /// </param>
+        /// <returns>The selected <typeparamref name="TEnum"/> value.</returns>
+        public static TEnum MenuSelectEnum<TEnum>(Func<TEnum, ConsoleString> keySelector = null, MenuLabeling labeling = MenuLabeling.NumbersAndLetters, MenuCleanup cleanup = MenuCleanup.None, bool? allowflags = null)
+        {
+            if (!typeof(TEnum).IsEnum)
+                throw new ArgumentException($"The {nameof(MenuSelectEnum)} method only support Enum types as type-parameter.");
+
+            if (!allowflags.HasValue)
+                allowflags = typeof(TEnum).GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0;
+
+            var values = (TEnum[])Enum.GetValues(typeof(TEnum));
+
+            Func<IEnumerable<TEnum>, TEnum> merge = x =>
+            {
+                int val = (int)Convert.ChangeType(x.First(), typeof(int));
+                foreach (var v in x.Skip(1))
+                    val |= (int)Convert.ChangeType(v, typeof(int));
+
+                return (TEnum)Enum.ToObject(typeof(TEnum), val);
+            };
+
+            if (allowflags.Value)
+            {
+                var selection = values.MenuSelectMultiple(minimum: 1, onKeySelector: keySelector, labeling: labeling, cleanup: cleanup == MenuCleanup.RemoveMenuShowChoice ? MenuCleanup.RemoveMenu : cleanup);
+
+                if (cleanup == MenuCleanup.RemoveMenuShowChoice)
+                {
+                    for (int i = 0; i < selection.Length; i++)
+                    {
+                        if (i > 0) Console.Write(", ");
+                        ColorConsole.Write(selection[i].ToString());
+                    }
+                    Console.WriteLine();
+                }
+
+                long val = (long)Convert.ChangeType(selection[0], typeof(long));
+                for (int i = 1; i < selection.Length; i++)
+                    val |= (long)Convert.ChangeType(selection[i], typeof(long));
+
+                return (TEnum)Enum.ToObject(typeof(TEnum), val);
+            }
+            else
+            {
+                return values.MenuSelect(keySelector, labeling, cleanup);
+            }
         }
     }
 }
