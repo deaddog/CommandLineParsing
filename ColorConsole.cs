@@ -678,53 +678,6 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Displays a <see cref="Menu{T}"/> or <see cref="SelectionMenu{T}"/> where a enumeration value of type <typeparamref name="TEnum"/> can be selected.
-        /// The type of menu displayed is determined by whether the enum definition has the <see cref="FlagsAttribute"/> attribute.
-        /// If it does, a combination of values can be selected (using a <see cref="SelectionMenu{T}"/>); otherwise only a single value can be selected (using a <see cref="Menu{T}"/>).
-        /// </summary>
-        /// <typeparam name="TEnum">The type of the enum.</typeparam>
-        /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
-        /// <returns>The selected <typeparamref name="TEnum"/> value.</returns>
-        public static TEnum MenuSelectEnum<TEnum>(MenuSettings settings)
-        {
-            var flags = typeof(TEnum).GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0;
-
-            return MenuSelectEnum<TEnum>(settings, flags);
-        }
-        /// <summary>
-        /// Displays a <see cref="Menu{T}"/> or <see cref="SelectionMenu{T}"/> where a enumeration value of type <typeparamref name="TEnum"/> can be selected.
-        /// </summary>
-        /// <typeparam name="TEnum">The type of the enum.</typeparam>
-        /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
-        /// <param name="allowflags">if set to <c>true</c> a combination of values can be selected (using a <see cref="SelectionMenu{T}"/>); otherwise only a single value can be selected (using a <see cref="Menu{T}"/>).</param>
-        /// <returns>The selected <typeparamref name="TEnum"/> value.</returns>
-        public static TEnum MenuSelectEnum<TEnum>(MenuSettings settings, bool allowflags)
-        {
-            if (!typeof(TEnum).IsEnum)
-                throw new ArgumentException($"The {nameof(MenuSelectEnum)} method only support Enum types as type-parameter.");
-
-            var values = (TEnum[])Enum.GetValues(typeof(TEnum));
-
-            if (allowflags)
-            {
-                if (settings == null)
-                    settings = new MenuSettings(MenuSettings.DefaultSettings);
-                if (settings.MinimumSelected == 0)
-                    settings = new MenuSettings(settings) { MinimumSelected = 1 };
-
-                var selection = values.MenuSelectMultiple(settings);
-
-                dynamic agg = selection[0];
-                for (int i = 1; i < selection.Length; i++)
-                    agg |= (dynamic)selection[i];
-
-                return agg;
-            }
-            else
-                return values.MenuSelect(settings);
-        }
-
-        /// <summary>
         /// Displays a menu where a enumeration value of type <typeparamref name="TEnum"/> can be selected.
         /// </summary>
         /// <typeparam name="TEnum">The type of the enum.</typeparam>
