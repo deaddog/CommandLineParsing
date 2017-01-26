@@ -74,8 +74,6 @@
     <Compile Include="MenuCleanup.cs" />
     <Compile Include="MenuExtension.cs" />
     <Compile Include="MenuLabeling.cs" />
-    <Compile Include="MenuSettings.cs" />
-    <Compile Include="Menu.cs" />
     <Compile Include="Input\MenuDisplay.cs" />
     <Compile Include="Input\MenuOption.cs" />
     <Compile Include="Message.cs" />
@@ -94,7 +92,6 @@
     <Compile Include="RegexLookup.cs" />
     <Compile Include="Required.cs" />
     <Compile Include="RequirementType.cs" />
-    <Compile Include="SelectionMenu.cs" />
     <Compile Include="SmartParser.cs" />
     <Compile Include="ToStringExtension.cs" />
     <Compile Include="TryParse.cs" />
