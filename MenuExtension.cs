@@ -109,7 +109,7 @@ namespace CommandLineParsing
                 foreach (var item in collection)
                     display.Options.Add(new MenuOption<T>(keySelector(item), item));
 
-                if (cancelKey != null || cancelValue != null)
+                if (cancelKey != null || (cancelValue != null && !cancelValue.Equals(default(T))))
                 {
                     if (labeling != MenuLabeling.None)
                         display.PrefixesBottom.SetKeys(new char[] { '0' });
