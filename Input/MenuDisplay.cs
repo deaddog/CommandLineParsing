@@ -9,12 +9,12 @@ namespace CommandLineParsing.Input
     /// <typeparam name="TOption">The type of the options selectable from the <see cref="MenuDisplay{TOption}"/>.</typeparam>
     public class MenuDisplay<TOption> : IConsoleInput where TOption : class, IMenuOption
     {
-        private readonly ConsolePoint origin;
-        private readonly MenuOptionCollection<TOption> options;
-        private int index;
+        private readonly ConsolePoint _origin;
+        private readonly MenuOptionCollection<TOption> _options;
+        private int _index;
 
-        private ConsoleString prompt;
-        private string noPrompt;
+        private ConsoleString _prompt;
+        private string _noPrompt;
 
         private readonly PrefixKeyCollection _prefixTop;
         private readonly PrefixKeyCollection _prefixBottom;
@@ -34,9 +34,9 @@ namespace CommandLineParsing.Input
         /// <param name="point">The point where the menu should be displayed.</param>
         public MenuDisplay(ConsolePoint point)
         {
-            origin = point;
-            options = new MenuOptionCollection<TOption>(this);
-            index = -1;
+            _origin = point;
+            _options = new MenuOptionCollection<TOption>(this);
+            _index = -1;
             Prompt = new ConsoleString("> ");
 
             _prefixTop = new PrefixKeyCollection();
@@ -58,25 +58,25 @@ namespace CommandLineParsing.Input
         /// <summary>
         /// Gets a collection of the <see cref="IMenuOption"/> elements displayed by this <see cref="MenuDisplay{T}"/>.
         /// </summary>
-        public MenuOptionCollection<TOption> Options => options;
+        public MenuOptionCollection<TOption> Options => _options;
         /// <summary>
         /// Gets or sets the text that is prefixed on the currently selected option.
         /// </summary>
         public ConsoleString Prompt
         {
-            get { return prompt; }
+            get { return _prompt; }
             set
             {
                 if (value == null)
                     throw new ArgumentNullException(nameof(value));
 
-                if (value == prompt)
+                if (value == _prompt)
                     return;
 
-                var lengthDiff = value.Length - (prompt?.Length ?? 0);
+                var lengthDiff = value.Length - (_prompt?.Length ?? 0);
 
-                prompt = value;
-                noPrompt = new string(' ', prompt.Length);
+                _prompt = value;
+                _noPrompt = new string(' ', _prompt.Length);
 
                 UpdateAll(lengthDiff);
             }
@@ -101,11 +101,11 @@ namespace CommandLineParsing.Input
         public int IndexFromPrefix(char prefixChar)
         {
             var bottomIndex = _prefixBottom.IndexFromPrefix(prefixChar);
-            if (bottomIndex >= 0 && bottomIndex < options.Count)
-                return options.Count - bottomIndex - 1;
+            if (bottomIndex >= 0 && bottomIndex < _options.Count)
+                return _options.Count - bottomIndex - 1;
 
             var topIndex = _prefixTop.IndexFromPrefix(prefixChar);
-            if (topIndex >= 0 && topIndex < options.Count && options.Count - _prefixBottom.Count > topIndex)
+            if (topIndex >= 0 && topIndex < _options.Count && _options.Count - _prefixBottom.Count > topIndex)
                 return topIndex;
 
             return -1;
@@ -117,32 +117,32 @@ namespace CommandLineParsing.Input
         /// </summary>
         public int SelectedIndex
         {
-            get { return index; }
+            get { return _index; }
             set
             {
                 if (value < -1)
                     throw new ArgumentOutOfRangeException(nameof(value), "Index cannot be less than -1.");
 
-                if (value >= options.Count)
-                    throw new ArgumentOutOfRangeException(nameof(value), $"No option available at index {value}. There are {options.Count} options.");
+                if (value >= _options.Count)
+                    throw new ArgumentOutOfRangeException(nameof(value), $"No option available at index {value}. There are {_options.Count} options.");
 
-                if (value == index)
+                if (value == _index)
                     return;
 
-                if (index != -1)
-                    (origin + new ConsoleSize(0, index)).TemporaryShift(() => ColorConsole.Write(noPrompt));
+                if (_index != -1)
+                    (_origin + new ConsoleSize(0, _index)).TemporaryShift(() => ColorConsole.Write(_noPrompt));
 
                 if (value != -1)
-                    (origin + new ConsoleSize(0, value)).TemporaryShift(() => ColorConsole.Write(prompt));
+                    (_origin + new ConsoleSize(0, value)).TemporaryShift(() => ColorConsole.Write(_prompt));
 
-                index = value;
+                _index = value;
             }
         }
 
         /// <summary>
         /// Gets the location where the readline is displayed. If 
         /// </summary>
-        public ConsolePoint Origin => origin;
+        public ConsolePoint Origin => _origin;
 
         /// <summary>
         /// Gets the type of cleanup that should be applied when disposing the <see cref="MenuDisplay{T}"/>.
@@ -211,24 +211,24 @@ namespace CommandLineParsing.Input
         private void UpdateAll(int lengthDiff)
         {
             if (lengthDiff != 0)
-                for (int i = 0; i < options.Count; i++)
+                for (int i = 0; i < _options.Count; i++)
                 {
-                    var newText = options[i].Text;
+                    var newText = _options[i].Text;
                     if (lengthDiff < 0)
                         newText += new string(' ', -lengthDiff);
 
                     if (i == SelectedIndex)
-                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(prompt + GetPrefix(i) + newText));
+                        (_origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(_prompt + GetPrefix(i) + newText));
                     else
-                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(noPrompt + GetPrefix(i) + newText));
+                        (_origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(_noPrompt + GetPrefix(i) + newText));
                 }
             else
-                for (int i = 0; i < options.Count; i++)
+                for (int i = 0; i < _options.Count; i++)
                 {
                     if (i == SelectedIndex)
-                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(prompt + GetPrefix(i)));
+                        (_origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(_prompt + GetPrefix(i)));
                     else
-                        (origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(noPrompt + GetPrefix(i)));
+                        (_origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(_noPrompt + GetPrefix(i)));
                 }
         }
         internal void UpdateOption(int index, ConsoleString oldText, ConsoleString newText)
@@ -236,9 +236,9 @@ namespace CommandLineParsing.Input
             var oldPrefix = GetPrefix(index);
             var newPrefix = string.IsNullOrEmpty(newText.Content) ? "" : oldPrefix;
 
-            var offset = new ConsoleSize(prompt.Length, index);
+            var offset = new ConsoleSize(_prompt.Length, index);
 
-            ColorConsole.TemporaryShift(origin + offset, () =>
+            ColorConsole.TemporaryShift(_origin + offset, () =>
             {
                 int oldLen = (oldPrefix + oldText).Length;
                 Console.Write(new string(' ', oldLen) + new string('\b', oldLen));
@@ -255,7 +255,7 @@ namespace CommandLineParsing.Input
                 return "";
 
             char? prefix =
-                _prefixBottom.PrefixFromIndex(options.Count - index - 1) ??
+                _prefixBottom.PrefixFromIndex(_options.Count - index - 1) ??
                 _prefixTop.PrefixFromIndex(index);
 
             if (prefix.HasValue)
@@ -273,11 +273,11 @@ namespace CommandLineParsing.Input
             {
                 var prefixLength = GetPrefix(0).Length;
 
-                ColorConsole.TemporaryShift(origin, () =>
+                ColorConsole.TemporaryShift(_origin, () =>
                 {
-                    ColorConsole.CursorPosition = origin;
-                    for (int i = 0; i < options.Count; i++)
-                        ColorConsole.WriteLine(new string(' ', options[i].Text.Length + prompt.Length + prefixLength));
+                    ColorConsole.CursorPosition = _origin;
+                    for (int i = 0; i < _options.Count; i++)
+                        ColorConsole.WriteLine(new string(' ', _options[i].Text.Length + _prompt.Length + prefixLength));
                 });
             }
         }
