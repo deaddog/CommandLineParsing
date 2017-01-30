@@ -23,7 +23,7 @@ namespace CommandLineParsing.Input
 
                 var oldText = text;
                 text = value;
-                TextChanged?.Invoke(this, oldText);
+                TextChanged?.Invoke(this);
             }
         }
         /// <summary>

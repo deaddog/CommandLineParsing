@@ -1,5 +1,6 @@
 ﻿using CommandLineParsing.Output;
 using System;
+using System.Collections.Generic;
 
 namespace CommandLineParsing.Input
 {
@@ -11,6 +12,7 @@ namespace CommandLineParsing.Input
     {
         private readonly ConsolePoint _origin;
         private readonly MenuOptionCollection<TOption> _options;
+        private readonly List<ConsoleString> _displayed;
         private int _index;
 
         private ConsoleString _prompt;
@@ -36,6 +38,7 @@ namespace CommandLineParsing.Input
         {
             _origin = point;
             _options = new MenuOptionCollection<TOption>(this);
+            _displayed = new List<ConsoleString>();
             _index = -1;
             Prompt = new ConsoleString("> ");
 
@@ -231,10 +234,11 @@ namespace CommandLineParsing.Input
                         (_origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(_noPrompt + GetPrefix(i)));
                 }
         }
-        internal void UpdateOption(int index, ConsoleString oldText, ConsoleString newText)
+        internal void UpdateOption(int index, ConsoleString text)
         {
             var oldPrefix = GetPrefix(index);
-            var newPrefix = string.IsNullOrEmpty(newText.Content) ? "" : oldPrefix;
+            var newPrefix = string.IsNullOrEmpty(text.Content) ? "" : oldPrefix;
+            var oldText = _displayed.Count > index ? _displayed[index] : "";
 
             var offset = new ConsoleSize(_prompt.Length, index);
 
@@ -242,11 +246,16 @@ namespace CommandLineParsing.Input
             {
                 int oldLen = (oldPrefix + oldText).Length;
                 Console.Write(new string(' ', oldLen) + new string('\b', oldLen));
-                ColorConsole.Write(newPrefix + newText);
+                ColorConsole.Write(newPrefix + text);
             });
 
-            if (string.IsNullOrEmpty(oldText.Content) || string.IsNullOrEmpty(newText.Content))
+            if (string.IsNullOrEmpty(oldText.Content) || string.IsNullOrEmpty(text.Content) )
                 UpdateAll(0);
+
+            if (index == _displayed.Count)
+                _displayed.Add(text);
+            else
+                _displayed[index] = text;
         }
 
         private ConsoleString GetPrefix(int index)

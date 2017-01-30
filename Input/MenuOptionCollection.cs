@@ -20,9 +20,9 @@ namespace CommandLineParsing.Input
             _options = new List<TOption>();
         }
 
-        private void OptionUpdateHelper(IMenuOption option, ConsoleString oldText)
+        private void OptionUpdateHelper(IMenuOption option)
         {
-            _display.UpdateOption(IndexOf(option), oldText, option.Text);
+            _display.UpdateOption(IndexOf(option), option.Text);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace CommandLineParsing.Input
                 _options[index] = value;
                 value.TextChanged += OptionUpdateHelper;
 
-                _display.UpdateOption(index, old.Text, value.Text);
+                _display.UpdateOption(index, value.Text);
             }
         }
 
@@ -103,7 +103,7 @@ namespace CommandLineParsing.Input
             _options.Add(option);
             option.TextChanged += OptionUpdateHelper;
 
-            _display.UpdateOption(_options.Count - 1, "", option.Text);
+            _display.UpdateOption(_options.Count - 1, option.Text);
 
         }
         /// <summary>
@@ -126,8 +126,8 @@ namespace CommandLineParsing.Input
             option.TextChanged += OptionUpdateHelper;
 
             for (int i = index; i < _options.Count - 1; i++)
-                _display.UpdateOption(i, _options[i + 1].Text, _options[i].Text);
-            _display.UpdateOption(_options.Count - 1, "", _options[_options.Count - 1].Text);
+                _display.UpdateOption(i, _options[i].Text);
+            _display.UpdateOption(_options.Count - 1, _options[_options.Count - 1].Text);
 
             if (index <= _display.SelectedIndex)
                 _display.SelectedIndex++;
@@ -167,11 +167,11 @@ namespace CommandLineParsing.Input
 
             for (int i = index; i < _options.Count; i++)
             {
-                _display.UpdateOption(i, last.Text, _options[i].Text);
+                _display.UpdateOption(i, _options[i].Text);
                 last = _options[i];
             }
 
-            _display.UpdateOption(_options.Count, last.Text, null);
+            _display.UpdateOption(_options.Count, null);
 
             if (index < _display.SelectedIndex || _options.Count == _display.SelectedIndex)
                 _display.SelectedIndex--;
