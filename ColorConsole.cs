@@ -709,7 +709,7 @@ namespace CommandLineParsing
 
             if (allowflags.Value)
             {
-                var selection = values.MenuSelectMultiple(minimum: 1, onKeySelector: keySelector, labeling: labeling, cleanup: cleanup == MenuCleanup.RemoveMenuShowChoice ? MenuCleanup.RemoveMenu : cleanup);
+                var selection = values.MenuSelectMultiple(isSelectionValid: x => x.Count() >= 1, onKeySelector: keySelector, labeling: labeling, cleanup: cleanup == MenuCleanup.RemoveMenuShowChoice ? MenuCleanup.RemoveMenu : cleanup);
 
                 if (cleanup == MenuCleanup.RemoveMenuShowChoice)
                 {
