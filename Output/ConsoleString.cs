@@ -95,7 +95,14 @@ namespace CommandLineParsing.Output
         /// </returns>
         public static bool operator ==(ConsoleString s1, ConsoleString s2)
         {
-            return s1.Equals(s2);
+            if (ReferenceEquals(s1, s2))
+                return true;
+            else if (ReferenceEquals(s1, null))
+                return false;
+            else if (ReferenceEquals(s2, null))
+                return false;
+            else
+                return s1.Equals(s2);
         }
         /// <summary>
         /// Determines if two <see cref="ConsoleString"/> are not the same value, including color information.
@@ -107,7 +114,7 @@ namespace CommandLineParsing.Output
         /// </returns>
         public static bool operator !=(ConsoleString s1, ConsoleString s2)
         {
-            return !s1.Equals(s2);
+            return !(s1 == s2);
         }
 
         /// <summary>

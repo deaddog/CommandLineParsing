@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CommandLineParsing
+﻿namespace CommandLineParsing
 {
     /// <summary>
     /// Defines the labels used when displaying menues.
@@ -12,7 +10,7 @@ namespace CommandLineParsing
         /// </summary>
         None,
         /// <summary>
-        /// Numbers (0-9) are used.
+        /// Numbers (1-9) are used.
         /// </summary>
         Numbers,
         /// <summary>
@@ -24,11 +22,11 @@ namespace CommandLineParsing
         /// </summary>
         LettersUpper,
         /// <summary>
-        /// Numbers (0-9) and then letters (a-z) are used.
+        /// Numbers (1-9) and then letters (a-z) are used.
         /// </summary>
         NumbersAndLetters,
         /// <summary>
-        /// Numbers (0-9) and then letters in upper case (A-Z) are used.
+        /// Numbers (1-9) and then letters in upper case (A-Z) are used.
         /// </summary>
         NumbersAndLettersUpper
     }

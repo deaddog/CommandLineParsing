@@ -63,12 +63,20 @@
     <Compile Include="IConfiguration.cs" />
     <Compile Include="IFormatter.cs" />
     <Compile Include="IgnoreCase.cs" />
-    <Compile Include="Internals\ReadLineHelper.cs" />
+    <Compile Include="Input\ConsoleReaderTextChanged.cs" />
+    <Compile Include="Input\IConsoleInput.cs" />
+    <Compile Include="Input\IMenuOption.cs" />
+    <Compile Include="Input\InputCleanup.cs" />
+    <Compile Include="Input\MenuOnOffOption.cs" />
+    <Compile Include="Input\MenuOptionCollection.cs" />
+    <Compile Include="Input\MenuOptionTextChanged.cs" />
+    <Compile Include="Input\ConsoleReader.cs" />
+    <Compile Include="Input\PrefixKeyCollection.cs" />
     <Compile Include="MenuCleanup.cs" />
     <Compile Include="MenuExtension.cs" />
     <Compile Include="MenuLabeling.cs" />
-    <Compile Include="MenuSettings.cs" />
-    <Compile Include="Menu.cs" />
+    <Compile Include="Input\MenuDisplay.cs" />
+    <Compile Include="Input\MenuOption.cs" />
     <Compile Include="Message.cs" />
     <Compile Include="MessageTryParse.cs" />
     <Compile Include="Name.cs" />
@@ -85,7 +93,6 @@
     <Compile Include="RegexLookup.cs" />
     <Compile Include="Required.cs" />
     <Compile Include="RequirementType.cs" />
-    <Compile Include="SelectionMenu.cs" />
     <Compile Include="SmartParser.cs" />
     <Compile Include="ToStringExtension.cs" />
     <Compile Include="TryParse.cs" />
@@ -97,6 +104,7 @@
   <ItemGroup>
     <Compile Include="Output\ConsoleString.Segment.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

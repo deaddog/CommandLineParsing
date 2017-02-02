@@ -1,6 +1,8 @@
-﻿using CommandLineParsing.Internals;
+﻿using CommandLineParsing.Input;
 using CommandLineParsing.Output;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -105,6 +107,36 @@ namespace CommandLineParsing
         {
             get { return new ConsoleSize(Console.BufferWidth, Console.BufferHeight); }
             set { Console.SetBufferSize(value.Width, value.Height); }
+        }
+
+        /// <summary>
+        /// Executes an operation and then restores <see cref="CursorPosition"/> to where it was when this method was called.
+        /// </summary>
+        /// <param name="action">The action to execute.</param>
+        /// <param name="hideCursor">if set to <c>true</c> the cursor will be hidden while executing <paramref name="action"/>.</param>
+        public static void TemporaryShift(Action action, bool hideCursor = true)
+        {
+            bool wasVisible = Console.CursorVisible;
+
+            var temp = ColorConsole.CursorPosition;
+            if (hideCursor && wasVisible)
+                Console.CursorVisible = false;
+
+            action();
+
+            if (hideCursor && wasVisible)
+                Console.CursorVisible = true;
+            ColorConsole.CursorPosition = temp;
+        }
+        /// <summary>
+        /// Sets <see cref="CursorPosition"/> to <paramref name="point"/>, executes an operation and then restores <see cref="CursorPosition"/> to where it was when this method was called.
+        /// </summary>
+        /// <param name="point">The point to which <see cref="CursorPosition"/> should be shifted temporarily.</param>
+        /// <param name="action">The action to execute.</param>
+        /// <param name="hideCursor">if set to <c>true</c> the cursor will be hidden while executing <paramref name="action"/>.</param>
+        public static void TemporaryShift(this ConsolePoint point, Action action, bool hideCursor = true)
+        {
+            TemporaryShift(() => { CursorPosition = point; action(); }, hideCursor);
         }
 
         /// <summary>
@@ -584,7 +616,7 @@ namespace CommandLineParsing
 
                 else if (info.Key == ConsoleKey.Enter) { Console.Write(Environment.NewLine); break; }
 
-                else if (ReadLineHelper.IsInputCharacter(info))
+                else if (ConsoleReader.IsInputCharacter(info))
                 {
                     sb.Append(info.KeyChar);
                     if (passChar.HasValue)
@@ -602,113 +634,103 @@ namespace CommandLineParsing
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
 
-            var promptPosition = CursorPosition;
-            if (prompt != null)
-                ColorConsole.Write(prompt);
+            result = null;
+            bool resultOk = false;
+            ReadLineCleanup finalCleanup = ReadLineCleanup.None;
 
-            var readline = new ReadLineHelper();
-            readline.Insert(defaultString);
+            bool done = false;
 
-            while (true)
+            using (var readline = new ConsoleReader(prompt))
             {
-                var info = Console.ReadKey(true);
-                switch (info.Key)
+                readline.Insert(defaultString);
+
+                while (!done)
                 {
-                    case ConsoleKey.Backspace:
-                        if (info.Modifiers == ConsoleModifiers.Control)
-                            readline.Delete(readline.IndexOfPrevious(' ') - readline.Index);
-                        else
-                            readline.Delete(-1);
-                        break;
-                    case ConsoleKey.Delete:
-                        if (info.Modifiers == ConsoleModifiers.Control)
-                            readline.Delete(readline.IndexOfNext(' ') - readline.Index);
-                        else
-                            readline.Delete(1);
-                        break;
+                    var info = Console.ReadKey(true);
+                    switch (info.Key)
+                    {
+                        case ConsoleKey.Escape:
+                        case ConsoleKey.Enter:
+                            var escape = info.Key == ConsoleKey.Escape;
+                            if (escape && !allowEscape)
+                                continue;
+                            var value = readline.Text;
 
-                    case ConsoleKey.Escape:
-                    case ConsoleKey.Enter:
-                        var escape = info.Key == ConsoleKey.Escape;
-                        if (escape && !allowEscape)
-                            continue;
-                        var value = readline.Value;
-                        readline.ApplyCleanup(escape ? escapeCleanup : cleanup, prompt?.Length);
-                        result = value;
-                        return !escape;
+                            finalCleanup = escape ? escapeCleanup : cleanup;
+                            readline.Cleanup = finalCleanup == ReadLineCleanup.None ? InputCleanup.None : InputCleanup.Clean;
 
-                    case ConsoleKey.LeftArrow:
-                        if (info.Modifiers == ConsoleModifiers.Control)
-                            readline.Index = readline.IndexOfPrevious(' ');
-                        else
-                            readline.Index--;
-                        break;
-                    case ConsoleKey.RightArrow:
-                        if (info.Modifiers == ConsoleModifiers.Control)
-                            readline.Index = readline.IndexOfNext(' ');
-                        else
-                            readline.Index++;
-                        break;
-                    case ConsoleKey.Home:
-                        readline.Index = 0;
-                        break;
-                    case ConsoleKey.End:
-                        readline.Index = readline.Length;
-                        break;
+                            result = value;
+                            resultOk = !escape;
+                            done = true;
+                            break;
 
-                    default:
-                        if (ReadLineHelper.IsInputCharacter(info))
-                            readline.Insert(info.KeyChar);
-                        break;
+                        default:
+                            readline.HandleKey(info);
+                            break;
+                    }
                 }
             }
+
+            if (finalCleanup == ReadLineCleanup.RemovePrompt)
+                Console.WriteLine(result);
+
+            return resultOk;
         }
 
         /// <summary>
-        /// Displays a <see cref="Menu{T}"/> or <see cref="SelectionMenu{T}"/> where a enumeration value of type <typeparamref name="TEnum"/> can be selected.
-        /// The type of menu displayed is determined by whether the enum definition has the <see cref="FlagsAttribute"/> attribute.
-        /// If it does, a combination of values can be selected (using a <see cref="SelectionMenu{T}"/>); otherwise only a single value can be selected (using a <see cref="Menu{T}"/>).
+        /// Displays a menu where a enumeration value of type <typeparamref name="TEnum"/> can be selected.
         /// </summary>
         /// <typeparam name="TEnum">The type of the enum.</typeparam>
-        /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
+        /// <param name="keySelector">A function that gets the <see cref="ConsoleString"/> that should be displayed for each enum value.</param>
+        /// <param name="labeling">The type of labeling (option prefix) that should be applied when displaying the menu.</param>
+        /// <param name="cleanup">The cleanup applied after displaying the menu.</param>
+        /// <param name="allowflags">If set to <c>true</c> a combination of values can be selected; otherwise only a single value can be selected.
+        /// <c>null</c> indicates that multiple values can be selected if the type has the <see cref="FlagsAttribute"/>.
+        /// </param>
         /// <returns>The selected <typeparamref name="TEnum"/> value.</returns>
-        public static TEnum MenuSelectEnum<TEnum>(MenuSettings settings)
-        {
-            var flags = typeof(TEnum).GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0;
-
-            return MenuSelectEnum<TEnum>(settings, flags);
-        }
-        /// <summary>
-        /// Displays a <see cref="Menu{T}"/> or <see cref="SelectionMenu{T}"/> where a enumeration value of type <typeparamref name="TEnum"/> can be selected.
-        /// </summary>
-        /// <typeparam name="TEnum">The type of the enum.</typeparam>
-        /// <param name="settings">A <see cref="MenuSettings"/> that expresses the settings used when displaying the menu, or <c>null</c> to use the default settings.</param>
-        /// <param name="allowflags">if set to <c>true</c> a combination of values can be selected (using a <see cref="SelectionMenu{T}"/>); otherwise only a single value can be selected (using a <see cref="Menu{T}"/>).</param>
-        /// <returns>The selected <typeparamref name="TEnum"/> value.</returns>
-        public static TEnum MenuSelectEnum<TEnum>(MenuSettings settings, bool allowflags)
+        public static TEnum MenuSelectEnum<TEnum>(Func<TEnum, ConsoleString> keySelector = null, MenuLabeling labeling = MenuLabeling.NumbersAndLetters, MenuCleanup cleanup = MenuCleanup.None, bool? allowflags = null)
         {
             if (!typeof(TEnum).IsEnum)
                 throw new ArgumentException($"The {nameof(MenuSelectEnum)} method only support Enum types as type-parameter.");
 
+            if (!allowflags.HasValue)
+                allowflags = typeof(TEnum).GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0;
+
             var values = (TEnum[])Enum.GetValues(typeof(TEnum));
 
-            if (allowflags)
+            Func<IEnumerable<TEnum>, TEnum> merge = x =>
             {
-                if (settings == null)
-                    settings = new MenuSettings(MenuSettings.DefaultSettings);
-                if (settings.MinimumSelected == 0)
-                    settings = new MenuSettings(settings) { MinimumSelected = 1 };
+                int val = (int)Convert.ChangeType(x.First(), typeof(int));
+                foreach (var v in x.Skip(1))
+                    val |= (int)Convert.ChangeType(v, typeof(int));
 
-                var selection = values.MenuSelectMultiple(settings);
+                return (TEnum)Enum.ToObject(typeof(TEnum), val);
+            };
 
-                dynamic agg = selection[0];
+            if (allowflags.Value)
+            {
+                var selection = values.MenuSelectMultiple(isSelectionValid: x => x.Count() >= 1, onKeySelector: keySelector, labeling: labeling, cleanup: cleanup == MenuCleanup.RemoveMenuShowChoice ? MenuCleanup.RemoveMenu : cleanup);
+
+                if (cleanup == MenuCleanup.RemoveMenuShowChoice)
+                {
+                    for (int i = 0; i < selection.Length; i++)
+                    {
+                        if (i > 0) Console.Write(", ");
+                        ColorConsole.Write(selection[i].ToString());
+                    }
+                    Console.WriteLine();
+                }
+
+                long val = (long)Convert.ChangeType(selection[0], typeof(long));
                 for (int i = 1; i < selection.Length; i++)
-                    agg |= (dynamic)selection[i];
+                    val |= (long)Convert.ChangeType(selection[i], typeof(long));
 
-                return agg;
+                return (TEnum)Enum.ToObject(typeof(TEnum), val);
             }
             else
-                return values.MenuSelect(settings);
+            {
+                return values.MenuSelect(keySelector, labeling, cleanup);
+            }
         }
     }
 }
