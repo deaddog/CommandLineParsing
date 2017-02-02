@@ -113,33 +113,6 @@ namespace CommandLineParsing
             return MenuSelect(collection, x => x.Key.ToString(), labeling, cleanup, cancelKey, new KeyValuePair<TKey, TValue>(default(TKey), cancelValue)).Value;
         }
 
-        private class OnOffOption<T> : MenuOption<T>
-        {
-            private readonly ConsoleString _onText, _offText;
-            private bool _on;
-
-            public OnOffOption(ConsoleString onText, ConsoleString offText, bool on, T value)
-                : base(on ? onText : offText, value)
-            {
-                _onText = onText;
-                _offText = offText;
-                _on = on;
-            }
-
-            public bool On
-            {
-                get { return _on; }
-                set
-                {
-                    if (_on == value)
-                        return;
-
-                    _on = value;
-                    Text = _on ? _onText : _offText;
-                }
-            }
-        }
-
         /// <summary>
         /// Displays a menu where a set of elements can be selected from the collection.
         /// </summary>
@@ -181,22 +154,22 @@ namespace CommandLineParsing
             if (selected == null)
                 selected = x => false;
 
-            List<OnOffOption<T>> result = null;
+            List<MenuOnOffOption<T>> result = null;
 
             Console.CursorVisible = false;
 
-            using (var display = new MenuDisplay<OnOffOption<T>>())
+            using (var display = new MenuDisplay<MenuOnOffOption<T>>())
             {
                 display.Cleanup = cleanup == MenuCleanup.None ? InputCleanup.None : InputCleanup.Clean;
                 display.PrefixesTop.SetKeys(labeling);
                 display.PrefixesBottom.SetKeys(new char[] { '0' });
 
                 foreach (var item in items)
-                    display.Options.Add(new OnOffOption<T>(onKeySelector(item), offKeySelector(item), selected(item), item));
+                    display.Options.Add(new MenuOnOffOption<T>(onKeySelector(item), offKeySelector(item), selected(item), item));
 
                 if (doneText == null)
                     doneText = "Done";
-                var doneOption = new OnOffOption<T>(doneText, $"[DarkGray:{doneText.Content}]", true, default(T));
+                var doneOption = new MenuOnOffOption<T>(doneText, $"[DarkGray:{doneText.Content}]", true, default(T));
                 display.Options.Add(doneOption);
 
                 Func<bool> CheckCanExit = () =>
@@ -239,7 +212,7 @@ namespace CommandLineParsing
                     }
                 } while (!done);
 
-                result = new List<OnOffOption<T>>(display.Options.Where(x => x != doneOption && x.On));
+                result = new List<MenuOnOffOption<T>>(display.Options.Where(x => x != doneOption && x.On));
 
                 if (cleanup == MenuCleanup.None)
                     ColorConsole.CursorPosition = display.Origin + new ConsoleSize(0, display.Options.Count);

@@ -3,7 +3,7 @@
 namespace CommandLineParsing.Input
 {
     /// <summary>
-    /// Represemts a single option in a menu.
+    /// Represemts a simple option in a menu with an associated value.
     /// </summary>
     /// <typeparam name="T">The type of the value associated with the <see cref="MenuOption{T}"/>.</typeparam>
     public class MenuOption<T> : IMenuOption
@@ -21,7 +21,6 @@ namespace CommandLineParsing.Input
                 if (text == value)
                     return;
 
-                var oldText = text;
                 text = value;
                 TextChanged?.Invoke(this);
             }
