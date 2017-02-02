@@ -1,7 +1,6 @@
 ﻿using CommandLineParsing.Internals;
+using CommandLineParsing.Output;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -114,9 +113,12 @@ namespace CommandLineParsing
         /// <param name="value">The string format to write, included color information.
         /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
-        public static void Write(string value, bool allowcolor = true)
+        public static void Write(ConsoleString value, bool allowcolor = true)
         {
-            foreach (var p in SimpleEvaluation.Evaluate(value, false))
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            foreach (var p in value.GetSegments())
             {
                 var color = p.HasColor ? colors[p.Color] : null;
                 if (allowcolor && color.HasValue)
@@ -136,9 +138,9 @@ namespace CommandLineParsing
         /// <param name="value">The string format to write, included color information.
         /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
-        public static void WriteLine(string value, bool allowcolor = true)
+        public static void WriteLine(ConsoleString value, bool allowcolor = true)
         {
-            Write(value + "\n", allowcolor);
+            Write(value + new ConsoleString("\n", false), allowcolor);
         }
 
         private static void write(string value)
@@ -157,7 +159,7 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="format"/> is disregarded.</param>
         public static void WriteFormat(string format, IFormatter formatter, bool allowcolor = true)
         {
-            Write(EvaluateFormat(format, formatter), allowcolor);
+            Write(new ConsoleString(EvaluateFormat(format, formatter), false), allowcolor);
         }
         /// <summary>
         /// Evaluates <paramref name="format"/> using a <see cref="IFormatter"/> and writes the result, followed by the current line terminator, to the standard output stream.
@@ -167,7 +169,7 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="format"/> is disregarded.</param>
         public static void WriteFormatLine(string format, IFormatter formatter, bool allowcolor = true)
         {
-            WriteLine(EvaluateFormat(format, formatter), allowcolor);
+            WriteLine(new ConsoleString(EvaluateFormat(format, formatter), false), allowcolor);
         }
 
         private const string NO_CONDITION_FORMAT = "[red:UNKNOWN CONDITION '{0}']";
@@ -308,7 +310,11 @@ namespace CommandLineParsing
                 }
             }
 
-            return EscapeSpecialCharacters(res, !preserveColor);
+            var consoleString = new ConsoleString(res, false);
+            if (preserveColor)
+                consoleString = consoleString.EscapeColors();
+
+            return consoleString.Content;
         }
         private static string colorBlock(string format, IFormatter formatter)
         {
@@ -365,17 +371,7 @@ namespace CommandLineParsing
         /// <returns>A new string, without any color information.</returns>
         public static string ClearColors(string input)
         {
-            return SimpleEvaluation.Evaluate(input, true).Aggregate("", (r, t) => r + t.Content);
-        }
-        /// <summary>
-        /// Escapes any special characters (including color-coding) such that a string can be printed literally using the <see cref="ColorConsole"/>.
-        /// </summary>
-        /// <param name="input">The string in which characters should be escaped.</param>
-        /// <param name="escapeColor">If set to <c>true</c> color-coding information is escaped.</param>
-        /// <returns>A new string, where all special characters are escaped.</returns>
-        public static string EscapeSpecialCharacters(string input, bool escapeColor = true)
-        {
-            return SimpleEvaluation.EscapeSpecialCharacters(input, escapeColor);
+            return new ConsoleString(input, true).ClearColors().Content;
         }
         /// <summary>
         /// Determines whether the specified string includes coloring syntax.
@@ -384,7 +380,7 @@ namespace CommandLineParsing
         /// <returns><c>true</c>, if <paramref name="input"/> contains any "[Color:Text]" strings; otherwise, <c>false</c>.</returns>
         public static bool HasColors(string input)
         {
-            return SimpleEvaluation.Evaluate(input, false).Any(x => x.HasColor);
+            return new ConsoleString(input, false).HasColors;
         }
 
         private static SmartParser<T> getParser<T>()
@@ -417,7 +413,7 @@ namespace CommandLineParsing
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
-        public static T ReadLine<T>(string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ParameterTryParse<T> parser = null, Validator<T> validator = null)
+        public static T ReadLine<T>(ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ParameterTryParse<T> parser = null, Validator<T> validator = null)
         {
             var smartparser = getParser<T>();
             if (parser != null)
@@ -425,7 +421,7 @@ namespace CommandLineParsing
 
             return ReadLine<T>(smartparser, prompt, defaultString, cleanup, validator);
         }
-        internal static T ReadLine<T>(SmartParser<T> parser, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, Validator<T> validator = null)
+        internal static T ReadLine<T>(SmartParser<T> parser, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, Validator<T> validator = null)
         {
             T result;
             readLine(parser, out result, prompt, defaultString, cleanup, ReadLineCleanup.None, validator);
@@ -446,7 +442,7 @@ namespace CommandLineParsing
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <see cref="bool"/> indicating weather the call completed without the user pressing escape.</returns>
-        public static bool TryReadLine<T>(out T result, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, ParameterTryParse<T> parser = null, Validator<T> validator = null)
+        public static bool TryReadLine<T>(out T result, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, ParameterTryParse<T> parser = null, Validator<T> validator = null)
         {
             var smartparser = getParser<T>();
             if (parser != null)
@@ -454,12 +450,12 @@ namespace CommandLineParsing
 
             return TryReadLine<T>(smartparser, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
         }
-        internal static bool TryReadLine<T>(SmartParser<T> parser, out T result, string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, Validator<T> validator = null)
+        internal static bool TryReadLine<T>(SmartParser<T> parser, out T result, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, Validator<T> validator = null)
         {
             return readLine(parser, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
         }
 
-        private static bool readLine<T>(SmartParser<T> parser, out T result, string prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup, Validator<T> validator)
+        private static bool readLine<T>(SmartParser<T> parser, out T result, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup, Validator<T> validator)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
@@ -515,7 +511,7 @@ namespace CommandLineParsing
                 Console.Write(new string(' ', input.Length));
 
                 CursorPosition = promptPosition;
-                Console.Write(new string(' ', ClearColors(prompt).Length));
+                Console.Write(new string(' ', prompt.Length));
                 CursorPosition = promptPosition;
 
                 if (cl == ReadLineCleanup.RemovePrompt)
@@ -534,7 +530,7 @@ namespace CommandLineParsing
         /// <c>null</c> indicates that no initial value should be used.</param>
         /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
         /// <returns>A <see cref="string"/> containing the user input.</returns>
-        public static string ReadLine(string prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
+        public static string ReadLine(ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
         {
             string result;
             readLine(out result, false, prompt, defaultString, cleanup, ReadLineCleanup.None);
@@ -551,7 +547,7 @@ namespace CommandLineParsing
         /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
         /// <param name="escapeCleanup">Determines the type of cleanup that should be applied if the readline did not complete succesfully.</param>
         /// <returns>A <see cref="bool"/> indicating weather the call completed without the user pressing escape.</returns>
-        public static bool TryReadLine(out string result, string prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
+        public static bool TryReadLine(out string result, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
         {
             return readLine(out result, true, prompt, defaultString, cleanup, escapeCleanup);
         }
@@ -562,7 +558,7 @@ namespace CommandLineParsing
         /// <param name="passChar">An optional character to display in place of input symbols. <c>null</c> will display nothing to the user.</param>
         /// <param name="singleSymbol">if set to <c>true</c> <paramref name="passChar"/> will only be printed once, on input.</param>
         /// <returns>A <see cref="string"/> containing the password.</returns>
-        public static string ReadPassword(string prompt = null, char? passChar = '*', bool singleSymbol = true)
+        public static string ReadPassword(ConsoleString prompt = null, char? passChar = '*', bool singleSymbol = true)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadPassword cannot be used while caching is enabled.");
@@ -601,7 +597,7 @@ namespace CommandLineParsing
             return sb.ToString();
         }
 
-        private static bool readLine(out string result, bool allowEscape, string prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
+        private static bool readLine(out string result, bool allowEscape, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
@@ -637,7 +633,7 @@ namespace CommandLineParsing
                         if (escape && !allowEscape)
                             continue;
                         var value = readline.Value;
-                        readline.ApplyCleanup(escape ? escapeCleanup : cleanup, prompt);
+                        readline.ApplyCleanup(escape ? escapeCleanup : cleanup, prompt?.Length);
                         result = value;
                         return !escape;
 
@@ -713,176 +709,6 @@ namespace CommandLineParsing
             }
             else
                 return values.MenuSelect(settings);
-        }
-
-        /// <summary>
-        /// Provides a collection of <see cref="string"/>-><see cref="ConsoleColor"/> relations.
-        /// </summary>
-        public class ColorTable
-        {
-            private Dictionary<string, ConsoleColor> colors;
-
-            internal ColorTable()
-            {
-                colors = new Dictionary<string, ConsoleColor>();
-
-                foreach (var c in Enum.GetValues(typeof(ConsoleColor)))
-                    colors.Add(c.ToString().ToLowerInvariant(), (ConsoleColor)c);
-            }
-
-            /// <summary>
-            /// Gets or sets the <see cref="System.Nullable{ConsoleColor}"/> with the specified name.
-            /// A value of <c>null</c> (in both getter and setter) is equivalent of no color.
-            /// </summary>
-            /// <param name="name">The name associated with the <see cref="ConsoleColor"/>.
-            /// This name does not have to pre-exist in the <see cref="ConsoleColor"/> enum.
-            /// The name is case insensitive, meaning that "Red" and "red" will refer to the same color, if any.</param>
-            /// <returns>The <see cref="ConsoleColor"/> associated with <paramref name="name"/> or <c>null</c>, if no color is associated with <paramref name="name"/>.</returns>
-            public ConsoleColor? this[string name]
-            {
-                get
-                {
-                    if (name == null)
-                        throw new ArgumentNullException(nameof(name));
-                    else
-                        name = name.Trim().ToLowerInvariant();
-
-                    if (name.Length == 0)
-                        return null;
-
-                    ConsoleColor c;
-                    if (!colors.TryGetValue(name, out c))
-                        return null;
-                    else
-                        return c;
-                }
-                set
-                {
-                    if (name == null)
-                        throw new ArgumentNullException(nameof(name));
-                    else
-                        name = name.Trim().ToLowerInvariant();
-
-                    if (name.Length == 0)
-                        throw new ArgumentException("Color name must be non-empty.", nameof(name));
-
-                    if (value.HasValue)
-                        colors[name] = value.Value;
-                    else
-                        colors.Remove(name.ToLowerInvariant());
-                }
-            }
-        }
-
-        private static class SimpleEvaluation
-        {
-            public struct Pair
-            {
-                public readonly string Content;
-                public readonly string Color;
-
-                public bool HasColor => Color != null;
-
-                public Pair(string content, string color)
-                {
-                    this.Content = content;
-                    this.Color = color;
-                }
-
-                public override string ToString() => HasColor ? $"[{Color}:{Content}]" : Content;
-            }
-
-            public static IEnumerable<Pair> Evaluate(string value, bool maintainEscape)
-            {
-                return mergeByColor(evaluate(value, maintainEscape, null));
-            }
-            private static IEnumerable<Pair> evaluate(string value, bool maintainEscape, string currentColor)
-            {
-                if (string.IsNullOrEmpty(value))
-                    yield break;
-
-                int index = 0;
-
-                while (index < value.Length)
-                    switch (value[index])
-                    {
-                        case '[': // Coloring
-                            {
-                                int end = findEnd(value, index, '[', ']');
-                                var block = value.Substring(index + 1, end - index - 1);
-                                int colon = block.IndexOf(':');
-                                if (colon > 0 && block[colon - 1] == '\\')
-                                    colon = -1;
-
-                                if (colon == -1)
-                                    yield return new Pair($"[{block}]", currentColor);
-                                else
-                                {
-                                    var color = block.Substring(0, colon);
-                                    string content = block.Substring(colon + 1);
-
-                                    foreach (var p in evaluate(content, maintainEscape, color))
-                                        yield return p;
-                                }
-                                index += block.Length + 2;
-                            }
-                            break;
-
-                        case '\\':
-                            if (value.Length == index + 1)
-                                index++;
-                            else
-                            {
-                                if (maintainEscape)
-                                    yield return new Pair(value.Substring(index, 2), currentColor);
-                                else
-                                    yield return new Pair(value[index + 1].ToString(), currentColor);
-
-                                index += 2;
-                            }
-                            break;
-
-                        default: // Skip content
-                            int nIndex = value.IndexOfAny(new char[] { '[', '\\' }, index);
-                            if (nIndex < 0) nIndex = value.Length;
-                            yield return new Pair(value.Substring(index, nIndex - index), currentColor);
-                            index = nIndex;
-                            break;
-                    }
-            }
-
-            private static IEnumerable<Pair> mergeByColor(IEnumerable<Pair> pairs)
-            {
-                var e = pairs.GetEnumerator();
-
-                if (!e.MoveNext())
-                    yield break;
-
-                var temp = e.Current;
-
-                while (e.MoveNext())
-                    if (temp.Color == e.Current.Color)
-                        temp = new Pair(temp.Content + e.Current.Content, temp.Color);
-                    else
-                    {
-                        yield return temp;
-                        temp = e.Current;
-                    }
-
-                yield return temp;
-            }
-
-            public static string EscapeSpecialCharacters(string value, bool escapeColor)
-            {
-                if (escapeColor)
-                    return value
-                        .Replace("\\", "\\\\")
-                        .Replace("[", "\\[")
-                        .Replace("]", "\\]");
-                else
-                    return value
-                        .Replace("\\", "\\\\");
-            }
         }
     }
 }
