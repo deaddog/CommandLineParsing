@@ -42,6 +42,8 @@ namespace CommandLineParsing.Input
         private readonly int position;
         private readonly StringBuilder sb;
 
+        private bool isDisposed = false;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleReader"/> class.
         /// </summary>
@@ -127,7 +129,8 @@ namespace CommandLineParsing.Input
                 Console.CursorLeft = temp + text.Length;
             }
 
-            TextChanged?.Invoke(this, old);
+            if (!isDisposed)
+                TextChanged?.Invoke(this, old);
         }
         /// <summary>
         /// Inserts the specified character at the cursors current position (<see cref="Index"/>).
@@ -152,7 +155,8 @@ namespace CommandLineParsing.Input
                 Console.CursorLeft = temp + 1;
             }
 
-            TextChanged?.Invoke(this, old);
+            if (!isDisposed)
+                TextChanged?.Invoke(this, old);
         }
 
         /// <summary>
@@ -198,7 +202,8 @@ namespace CommandLineParsing.Input
                 Console.CursorLeft = temp;
             }
 
-            TextChanged?.Invoke(this, old);
+            if (!isDisposed)
+                TextChanged?.Invoke(this, old);
         }
 
         private int IndexOfPrevious(params char[] chars)
@@ -286,6 +291,7 @@ namespace CommandLineParsing.Input
         /// </summary>
         public void Dispose()
         {
+            isDisposed = true;
             int? promptLength = prompt?.Length;
 
             switch (Cleanup)
