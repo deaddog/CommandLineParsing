@@ -14,6 +14,7 @@ namespace CommandLineParsing.Input
         private readonly MenuOptionCollection<TOption> _options;
         private readonly List<ConsoleString> _displayed;
         private int _index;
+        private int _displayOffset;
 
         private ConsoleString _prompt;
         private string _noPrompt;
@@ -27,18 +28,37 @@ namespace CommandLineParsing.Input
         /// The menu will be displayed at the current cursor position.
         /// </summary>
         public MenuDisplay()
-            : this(ColorConsole.CursorPosition)
+            : this(Console.WindowHeight - Console.CursorTop + Console.WindowTop)
+        {
+        }
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MenuDisplay{TOption}"/> class.
+        /// The menu will be displayed at the current cursor position.
+        /// </summary>
+        /// <param name="displayedLines">
+        /// The maximum number of console lines the menu display should use.
+        /// The menu can display more options than this value.
+        /// Values greater than the height of the console can result in odd effects.</param>
+        public MenuDisplay(int displayedLines)
+            : this(ColorConsole.CursorPosition, displayedLines)
         {
         }
         /// <summary>
         /// Initializes a new instance of the <see cref="MenuDisplay{T}"/> class.
         /// </summary>
         /// <param name="point">The point where the menu should be displayed.</param>
-        public MenuDisplay(ConsolePoint point)
+        /// <param name="displayedLines">
+        /// The maximum number of console lines the menu display should use.
+        /// The menu can display more options than this value.
+        /// Values greater than the height of the console can result in odd effects.</param>
+        public MenuDisplay(ConsolePoint point, int displayedLines)
         {
             _origin = point;
             _options = new MenuOptionCollection<TOption>(this);
             _displayed = new List<ConsoleString>();
+            for (int i = 0; i < displayedLines; i++) _displayed.Add("");
+            _displayOffset = 0;
+
             _index = -1;
             Prompt = new ConsoleString("> ");
 
@@ -53,8 +73,12 @@ namespace CommandLineParsing.Input
         /// Initializes a new instance of the <see cref="MenuDisplay{T}"/> class.
         /// </summary>
         /// <param name="offset">The offset from the current cursor position where to menu should be displayed.</param>
-        public MenuDisplay(ConsoleSize offset)
-            : this(ColorConsole.CursorPosition + offset)
+        /// <param name="displayedLines">
+        /// The maximum number of console lines the menu display should use.
+        /// The menu can display more options than this value.
+        /// Values greater than the height of the console can result in odd effects.</param>
+        public MenuDisplay(ConsoleSize offset, int displayedLines)
+            : this(ColorConsole.CursorPosition + offset, displayedLines)
         {
         }
 
@@ -133,12 +157,32 @@ namespace CommandLineParsing.Input
                     return;
 
                 if (_index != -1)
-                    (_origin + new ConsoleSize(0, _index)).TemporaryShift(() => ColorConsole.Write(_noPrompt));
-
-                if (value != -1)
-                    (_origin + new ConsoleSize(0, value)).TemporaryShift(() => ColorConsole.Write(_prompt));
+                    (_origin + new ConsoleSize(0, _index - _displayOffset)).TemporaryShift(() => ColorConsole.Write(_noPrompt));
 
                 _index = value;
+
+                if (_index != -1)
+                {
+                    if (_index >= _displayOffset + _displayed.Count)
+                    {
+                        var diff = _displayOffset + _displayed.Count - _index - 1;
+
+                        _displayOffset -= diff;
+                        for (int i = 0; i < _displayed.Count; i++)
+                            UpdateOption(i + _displayOffset, _options[i + _displayOffset].Text);
+                    }
+
+                    if (_index < _displayOffset)
+                    {
+                        var diff = _index - _displayOffset;
+
+                        _displayOffset += diff;
+                        for (int i = 0; i < _displayed.Count; i++)
+                            UpdateOption(i + _displayOffset, _options[i + _displayOffset].Text);
+                    }
+
+                    (_origin + new ConsoleSize(0, _index - _displayOffset)).TemporaryShift(() => ColorConsole.Write(_prompt));
+                }
             }
         }
 
@@ -213,55 +257,58 @@ namespace CommandLineParsing.Input
         }
         private void UpdateAll(int lengthDiff)
         {
-            if (lengthDiff != 0)
-                for (int i = 0; i < _options.Count; i++)
-                {
-                    var newText = _options[i].Text;
-                    if (lengthDiff < 0)
-                        newText += new string(' ', -lengthDiff);
 
-                    if (i == SelectedIndex)
-                        (_origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(_prompt + GetPrefix(i) + newText));
-                    else
-                        (_origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(_noPrompt + GetPrefix(i) + newText));
-                }
-            else
-                for (int i = 0; i < _options.Count; i++)
-                {
-                    if (i == SelectedIndex)
-                        (_origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(_prompt + GetPrefix(i)));
-                    else
-                        (_origin + new ConsoleSize(0, i)).TemporaryShift(() => ColorConsole.Write(_noPrompt + GetPrefix(i)));
-                }
+            for (int i = 0; i < _displayed.Count; i++)
+            {
+                ConsoleString newText = ConsoleString.Empty;
+                if (lengthDiff > 0)
+                    newText = _displayed[i];
+                else if (lengthDiff < 0)
+                    newText = _displayed[i] + new string(' ', -lengthDiff);
+
+                var p = i + _displayOffset == SelectedIndex ? _prompt : _noPrompt;
+                ColorConsole.TemporaryShift(
+                    _origin + new ConsoleSize(0, i),
+                    () => ColorConsole.Write(p + newText));
+            }
         }
         internal void UpdateOption(int index, ConsoleString text)
         {
-            var oldPrefix = GetPrefix(index);
-            var newPrefix = string.IsNullOrEmpty(text.Content) ? "" : oldPrefix;
-            var oldText = _displayed.Count > index ? _displayed[index] : "";
 
-            var offset = new ConsoleSize(_prompt.Length, index);
+            var displayedIndex = index - _displayOffset;
+
+            if (displayedIndex < 0 || displayedIndex >= _displayed.Count)
+                return;
+
+            text = text ?? ConsoleString.Empty;
+
+            if (text == null)
+                text = ConsoleString.Empty;
+            else
+                text = GetPrefix(index) + text;
+
+            if (text == _displayed[displayedIndex])
+                return;
+
+            var offset = new ConsoleSize(_prompt.Length, displayedIndex);
 
             ColorConsole.TemporaryShift(_origin + offset, () =>
             {
-                int oldLen = (oldPrefix + oldText).Length;
+                int oldLen = _displayed[displayedIndex].Length;
                 Console.Write(new string(' ', oldLen) + new string('\b', oldLen));
-                ColorConsole.Write(newPrefix + text);
+                ColorConsole.Write(text);
             });
 
-            if (string.IsNullOrEmpty(oldText.Content) || string.IsNullOrEmpty(text.Content) )
-                UpdateAll(0);
-
-            if (index == _displayed.Count)
-                _displayed.Add(text);
-            else
-                _displayed[index] = text;
+            _displayed[displayedIndex] = text;
         }
 
         private ConsoleString GetPrefix(int index)
         {
             if (_prefixTop.Count == 0 && _prefixBottom.Count == 0)
                 return "";
+
+            if (index >= _options.Count)
+                return "   ";
 
             char? prefix =
                 _prefixBottom.PrefixFromIndex(_options.Count - index - 1) ??
