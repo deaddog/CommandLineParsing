@@ -270,6 +270,33 @@ namespace CommandLineParsing.Input
             }
         }
 
+        private bool _updateOptions = true;
+        /// <summary>
+        /// Gets or sets a value indicating whether the visible options are updated when something changes in the menu display.
+        /// This allows for bulk menu display updates, by setting it to <c>false</c>, updating, and setting to <c>true</c>.
+        /// </summary>
+        public bool UpdateOptions
+        {
+            get { return _updateOptions; }
+            set
+            {
+                _updateOptions = value;
+
+                if (_updateOptions)
+                {
+                    for (int i = 0; i < _displayed.Count; i++)
+                    {
+                        if (i + _displayOffset < _options.Count)
+                            UpdateOption(i + _displayOffset, _options[i + _displayOffset].Text);
+                        else
+                            UpdateOption(i + _displayOffset, null);
+                    }
+
+                    UpdateAll(0);
+                }
+            }
+        }
+
         private void UpdatePrefixChange()
         {
             var oldHas = _hasPrefix;
@@ -284,6 +311,7 @@ namespace CommandLineParsing.Input
         }
         private void UpdateAll(int lengthDiff)
         {
+            if (!_updateOptions) return;
 
             for (int i = 0; i < _displayed.Count; i++)
             {
@@ -301,6 +329,7 @@ namespace CommandLineParsing.Input
         }
         internal void UpdateOption(int index, ConsoleString text)
         {
+            if (!_updateOptions) return;
 
             var displayedIndex = index - _displayOffset;
 
