@@ -221,6 +221,33 @@ namespace CommandLineParsing.Input
                         SelectedIndex--;
                     break;
 
+                case ConsoleKey.PageDown:
+                    {
+                        int stepNext = _displayed.Count;
+                        int stepNextTemp = stepNext + _displayed.Count - 1;
+                        if (SelectedIndex + stepNextTemp >= _options.Count)
+                        {
+                            var diff = _options.Count - SelectedIndex - 1 - stepNextTemp;
+
+                            stepNextTemp += diff;
+                            if (SelectedIndex + stepNext >= _options.Count)
+                                stepNext = _options.Count - SelectedIndex - 1;
+                        }
+
+                        var nextTemp = SelectedIndex + stepNextTemp;
+                        var next = SelectedIndex + stepNext;
+
+                        SelectedIndex = nextTemp;
+                        SelectedIndex = next;
+                    }
+                    break;
+                case ConsoleKey.PageUp:
+                    if (SelectedIndex - _displayed.Count < 0)
+                        SelectedIndex = 0;
+                    else
+                        SelectedIndex -= _displayed.Count;
+                    break;
+
                 case ConsoleKey.Home:
                     SelectedIndex = 0;
                     break;
