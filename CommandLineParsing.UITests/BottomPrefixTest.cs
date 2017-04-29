@@ -13,7 +13,10 @@ namespace CommandLineParsing.UITests
         public override void Execute()
         {
             Console.WriteLine("Prefixes should start from bottom (a, b, c) and then from top (0, 1, 2).");
-            Console.WriteLine("Use Y and N to determine if the current state is correct:");
+            Console.WriteLine("Options will first be added one at a time, and then removed one at a time.");
+            Console.WriteLine();
+            ColorConsole.WriteLine("Use [green:Y] and [red:N] to determine if the current state is correct:");
+            Console.WriteLine();
 
             var options = new Queue<string>(new string[] { "First", "Second", "Third", "Fourth", "Fifth", "Sixth", "Seventh", "Eight" });
 
@@ -28,7 +31,15 @@ namespace CommandLineParsing.UITests
                 var o = options.Dequeue() + " option";
                 display.Options.Add(new MenuOption<string>(o, o));
 
-                Assert.IsTrue(GetYesNo(display), $"Menu displayed did not look correct after {display.Options.Count} items");
+                Assert.IsTrue(GetYesNo(display), $"Menu displayed did not look correct after {display.Options.Count} items inserted");
+            }
+            
+            var total = display.Options.Count;
+            while (display.Options.Count > 0)
+            {
+                display.Options.RemoveAt(display.Options.Count - 1);
+
+                Assert.IsTrue(GetYesNo(display), $"Menu displayed did not look correct after {total - display.Options.Count} items removed");
             }
 
             display.Cleanup = InputCleanup.None;
