@@ -151,11 +151,9 @@ namespace CommandLineParsing.Input
             last.TextChanged -= OptionUpdateHelper;
             _options.RemoveAt(index);
 
-            for (int i = index; i < _options.Count; i++)
-            {
+            var from = Math.Max(Math.Min(index, _options.Count - _display.PrefixesBottom.Count - 1), 0);
+            for (int i = from; i < _options.Count; i++)
                 _display.UpdateOption(i, _options[i].Text);
-                last = _options[i];
-            }
 
             _display.UpdateOption(_options.Count, null);
 
