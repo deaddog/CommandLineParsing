@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/deaddog/CommandLineParsing</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Provides a range of functionalities for creating command line applications using the .NET framework.</description>
-    <releaseNotes>Support for control modifier on input. Input (readline) supports cancellation and post-read automated cleanup.</releaseNotes>
+    <releaseNotes>Fixed menu issue introduced with the new menu structure.</releaseNotes>
     <copyright>Copyright 2016</copyright>
     <tags>cli commandline parse parsing console</tags>
   </metadata>
