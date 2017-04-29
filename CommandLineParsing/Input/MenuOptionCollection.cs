@@ -1,5 +1,4 @@
-﻿using CommandLineParsing.Output;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -97,14 +96,7 @@ namespace CommandLineParsing.Input
         /// <param name="option">The option to add.</param>
         public void Add(TOption option)
         {
-            if (option == null)
-                throw new ArgumentNullException(nameof(option));
-
-            _options.Add(option);
-            option.TextChanged += OptionUpdateHelper;
-
-            _display.UpdateOption(_options.Count - 1, option.Text);
-
+            Insert(_options.Count, option);
         }
         /// <summary>
         /// Inserts an option in the menu display at the specified index.
@@ -116,18 +108,12 @@ namespace CommandLineParsing.Input
             if (option == null)
                 throw new ArgumentNullException(nameof(option));
 
-            if (index == _options.Count)
-            {
-                Add(option);
-                return;
-            }
-
             _options.Insert(index, option);
             option.TextChanged += OptionUpdateHelper;
 
-            for (int i = index; i < _options.Count - 1; i++)
+            var from = Math.Max(Math.Min(index, _options.Count - _display.PrefixesBottom.Count - 1), 0);
+            for (int i = from; i < _options.Count; i++)
                 _display.UpdateOption(i, _options[i].Text);
-            _display.UpdateOption(_options.Count - 1, _options[_options.Count - 1].Text);
 
             if (index <= _display.SelectedIndex)
                 _display.SelectedIndex++;
@@ -165,11 +151,9 @@ namespace CommandLineParsing.Input
             last.TextChanged -= OptionUpdateHelper;
             _options.RemoveAt(index);
 
-            for (int i = index; i < _options.Count; i++)
-            {
+            var from = Math.Max(Math.Min(index, _options.Count - _display.PrefixesBottom.Count - 1), 0);
+            for (int i = from; i < _options.Count; i++)
                 _display.UpdateOption(i, _options[i].Text);
-                last = _options[i];
-            }
 
             _display.UpdateOption(_options.Count, null);
 
