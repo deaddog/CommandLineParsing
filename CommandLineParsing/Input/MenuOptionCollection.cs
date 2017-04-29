@@ -97,14 +97,7 @@ namespace CommandLineParsing.Input
         /// <param name="option">The option to add.</param>
         public void Add(TOption option)
         {
-            if (option == null)
-                throw new ArgumentNullException(nameof(option));
-
-            _options.Add(option);
-            option.TextChanged += OptionUpdateHelper;
-
-            _display.UpdateOption(_options.Count - 1, option.Text);
-
+            Insert(_options.Count, option);
         }
         /// <summary>
         /// Inserts an option in the menu display at the specified index.
@@ -115,12 +108,6 @@ namespace CommandLineParsing.Input
         {
             if (option == null)
                 throw new ArgumentNullException(nameof(option));
-
-            if (index == _options.Count)
-            {
-                Add(option);
-                return;
-            }
 
             _options.Insert(index, option);
             option.TextChanged += OptionUpdateHelper;
