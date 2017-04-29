@@ -112,9 +112,9 @@ namespace CommandLineParsing.Input
             _options.Insert(index, option);
             option.TextChanged += OptionUpdateHelper;
 
-            for (int i = index; i < _options.Count - 1; i++)
+            var from = Math.Max(Math.Min(index, _options.Count - _display.PrefixesBottom.Count - 1), 0);
+            for (int i = from; i < _options.Count; i++)
                 _display.UpdateOption(i, _options[i].Text);
-            _display.UpdateOption(_options.Count - 1, _options[_options.Count - 1].Text);
 
             if (index <= _display.SelectedIndex)
                 _display.SelectedIndex++;
