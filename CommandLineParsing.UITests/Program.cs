@@ -88,6 +88,7 @@ namespace CommandLineParsing.UITests
             }
             catch (Exception e)
             {
+                Console.Clear();
                 ShowStateAndPressAnyKey("Test could not be loaded due to an exception: " + e.Message, ConsoleColor.Red);
                 return false;
             }
@@ -98,16 +99,17 @@ namespace CommandLineParsing.UITests
             }
             catch (AssertionException e)
             {
+                Console.Clear();
                 ShowStateAndPressAnyKey("=================\n   Test failed   \n=================\n" + e.Message, ConsoleColor.Red);
                 return false;
             }
             catch (Exception e)
             {
+                Console.Clear();
                 ShowStateAndPressAnyKey("Test execution failed due to an exception: " + e.Message, ConsoleColor.Red);
                 return false;
             }
 
-            ShowStateAndPressAnyKey("Test executed successfully!", ConsoleColor.Green);
             return true;
         }
 
