@@ -16,11 +16,13 @@ namespace CommandLineParsing
     {
         private static readonly ColorTable colors;
         private static ConsoleCache.Builder cacheBuilder;
+        private static Consoles.IConsole _activeConsole;
 
         static ColorConsole()
         {
             colors = new ColorTable();
             cacheBuilder = null;
+            _activeConsole = Consoles.SystemConsole.Instance;
         }
 
         /// <summary>
@@ -74,6 +76,21 @@ namespace CommandLineParsing
             /// If it is, it can be ended using the <see cref="End"/> method; otherwise it can be started using the <see cref="Start"/> method.
             /// </summary>
             public static bool Enabled => cacheBuilder != null;
+        }
+
+        /// <summary>
+        /// Gets or sets the implementation of <see cref="Consoles.IConsole"/> used by <see cref="ColorConsole"/>.
+        /// This defaults to <see cref="Consoles.SystemConsole.Instance"/>.
+        /// </summary>
+        public static Consoles.IConsole ActiveConsole
+        {
+            get { return _activeConsole; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+                _activeConsole = value;
+            }
         }
 
         /// <summary>
