@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLineParsing.Consoles;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -79,13 +80,13 @@ namespace CommandLineParsing
             if (typeof(T).IsEnum)
             {
                 ColorConsole.Write(promptMessage);
-                var left = Console.CursorLeft;
-                Console.WriteLine();
+                var left = ColorConsole.ActiveConsole.CursorLeft;
+                ColorConsole.ActiveConsole.WriteLine();
 
                 temp = ColorConsole.MenuSelectEnum<T>(cleanup: MenuCleanup.RemoveMenu);
 
-                Console.SetCursorPosition(left, Console.CursorTop - 1);
-                Console.WriteLine(temp);
+                ColorConsole.ActiveConsole.SetCursorPosition(left, ColorConsole.ActiveConsole.CursorTop - 1);
+                ColorConsole.ActiveConsole.WriteLine(temp);
             }
             else
                 temp = ColorConsole.ReadLine<T>(parser, promptMessage, validator: validator);

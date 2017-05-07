@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLineParsing.Consoles;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -71,21 +72,21 @@ namespace CommandLineParsing
             if (exit.Length == 0)
                 throw new ArgumentException("To end the REPL an exit command must be supplied.", nameof(exit));
 
-            Console.WriteLine($"Input command below (or \"{exit}\" to quit)");
+            ColorConsole.ActiveConsole.WriteLine($"Input command below (or \"{exit}\" to quit)");
 
             while (true)
             {
-                Console.Write(prefix);
+                ColorConsole.ActiveConsole.Write(prefix);
 
-                string input = Console.ReadLine();
+                string input = ColorConsole.ActiveConsole.ReadLine();
 
                 if (input.Trim() == exit)
                     return;
 
                 command().RunCommand(input, help);
 
-                Console.ResetColor();
-                Console.WriteLine();
+                ColorConsole.ActiveConsole.ResetColor();
+                ColorConsole.ActiveConsole.WriteLine();
             }
         }
         /// <summary>

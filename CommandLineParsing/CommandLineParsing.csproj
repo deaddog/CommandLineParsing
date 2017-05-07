@@ -54,6 +54,7 @@
     <Compile Include="ConsolePoint.cs" />
     <Compile Include="ConsoleSegment.cs" />
     <Compile Include="ConsoleSize.cs" />
+    <Compile Include="Consoles\ConsoleExtension.cs" />
     <Compile Include="Consoles\SystemConsole.cs" />
     <Compile Include="Default.cs" />
     <Compile Include="Description.cs" />
