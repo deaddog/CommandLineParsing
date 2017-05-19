@@ -78,7 +78,7 @@ namespace CommandLineParsing
             {
                 ColorConsole.ActiveConsole.Write(prefix);
 
-                string input = ColorConsole.ActiveConsole.ReadLine();
+                string input = ColorConsole.ReadLine();
 
                 if (input.Trim() == exit)
                     return;

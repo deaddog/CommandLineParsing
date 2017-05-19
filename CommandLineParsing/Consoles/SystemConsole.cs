@@ -84,6 +84,5 @@ namespace CommandLineParsing.Consoles
         void IConsole.Write(string value) => Console.Write(value);
         void IConsole.WriteLine(string value) => Console.WriteLine(value);
         ConsoleKeyInfo IConsole.ReadKey(bool intercept) => Console.ReadKey(intercept);
-        string IConsole.ReadLine() => Console.ReadLine();
     }
 }

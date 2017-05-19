@@ -98,9 +98,5 @@ namespace CommandLineParsing.Consoles
         /// </summary>
         /// <param name="intercept">Determines whether to display the pressed key in the console window. true to not display the pressed key; otherwise, false.</param>
         ConsoleKeyInfo ReadKey(bool intercept);
-        /// <summary>
-        /// Reads the next line of characters from the standard input stream.
-        /// </summary>
-        string ReadLine();
     }
 }
