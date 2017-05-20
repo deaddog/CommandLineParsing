@@ -216,7 +216,15 @@ namespace CommandLineParsing.Tests
                         //ignore
                         break;
 
+                    case '\b':
+                        if (_cursorPosition.Left == 0)
+                            _cursorPosition = new ConsolePoint(BufferWidth - 1, _cursorPosition.Top - 1);
+                        else
+                            _cursorPosition = new ConsolePoint(_cursorPosition.Left - 1, _cursorPosition.Top);
+                        break;
+
                     default:
+                        Debugger.Break();
                         throw new NotSupportedException($"The character value \"{(int)c}\" is not supported by {nameof(TestingConsole)}");
                 }
         }
