@@ -1,5 +1,7 @@
 ﻿using CommandLineParsing.Consoles;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace CommandLineParsing.Tests
 {
@@ -11,6 +13,8 @@ namespace CommandLineParsing.Tests
         private char[,] _content;
         private ConsoleColor[,] _foreground;
         private ConsoleColor[,] _background;
+
+        private readonly InputCollection _input;
 
         public TestingConsole()
         {
@@ -31,7 +35,11 @@ namespace CommandLineParsing.Tests
                     _foreground[x, y] = ForegroundColor;
                     _background[x, y] = BackgroundColor;
                 }
+
+            _input = new InputCollection();
         }
+
+        public InputCollection Input => _input;
 
         public int BufferWidth
         {
@@ -166,7 +174,65 @@ namespace CommandLineParsing.Tests
 
         public ConsoleKeyInfo ReadKey(bool intercept)
         {
-            throw new NotImplementedException();
+            var next = _input.ReadNext();
+
+            if (!intercept)
+                WriteChar(next.KeyChar);
+
+            return next;
+        }
+
+        public class InputCollection
+        {
+            private readonly Queue<ConsoleKeyInfo> _keys;
+
+            public InputCollection()
+            {
+                _keys = new Queue<ConsoleKeyInfo>();
+            }
+
+            public ConsoleKeyInfo ReadNext()
+            {
+                if (_keys.Count == 0)
+                    throw new InvalidOperationException($"All input characters have already been read from the {nameof(TestingConsole)}.");
+                else
+                    return _keys.Dequeue();
+            }
+
+            public void Enqueue(ConsoleKeyInfo key)
+            {
+                _keys.Enqueue(key);
+            }
+            public void Enqueue(ConsoleKey key, ConsoleModifiers modifiers = 0)
+            {
+                Enqueue(new ConsoleKeyInfo('\0', key, modifiers.HasFlag(ConsoleModifiers.Shift), modifiers.HasFlag(ConsoleModifiers.Alt), modifiers.HasFlag(ConsoleModifiers.Control)));
+            }
+            public void Enqueue(char key)
+            {
+                if (key >= 'a' && key <= 'z')
+                    Enqueue(new ConsoleKeyInfo(key, ConsoleKey.A + key - 'a', false, false, false));
+                else if (key >= 'A' && key <= 'Z')
+                    Enqueue(new ConsoleKeyInfo(key, ConsoleKey.A + key - 'A', false, false, false));
+                else
+                    switch (key)
+                    {
+                        case ' ':
+                            Enqueue(new ConsoleKeyInfo(key, ConsoleKey.Spacebar, false, false, false));
+                            break;
+                        case '\n':
+                            Enqueue(new ConsoleKeyInfo(key, ConsoleKey.Enter, false, false, false));
+                            break;
+
+                        default:
+                            Debugger.Break();
+                            throw new NotSupportedException($"The character {key} is not supported by the {nameof(TestingConsole)}.");
+                    }
+            }
+            public void Enqueue(string text)
+            {
+                foreach (var c in text)
+                    Enqueue(c);
+            }
         }
     }
 }
