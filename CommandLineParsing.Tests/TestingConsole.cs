@@ -41,36 +41,44 @@ namespace CommandLineParsing.Tests
 
         public InputCollection Input => _input;
 
-        public TestingConsoleString[] GetBufferStrings()
+        private TestingConsoleString[] _bufferStrings;
+        public TestingConsoleString[] BufferStrings
         {
-            var strings = new List<TestingConsoleString>();
-
-            var rows = _content.GetLength(1);
-            for (int r = 0; r < rows; r++)
+            get
             {
-                int start = GetFirstActive(r);
-                if (start == -1)
-                    continue;
-                int end = GetLastActive(r);
+                if (_bufferStrings == null)
+                {
+                    var strings = new List<TestingConsoleString>();
 
-                var segments = new List<TestingConsoleSegment>();
-
-                var text = _content[start, r].ToString();
-
-                for (int i = start + 1; i <= end; i++)
-                    if (_foreground[i, r] != _foreground[i - 1, r] || _background[i, r] != _background[i - 1, r])
+                    var rows = _content.GetLength(1);
+                    for (int r = 0; r < rows; r++)
                     {
-                        segments.Add(new TestingConsoleSegment(text, _foreground[i - 1, r], _background[i - 1, r]));
-                        text = _content[i, r].ToString();
+                        int start = GetFirstActive(r);
+                        if (start == -1)
+                            continue;
+                        int end = GetLastActive(r);
+
+                        var segments = new List<TestingConsoleSegment>();
+
+                        var text = _content[start, r].ToString();
+
+                        for (int i = start + 1; i <= end; i++)
+                            if (_foreground[i, r] != _foreground[i - 1, r] || _background[i, r] != _background[i - 1, r])
+                            {
+                                segments.Add(new TestingConsoleSegment(text, _foreground[i - 1, r], _background[i - 1, r]));
+                                text = _content[i, r].ToString();
+                            }
+                            else
+                                text += _content[i, r];
+
+                        segments.Add(new TestingConsoleSegment(text, _foreground[end, r], _background[end, r]));
+                        strings.Add(new TestingConsoleString(new ConsolePoint(start, r), segments));
                     }
-                    else
-                        text += _content[i, r];
+                    _bufferStrings = strings.ToArray();
+                }
 
-                segments.Add(new TestingConsoleSegment(text, _foreground[end, r], _background[end, r]));
-                strings.Add(new TestingConsoleString(new ConsolePoint(start, r), segments));
+                return _bufferStrings;
             }
-
-            return strings.ToArray();
         }
         private int GetFirstActive(int rowIndex)
         {
@@ -195,6 +203,8 @@ namespace CommandLineParsing.Tests
         public void WriteLine(string value) => Write(value + "\n");
         private void WriteChar(char c)
         {
+            _bufferStrings = null;
+
             if (CommandLineParsing.Input.ConsoleReader.IsInputCharacter(c))
             {
                 _content[_cursorPosition.Left, _cursorPosition.Top] = c;
