@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace CommandLineParsing.Tests
 {
@@ -22,5 +23,7 @@ namespace CommandLineParsing.Tests
             foreach (var s in _segments)
                 yield return s;
         }
+
+        public string Text => string.Join("", _segments.Select(x => x.Text));
     }
 }
