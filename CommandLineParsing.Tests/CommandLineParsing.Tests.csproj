@@ -78,6 +78,8 @@
     <Compile Include="RandomNames\NameService.cs" />
     <Compile Include="RandomNames\NameServiceTests.cs" />
     <Compile Include="TestingConsole.cs" />
+    <Compile Include="TestingConsoleSegment.cs" />
+    <Compile Include="TestingConsoleString.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -41,6 +41,52 @@ namespace CommandLineParsing.Tests
 
         public InputCollection Input => _input;
 
+        public TestingConsoleString[] GetBufferStrings()
+        {
+            var strings = new List<TestingConsoleString>();
+
+            var rows = _content.GetLength(1);
+            for (int r = 0; r < rows; r++)
+            {
+                int start = GetFirstActive(r);
+                if (start == -1)
+                    continue;
+                int end = GetLastActive(r);
+
+                var segments = new List<TestingConsoleSegment>();
+
+                var text = _content[start, r].ToString();
+
+                for (int i = start + 1; i <= end; i++)
+                    if (_foreground[i, r] != _foreground[i - 1, r] || _background[i, r] != _background[i - 1, r])
+                    {
+                        segments.Add(new TestingConsoleSegment(text, _foreground[i - 1, r], _background[i - 1, r]));
+                        text = _content[i, r].ToString();
+                    }
+                    else
+                        text += _content[i, r];
+
+                segments.Add(new TestingConsoleSegment(text, _foreground[end, r], _background[end, r]));
+                strings.Add(new TestingConsoleString(new ConsolePoint(start, r), segments));
+            }
+
+            return strings.ToArray();
+        }
+        private int GetFirstActive(int rowIndex)
+        {
+            for (int i = 0; i < _content.GetLength(0); i++)
+                if (_content[i, rowIndex] != ' ')
+                    return i;
+            return -1;
+        }
+        private int GetLastActive(int rowIndex)
+        {
+            for (int i = _content.GetLength(0) - 1; i >= 0; i--)
+                if (_content[i, rowIndex] != ' ')
+                    return i;
+            return -1;
+        }
+
         public int BufferWidth
         {
             get { return _bufferSize.Width; }
@@ -140,6 +186,9 @@ namespace CommandLineParsing.Tests
 
         public void Write(string value)
         {
+            if (value == null)
+                return;
+
             foreach (var c in value)
                 WriteChar(c);
         }
