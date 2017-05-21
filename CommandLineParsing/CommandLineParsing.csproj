@@ -54,6 +54,8 @@
     <Compile Include="ConsolePoint.cs" />
     <Compile Include="ConsoleSegment.cs" />
     <Compile Include="ConsoleSize.cs" />
+    <Compile Include="Consoles\ConsoleExtension.cs" />
+    <Compile Include="Consoles\SystemConsole.cs" />
     <Compile Include="Default.cs" />
     <Compile Include="Description.cs" />
     <Compile Include="EditDistance.cs" />
@@ -61,6 +63,7 @@
     <Compile Include="Formatter.cs" />
     <Compile Include="Formatter.Types.cs" />
     <Compile Include="IConfiguration.cs" />
+    <Compile Include="Consoles\IConsole.cs" />
     <Compile Include="IFormatter.cs" />
     <Compile Include="IgnoreCase.cs" />
     <Compile Include="Input\ConsoleReaderTextChanged.cs" />

@@ -1,4 +1,5 @@
-﻿using CommandLineParsing.Input;
+﻿using CommandLineParsing.Consoles;
+using CommandLineParsing.Input;
 using CommandLineParsing.Output;
 using System;
 using System.Collections.Generic;
@@ -16,11 +17,13 @@ namespace CommandLineParsing
     {
         private static readonly ColorTable colors;
         private static ConsoleCache.Builder cacheBuilder;
+        private static IConsole _activeConsole;
 
         static ColorConsole()
         {
             colors = new ColorTable();
             cacheBuilder = null;
+            _activeConsole = SystemConsole.Instance;
         }
 
         /// <summary>
@@ -77,36 +80,51 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Gets or sets the implementation of <see cref="IConsole"/> used by <see cref="ColorConsole"/>.
+        /// This defaults to <see cref="SystemConsole.Instance"/>.
+        /// </summary>
+        public static IConsole ActiveConsole
+        {
+            get { return _activeConsole; }
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException(nameof(value));
+                _activeConsole = value;
+            }
+        }
+
+        /// <summary>
         /// Gets or sets the position of the cursor within the buffer area.
         /// </summary>
         public static ConsolePoint CursorPosition
         {
-            get { return new ConsolePoint(Console.CursorLeft, Console.CursorTop); }
-            set { Console.SetCursorPosition(value.Left, value.Top); }
+            get { return new ConsolePoint(_activeConsole.CursorLeft, _activeConsole.CursorTop); }
+            set { _activeConsole.SetCursorPosition(value.Left, value.Top); }
         }
         /// <summary>
         /// Gets or sets the position of the window area, relative to the screen buffer.
         /// </summary>
         public static ConsolePoint WindowPosition
         {
-            get { return new ConsolePoint(Console.WindowLeft, Console.WindowTop); }
-            set { Console.SetWindowPosition(value.Left, value.Top); }
+            get { return new ConsolePoint(_activeConsole.WindowLeft, _activeConsole.WindowTop); }
+            set { _activeConsole.SetWindowPosition(value.Left, value.Top); }
         }
         /// <summary>
         /// Gets or sets the size of the console window.
         /// </summary>
         public static ConsoleSize WindowSize
         {
-            get { return new ConsoleSize(Console.WindowWidth, Console.WindowHeight); }
-            set { Console.SetWindowSize(value.Width, value.Height); }
+            get { return new ConsoleSize(_activeConsole.WindowWidth, _activeConsole.WindowHeight); }
+            set { _activeConsole.SetWindowSize(value.Width, value.Height); }
         }
         /// <summary>
         /// Gets or sets the size of the buffer area.
         /// </summary>
         public static ConsoleSize BufferSize
         {
-            get { return new ConsoleSize(Console.BufferWidth, Console.BufferHeight); }
-            set { Console.SetBufferSize(value.Width, value.Height); }
+            get { return new ConsoleSize(_activeConsole.BufferWidth, _activeConsole.BufferHeight); }
+            set { _activeConsole.SetBufferSize(value.Width, value.Height); }
         }
 
         /// <summary>
@@ -116,16 +134,16 @@ namespace CommandLineParsing
         /// <param name="hideCursor">if set to <c>true</c> the cursor will be hidden while executing <paramref name="action"/>.</param>
         public static void TemporaryShift(Action action, bool hideCursor = true)
         {
-            bool wasVisible = Console.CursorVisible;
+            bool wasVisible = _activeConsole.CursorVisible;
 
             var temp = ColorConsole.CursorPosition;
             if (hideCursor && wasVisible)
-                Console.CursorVisible = false;
+                _activeConsole.CursorVisible = false;
 
             action();
 
             if (hideCursor && wasVisible)
-                Console.CursorVisible = true;
+                _activeConsole.CursorVisible = true;
             ColorConsole.CursorPosition = temp;
         }
         /// <summary>
@@ -155,10 +173,10 @@ namespace CommandLineParsing
                 var color = p.HasColor ? colors[p.Color] : null;
                 if (allowcolor && color.HasValue)
                 {
-                    ConsoleColor temp = Console.ForegroundColor;
-                    Console.ForegroundColor = color.Value;
+                    ConsoleColor temp = _activeConsole.ForegroundColor;
+                    _activeConsole.ForegroundColor = color.Value;
                     write(p.Content);
-                    Console.ForegroundColor = temp;
+                    _activeConsole.ForegroundColor = temp;
                 }
                 else
                     write(p.Content);
@@ -180,7 +198,7 @@ namespace CommandLineParsing
             if (cacheBuilder != null)
                 cacheBuilder.WriteString(value);
             else
-                Console.Write(value);
+                _activeConsole.Write(value);
         }
 
         /// <summary>
@@ -505,7 +523,7 @@ namespace CommandLineParsing
             do
             {
                 CursorPosition = valuePosition;
-                Console.Write(new string(' ', input.Length));
+                _activeConsole.Write(new string(' ', input.Length));
                 CursorPosition = valuePosition;
 
                 cancelled = !ColorConsole.TryReadLine(out input, null, defaultString, ReadLineCleanup.None, ReadLineCleanup.None);
@@ -521,18 +539,18 @@ namespace CommandLineParsing
 
                 if (msg.IsError)
                 {
-                    Console.CursorVisible = false;
+                    _activeConsole.CursorVisible = false;
                     CursorPosition = valuePosition;
-                    Console.Write(new string(' ', input.Length));
+                    _activeConsole.Write(new string(' ', input.Length));
 
                     input = msg.GetMessage();
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    _activeConsole.ForegroundColor = ConsoleColor.Red;
                     CursorPosition = valuePosition;
-                    Console.Write(input);
-                    Console.ResetColor();
+                    _activeConsole.Write(input);
+                    _activeConsole.ResetColor();
 
-                    Console.ReadKey(true);
-                    Console.CursorVisible = true;
+                    _activeConsole.ReadKey(true);
+                    _activeConsole.CursorVisible = true;
                 }
             } while (msg.IsError);
 
@@ -540,14 +558,14 @@ namespace CommandLineParsing
             if (cl != ReadLineCleanup.None)
             {
                 CursorPosition = valuePosition;
-                Console.Write(new string(' ', input.Length));
+                _activeConsole.Write(new string(' ', input.Length));
 
                 CursorPosition = promptPosition;
-                Console.Write(new string(' ', prompt.Length));
+                _activeConsole.Write(new string(' ', prompt.Length));
                 CursorPosition = promptPosition;
 
                 if (cl == ReadLineCleanup.RemovePrompt)
-                    Console.WriteLine(input);
+                    _activeConsole.WriteLine(input);
             }
 
             return !cancelled;
@@ -598,23 +616,23 @@ namespace CommandLineParsing
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
-            int pos = Console.CursorLeft;
+            int pos = _activeConsole.CursorLeft;
             ConsoleKeyInfo info;
 
             StringBuilder sb = new StringBuilder(string.Empty);
 
             while (true)
             {
-                info = Console.ReadKey(true);
+                info = _activeConsole.ReadKey(true);
                 if (info.Key == ConsoleKey.Backspace)
                 {
-                    Console.CursorLeft = pos;
-                    Console.Write(new string(' ', (singleSymbol || !passChar.HasValue) ? 1 : sb.Length));
-                    Console.CursorLeft = pos;
+                    _activeConsole.CursorLeft = pos;
+                    _activeConsole.Write(new string(' ', (singleSymbol || !passChar.HasValue) ? 1 : sb.Length));
+                    _activeConsole.CursorLeft = pos;
                     sb.Clear();
                 }
 
-                else if (info.Key == ConsoleKey.Enter) { Console.Write(Environment.NewLine); break; }
+                else if (info.Key == ConsoleKey.Enter) { _activeConsole.Write(Environment.NewLine); break; }
 
                 else if (ConsoleReader.IsInputCharacter(info))
                 {
@@ -622,7 +640,7 @@ namespace CommandLineParsing
                     if (passChar.HasValue)
                     {
                         if (!singleSymbol || sb.Length == 1)
-                            Console.Write(passChar.Value);
+                            _activeConsole.Write(passChar.Value);
                     }
                 }
             }
@@ -646,7 +664,7 @@ namespace CommandLineParsing
 
                 while (!done)
                 {
-                    var info = Console.ReadKey(true);
+                    var info = _activeConsole.ReadKey(true);
                     switch (info.Key)
                     {
                         case ConsoleKey.Escape:
@@ -672,7 +690,7 @@ namespace CommandLineParsing
             }
 
             if (finalCleanup == ReadLineCleanup.RemovePrompt)
-                Console.WriteLine(result);
+                _activeConsole.WriteLine(result);
 
             return resultOk;
         }
@@ -715,10 +733,10 @@ namespace CommandLineParsing
                 {
                     for (int i = 0; i < selection.Length; i++)
                     {
-                        if (i > 0) Console.Write(", ");
+                        if (i > 0) _activeConsole.Write(", ");
                         ColorConsole.Write(selection[i].ToString());
                     }
-                    Console.WriteLine();
+                    _activeConsole.WriteLine();
                 }
 
                 long val = (long)Convert.ChangeType(selection[0], typeof(long));

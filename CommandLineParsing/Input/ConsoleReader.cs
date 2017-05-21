@@ -1,4 +1,5 @@
-﻿using CommandLineParsing.Output;
+﻿using CommandLineParsing.Consoles;
+using CommandLineParsing.Output;
 using System;
 using System.Linq;
 using System.Text;
@@ -56,7 +57,7 @@ namespace CommandLineParsing.Input
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
-            position = Console.CursorLeft;
+            position = ColorConsole.ActiveConsole.CursorLeft;
             sb = new StringBuilder();
         }
 
@@ -80,18 +81,18 @@ namespace CommandLineParsing.Input
         /// </summary>
         public int Index
         {
-            get { return Console.CursorLeft - position; }
+            get { return ColorConsole.ActiveConsole.CursorLeft - position; }
             set
             {
                 if (value > Index)
                 {
                     if (value <= sb.Length)
-                        Console.CursorLeft = value + position;
+                        ColorConsole.ActiveConsole.CursorLeft = value + position;
                 }
                 else if (value < Index)
                 {
                     if (value >= 0)
-                        Console.CursorLeft = value + position;
+                        ColorConsole.ActiveConsole.CursorLeft = value + position;
                 }
             }
         }
@@ -114,19 +115,19 @@ namespace CommandLineParsing.Input
         {
             var old = Text;
 
-            if (Console.CursorLeft == position + sb.Length)
+            if (ColorConsole.ActiveConsole.CursorLeft == position + sb.Length)
             {
-                Console.Write(text);
+                ColorConsole.ActiveConsole.Write(text);
                 sb.Append(text);
             }
             else
             {
-                int temp = Console.CursorLeft;
+                int temp = ColorConsole.ActiveConsole.CursorLeft;
 
                 sb.Insert(Index, text);
-                Console.Write(sb.ToString().Substring(Index));
+                ColorConsole.ActiveConsole.Write(sb.ToString().Substring(Index));
 
-                Console.CursorLeft = temp + text.Length;
+                ColorConsole.ActiveConsole.CursorLeft = temp + text.Length;
             }
 
             if (!isDisposed)
@@ -142,17 +143,17 @@ namespace CommandLineParsing.Input
 
             if (Index == Length)
             {
-                Console.Write(info);
+                ColorConsole.ActiveConsole.Write(info);
                 sb.Append(info);
             }
             else
             {
-                int temp = Console.CursorLeft;
+                int temp = ColorConsole.ActiveConsole.CursorLeft;
 
-                sb.Insert(Console.CursorLeft - position, info);
-                Console.Write(sb.ToString().Substring(Console.CursorLeft - position));
+                sb.Insert(ColorConsole.ActiveConsole.CursorLeft - position, info);
+                ColorConsole.ActiveConsole.Write(sb.ToString().Substring(ColorConsole.ActiveConsole.CursorLeft - position));
 
-                Console.CursorLeft = temp + 1;
+                ColorConsole.ActiveConsole.CursorLeft = temp + 1;
             }
 
             if (!isDisposed)
@@ -184,10 +185,10 @@ namespace CommandLineParsing.Input
                 if (Index != Length - length)
                     replace = sb.ToString().Substring(Index + length) + replace;
 
-                int temp = Console.CursorLeft;
-                Console.CursorLeft += length;
-                Console.Write(replace);
-                Console.CursorLeft = temp + length;
+                int temp = ColorConsole.ActiveConsole.CursorLeft;
+                ColorConsole.ActiveConsole.CursorLeft += length;
+                ColorConsole.ActiveConsole.Write(replace);
+                ColorConsole.ActiveConsole.CursorLeft = temp + length;
             }
             else if (length > 0)
             {
@@ -196,10 +197,10 @@ namespace CommandLineParsing.Input
                 if (Index + length > Length)
                     length = Length - Index;
 
-                int temp = Console.CursorLeft;
+                int temp = ColorConsole.ActiveConsole.CursorLeft;
                 sb.Remove(Index, length);
-                Console.Write(sb.ToString().Substring(Index) + new string(' ', length));
-                Console.CursorLeft = temp;
+                ColorConsole.ActiveConsole.Write(sb.ToString().Substring(Index) + new string(' ', length));
+                ColorConsole.ActiveConsole.CursorLeft = temp;
             }
 
             if (!isDisposed)
@@ -297,7 +298,7 @@ namespace CommandLineParsing.Input
             switch (Cleanup)
             {
                 case InputCleanup.None:
-                    Console.Write(Environment.NewLine);
+                    ColorConsole.ActiveConsole.Write(Environment.NewLine);
                     break;
 
                 case InputCleanup.Clean:
@@ -309,9 +310,9 @@ namespace CommandLineParsing.Input
 
                         if (promptLength.HasValue)
                         {
-                            Console.CursorLeft -= promptLength.Value;
-                            Console.Write(new string(' ', promptLength.Value));
-                            Console.CursorLeft -= promptLength.Value;
+                            ColorConsole.ActiveConsole.CursorLeft -= promptLength.Value;
+                            ColorConsole.ActiveConsole.Write(new string(' ', promptLength.Value));
+                            ColorConsole.ActiveConsole.CursorLeft -= promptLength.Value;
                         }
                     }
                     break;

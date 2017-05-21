@@ -28,7 +28,7 @@ namespace CommandLineParsing.Input
         /// The menu will be displayed at the current cursor position.
         /// </summary>
         public MenuDisplay()
-            : this(Console.WindowHeight - Console.CursorTop + Console.WindowTop)
+            : this(ColorConsole.ActiveConsole.WindowHeight - ColorConsole.ActiveConsole.CursorTop + ColorConsole.ActiveConsole.WindowTop)
         {
         }
         /// <summary>
@@ -351,7 +351,7 @@ namespace CommandLineParsing.Input
             ColorConsole.TemporaryShift(_origin + offset, () =>
             {
                 int oldLen = _displayed[displayedIndex].Length;
-                Console.Write(new string(' ', oldLen) + new string('\b', oldLen));
+                ColorConsole.ActiveConsole.Write(new string(' ', oldLen) + new string('\b', oldLen));
                 ColorConsole.Write(text);
             });
 

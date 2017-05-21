@@ -35,7 +35,7 @@ namespace CommandLineParsing
 
             MenuOption<T> result = null;
 
-            Console.CursorVisible = false;
+            ColorConsole.ActiveConsole.CursorVisible = false;
 
             using (var display = new MenuDisplay<MenuOption<T>>())
             {
@@ -59,7 +59,7 @@ namespace CommandLineParsing
                 ConsoleKeyInfo info;
                 do
                 {
-                    info = Console.ReadKey(true);
+                    info = ColorConsole.ActiveConsole.ReadKey(true);
                     switch (info.Key)
                     {
                         case ConsoleKey.DownArrow:
@@ -91,7 +91,7 @@ namespace CommandLineParsing
             if (cleanup == MenuCleanup.RemoveMenuShowChoice)
                 ColorConsole.WriteLine(result.Text);
 
-            Console.CursorVisible = true;
+            ColorConsole.ActiveConsole.CursorVisible = true;
 
             return result.Value;
         }
@@ -153,7 +153,7 @@ namespace CommandLineParsing
 
             List<MenuOnOffOption<T>> result = null;
 
-            Console.CursorVisible = false;
+            ColorConsole.ActiveConsole.CursorVisible = false;
 
             using (var display = new MenuDisplay<MenuOnOffOption<T>>())
             {
@@ -177,7 +177,7 @@ namespace CommandLineParsing
                 ConsoleKeyInfo info;
                 do
                 {
-                    info = Console.ReadKey(true);
+                    info = ColorConsole.ActiveConsole.ReadKey(true);
                     switch (info.Key)
                     {
                         case ConsoleKey.DownArrow:
@@ -214,7 +214,7 @@ namespace CommandLineParsing
                 foreach (var r in result)
                     ColorConsole.WriteLine(r.Text);
 
-            Console.CursorVisible = true;
+            ColorConsole.ActiveConsole.CursorVisible = true;
 
             return result.Select(x => x.Value).ToArray();
         }
