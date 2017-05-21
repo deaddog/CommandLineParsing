@@ -105,5 +105,35 @@ namespace CommandLineParsing.Tests.Input
             display.Options.RemoveAt(0);
             Assert.AreEqual(0, console.BufferStrings.Length);
         }
+
+        [Test]
+        public void ReducedDisplayLines()
+        {
+            var dis = new MenuDisplay<MenuOption<string>>(2);
+            dis.Options.Add(new MenuOption<string>("first", "first"));
+            dis.Options.Add(new MenuOption<string>("second", "second"));
+            dis.Options.Add(new MenuOption<string>("third", "third"));
+
+            Assert.AreEqual(2, console.BufferStrings.Length);
+            console.BufferStrings.AssertLine(0, "  first");
+            console.BufferStrings.AssertLine(1, "  second");
+
+            dis.HandleKey(new ConsoleKeyInfo('\0', ConsoleKey.UpArrow, false, false, false));
+
+            Assert.AreEqual(2, console.BufferStrings.Length);
+            console.BufferStrings.AssertLine(0, "  second");
+            console.BufferStrings.AssertLine(1, "> third");
+
+            dis.Options.RemoveAt(0);
+
+            Assert.AreEqual(2, console.BufferStrings.Length);
+            console.BufferStrings.AssertLine(0, "  second");
+            console.BufferStrings.AssertLine(1, "> third");
+
+            dis.Options.RemoveAt(0);
+
+            Assert.AreEqual(1, console.BufferStrings.Length);
+            console.BufferStrings.AssertLine(0, "> third");
+        }
     }
 }
