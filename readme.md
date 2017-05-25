@@ -1,15 +1,19 @@
 # CommandLineParsing
-A .NET framework that provides a range of functionalities for creating command line applications using the .NET framework.
+A .NET library that provides a range of functionalities for creating command line applications using the .NET framework.
 It's primary features are:
 
 ### Colored output
-Instead of using the `System.Console` to produce output, the framework provides a `ColorConsole` class that provides a simple format to generate color-coded output.
+Instead of using the `System.Console` to produce output, the framework provides a `ColorConsole` class that uses a simple format to generate colored console output.
 
     ColorConsole.WriteLine($"Something is [blue:colored] differently.");
 
 This simplifies the process of dynamically changing color in output.
 There is also support for defining custom coloring names, that then translate into one of the existing console colors.
-This allows for a application-wide *example* color that can easily be redefined.
+This allows for a application-wide *example* color that can easily be redefined:
+
+    ColorConsole.Colors["example"] = ConsoleColors.White;
+    ColorConsole.WriteLine($"[example:Colors can be defined globally.]");
+
 
 When dynamically producing output, the framework provides a `Formatter` class that supports variables, functions and conditional output.
 This enables an end-user to specify a custom output format for some collection of data.
@@ -29,6 +33,7 @@ For a class `MyClass` the method can be one of the following:
 - `public static Message MessageTryParse(string, out MyClass)`, which can return a custom message in case parsing fails.
 
 The methods are loaded using reflection, so you **must be exact** when naming them in classes.
+Additionally you can specify a custom parser for your specific context.
 
 ### Menus
 When the user is to select an item from a predefined collection, a `Menu` (or `SelectionMenu` when selecting multiple items) can be used to display a menu to the user with the available options.
@@ -38,11 +43,11 @@ Menus can be constructed manually (setting up each option and displaying the men
 
     string[] names = { "Abraham", "Benny", "Carl", "Dennis" };
 
-    string selectedName = names.MenuSelect(null);
-    string[] selectedNames = names.MenuSelectMultiple(null);
+    string selectedName = names.MenuSelect();
+    string[] selectedNames = names.MenuSelectMultiple();
 
-The `null` argument can be replaced by an object that describes settings for how the menu should be displayed.
-Overall the idea is to encapsulate displaying a menu in as short a line as possible.
+The behavior of these extension methods can be configured through various parameters.
+Overall the idea is to encapsulate displaying a menu in as short an expression as possible.
 
 ### Commands and parameters
 Using types defined by the framework, commands and their parameters can be set up and then executed using the supplied command line arguments.
@@ -60,7 +65,7 @@ Parameters are initialized using reflection before executing the commands constr
     }
 
 Parameters supports parsing using the same system as `ReadLine` described above.
-Additionally a parsing method can be specified for any individual parameter allowing for further customization.
+Similarly a custom parsing method can be specified for any individual parameter allowing for further customization.
 Parameters also supports validation of the entered values, which can be specified as:
 
     magic.Validator.Fail.If(x => x == 0, "A magic number cannot be zero!");
