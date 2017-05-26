@@ -66,9 +66,10 @@ namespace CommandLineParsing.Input
             _prefixBottom = new PrefixKeyCollection();
             _hasPrefix = false;
 
-            _prefixTop.PrefixSetChanged += UpdatePrefixChange;
-            _prefixBottom.PrefixSetChanged += UpdatePrefixChange;
+            _prefixTop.PrefixSetChanged += UpdateAllOptions;
+            _prefixBottom.PrefixSetChanged += UpdateAllOptions;
         }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="MenuDisplay{T}"/> class.
         /// </summary>
@@ -100,15 +101,11 @@ namespace CommandLineParsing.Input
                 if (value == _prompt)
                     return;
 
-                var lengthDiff = value.Length - (_prompt?.Length ?? 0);
-
                 _prompt = value;
                 _noPrompt = new string(' ', _prompt.Length);
-
-                UpdateAll(lengthDiff);
+                UpdateAllOptions();
             }
         }
-
 
         /// <summary>
         /// Gets the collection of prefixes shown at the top of a menu.
@@ -169,7 +166,7 @@ namespace CommandLineParsing.Input
 
                         _displayOffset -= diff;
                         for (int i = 0; i < _displayed.Count; i++)
-                            UpdateOption(i + _displayOffset, _options[i + _displayOffset].Text);
+                            UpdateOption(i + _displayOffset);
                     }
 
                     if (_index < _displayOffset)
@@ -178,7 +175,7 @@ namespace CommandLineParsing.Input
 
                         _displayOffset += diff;
                         for (int i = 0; i < _displayed.Count; i++)
-                            UpdateOption(i + _displayOffset, _options[i + _displayOffset].Text);
+                            UpdateOption(i + _displayOffset);
                     }
 
                     (_origin + new ConsoleSize(0, _index - _displayOffset)).TemporaryShift(() => ColorConsole.Write(_prompt));
@@ -282,76 +279,37 @@ namespace CommandLineParsing.Input
             {
                 _updateOptions = value;
 
-                if (_updateOptions)
-                {
-                    for (int i = 0; i < _displayed.Count; i++)
-                    {
-                        if (i + _displayOffset < _options.Count)
-                            UpdateOption(i + _displayOffset, _options[i + _displayOffset].Text);
-                        else
-                            UpdateOption(i + _displayOffset, null);
-                    }
-
-                    UpdateAll(0);
-                }
+                UpdateAllOptions();
             }
         }
 
-        private void UpdatePrefixChange()
+        private void UpdateAllOptions()
         {
-            var oldHas = _hasPrefix;
-            _hasPrefix = _prefixTop.Count > 0 || _prefixTop.Count > 0;
-
-            if (_hasPrefix == oldHas)
-                UpdateAll(0);
-            else if (!_hasPrefix)
-                UpdateAll(-3);
-            else
-                UpdateAll(3);
+            if (_updateOptions)
+                for (int i = 0; i < _displayed.Count; i++)
+                    UpdateOption(i + _displayOffset);
         }
-        private void UpdateAll(int lengthDiff)
+        private void UpdateOption(int index)
         {
-            if (!_updateOptions) return;
-
-            for (int i = 0; i < _displayed.Count; i++)
-            {
-                ConsoleString newText = ConsoleString.Empty;
-                if (lengthDiff > 0)
-                    newText = _displayed[i];
-                else if (lengthDiff < 0)
-                    newText = _displayed[i] + new string(' ', -lengthDiff);
-
-                var p = i + _displayOffset == SelectedIndex ? _prompt : _noPrompt;
-                ColorConsole.TemporaryShift(
-                    _origin + new ConsoleSize(0, i),
-                    () => ColorConsole.Write(p + newText));
-            }
-        }
-        internal void UpdateOption(int index, ConsoleString text)
-        {
-            if (!_updateOptions) return;
+            if (!_updateOptions)
+                return;
 
             var displayedIndex = index - _displayOffset;
-
             if (displayedIndex < 0 || displayedIndex >= _displayed.Count)
                 return;
 
-            text = text ?? ConsoleString.Empty;
-
-            if (text == null)
-                text = ConsoleString.Empty;
-            else
-                text = GetPrefix(index) + text;
+            var text = _options.Count > index ? _options[index].Text : ConsoleString.Empty;
+            text = GetPrefix(index) + text;
 
             if (text == _displayed[displayedIndex])
                 return;
 
             var offset = new ConsoleSize(_prompt.Length, displayedIndex);
+            int oldLen = _displayed[displayedIndex].Length;
 
             ColorConsole.TemporaryShift(_origin + offset, () =>
             {
-                int oldLen = _displayed[displayedIndex].Length;
-                ColorConsole.ActiveConsole.Write(new string(' ', oldLen) + new string('\b', oldLen));
+                ColorConsole.Write(new string(' ', oldLen) + new string('\b', oldLen));
                 ColorConsole.Write(text);
             });
 
