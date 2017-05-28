@@ -10,19 +10,25 @@ namespace CommandLineParsing.Input
     /// <typeparam name="TOption">The type of the options managed by the <see cref="MenuOptionCollection{TOption}"/>.</typeparam>
     public class MenuOptionCollection<TOption> : IList<TOption> where TOption : class, IMenuOption
     {
-        private readonly MenuDisplay<TOption> _display;
         private readonly List<TOption> _options;
 
-        internal MenuOptionCollection(MenuDisplay<TOption> display)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MenuOptionCollection{TOption}"/> class.
+        /// </summary>
+        public MenuOptionCollection()
         {
-            _display = display;
             _options = new List<TOption>();
         }
 
-        private void OptionUpdateHelper(IMenuOption option)
+        private void OnOptionTextChanged(IMenuOption option)
         {
-            _display.UpdateOption(IndexOf(option), option.Text);
+            CollectionChanged?.Invoke(this, CollectionUpdateTypes.Update, IndexOf(option), 1);
         }
+
+        /// <summary>
+        /// Occurs when an operation is executed on the elements in the collection.
+        /// </summary>
+        public event CollectionChanged<TOption> CollectionChanged;
 
         /// <summary>
         /// Gets the number of options in the collection.
@@ -43,12 +49,12 @@ namespace CommandLineParsing.Input
                     throw new ArgumentNullException(nameof(value));
 
                 var old = _options[index];
-                old.TextChanged -= OptionUpdateHelper;
+                old.TextChanged -= OnOptionTextChanged;
 
                 _options[index] = value;
-                value.TextChanged += OptionUpdateHelper;
+                value.TextChanged += OnOptionTextChanged;
 
-                _display.UpdateOption(index, value.Text);
+                CollectionChanged?.Invoke(this, CollectionUpdateTypes.Replace, index, 1);
             }
         }
 
@@ -109,15 +115,11 @@ namespace CommandLineParsing.Input
                 throw new ArgumentNullException(nameof(option));
 
             _options.Insert(index, option);
-            option.TextChanged += OptionUpdateHelper;
+            option.TextChanged += OnOptionTextChanged;
 
-            var from = Math.Max(Math.Min(index, _options.Count - _display.PrefixesBottom.Count - 1), 0);
-            for (int i = from; i < _options.Count; i++)
-                _display.UpdateOption(i, _options[i].Text);
-
-            if (index <= _display.SelectedIndex)
-                _display.SelectedIndex++;
+            CollectionChanged?.Invoke(this, CollectionUpdateTypes.Insert, index, 1);
         }
+
 
         /// <summary>
         /// Removes the specified option from the menu display.
@@ -148,17 +150,10 @@ namespace CommandLineParsing.Input
         public void RemoveAt(int index)
         {
             var last = _options[index];
-            last.TextChanged -= OptionUpdateHelper;
+            last.TextChanged -= OnOptionTextChanged;
             _options.RemoveAt(index);
 
-            var from = Math.Max(Math.Min(index, _options.Count - _display.PrefixesBottom.Count - 1), 0);
-            for (int i = from; i < _options.Count; i++)
-                _display.UpdateOption(i, _options[i].Text);
-
-            _display.UpdateOption(_options.Count, null);
-
-            if (index < _display.SelectedIndex || _options.Count == _display.SelectedIndex)
-                _display.SelectedIndex--;
+            CollectionChanged?.Invoke(this, CollectionUpdateTypes.Remove, index, 1);
         }
 
         /// <summary>
@@ -166,8 +161,10 @@ namespace CommandLineParsing.Input
         /// </summary>
         public void Clear()
         {
-            while (_options.Count > 0)
-                RemoveAt(_options.Count - 1);
+            int count = _options.Count;
+
+            _options.Clear();
+            CollectionChanged?.Invoke(this, CollectionUpdateTypes.Clear, 0, count);
         }
 
         bool ICollection<TOption>.IsReadOnly => false;
