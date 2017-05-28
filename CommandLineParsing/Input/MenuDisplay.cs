@@ -61,7 +61,8 @@ namespace CommandLineParsing.Input
             _displayOffset = 0;
 
             _index = -1;
-            Prompt = new ConsoleString("> ");
+            _prompt = new ConsoleString("> ");
+            _noPrompt = "  ";
 
             _prefixTop = new PrefixKeyCollection();
             _prefixBottom = new PrefixKeyCollection();
