@@ -135,5 +135,51 @@ namespace CommandLineParsing.Tests.Input
             Assert.AreEqual(1, console.BufferStrings.Length);
             console.BufferStrings.AssertLine(0, "> third");
         }
+
+        [Test]
+        public void ChangeToLongerPrompt()
+        {
+            var dis = new MenuDisplay<MenuOption<string>>(3);
+            dis.Options.Add(new MenuOption<string>("first", "first"));
+            dis.Options.Add(new MenuOption<string>("second", "second"));
+            dis.Options.Add(new MenuOption<string>("third", "third"));
+
+            dis.HandleKey(new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false));
+
+            Assert.AreEqual(3, console.BufferStrings.Length);
+            console.BufferStrings.AssertLine(0, "> first");
+            console.BufferStrings.AssertLine(1, "  second");
+            console.BufferStrings.AssertLine(2, "  third");
+
+            dis.Prompt = ">> ";
+
+            Assert.AreEqual(3, console.BufferStrings.Length);
+            console.BufferStrings.AssertLine(0, ">> first");
+            console.BufferStrings.AssertLine(1, "   second");
+            console.BufferStrings.AssertLine(2, "   third");
+        }
+
+        [Test]
+        public void ChangeToShorterPrompt()
+        {
+            var dis = new MenuDisplay<MenuOption<string>>(3);
+            dis.Options.Add(new MenuOption<string>("first", "first"));
+            dis.Options.Add(new MenuOption<string>("second", "second"));
+            dis.Options.Add(new MenuOption<string>("third", "third"));
+
+            dis.HandleKey(new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false));
+
+            Assert.AreEqual(3, console.BufferStrings.Length);
+            console.BufferStrings.AssertLine(0, "> first");
+            console.BufferStrings.AssertLine(1, "  second");
+            console.BufferStrings.AssertLine(2, "  third");
+
+            dis.Prompt = ">";
+
+            Assert.AreEqual(3, console.BufferStrings.Length);
+            console.BufferStrings.AssertLine(0, ">first");
+            console.BufferStrings.AssertLine(1, " second");
+            console.BufferStrings.AssertLine(2, " third");
+        }
     }
 }
