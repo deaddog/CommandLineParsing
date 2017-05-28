@@ -301,6 +301,8 @@ namespace CommandLineParsing.Input
                     break;
 
                 case CollectionUpdateTypes.Update:
+                    for (int i = 0; i < count; i++)
+                        UpdateOption(i + index);
                     break;
             }
         }

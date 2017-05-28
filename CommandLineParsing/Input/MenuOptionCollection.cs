@@ -19,9 +19,9 @@ namespace CommandLineParsing.Input
             _options = new List<TOption>();
         }
 
-        private void OptionUpdateHelper(IMenuOption option)
+        private void OnOptionTextChanged(IMenuOption option)
         {
-            _display.UpdateOption(IndexOf(option), option.Text);
+            CollectionChanged?.Invoke(this, CollectionUpdateTypes.Update, IndexOf(option), 1);
         }
 
         /// <summary>
@@ -48,10 +48,10 @@ namespace CommandLineParsing.Input
                     throw new ArgumentNullException(nameof(value));
 
                 var old = _options[index];
-                old.TextChanged -= OptionUpdateHelper;
+                old.TextChanged -= OnOptionTextChanged;
 
                 _options[index] = value;
-                value.TextChanged += OptionUpdateHelper;
+                value.TextChanged += OnOptionTextChanged;
 
                 _display.UpdateOption(index, value.Text);
             }
@@ -114,7 +114,7 @@ namespace CommandLineParsing.Input
                 throw new ArgumentNullException(nameof(option));
 
             _options.Insert(index, option);
-            option.TextChanged += OptionUpdateHelper;
+            option.TextChanged += OnOptionTextChanged;
 
             var from = Math.Max(Math.Min(index, _options.Count - _display.PrefixesBottom.Count - 1), 0);
             for (int i = from; i < _options.Count; i++)
@@ -123,6 +123,7 @@ namespace CommandLineParsing.Input
             if (index <= _display.SelectedIndex)
                 _display.SelectedIndex++;
         }
+
 
         /// <summary>
         /// Removes the specified option from the menu display.
@@ -153,7 +154,7 @@ namespace CommandLineParsing.Input
         public void RemoveAt(int index)
         {
             var last = _options[index];
-            last.TextChanged -= OptionUpdateHelper;
+            last.TextChanged -= OnOptionTextChanged;
             _options.RemoveAt(index);
 
             var from = Math.Max(Math.Min(index, _options.Count - _display.PrefixesBottom.Count - 1), 0);
