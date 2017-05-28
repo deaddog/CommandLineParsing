@@ -310,6 +310,13 @@ namespace CommandLineParsing.Input
                     {
                         var from = Math.Max(Math.Min(index, _options.Count - PrefixesBottom.Count - 1), 0);
 
+                        var newOffset = Math.Max(0, _options.Count - _displayed.Count);
+                        if (newOffset < _displayOffset)
+                        {
+                            from = Math.Max(from - _displayOffset + newOffset, 0);
+                            _displayOffset = newOffset;
+                        }
+
                         for (int i = from; i < _options.Count; i++)
                             UpdateOption(i);
 
