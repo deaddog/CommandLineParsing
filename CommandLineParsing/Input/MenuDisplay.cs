@@ -103,8 +103,23 @@ namespace CommandLineParsing.Input
                 if (value == _prompt)
                     return;
 
+                var lenDiff = value.Length - _prompt.Length;
+
                 _prompt = value;
                 _noPrompt = new string(' ', _prompt.Length);
+
+                _origin.TemporaryShift(() =>
+                {
+                    for (int i = 0; i < _displayed.Count; i++)
+                    {
+                        ColorConsole.WriteLine((i + _displayOffset == _index) ? _prompt : _noPrompt);
+                        if (lenDiff > 0)
+                            _displayed[i] = ConsoleString.Empty;
+                        else
+                            _displayed[i] += new string('a', -lenDiff);
+                    }
+                });
+
                 UpdateAllOptions();
             }
         }
