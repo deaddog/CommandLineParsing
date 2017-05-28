@@ -53,7 +53,7 @@ namespace CommandLineParsing.Input
                 _options[index] = value;
                 value.TextChanged += OnOptionTextChanged;
 
-                _display.UpdateOption(index, value.Text);
+                CollectionChanged?.Invoke(this, CollectionUpdateTypes.Replace, index, 1);
             }
         }
 

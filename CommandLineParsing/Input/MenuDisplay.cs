@@ -298,6 +298,11 @@ namespace CommandLineParsing.Input
                     break;
 
                 case CollectionUpdateTypes.Replace:
+                    if (_index >= index && _index < index + count)
+                        _index = -1;
+
+                    for (int i = 0; i < count; i++)
+                        UpdateOption(i + index);
                     break;
 
                 case CollectionUpdateTypes.Update:
