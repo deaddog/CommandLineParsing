@@ -292,9 +292,28 @@ namespace CommandLineParsing.Input
                     break;
 
                 case CollectionUpdateTypes.Insert:
+                    {
+                        if (index <= SelectedIndex)
+                            SelectedIndex += count;
+
+                        var from = Math.Max(Math.Min(index, _options.Count - PrefixesBottom.Count - 1), 0);
+                        for (int i = from; i < _options.Count; i++)
+                            UpdateOption(i);
+                    }
                     break;
 
                 case CollectionUpdateTypes.Remove:
+                    {
+                        var from = Math.Max(Math.Min(index, _options.Count - PrefixesBottom.Count - 1), 0);
+
+                        for (int i = from; i < _options.Count; i++)
+                            UpdateOption(i);
+
+                        UpdateOption(_options.Count);
+
+                        if (index < SelectedIndex || _options.Count == SelectedIndex)
+                            SelectedIndex -= count;
+                    }
                     break;
 
                 case CollectionUpdateTypes.Replace:

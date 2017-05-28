@@ -116,12 +116,7 @@ namespace CommandLineParsing.Input
             _options.Insert(index, option);
             option.TextChanged += OnOptionTextChanged;
 
-            var from = Math.Max(Math.Min(index, _options.Count - _display.PrefixesBottom.Count - 1), 0);
-            for (int i = from; i < _options.Count; i++)
-                _display.UpdateOption(i, _options[i].Text);
-
-            if (index <= _display.SelectedIndex)
-                _display.SelectedIndex++;
+            CollectionChanged?.Invoke(this, CollectionUpdateTypes.Insert, index, 1);
         }
 
 
@@ -157,14 +152,7 @@ namespace CommandLineParsing.Input
             last.TextChanged -= OnOptionTextChanged;
             _options.RemoveAt(index);
 
-            var from = Math.Max(Math.Min(index, _options.Count - _display.PrefixesBottom.Count - 1), 0);
-            for (int i = from; i < _options.Count; i++)
-                _display.UpdateOption(i, _options[i].Text);
-
-            _display.UpdateOption(_options.Count, null);
-
-            if (index < _display.SelectedIndex || _options.Count == _display.SelectedIndex)
-                _display.SelectedIndex--;
+            CollectionChanged?.Invoke(this, CollectionUpdateTypes.Remove, index, 1);
         }
 
         /// <summary>
