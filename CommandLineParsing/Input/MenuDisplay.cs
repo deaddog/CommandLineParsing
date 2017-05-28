@@ -55,6 +55,7 @@ namespace CommandLineParsing.Input
         {
             _origin = point;
             _options = new MenuOptionCollection<TOption>(this);
+            _options.CollectionChanged += OptionsCollectionChanged;
             _displayed = new List<ConsoleString>();
             for (int i = 0; i < displayedLines; i++) _displayed.Add("");
             _displayOffset = 0;
@@ -280,6 +281,27 @@ namespace CommandLineParsing.Input
                 _updateOptions = value;
 
                 UpdateAllOptions();
+            }
+        }
+
+        private void OptionsCollectionChanged(MenuOptionCollection<TOption> collection, CollectionUpdateTypes updateType, int index, int count)
+        {
+            switch (updateType)
+            {
+                case CollectionUpdateTypes.Clear:
+                    break;
+
+                case CollectionUpdateTypes.Insert:
+                    break;
+
+                case CollectionUpdateTypes.Remove:
+                    break;
+
+                case CollectionUpdateTypes.Replace:
+                    break;
+
+                case CollectionUpdateTypes.Update:
+                    break;
             }
         }
 

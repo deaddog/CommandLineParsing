@@ -25,6 +25,11 @@ namespace CommandLineParsing.Input
         }
 
         /// <summary>
+        /// Occurs when an operation is executed on the elements in the collection.
+        /// </summary>
+        public event CollectionChanged<TOption> CollectionChanged;
+
+        /// <summary>
         /// Gets the number of options in the collection.
         /// </summary>
         public int Count => _options.Count;
