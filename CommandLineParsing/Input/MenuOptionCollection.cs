@@ -160,8 +160,10 @@ namespace CommandLineParsing.Input
         /// </summary>
         public void Clear()
         {
-            while (_options.Count > 0)
-                RemoveAt(_options.Count - 1);
+            int count = _options.Count;
+
+            _options.Clear();
+            CollectionChanged?.Invoke(this, CollectionUpdateTypes.Clear, 0, count);
         }
 
         bool ICollection<TOption>.IsReadOnly => false;

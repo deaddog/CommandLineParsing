@@ -289,6 +289,9 @@ namespace CommandLineParsing.Input
             switch (updateType)
             {
                 case CollectionUpdateTypes.Clear:
+                    _displayOffset = 0;
+                    _index = -1;
+                    UpdateAllOptions();
                     break;
 
                 case CollectionUpdateTypes.Insert:
