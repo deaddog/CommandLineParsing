@@ -54,7 +54,7 @@ namespace CommandLineParsing.Input
         public MenuDisplay(ConsolePoint point, int displayedLines)
         {
             _origin = point;
-            _options = new MenuOptionCollection<TOption>(this);
+            _options = new MenuOptionCollection<TOption>();
             _options.CollectionChanged += OptionsCollectionChanged;
             _displayed = new List<ConsoleString>();
             for (int i = 0; i < displayedLines; i++) _displayed.Add("");

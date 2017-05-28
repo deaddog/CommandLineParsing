@@ -10,12 +10,13 @@ namespace CommandLineParsing.Input
     /// <typeparam name="TOption">The type of the options managed by the <see cref="MenuOptionCollection{TOption}"/>.</typeparam>
     public class MenuOptionCollection<TOption> : IList<TOption> where TOption : class, IMenuOption
     {
-        private readonly MenuDisplay<TOption> _display;
         private readonly List<TOption> _options;
 
-        internal MenuOptionCollection(MenuDisplay<TOption> display)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MenuOptionCollection{TOption}"/> class.
+        /// </summary>
+        public MenuOptionCollection()
         {
-            _display = display;
             _options = new List<TOption>();
         }
 
