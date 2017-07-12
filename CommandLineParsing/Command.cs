@@ -27,7 +27,7 @@ namespace CommandLineParsing
         /// </summary>
         public Command()
         {
-            this.subcommands = new CommandCollection(this);
+            this.subcommands = new CommandCollection();
             this.parameters = new ParameterCollection();
 
             this.preValid = new CommandValidator();
@@ -67,7 +67,7 @@ namespace CommandLineParsing
                 prefix = System.IO.Path.ChangeExtension(prefix, null);
             }
             if (prefix.Length > 0) prefix += " ";
-            
+
             exit = exit?.Trim() ?? "exit";
             if (exit.Length == 0)
                 throw new ArgumentException("To end the REPL an exit command must be supplied.", nameof(exit));
@@ -292,12 +292,10 @@ namespace CommandLineParsing
         /// </summary>
         public class CommandCollection : IEnumerable<KeyValuePair<string, Command>>
         {
-            private Command owner;
             private Dictionary<string, Command> commands;
 
-            internal CommandCollection(Command owner)
+            internal CommandCollection()
             {
-                this.owner = owner;
                 this.commands = new Dictionary<string, Command>();
             }
 
