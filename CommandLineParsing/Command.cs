@@ -25,10 +25,11 @@ namespace CommandLineParsing
         /// <summary>
         /// Initializes a new instance of the <see cref="Command"/> class.
         /// </summary>
-        public Command()
+        /// <param name="ignoreCase">if set to <c>true</c> string case will be ignored when parsing parameter/subcommand names.</param>
+        public Command(bool ignoreCase = false)
         {
-            this.subcommands = new CommandCollection();
-            this.parameters = new ParameterCollection();
+            this.subcommands = new CommandCollection(ignoreCase);
+            this.parameters = new ParameterCollection(ignoreCase);
 
             this.preValid = new CommandValidator();
             this.postValid = new CommandValidator();
@@ -294,9 +295,9 @@ namespace CommandLineParsing
         {
             private Dictionary<string, Command> commands;
 
-            internal CommandCollection()
+            internal CommandCollection(bool ignoreCase)
             {
-                this.commands = new Dictionary<string, Command>();
+                this.commands = new Dictionary<string, Command>(ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
             }
 
             /// <summary>
@@ -434,9 +435,9 @@ namespace CommandLineParsing
             private Dictionary<string, Parameter> parameters;
             private List<Parameter> parsers;
 
-            internal ParameterCollection()
+            internal ParameterCollection(bool ignoreCase)
             {
-                this.parameters = new Dictionary<string, Parameter>();
+                this.parameters = new Dictionary<string, Parameter>(ignoreCase ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal);
                 this.parsers = new List<Parameter>();
             }
             internal void Add(Parameter parameter)
