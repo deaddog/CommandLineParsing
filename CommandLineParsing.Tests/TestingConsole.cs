@@ -219,6 +219,13 @@ namespace CommandLineParsing.Tests
                         _foreground[index][i] = ConsoleColor.DarkGray;
                         _background[index][i] = ConsoleColor.Black;
                     }
+
+                    while (_content.Count > _bufferSize.Height)
+                    {
+                        _content.RemoveAt(0);
+                        _foreground.RemoveAt(0);
+                        _background.RemoveAt(0);
+                    }
                 }
                 _content[_cursorPosition.Top][_cursorPosition.Left] = c;
                 _foreground[_cursorPosition.Top][_cursorPosition.Left] = ForegroundColor;
