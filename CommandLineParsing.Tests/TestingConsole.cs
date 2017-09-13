@@ -10,9 +10,9 @@ namespace CommandLineParsing.Tests
         private ConsoleSize _bufferSize;
         private ConsolePoint _cursorPosition;
 
-        private char[,] _content;
-        private ConsoleColor[,] _foreground;
-        private ConsoleColor[,] _background;
+        private List<char[]> _content;
+        private List<ConsoleColor[]> _foreground;
+        private List<ConsoleColor[]> _background;
 
         private readonly InputCollection _input;
 
@@ -24,17 +24,9 @@ namespace CommandLineParsing.Tests
             CursorVisible = true;
             ResetColor();
 
-            _content = new char[_bufferSize.Width, _bufferSize.Height];
-            _foreground = new ConsoleColor[_bufferSize.Width, _bufferSize.Height];
-            _background = new ConsoleColor[_bufferSize.Width, _bufferSize.Height];
-
-            for (int x = 0; x < _bufferSize.Width; x++)
-                for (int y = 0; y < _bufferSize.Height; y++)
-                {
-                    _content[x, y] = ' ';
-                    _foreground[x, y] = ForegroundColor;
-                    _background[x, y] = BackgroundColor;
-                }
+            _content = new List<char[]>();
+            _foreground = new List<ConsoleColor[]>();
+            _background = new List<ConsoleColor[]>();
 
             _input = new InputCollection();
         }
@@ -50,28 +42,31 @@ namespace CommandLineParsing.Tests
                 {
                     var strings = new List<TestingConsoleString>();
 
-                    var rows = _content.GetLength(1);
-                    for (int r = 0; r < rows; r++)
+                    for (int r = 0; r < _content.Count; r++)
                     {
-                        int start = GetFirstActive(r);
+                        var row = _content[r];
+                        var fg = _foreground[r];
+                        var bg = _background[r];
+
+                        int start = GetFirstActive(row);
                         if (start == -1)
                             continue;
-                        int end = GetLastActive(r);
+                        int end = GetLastActive(row);
 
                         var segments = new List<TestingConsoleSegment>();
 
-                        var text = _content[start, r].ToString();
+                        var text = row[start].ToString();
 
                         for (int i = start + 1; i <= end; i++)
-                            if (_foreground[i, r] != _foreground[i - 1, r] || _background[i, r] != _background[i - 1, r])
+                            if (fg[i] != fg[i - 1] || bg[i] != bg[i - 1])
                             {
-                                segments.Add(new TestingConsoleSegment(text, _foreground[i - 1, r], _background[i - 1, r]));
-                                text = _content[i, r].ToString();
+                                segments.Add(new TestingConsoleSegment(text, fg[i - 1], bg[i - 1]));
+                                text = row[i].ToString();
                             }
                             else
-                                text += _content[i, r];
+                                text += row[i];
 
-                        segments.Add(new TestingConsoleSegment(text, _foreground[end, r], _background[end, r]));
+                        segments.Add(new TestingConsoleSegment(text, fg[end], bg[end]));
                         strings.Add(new TestingConsoleString(new ConsolePoint(start, r), segments));
                     }
                     _bufferStrings = strings.ToArray();
@@ -80,17 +75,17 @@ namespace CommandLineParsing.Tests
                 return _bufferStrings;
             }
         }
-        private int GetFirstActive(int rowIndex)
+        private int GetFirstActive(char[] row)
         {
-            for (int i = 0; i < _content.GetLength(0); i++)
-                if (_content[i, rowIndex] != ' ')
+            for (int i = 0; i < row.Length; i++)
+                if (row[i] != ' ')
                     return i;
             return -1;
         }
-        private int GetLastActive(int rowIndex)
+        private int GetLastActive(char[] row)
         {
-            for (int i = _content.GetLength(0) - 1; i >= 0; i--)
-                if (_content[i, rowIndex] != ' ')
+            for (int i = row.Length - 1; i >= 0; i--)
+                if (row[i] != ' ')
                     return i;
             return -1;
         }
@@ -107,35 +102,39 @@ namespace CommandLineParsing.Tests
         }
         public void SetBufferSize(int width, int height)
         {
-            var newsize = new ConsoleSize(width, height);
-
-            if (newsize == _bufferSize)
+            if (width == _bufferSize.Width && height == _bufferSize.Height)
                 return;
 
-            var newContent = new char[newsize.Width, newsize.Height];
-            var newForeground = new ConsoleColor[newsize.Width, newsize.Height];
-            var newBackground = new ConsoleColor[newsize.Width, newsize.Height];
+            if (height < _bufferSize.Height)
+            {
+                _content.RemoveRange(height, _content.Count - height);
+                _foreground.RemoveRange(height, _foreground.Count - height);
+                _background.RemoveRange(height, _background.Count - height);
+            }
 
-            for (int x = 0; x < newsize.Width; x++)
-                for (int y = 0; y < newsize.Height; y++)
-                    if (x >= _bufferSize.Width || y >= _bufferSize.Height)
-                    {
-                        newContent[x, y] = ' ';
-                        newForeground[x, y] = ForegroundColor;
-                        newBackground[x, y] = BackgroundColor;
-                    }
-                    else
-                    {
-                        newContent[x, y] = _content[x, y];
-                        newForeground[x, y] = _foreground[x, y];
-                        newBackground[x, y] = _background[x, y];
-                    }
+            for (int r = 0; r < _content.Count; r++)
+            {
+                var c = _content[r];
+                var fg = _foreground[r];
+                var bg = _background[r];
 
-            _content = newContent;
-            _foreground = newForeground;
-            _background = newBackground;
+                Array.Resize(ref c, width);
+                Array.Resize(ref fg, width);
+                Array.Resize(ref bg, width);
 
-            _bufferSize = newsize;
+                for (int i = _bufferSize.Width; i < width; i++)
+                {
+                    c[i] = ' ';
+                    fg[i] = ConsoleColor.DarkGray;
+                    bg[i] = ConsoleColor.Black;
+                }
+
+                _content[r] = c;
+                _foreground[r] = fg;
+                _background[r] = bg;
+            }
+
+            _bufferSize = new ConsoleSize(width, height);
         }
 
         public int CursorLeft
@@ -207,9 +206,23 @@ namespace CommandLineParsing.Tests
 
             if (CommandLineParsing.Input.ConsoleReader.IsInputCharacter(c))
             {
-                _content[_cursorPosition.Left, _cursorPosition.Top] = c;
-                _foreground[_cursorPosition.Left, _cursorPosition.Top] = ForegroundColor;
-                _background[_cursorPosition.Left, _cursorPosition.Top] = BackgroundColor;
+                while (_cursorPosition.Top >= _content.Count)
+                {
+                    _content.Add(new char[_bufferSize.Width]);
+                    _foreground.Add(new ConsoleColor[_bufferSize.Width]);
+                    _background.Add(new ConsoleColor[_bufferSize.Width]);
+
+                    var index = _content.Count - 1;
+                    for (int i = 0; i < _content[_content.Count - 1].Length; i++)
+                    {
+                        _content[index][i] = ' ';
+                        _foreground[index][i] = ConsoleColor.DarkGray;
+                        _background[index][i] = ConsoleColor.Black;
+                    }
+                }
+                _content[_cursorPosition.Top][_cursorPosition.Left] = c;
+                _foreground[_cursorPosition.Top][_cursorPosition.Left] = ForegroundColor;
+                _background[_cursorPosition.Top][_cursorPosition.Left] = BackgroundColor;
 
                 _cursorPosition.Left++;
                 if (_cursorPosition.Left >= BufferWidth)
