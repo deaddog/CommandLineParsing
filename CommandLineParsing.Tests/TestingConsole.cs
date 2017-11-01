@@ -10,6 +10,9 @@ namespace CommandLineParsing.Tests
         private ConsoleSize _bufferSize;
         private ConsolePoint _cursorPosition;
 
+        private ConsoleSize _windowSize;
+        private ConsolePoint _windowPosition;
+
         private List<char[]> _content;
         private List<ConsoleColor[]> _foreground;
         private List<ConsoleColor[]> _background;
@@ -20,6 +23,9 @@ namespace CommandLineParsing.Tests
         {
             _bufferSize = new ConsoleSize(80, 300);
             _cursorPosition = new ConsolePoint(0, 0);
+
+            _windowSize = new ConsoleSize(_bufferSize.Width, 20);
+            _windowPosition = new ConsolePoint(0, 0);
 
             CursorVisible = true;
             ResetColor();
@@ -150,36 +156,58 @@ namespace CommandLineParsing.Tests
         public void SetCursorPosition(int left, int top)
         {
             _cursorPosition = new ConsolePoint(left, top);
+
+            if (top < WindowTop)
+                WindowTop = top;
+            else if (top >= WindowTop + WindowHeight)
+                WindowTop = top - WindowHeight + 1;
+
+            if (left < WindowLeft)
+                WindowLeft = left;
+            else if (left >= WindowLeft + WindowWidth)
+                WindowLeft = left - WindowWidth + 1;
         }
 
         public int WindowWidth
         {
-            get { throw new NotSupportedException(nameof(WindowWidth) + " is not supported by " + nameof(TestingConsole)); }
-            set { throw new NotSupportedException(nameof(WindowWidth) + " is not supported by " + nameof(TestingConsole)); }
+            get { return _windowSize.Width; }
+            set { SetWindowSize(value, _windowSize.Height); }
         }
         public int WindowHeight
         {
-            get { throw new NotSupportedException(nameof(WindowHeight) + " is not supported by " + nameof(TestingConsole)); }
-            set { throw new NotSupportedException(nameof(WindowHeight) + " is not supported by " + nameof(TestingConsole)); }
+            get { return _windowSize.Height; }
+            set { SetWindowSize(_windowSize.Width, value); }
         }
         public void SetWindowSize(int width, int height)
         {
-            throw new NotSupportedException(nameof(SetWindowSize) + " is not supported by " + nameof(TestingConsole));
+            if (width + WindowLeft > BufferWidth)
+                throw new ArgumentOutOfRangeException(nameof(width));
+
+            if (height + WindowTop > BufferHeight)
+                throw new ArgumentOutOfRangeException(nameof(height));
+
+            _windowSize = new ConsoleSize(width, height);
         }
 
         public int WindowLeft
         {
-            get { throw new NotSupportedException(nameof(WindowLeft) + " is not supported by " + nameof(TestingConsole)); }
-            set { throw new NotSupportedException(nameof(WindowLeft) + " is not supported by " + nameof(TestingConsole)); }
+            get { return _windowPosition.Left; }
+            set { SetWindowPosition(value, _windowPosition.Top); }
         }
         public int WindowTop
         {
-            get { throw new NotSupportedException(nameof(WindowTop) + " is not supported by " + nameof(TestingConsole)); }
-            set { throw new NotSupportedException(nameof(WindowTop) + " is not supported by " + nameof(TestingConsole)); }
+            get { return _windowPosition.Top; }
+            set { SetWindowPosition(_windowPosition.Left, value); }
         }
         public void SetWindowPosition(int left, int top)
         {
-            throw new NotSupportedException(nameof(SetWindowPosition) + " is not supported by " + nameof(TestingConsole));
+            if (left + WindowWidth > BufferWidth)
+                throw new ArgumentOutOfRangeException(nameof(left));
+
+            if (top + WindowHeight > BufferHeight)
+                throw new ArgumentOutOfRangeException(nameof(top));
+
+            _windowPosition = new ConsolePoint(left, top);
         }
 
         public bool CursorVisible { get; set; }
