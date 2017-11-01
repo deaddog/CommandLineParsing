@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 
 namespace CommandLineParsing
 {
@@ -65,7 +66,7 @@ namespace CommandLineParsing
                         throw new TypeAccessException($"A {nameof(Parameter)} with the {nameof(NoName)} attribute cannot have the {nameof(Required)} attribute.");
                 }
 
-                string name = nonAtt != null ? null : (nameAtt?.name ?? $"--{f.Name}");
+                string name = nonAtt != null ? null : (nameAtt?.name ?? GetDefaultFieldName(f));
                 string[] alternatives = nameAtt?.alternatives ?? new string[0];
                 string description = descAtt?.description ?? string.Empty;
                 RequirementType? requirementType = reqAtt?.requirementType;
@@ -96,6 +97,23 @@ namespace CommandLineParsing
             var ctr = paramType.GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0];
 
             return (Parameter)ctr.Invoke(new object[] { name, alternatives, description, requirementType, required, enumIgnore });
+        }
+
+        private string GetDefaultFieldName(FieldInfo field)
+        {
+            var name = field.Name;
+
+            name = name.Trim('_');
+            name = name.Replace('_', '-');
+            var sb = new StringBuilder(name);
+            for (int i = 0; i < sb.Length; i++)
+                if (char.IsUpper(sb[i]))
+                {
+                    sb[i] = char.ToLower(sb[i]);
+                    sb.Insert(i, '-');
+                }
+
+            return $"--{sb}";
         }
 
         private FieldInfo[] getParameterFields()
