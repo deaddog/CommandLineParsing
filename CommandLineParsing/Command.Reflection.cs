@@ -65,7 +65,7 @@ namespace CommandLineParsing
                         throw new TypeAccessException($"A {nameof(Parameter)} with the {nameof(NoName)} attribute cannot have the {nameof(Required)} attribute.");
                 }
 
-                string name = nonAtt != null ? null : (nameAtt?.name ?? $"--{f.Name}");
+                string name = nonAtt != null ? null : (nameAtt?.name ?? GetDefaultFieldName(f));
                 string[] alternatives = nameAtt?.alternatives ?? new string[0];
                 string description = descAtt?.description ?? string.Empty;
                 RequirementType? requirementType = reqAtt?.requirementType;
@@ -96,6 +96,11 @@ namespace CommandLineParsing
             var ctr = paramType.GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0];
 
             return (Parameter)ctr.Invoke(new object[] { name, alternatives, description, requirementType, required, enumIgnore });
+        }
+
+        private string GetDefaultFieldName(FieldInfo field)
+        {
+            return $"--{field.Name}";
         }
 
         private FieldInfo[] getParameterFields()
