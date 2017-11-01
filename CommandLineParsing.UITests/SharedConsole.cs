@@ -19,6 +19,9 @@ namespace CommandLineParsing.UITests
             _testConsole.SetWindowPosition(_console.WindowLeft, _console.WindowTop);
         }
 
+        public Tests.TestingConsoleString[] BufferStrings => _testConsole.BufferStrings;
+        public Tests.TestingConsoleString[] WindowStrings => _testConsole.WindowStrings;
+
         public int BufferWidth
         {
             get { return _console.BufferWidth; }
