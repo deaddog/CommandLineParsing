@@ -233,13 +233,13 @@ namespace CommandLineParsing.Tests
 
                 _cursorPosition.Left++;
                 if (_cursorPosition.Left >= BufferWidth)
-                    _cursorPosition = new ConsolePoint(0, _cursorPosition.Top + 1);
+                    SetCursorPosition(0, _cursorPosition.Top + 1);
             }
             else
                 switch (c)
                 {
                     case '\n':
-                        _cursorPosition = new ConsolePoint(0, _cursorPosition.Top + 1);
+                        SetCursorPosition(0, _cursorPosition.Top + 1);
                         break;
 
                     case '\r':
@@ -248,9 +248,9 @@ namespace CommandLineParsing.Tests
 
                     case '\b':
                         if (_cursorPosition.Left == 0)
-                            _cursorPosition = new ConsolePoint(BufferWidth - 1, _cursorPosition.Top - 1);
+                            SetCursorPosition(BufferWidth - 1, _cursorPosition.Top - 1);
                         else
-                            _cursorPosition = new ConsolePoint(_cursorPosition.Left - 1, _cursorPosition.Top);
+                            SetCursorPosition(_cursorPosition.Left - 1, _cursorPosition.Top);
                         break;
 
                     default:
