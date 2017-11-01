@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace CommandLineParsing.Tests
 {
@@ -94,6 +95,54 @@ namespace CommandLineParsing.Tests
                 if (row[i] != ' ')
                     return i;
             return -1;
+        }
+
+        public TestingConsoleString[] WindowStrings
+        {
+            get
+            {
+                var strings = new List<TestingConsoleString>();
+
+                foreach (var str in BufferStrings)
+                {
+                    if (str.Position.Top < WindowTop || str.Position.Top >= WindowTop + WindowHeight)
+                        continue;
+
+                    var stringLeft = str.Position.Left - _windowPosition.Left;
+                    var currentLeft = stringLeft;
+                    var remaining = _windowSize.Width;
+
+                    var segments = str.GetSegments().Select(segment =>
+                    {
+                        var text = segment.Text;
+
+                        if (currentLeft < 0)
+                        {
+                            if (text.Length <= -currentLeft)
+                                text = "";
+                            else
+                                text = text.Substring(-currentLeft);
+                        }
+
+                        if (text.Length > remaining)
+                            text = text.Substring(0, remaining);
+
+                        currentLeft += segment.Text.Length;
+                        remaining -= text.Length;
+
+                        return new TestingConsoleSegment(text, segment.Foreground, segment.Background);
+                    }).Where(x => !string.IsNullOrEmpty(x.Text)).ToList();
+
+                    if (segments.Count > 0)
+                    {
+                        var left = Math.Max(0, stringLeft);
+                        var top = str.Position.Top - _windowPosition.Top;
+                        strings.Add(new TestingConsoleString(new ConsolePoint(left, top), segments));
+                    }
+                }
+
+                return strings.ToArray();
+            }
         }
 
         public int BufferWidth

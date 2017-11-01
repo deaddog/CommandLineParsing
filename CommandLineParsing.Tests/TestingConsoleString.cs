@@ -12,6 +12,16 @@ namespace CommandLineParsing.Tests
         {
             _position = position;
             _segments = new List<TestingConsoleSegment>(segments);
+
+            while (_segments.Count > 0 && _segments[0].Text.StartsWith(" "))
+            {
+                var text = _segments[0].Text.TrimStart(' ');
+                _position.Left += _segments[0].Text.Length - text.Length;
+                if (text.Length == 0)
+                    _segments.RemoveAt(0);
+                else
+                    _segments[0] = new TestingConsoleSegment(text, _segments[0].Foreground, _segments[0].Background);
+            }
         }
 
         public ConsolePoint Position => _position;
