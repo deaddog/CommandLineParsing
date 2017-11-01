@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text;
 
 namespace CommandLineParsing
 {
@@ -100,7 +101,19 @@ namespace CommandLineParsing
 
         private string GetDefaultFieldName(FieldInfo field)
         {
-            return $"--{field.Name}";
+            var name = field.Name;
+
+            name = name.Trim('_');
+            name = name.Replace('_', '-');
+            var sb = new StringBuilder(name);
+            for (int i = 0; i < sb.Length; i++)
+                if (char.IsUpper(sb[i]))
+                {
+                    sb[i] = char.ToLower(sb[i]);
+                    sb.Insert(i, '-');
+                }
+
+            return $"--{sb}";
         }
 
         private FieldInfo[] getParameterFields()
