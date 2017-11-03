@@ -10,6 +10,7 @@ namespace CommandLineParsing.Input
     /// <typeparam name="TOption">The type of the options selectable from the <see cref="MenuDisplay{TOption}"/>.</typeparam>
     public class MenuDisplay<TOption> : IConsoleInput where TOption : class, IMenuOption
     {
+        private readonly ConsolePoint _windowOrigin;
         private readonly ConsolePoint _origin;
         private readonly MenuOptionCollection<TOption> _options;
         private readonly List<ConsoleString> _displayed;
@@ -53,6 +54,7 @@ namespace CommandLineParsing.Input
         /// Values greater than the height of the console can result in odd effects.</param>
         public MenuDisplay(ConsolePoint point, int displayedLines)
         {
+            _windowOrigin = ColorConsole.WindowPosition;
             _origin = point;
             _options = new MenuOptionCollection<TOption>();
             _options.CollectionChanged += OptionsCollectionChanged;
@@ -419,10 +421,11 @@ namespace CommandLineParsing.Input
 
                 ColorConsole.TemporaryShift(_origin, () =>
                 {
-                    ColorConsole.CursorPosition = _origin;
-                    for (int i = 0; i < _options.Count; i++)
-                        ColorConsole.WriteLine(new string(' ', _options[i].Text.Length + _prompt.Length + prefixLength));
+                    for (int i = 0; i < _displayed.Count; i++)
+                        ColorConsole.WriteLine(new string(' ', _displayed[i].Length + _prompt.Length + prefixLength));
                 });
+
+                ColorConsole.WindowPosition = _windowOrigin;
             }
         }
     }

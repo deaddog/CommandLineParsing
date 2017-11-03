@@ -160,7 +160,7 @@ namespace CommandLineParsing.Tests
             if (width == _bufferSize.Width && height == _bufferSize.Height)
                 return;
 
-            if (height < _bufferSize.Height)
+            if (height < _content.Count)
             {
                 _content.RemoveRange(height, _content.Count - height);
                 _foreground.RemoveRange(height, _foreground.Count - height);
@@ -316,6 +316,13 @@ namespace CommandLineParsing.Tests
                 switch (c)
                 {
                     case '\n':
+                        if (_cursorPosition.Top + 1 == _bufferSize.Height)
+                        {
+                            _content.RemoveAt(0);
+                            _foreground.RemoveAt(0);
+                            _background.RemoveAt(0);
+                            _cursorPosition.Top--;
+                        }
                         SetCursorPosition(0, _cursorPosition.Top + 1);
                         break;
 

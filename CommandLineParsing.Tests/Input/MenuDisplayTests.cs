@@ -107,6 +107,28 @@ namespace CommandLineParsing.Tests.Input
         }
 
         [Test]
+        public void ScrollbackCleanUp()
+        {
+            console.WindowHeight = 5;
+
+            ColorConsole.WriteLine("Line 1");
+            ColorConsole.WriteLine("Line 2");
+
+            var display = new MenuDisplay<MenuOption<string>>(5);
+            display.Cleanup = InputCleanup.Clean;
+            display.Options.Add(new MenuOption<string>("first", "first"));
+            display.Options.Add(new MenuOption<string>("second", "second"));
+            display.Options.Add(new MenuOption<string>("third", "third"));
+            display.Options.Add(new MenuOption<string>("fourth", "fourth"));
+            display.Options.Add(new MenuOption<string>("fifth", "fifth"));
+            display.Dispose();
+
+            Assert.AreEqual(2, console.WindowStrings.Length);
+            console.BufferStrings.AssertLine(0, "Line 1");
+            console.BufferStrings.AssertLine(1, "Line 2");
+        }
+
+        [Test]
         public void ReducedDisplayLines()
         {
             var dis = new MenuDisplay<MenuOption<string>>(2);
