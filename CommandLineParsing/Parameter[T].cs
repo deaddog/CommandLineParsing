@@ -17,7 +17,8 @@ namespace CommandLineParsing
     public class Parameter<T> : Parameter
     {
         private T value;
-        private SmartParser<T> parser;
+        private ParameterTryParse<T> _parserCustom;
+        private readonly ParserSettings _parserSettings;
         private readonly Validator<T> validator;
 
         private Message defaultTypeError(string input)
@@ -38,7 +39,8 @@ namespace CommandLineParsing
                 this.value = (T)(object)arr;
             }
 
-            this.parser = new SmartParser<T>()
+            _parserCustom = null;
+            _parserSettings = new ParserSettings
             {
                 EnumIgnoreCase = enumIgnore,
                 NoParserExceptionMessage = $"The type { typeof(T).Name } is not supported. Set a parser method using the {nameof(SetParser)} method.",
@@ -90,7 +92,7 @@ namespace CommandLineParsing
                 ColorConsole.ActiveConsole.WriteLine(temp);
             }
             else
-                temp = ColorConsole.ReadLine<T>(parser, promptMessage, validator: validator);
+                temp = ColorConsole.ReadLine<T>(_parserCustom, _parserSettings, promptMessage, validator: validator);
             IsSet = true;
             value = temp;
             doCallback();
@@ -119,7 +121,7 @@ namespace CommandLineParsing
         /// Sets the parser used by the <see cref="Parameter{T}"/>.
         /// </summary>
         /// <param name="parser">The new parser.</param>
-        public void SetParser(ParameterTryParse<T> parser) => this.parser.Parser = parser;
+        public void SetParser(ParameterTryParse<T> parser) => _parserCustom = parser;
 
         /// <summary>
         /// Gets or sets the function that is used to generate type error messages for this <see cref="Parameter{T}"/>.
@@ -131,14 +133,11 @@ namespace CommandLineParsing
         /// </value>
         public Func<string, Message> TypeErrorMessage
         {
-            get { return parser.TypeErrorMessage; }
+            get { return _parserSettings.TypeErrorMessage; }
             set
             {
-                if (value == null)
-                    throw new ArgumentNullException("value");
-
-                parser.TypeErrorMessage = value;
-                parser.UseParserMessage = false;
+                _parserSettings.TypeErrorMessage = value ?? throw new ArgumentNullException("value");
+                _parserSettings.UseParserMessage = false;
             }
         }
         /// <summary>
@@ -150,7 +149,7 @@ namespace CommandLineParsing
         /// </value>
         public Message NoValueMessage
         {
-            get { return parser.NoValueMessage; }
+            get { return _parserSettings.NoValueMessage; }
             set
             {
                 if (value == null)
@@ -158,7 +157,7 @@ namespace CommandLineParsing
                 if (!value.IsError)
                     throw new ArgumentException("An error message cannot be the NoError message.", "value");
 
-                parser.NoValueMessage = value;
+                _parserSettings.NoValueMessage = value;
             }
         }
         /// <summary>
@@ -170,7 +169,7 @@ namespace CommandLineParsing
         /// </value>
         public Message MultipleValuesMessage
         {
-            get { return parser.MultipleValuesMessage; }
+            get { return _parserSettings.MultipleValuesMessage; }
             set
             {
                 if (value == null)
@@ -178,7 +177,7 @@ namespace CommandLineParsing
                 if (!value.IsError)
                     throw new ArgumentException("An error message cannot be the NoError message.", "value");
 
-                parser.MultipleValuesMessage = value;
+                _parserSettings.MultipleValuesMessage = value;
             }
         }
 
@@ -194,7 +193,11 @@ namespace CommandLineParsing
         {
             T temp;
 
-            Message msg = parser.Parse(values, out temp);
+            Message msg;
+            if (_parserCustom != null)
+                msg = _parserCustom(values, out temp);
+            else
+                msg = SmartParser.Parse(_parserSettings, values, out temp);
 
             if (msg.IsError)
                 return msg;
