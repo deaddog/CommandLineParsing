@@ -59,12 +59,25 @@ namespace CommandLineParsing
             if (parser != null)
                 return parser(args, out result);
             else if (typeof(T).IsArray)
-                return parseArray(args, out result);
+            {
+                var arrayType = typeof(T).GetElementType();
+
+                var arrMethod = GetType()
+                    .GetMethod(nameof(ParseArray), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                    .MakeGenericMethod(arrayType);
+
+                var arrMethodArgs = new object[2];
+                arrMethodArgs[0] = args;
+
+                var msg = arrMethod.Invoke(this, arrMethodArgs);
+                result = (T)arrMethodArgs[1];
+                return (Message)msg;
+            }
             else
-                return parseSingle(args, out result);
+                return ParseSingle(args, out result);
         }
 
-        private Message parseSingle(string[] args, out T result)
+        private Message ParseSingle(string[] args, out T result)
         {
             result = default(T);
 
@@ -94,34 +107,28 @@ namespace CommandLineParsing
             else
                 throw new InvalidOperationException(noParserExceptionMessage);
         }
-        private Message parseArray(string[] args, out T result)
+        private Message ParseArray<TParse>(string[] args, out TParse[] result)
         {
-            Type t = typeof(T).GetElementType();
-            Array arr = (Array)Activator.CreateInstance(typeof(T), new object[] { args.Length });
+            var arr = new TParse[args.Length];
+            result = null;
 
-            result = default(T);
-
-            if (ParserLookup.Table.HasMessageTryParse(t))
+            if (ParserLookup.Table.HasMessageTryParse<TParse>())
                 for (int i = 0; i < args.Length; i++)
                 {
-                    object o;
-                    Message msg = ParserLookup.Table.MessageTryParse(t, args[i], out o);
+                    Message msg = ParserLookup.Table.MessageTryParse(args[i], out arr[i]);
                     if (msg.IsError)
                         return useParserMessage ? msg : typeErrorMessage(args[i]);
-                    arr.SetValue(o, i);
                 }
-            else if (ParserLookup.Table.HasTryParse(t, enumIgnore))
+            else if (ParserLookup.Table.HasTryParse<TParse>(enumIgnore))
                 for (int i = 0; i < args.Length; i++)
                 {
-                    object o;
-                    if (!ParserLookup.Table.TryParse(t, enumIgnore, args[i], out o))
+                    if (!ParserLookup.Table.TryParse(enumIgnore, args[i], out arr[i]))
                         return typeErrorMessage(args[i]);
-                    arr.SetValue(o, i);
                 }
             else
                 throw new InvalidOperationException(noParserExceptionMessage);
 
-            result = (T)(object)arr;
+            result = arr;
             return Message.NoError;
         }
     }
