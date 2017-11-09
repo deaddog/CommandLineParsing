@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CommandLineParsing
+namespace CommandLineParsing.Parsing
 {
     internal class SmartParser<T>
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CommandLineParsing
+namespace CommandLineParsing.Parsing
 {
     internal class ParserLookup
     {
