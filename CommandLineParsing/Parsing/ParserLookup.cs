@@ -39,6 +39,17 @@ namespace CommandLineParsing.Parsing
             return Message.NoError;
         }
 
+        public Message TryParse<T>(ParserSettings parserSettings, string text, out T result)
+        {
+            if (typeof(T) == typeof(string))
+            {
+                result = (T)(object)text;
+                return Message.NoError;
+            }
+            else
+                throw new InvalidOperationException(parserSettings.NoParserExceptionMessage);
+        }
+
         public TryParse<T> GetParser<T>(bool enumIgnore)
         {
             return GetParser(typeof(T), enumIgnore) as TryParse<T>;
