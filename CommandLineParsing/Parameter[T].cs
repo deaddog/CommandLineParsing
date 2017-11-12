@@ -43,7 +43,6 @@ namespace CommandLineParsing
             _parserSettings = new ParserSettings
             {
                 EnumIgnoreCase = enumIgnore,
-                NoParserExceptionMessage = $"The type { typeof(T).Name } is not supported. Set a parser method using the {nameof(SetParser)} method.",
                 NoValueMessage = $"No value provided for argument \"{name}\".",
                 MultipleValuesMessage = $"Only one value can be provided for argument \"{name}\".",
                 TypeErrorMessage = defaultTypeError,

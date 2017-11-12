@@ -54,7 +54,7 @@ namespace CommandLineParsing.Parsing
                 else
                     return Message.NoError;
             else
-                throw new InvalidOperationException(settings.NoParserExceptionMessage);
+                throw new MissingParserException(typeof(T));
         }
         private static Message ParseArray<T>(ParserSettings settings, string[] args, out T[] result)
         {
@@ -75,7 +75,7 @@ namespace CommandLineParsing.Parsing
                         return settings.TypeErrorMessage(args[i]);
                 }
             else
-                throw new InvalidOperationException(settings.NoParserExceptionMessage);
+                throw new MissingParserException(typeof(T));
 
             result = arr;
             return Message.NoError;

@@ -441,7 +441,6 @@ namespace CommandLineParsing
             return new ParserSettings()
             {
                 EnumIgnoreCase = true,
-                NoParserExceptionMessage = $"The type { typename } is not supported. A {nameof(TryParse<T>)} or {nameof(MessageTryParse<T>)} method must be defined in {typename}.",
                 NoValueMessage = Message.NoError,
                 MultipleValuesMessage = "Only one value can be specified.",
                 TypeErrorMessage = x => $"{x} is not a {typename} value.",

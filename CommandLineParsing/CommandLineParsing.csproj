@@ -90,6 +90,7 @@
     <Compile Include="Output\ConsoleString.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="ParameterExtension.cs" />
+    <Compile Include="Parsing\MissingParserException.cs" />
     <Compile Include="Parsing\ParameterTryParse.cs" />
     <Compile Include="Parameter[T].cs" />
     <Compile Include="Parsing\ParserLookup.cs" />

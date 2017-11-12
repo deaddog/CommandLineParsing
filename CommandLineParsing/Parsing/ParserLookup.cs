@@ -70,7 +70,7 @@ namespace CommandLineParsing.Parsing
                     return parserSettings.TypeErrorMessage(text);
             }
             else
-                throw new InvalidOperationException(parserSettings.NoParserExceptionMessage);
+                throw new MissingParserException(typeof(T));
         }
 
         public TryParse<T> GetParser<T>(bool enumIgnore)
