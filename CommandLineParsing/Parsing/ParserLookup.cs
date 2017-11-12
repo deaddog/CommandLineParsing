@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace CommandLineParsing.Parsing
 {
@@ -39,12 +40,34 @@ namespace CommandLineParsing.Parsing
             return Message.NoError;
         }
 
+        static ParserLookup()
+        {
+            _enumParseMethodInfo = typeof(Enum)
+                .GetMethods()
+                .FirstOrDefault(m => m.Name == nameof(Enum.TryParse) && m.GetParameters().Length == 3 && m.IsGenericMethodDefinition);
+        }
+
+        private static MethodInfo _enumParseMethodInfo;
+
         public Message TryParse<T>(ParserSettings parserSettings, string text, out T result)
         {
             if (typeof(T) == typeof(string))
             {
                 result = (T)(object)text;
                 return Message.NoError;
+            }
+            else if (typeof(T).IsEnum)
+            {
+                var args = new object[] { text, parserSettings.EnumIgnoreCase, null };
+                bool parsed = (bool)_enumParseMethodInfo.MakeGenericMethod(typeof(T)).Invoke(null, args);
+
+                result = (T)args[2];
+                if (parsed)
+                    return Message.NoError;
+                else if (parserSettings.UseParserMessage)
+                    return $"The value {text} is not defined for the enum {typeof(T).Name}.";
+                else
+                    return parserSettings.TypeErrorMessage(text);
             }
             else
                 throw new InvalidOperationException(parserSettings.NoParserExceptionMessage);
