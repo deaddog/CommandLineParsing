@@ -72,6 +72,82 @@ namespace CommandLineParsing.Parsing
             else
                 throw new MissingParserException(typeof(T));
         }
+        public Message TryParse<T>(ParserSettings parserSettings, string[] args, out T result)
+        {
+            if (typeof(T).IsArray)
+            {
+                var arrayType = typeof(T).GetElementType();
+
+                var arrMethod = typeof(ParserLookup)
+                    .GetMethod(nameof(TryParseArray), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                    .MakeGenericMethod(arrayType);
+
+                var arrMethodArgs = new object[3];
+                arrMethodArgs[0] = parserSettings;
+                arrMethodArgs[1] = args;
+
+                var msg = arrMethod.Invoke(null, arrMethodArgs);
+                result = (T)arrMethodArgs[2];
+                return (Message)msg;
+            }
+            else
+                return TryParseSingle(parserSettings, args, out result);
+        }
+
+        private Message TryParseSingle<T>(ParserSettings parserSettings, string[] args, out T result)
+        {
+            result = default(T);
+
+            if (args.Length == 0)
+            {
+                if (parserSettings.NoValueMessage.IsError)
+                    return parserSettings.NoValueMessage;
+                else
+                    args = new string[] { string.Empty };
+            }
+            else if (args.Length > 1)
+                return parserSettings.MultipleValuesMessage;
+
+            if (ParserLookup.Table.HasMessageTryParse<T>())
+            {
+                var msg = ParserLookup.Table.MessageTryParse(args[0], out result);
+                if (msg.IsError)
+                    return parserSettings.UseParserMessage ? msg : parserSettings.TypeErrorMessage(args[0]);
+                else
+                    return Message.NoError;
+            }
+            else if (ParserLookup.Table.HasTryParse<T>(parserSettings.EnumIgnoreCase))
+                if (!ParserLookup.Table.TryParse(parserSettings.EnumIgnoreCase, args[0], out result))
+                    return parserSettings.TypeErrorMessage(args[0]);
+                else
+                    return Message.NoError;
+            else
+                throw new MissingParserException(typeof(T));
+        }
+        private Message TryParseArray<T>(ParserSettings parserSettings, string[] args, out T[] result)
+        {
+            var arr = new T[args.Length];
+            result = null;
+
+            if (ParserLookup.Table.HasMessageTryParse<T>())
+                for (int i = 0; i < args.Length; i++)
+                {
+                    Message msg = ParserLookup.Table.MessageTryParse(args[i], out arr[i]);
+                    if (msg.IsError)
+                        return parserSettings.UseParserMessage ? msg : parserSettings.TypeErrorMessage(args[i]);
+                }
+            else if (ParserLookup.Table.HasTryParse<T>(parserSettings.EnumIgnoreCase))
+                for (int i = 0; i < args.Length; i++)
+                {
+                    if (!ParserLookup.Table.TryParse(parserSettings.EnumIgnoreCase, args[i], out arr[i]))
+                        return parserSettings.TypeErrorMessage(args[i]);
+                }
+            else
+                throw new MissingParserException(typeof(T));
+
+            result = arr;
+            return Message.NoError;
+        }
 
         public TryParse<T> GetParser<T>(bool enumIgnore)
         {

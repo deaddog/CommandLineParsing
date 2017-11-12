@@ -523,7 +523,7 @@ namespace CommandLineParsing
                 if (customParser != null)
                     msg = customParser(parseData, out result);
                 else
-                    SmartParser.Parse(parserSettings, parseData, out result);
+                    ParserLookup.Table.TryParse(parserSettings, parseData, out result);
 
                 if (cancelled)
                     break;

@@ -196,7 +196,7 @@ namespace CommandLineParsing
             if (_parserCustom != null)
                 msg = _parserCustom(values, out temp);
             else
-                msg = SmartParser.Parse(_parserSettings, values, out temp);
+                msg = ParserLookup.Table.TryParse(_parserSettings, values, out temp);
 
             if (msg.IsError)
                 return msg;
