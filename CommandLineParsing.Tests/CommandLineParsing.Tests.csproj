@@ -74,6 +74,7 @@
   <ItemGroup>
     <Compile Include="AssertExtension.cs" />
     <Compile Include="Input\MenuDisplayTests.cs" />
+    <Compile Include="Parsing\ParserLookupTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomNames\Genders.cs" />
     <Compile Include="RandomNames\Name.cs" />
