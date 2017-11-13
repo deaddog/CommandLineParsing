@@ -122,5 +122,15 @@ namespace CommandLineParsing.Tests.Parsing
         {
             Assert.AreEqual("test", ParserLookup.Parse<HasParser>(_settings, "test")?.Text);
         }
+
+        [Test]
+        public void ParseNullables()
+        {
+            Assert.AreEqual(null, ParserLookup.Parse<int?>(_settings, (string)null));
+            Assert.AreEqual(null, ParserLookup.Parse<int?>(_settings, ""));
+            Assert.AreEqual(null, ParserLookup.Parse<int?>(_settings, "    "));
+            Assert.AreEqual(23, ParserLookup.Parse<int?>(_settings, "23"));
+            Assert.AreEqual(new int?[] { 14, 18, null, 2 }, ParserLookup.Parse<int?[]>(_settings, new string[] { "14", "18", null, "2" }));
+        }
     }
 }
