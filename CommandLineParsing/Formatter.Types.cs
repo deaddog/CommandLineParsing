@@ -200,6 +200,8 @@ namespace CommandLineParsing
         /// </summary>
         public class FunctionCollection
         {
+            private readonly ParserSettings _parserSettings;
+
             private Formatter formatter;
             private Dictionary<string, List<Function>> functions;
 
@@ -207,6 +209,14 @@ namespace CommandLineParsing
             {
                 this.formatter = formatter;
                 this.functions = new Dictionary<string, List<Function>>();
+
+                _parserSettings = new ParserSettings
+                {
+                    EnumIgnoreCase = true,
+                    MultipleValuesMessage = "Multiple values supplied for parameter.",
+                    NoValueMessage = "No value supplied for parameter",
+                    UseParserMessage = true
+                };
             }
 
             private void Add(string name, Function function)
@@ -288,11 +298,9 @@ namespace CommandLineParsing
                     if (arr.Length != 1)
                         return null;
 
-                    T1 val1;
-                    if (!ParserLookup.Table.GetParser<T1>(true)(arr[0], out val1))
-                        return null;
-
-                    return function(i, val1);
+                    return function(i,
+                        ParserLookup.Parse<T1>(_parserSettings, arr[0])
+                    );
                 };
                 Add(name, f);
             }
@@ -314,15 +322,10 @@ namespace CommandLineParsing
                     if (arr.Length != 2)
                         return null;
 
-                    T1 val1;
-                    if (!ParserLookup.Table.GetParser<T1>(true)(arr[0], out val1))
-                        return null;
-
-                    T2 val2;
-                    if (!ParserLookup.Table.GetParser<T2>(true)(arr[1], out val2))
-                        return null;
-
-                    return function(i, val1, val2);
+                    return function(i,
+                        ParserLookup.Parse<T1>(_parserSettings, arr[0]),
+                        ParserLookup.Parse<T2>(_parserSettings, arr[1])
+                    );
                 };
                 Add(name, f);
             }
@@ -345,19 +348,11 @@ namespace CommandLineParsing
                     if (arr.Length != 3)
                         return null;
 
-                    T1 val1;
-                    if (!ParserLookup.Table.GetParser<T1>(true)(arr[0], out val1))
-                        return null;
-
-                    T2 val2;
-                    if (!ParserLookup.Table.GetParser<T2>(true)(arr[1], out val2))
-                        return null;
-
-                    T3 val3;
-                    if (!ParserLookup.Table.GetParser<T3>(true)(arr[2], out val3))
-                        return null;
-
-                    return function(i, val1, val2, val3);
+                    return function(i,
+                        ParserLookup.Parse<T1>(_parserSettings, arr[0]),
+                        ParserLookup.Parse<T2>(_parserSettings, arr[1]),
+                        ParserLookup.Parse<T3>(_parserSettings, arr[2])
+                    );
                 };
                 Add(name, f);
             }
@@ -381,23 +376,12 @@ namespace CommandLineParsing
                     if (arr.Length != 3)
                         return null;
 
-                    T1 val1;
-                    if (!ParserLookup.Table.GetParser<T1>(true)(arr[0], out val1))
-                        return null;
-
-                    T2 val2;
-                    if (!ParserLookup.Table.GetParser<T2>(true)(arr[1], out val2))
-                        return null;
-
-                    T3 val3;
-                    if (!ParserLookup.Table.GetParser<T3>(true)(arr[2], out val3))
-                        return null;
-
-                    T4 val4;
-                    if (!ParserLookup.Table.GetParser<T4>(true)(arr[3], out val4))
-                        return null;
-
-                    return function(i, val1, val2, val3, val4);
+                    return function(i,
+                        ParserLookup.Parse<T1>(_parserSettings, arr[0]),
+                        ParserLookup.Parse<T2>(_parserSettings, arr[1]),
+                        ParserLookup.Parse<T3>(_parserSettings, arr[2]),
+                        ParserLookup.Parse<T4>(_parserSettings, arr[3])
+                    );
                 };
                 Add(name, f);
             }
@@ -422,27 +406,13 @@ namespace CommandLineParsing
                     if (arr.Length != 3)
                         return null;
 
-                    T1 val1;
-                    if (!ParserLookup.Table.GetParser<T1>(true)(arr[0], out val1))
-                        return null;
-
-                    T2 val2;
-                    if (!ParserLookup.Table.GetParser<T2>(true)(arr[1], out val2))
-                        return null;
-
-                    T3 val3;
-                    if (!ParserLookup.Table.GetParser<T3>(true)(arr[2], out val3))
-                        return null;
-
-                    T4 val4;
-                    if (!ParserLookup.Table.GetParser<T4>(true)(arr[3], out val4))
-                        return null;
-
-                    T5 val5;
-                    if (!ParserLookup.Table.GetParser<T5>(true)(arr[4], out val5))
-                        return null;
-
-                    return function(i, val1, val2, val3, val4, val5);
+                    return function(i,
+                        ParserLookup.Parse<T1>(_parserSettings, arr[0]),
+                        ParserLookup.Parse<T2>(_parserSettings, arr[1]),
+                        ParserLookup.Parse<T3>(_parserSettings, arr[2]),
+                        ParserLookup.Parse<T4>(_parserSettings, arr[3]),
+                        ParserLookup.Parse<T5>(_parserSettings, arr[4])
+                    );
                 };
                 Add(name, f);
             }
