@@ -15,6 +15,53 @@ namespace CommandLineParsing.Parsing
 
         private static MethodInfo _enumParseMethodInfo;
 
+        public static T Parse<T>(ParserSettings parserSettings, string text)
+        {
+            Message msg;
+            T result;
+
+            try
+            {
+                msg = TryParse<T>(parserSettings, text, out result);
+            }
+            catch (MissingParserException mpe)
+            {
+                throw;
+            }
+            catch (Exception exp)
+            {
+                throw new ParsingFailedException(typeof(T), exp);
+            }
+
+            if (msg.IsError)
+                throw new ParsingFailedException(typeof(T), msg.GetMessage());
+            else
+                return result;
+        }
+        public static T Parse<T>(ParserSettings parserSettings, string[] text)
+        {
+            Message msg;
+            T result;
+
+            try
+            {
+                msg = TryParse<T>(parserSettings, text, out result);
+            }
+            catch (MissingParserException mpe)
+            {
+                throw;
+            }
+            catch (Exception exp)
+            {
+                throw new ParsingFailedException(typeof(T), exp);
+            }
+
+            if (msg.IsError)
+                throw new ParsingFailedException(typeof(T), msg.GetMessage());
+            else
+                return result;
+        }
+
         public static Message TryParse<T>(ParserSettings parserSettings, string text, out T result)
         {
             if (typeof(T) == typeof(string))
