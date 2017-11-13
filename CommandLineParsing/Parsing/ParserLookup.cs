@@ -149,6 +149,37 @@ namespace CommandLineParsing.Parsing
             return Message.NoError;
         }
 
+        private bool TryGetMessageTryParse<T>(out MessageTryParse<T> parser)
+        {
+            var types = new Type[] { typeof(string), typeof(T).MakeByRefType() };
+
+            var method = typeof(T).GetMethod(nameof(Parsing.MessageTryParse<string>), BindingFlags.Static | BindingFlags.Public, null, types, null);
+
+            if (method?.GetParameters()[1].ParameterType != typeof(T).MakeByRefType() || method?.ReturnType != typeof(Message))
+            {
+                parser = null;
+                return false;
+            }
+
+            parser = (MessageTryParse<T>)method.CreateDelegate(typeof(MessageTryParse<>).MakeGenericType(typeof(T)));
+            return true;
+        }
+        private bool TryGetTryParse<T>(out TryParse<T> parser)
+        {
+            var types = new Type[] { typeof(string), typeof(T).MakeByRefType() };
+
+            var method = typeof(T).GetMethod(nameof(Parsing.TryParse<string>), BindingFlags.Static | BindingFlags.Public, null, types, null);
+
+            if (method?.GetParameters()[1].ParameterType != typeof(T).MakeByRefType() || method?.ReturnType != typeof(bool))
+            {
+                parser = null;
+                return false;
+            }
+
+            parser = (TryParse<T>)method.CreateDelegate(typeof(TryParse<>).MakeGenericType(typeof(T)));
+            return true;
+        }
+
         public TryParse<T> GetParser<T>(bool enumIgnore)
         {
             return GetParser(typeof(T), enumIgnore) as TryParse<T>;
