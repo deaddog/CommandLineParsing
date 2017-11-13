@@ -16,19 +16,13 @@ namespace CommandLineParsing
 
             public Variable(Type type, Func<object, string> replace, Func<object, string> autoColor, int? padding, bool preserveColor)
             {
-                if (type == null)
-                    throw new ArgumentNullException(nameof(type));
-
-                if (replace == null)
-                    throw new ArgumentNullException(nameof(replace));
-
                 // providing null for the color function indicates that auto-color cannot be applied to the variable.
 
-                this.Type = type;
-                this.Replace = replace;
-                this.AutoColor = autoColor;
-                this.Padding = padding;
-                this.PreserveColor = preserveColor;
+                Type = type ?? throw new ArgumentNullException(nameof(type));
+                Replace = replace ?? throw new ArgumentNullException(nameof(replace));
+                AutoColor = autoColor;
+                Padding = padding;
+                PreserveColor = preserveColor;
             }
         }
         internal class Condition
@@ -38,14 +32,8 @@ namespace CommandLineParsing
 
             public Condition(Type type, Func<object, bool> check)
             {
-                if (type == null)
-                    throw new ArgumentNullException(nameof(type));
-
-                if (check == null)
-                    throw new ArgumentNullException(nameof(check));
-
-                this.Type = type;
-                this.Check = check;
+                Type = type ?? throw new ArgumentNullException(nameof(type));
+                Check = check ?? throw new ArgumentNullException(nameof(check));
             }
         }
         internal class Function
@@ -55,14 +43,8 @@ namespace CommandLineParsing
 
             public Function(Type type, Func<object, string[], string> function)
             {
-                if (type == null)
-                    throw new ArgumentNullException(nameof(type));
-
-                if (function == null)
-                    throw new ArgumentNullException(nameof(function));
-
-                this.Type = type;
-                this.Func = function;
+                Type = type ?? throw new ArgumentNullException(nameof(type));
+                Func = function ?? throw new ArgumentNullException(nameof(function));
             }
         }
 
@@ -72,11 +54,11 @@ namespace CommandLineParsing
         /// </summary>
         public class VariableCollection
         {
-            private Dictionary<string, Variable> elements;
+            private Dictionary<string, Variable> _elements;
 
             internal VariableCollection()
             {
-                this.elements = new Dictionary<string, Variable>();
+                _elements = new Dictionary<string, Variable>();
             }
 
             internal void Add(string identifier, Variable variable)
@@ -87,11 +69,11 @@ namespace CommandLineParsing
                 if (variable == null)
                     throw new ArgumentNullException(nameof(variable));
 
-                elements.Add(identifier, variable);
+                _elements.Add(identifier, variable);
             }
             internal bool TryGet(string identifier, out Variable variable)
             {
-                return elements.TryGetValue(identifier, out variable);
+                return _elements.TryGetValue(identifier, out variable);
             }
 
             /// <summary>
@@ -125,8 +107,7 @@ namespace CommandLineParsing
             /// <param name="padding">The new padding for the variable.</param>
             public void SetPadding(string variable, int? padding)
             {
-                Variable v;
-                if (!elements.TryGetValue(variable, out v))
+                if (!_elements.TryGetValue(variable, out Variable v))
                     throw new ArgumentOutOfRangeException(nameof(variable), "Unknown formatter variable: " + variable);
                 else
                     v.Padding = padding;
@@ -160,11 +141,11 @@ namespace CommandLineParsing
         /// </summary>
         public class ConditionCollection
         {
-            private Dictionary<string, Condition> elements;
+            private Dictionary<string, Condition> _elements;
 
             internal ConditionCollection()
             {
-                this.elements = new Dictionary<string, Condition>();
+                _elements = new Dictionary<string, Condition>();
             }
 
             internal void Add(string identifier, Condition condition)
@@ -175,11 +156,11 @@ namespace CommandLineParsing
                 if (condition == null)
                     throw new ArgumentNullException(nameof(condition));
 
-                elements.Add(identifier, condition);
+                _elements.Add(identifier, condition);
             }
             internal bool TryGet(string identifier, out Condition condition)
             {
-                return elements.TryGetValue(identifier, out condition);
+                return _elements.TryGetValue(identifier, out condition);
             }
 
             /// <summary>
@@ -202,13 +183,13 @@ namespace CommandLineParsing
         {
             private readonly ParserSettings _parserSettings;
 
-            private Formatter formatter;
-            private Dictionary<string, List<Function>> functions;
+            private readonly Formatter _formatter;
+            private readonly Dictionary<string, List<Function>> _functions;
 
             internal FunctionCollection(Formatter formatter)
             {
-                this.formatter = formatter;
-                this.functions = new Dictionary<string, List<Function>>();
+                this._formatter = formatter;
+                this._functions = new Dictionary<string, List<Function>>();
 
                 _parserSettings = new ParserSettings
                 {
@@ -227,15 +208,14 @@ namespace CommandLineParsing
                 if (function == null)
                     throw new ArgumentNullException(nameof(function));
 
-                if (!functions.ContainsKey(name))
-                    functions[name] = new List<Function>();
+                if (!_functions.ContainsKey(name))
+                    _functions[name] = new List<Function>();
 
-                functions[name].Add(function);
+                _functions[name].Add(function);
             }
             internal bool TryGet(string name, out Function[] functions)
             {
-                List<Function> list;
-                if (this.functions.TryGetValue(name, out list))
+                if (this._functions.TryGetValue(name, out List<Function> list))
                 {
                     functions = list.ToArray();
                     return true;
@@ -444,9 +424,9 @@ namespace CommandLineParsing
                             if (defaultSeparator == null)
                                 return null;
                             else
-                                return formatter.EvaluateFormat(converter(i), arr[0], defaultSeparator);
-                        case 2: return formatter.EvaluateFormat(converter(i), arr[0], arr[1]);
-                        case 3: return formatter.EvaluateFormat(converter(i), arr[0], arr[1], arr[2]);
+                                return _formatter.EvaluateFormat(converter(i), arr[0], defaultSeparator);
+                        case 2: return _formatter.EvaluateFormat(converter(i), arr[0], arr[1]);
+                        case 3: return _formatter.EvaluateFormat(converter(i), arr[0], arr[1], arr[2]);
                         default:
                             return null;
                     }
