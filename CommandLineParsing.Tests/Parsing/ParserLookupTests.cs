@@ -10,6 +10,8 @@ namespace CommandLineParsing.Tests.Parsing
         private TestingConsole _console;
         private ParserSettings _settings, _settingsIgnoreCase;
 
+        #region Parsing Types
+
         private class NoParser
         {
         }
@@ -43,6 +45,8 @@ namespace CommandLineParsing.Tests.Parsing
                 return true;
             }
         }
+
+        #endregion
 
         [SetUp]
         public void CreateConsole()
@@ -93,6 +97,14 @@ namespace CommandLineParsing.Tests.Parsing
             Assert.AreEqual(ConsoleColor.Red, ParserLookup.Parse<ConsoleColor>(_settingsIgnoreCase, "rEd"));
             Assert.AreEqual(ConsoleColor.Red, ParserLookup.Parse<ConsoleColor>(_settingsIgnoreCase, "Red"));
             Assert.Catch<ParsingFailedException>(() => ParserLookup.Parse<ConsoleColor>(_settingsIgnoreCase, "reds"));
+        }
+
+        [Test]
+        public void ParseArray()
+        {
+            Assert.AreEqual(14, ParserLookup.Parse<int>(_settings, new string[] { "14" }));
+            Assert.AreEqual(new[] { 14 }, ParserLookup.Parse<int[]>(_settings, new string[] { "14" }));
+            Assert.AreEqual(new[] { 14, 18 }, ParserLookup.Parse<int[]>(_settings, new string[] { "14", "18" }));
         }
 
         [Test]
