@@ -108,7 +108,7 @@ namespace CommandLineParsing.Parsing
                 var arrayType = typeof(T).GetElementType();
 
                 var arrMethod = typeof(ParserLookup)
-                    .GetMethod(nameof(TryParseArray), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                    .GetMethod(nameof(TryParseArray), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
                     .MakeGenericMethod(arrayType);
 
                 var arrMethodArgs = new object[3];
@@ -148,6 +148,7 @@ namespace CommandLineParsing.Parsing
             for (int i = 0; i < args.Length; i++)
                 msg += TryParse(parserSettings, args[i], out arr[i]);
 
+            result = arr;
             return msg;
         }
 
