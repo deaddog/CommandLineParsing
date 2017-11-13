@@ -69,6 +69,22 @@ namespace CommandLineParsing.Parsing
                 result = (T)(object)text;
                 return Message.NoError;
             }
+            else if (Nullable.GetUnderlyingType(typeof(T)) != null)
+            {
+                var nullableType = Nullable.GetUnderlyingType(typeof(T));
+
+                var nullableMethod = typeof(ParserLookup)
+                    .GetMethod(nameof(TryParseNullable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+                    .MakeGenericMethod(nullableType);
+
+                var arrMethodArgs = new object[3];
+                arrMethodArgs[0] = parserSettings;
+                arrMethodArgs[1] = text;
+
+                var msg = nullableMethod.Invoke(null, arrMethodArgs);
+                result = (T)arrMethodArgs[2];
+                return (Message)msg;
+            }
             else if (typeof(T).IsEnum)
             {
                 var args = new object[] { text, parserSettings.EnumIgnoreCase, null };
@@ -123,6 +139,21 @@ namespace CommandLineParsing.Parsing
                 return TryParseSingle(parserSettings, args, out result);
         }
 
+        private static Message TryParseNullable<T>(ParserSettings parserSettings, string text, out T? result) where T : struct
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                result = null;
+                return Message.NoError;
+            }
+            else
+            {
+                var msg = TryParse<T>(parserSettings, text, out var valueResult);
+                result = valueResult;
+
+                return msg;
+            }
+        }
         private static Message TryParseSingle<T>(ParserSettings parserSettings, string[] args, out T result)
         {
             result = default(T);
