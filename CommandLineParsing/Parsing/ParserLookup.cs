@@ -4,14 +4,8 @@ using System.Reflection;
 
 namespace CommandLineParsing.Parsing
 {
-    internal class ParserLookup
+    internal static class ParserLookup
     {
-        private static ParserLookup parserTable = new ParserLookup();
-        public static ParserLookup Table
-        {
-            get { return parserTable; }
-        }
-
         static ParserLookup()
         {
             _enumParseMethodInfo = typeof(Enum)
@@ -21,7 +15,7 @@ namespace CommandLineParsing.Parsing
 
         private static MethodInfo _enumParseMethodInfo;
 
-        public Message TryParse<T>(ParserSettings parserSettings, string text, out T result)
+        public static Message TryParse<T>(ParserSettings parserSettings, string text, out T result)
         {
             if (typeof(T) == typeof(string))
             {
@@ -60,7 +54,7 @@ namespace CommandLineParsing.Parsing
             else
                 throw new MissingParserException(typeof(T));
         }
-        public Message TryParse<T>(ParserSettings parserSettings, string[] args, out T result)
+        public static Message TryParse<T>(ParserSettings parserSettings, string[] args, out T result)
         {
             if (typeof(T).IsArray)
             {
@@ -82,7 +76,7 @@ namespace CommandLineParsing.Parsing
                 return TryParseSingle(parserSettings, args, out result);
         }
 
-        private Message TryParseSingle<T>(ParserSettings parserSettings, string[] args, out T result)
+        private static Message TryParseSingle<T>(ParserSettings parserSettings, string[] args, out T result)
         {
             result = default(T);
 
@@ -98,7 +92,7 @@ namespace CommandLineParsing.Parsing
 
             return TryParse(parserSettings, args[0], out result);
         }
-        private Message TryParseArray<T>(ParserSettings parserSettings, string[] args, out T[] result)
+        private static Message TryParseArray<T>(ParserSettings parserSettings, string[] args, out T[] result)
         {
             var arr = new T[args.Length];
             result = null;
@@ -110,7 +104,7 @@ namespace CommandLineParsing.Parsing
             return msg;
         }
 
-        private bool TryGetMessageTryParse<T>(out MessageTryParse<T> parser)
+        private static bool TryGetMessageTryParse<T>(out MessageTryParse<T> parser)
         {
             var types = new Type[] { typeof(string), typeof(T).MakeByRefType() };
 
@@ -125,7 +119,7 @@ namespace CommandLineParsing.Parsing
             parser = (MessageTryParse<T>)method.CreateDelegate(typeof(MessageTryParse<>).MakeGenericType(typeof(T)));
             return true;
         }
-        private bool TryGetTryParse<T>(out TryParse<T> parser)
+        private static bool TryGetTryParse<T>(out TryParse<T> parser)
         {
             var types = new Type[] { typeof(string), typeof(T).MakeByRefType() };
 
