@@ -9,7 +9,7 @@
     <projectUrl>https://github.com/deaddog/CommandLineParsing</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Provides a range of functionalities for creating command line applications using the .NET framework.</description>
-    <releaseNotes>Fixed menu display bug when removing items. Wrapped console in interface, allowing for unit testing the menu.</releaseNotes>
+    <releaseNotes>Included support for parsing of nullable types.</releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>cli commandline parse parsing console</tags>
   </metadata>
