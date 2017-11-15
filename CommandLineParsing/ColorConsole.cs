@@ -1,6 +1,7 @@
 ﻿using CommandLineParsing.Consoles;
 using CommandLineParsing.Input;
 using CommandLineParsing.Output;
+using CommandLineParsing.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -433,14 +434,13 @@ namespace CommandLineParsing
             return new ConsoleString(input, false).HasColors;
         }
 
-        private static SmartParser<T> getParser<T>()
+        private static ParserSettings GetParserSettings<T>()
         {
             string typename = typeof(T).Name;
 
-            return new SmartParser<T>()
+            return new ParserSettings()
             {
                 EnumIgnoreCase = true,
-                NoParserExceptionMessage = $"The type { typename } is not supported. A {nameof(TryParse<T>)} or {nameof(MessageTryParse<T>)} method must be defined in {typename}.",
                 NoValueMessage = Message.NoError,
                 MultipleValuesMessage = "Only one value can be specified.",
                 TypeErrorMessage = x => $"{x} is not a {typename} value.",
@@ -465,16 +465,11 @@ namespace CommandLineParsing
         /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
         public static T ReadLine<T>(ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ParameterTryParse<T> parser = null, Validator<T> validator = null)
         {
-            var smartparser = getParser<T>();
-            if (parser != null)
-                smartparser.Parser = parser;
-
-            return ReadLine<T>(smartparser, prompt, defaultString, cleanup, validator);
+            return ReadLine<T>(parser, parser == null ? GetParserSettings<T>() : null, prompt, defaultString, cleanup, validator);
         }
-        internal static T ReadLine<T>(SmartParser<T> parser, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, Validator<T> validator = null)
+        internal static T ReadLine<T>(ParameterTryParse<T> customParser, ParserSettings parserSettings, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, Validator<T> validator = null)
         {
-            T result;
-            readLine(parser, out result, prompt, defaultString, cleanup, ReadLineCleanup.None, validator);
+            readLine(customParser, parserSettings, out var result, prompt, defaultString, cleanup, ReadLineCleanup.None, validator);
             return result;
         }
         /// <summary>
@@ -494,18 +489,14 @@ namespace CommandLineParsing
         /// <returns>A <see cref="bool"/> indicating weather the call completed without the user pressing escape.</returns>
         public static bool TryReadLine<T>(out T result, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, ParameterTryParse<T> parser = null, Validator<T> validator = null)
         {
-            var smartparser = getParser<T>();
-            if (parser != null)
-                smartparser.Parser = parser;
-
-            return TryReadLine<T>(smartparser, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
+            return TryReadLine<T>(parser, parser == null ? GetParserSettings<T>() : null, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
         }
-        internal static bool TryReadLine<T>(SmartParser<T> parser, out T result, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, Validator<T> validator = null)
+        internal static bool TryReadLine<T>(ParameterTryParse<T> customParser, ParserSettings parserSettings, out T result, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, Validator<T> validator = null)
         {
-            return readLine(parser, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
+            return readLine(customParser, parserSettings, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
         }
 
-        private static bool readLine<T>(SmartParser<T> parser, out T result, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup, Validator<T> validator)
+        private static bool readLine<T>(ParameterTryParse<T> customParser, ParserSettings parserSettings, out T result, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup, Validator<T> validator)
         {
             if (ColorConsole.Caching.Enabled)
                 throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
@@ -529,7 +520,10 @@ namespace CommandLineParsing
                 cancelled = !ColorConsole.TryReadLine(out input, null, defaultString, ReadLineCleanup.None, ReadLineCleanup.None);
 
                 string[] parseData = typeof(T).IsArray ? Command.SimulateParse(input) : new string[] { input };
-                msg = parser.Parse(parseData, out result);
+                if (customParser != null)
+                    msg = customParser(parseData, out result);
+                else
+                    ParserLookup.TryParse(parserSettings, parseData, out result);
 
                 if (cancelled)
                     break;

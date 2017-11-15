@@ -1,4 +1,4 @@
-﻿namespace CommandLineParsing
+﻿namespace CommandLineParsing.Parsing
 {
     /// <summary>
     /// Represents a method that parses an array of strings into a value of type <typeparamref name="T"/>.
