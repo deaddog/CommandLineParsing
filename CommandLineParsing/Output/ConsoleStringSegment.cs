@@ -1,24 +1,42 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CommandLineParsing.Output
 {
+    /// <summary>
+    /// Represents elements of <see cref="ConsoleString"/>, by their text-content and console color.
+    /// </summary>
     public class ConsoleStringSegment
     {
-        public readonly string Content;
-        public readonly string Color;
+        /// <summary>
+        /// Gets the text-content of the segment, without color-details.
+        /// </summary>
+        public string Content { get; }
+        /// <summary>
+        /// Gets the color associated with the segment. Colors are evaluated using <see cref="ColorTable"/>.
+        /// </summary>
+        public string Color { get; }
 
-        public readonly bool HasColor;
+        /// <summary>
+        /// Gets a value indicating whether this segment has a color.
+        /// </summary>
+        public bool HasColor { get; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConsoleStringSegment"/> class.
+        /// </summary>
+        /// <param name="content">The text-content.</param>
+        /// <param name="color">The content color.</param>
         public ConsoleStringSegment(string content, string color)
         {
-            Content = content;
+            Content = content ?? throw new ArgumentNullException(nameof(content));
             Color = color;
             HasColor = color != null;
         }
 
         public static IEnumerable<ConsoleStringSegment> Parse(string value, bool maintainEscape)
         {
-            var segments = parse(value, maintainEscape, null);
+            var segments = Parse(value, maintainEscape, null);
 
             var e = segments.GetEnumerator();
             if (!e.MoveNext())
@@ -37,7 +55,7 @@ namespace CommandLineParsing.Output
 
             yield return temp;
         }
-        private static IEnumerable<ConsoleStringSegment> parse(string value, bool maintainEscape, string currentColor)
+        private static IEnumerable<ConsoleStringSegment> Parse(string value, bool maintainEscape, string currentColor)
         {
             if (string.IsNullOrEmpty(value))
                 yield break;
@@ -49,7 +67,7 @@ namespace CommandLineParsing.Output
                 {
                     case '[': // Coloring
                         {
-                            int end = findEnd(value, index, '[', ']');
+                            int end = FindEnd(value, index, '[', ']');
                             var block = value.Substring(index + 1, end - index - 1);
                             int colon = block.IndexOf(':');
                             if (colon > 0 && block[colon - 1] == '\\')
@@ -62,7 +80,7 @@ namespace CommandLineParsing.Output
                                 var color = block.Substring(0, colon);
                                 string content = block.Substring(colon + 1);
 
-                                foreach (var p in parse(content, maintainEscape, color))
+                                foreach (var p in Parse(content, maintainEscape, color))
                                     yield return p;
                             }
                             index += block.Length + 2;
@@ -92,7 +110,7 @@ namespace CommandLineParsing.Output
                 }
         }
 
-        private static int findEnd(string text, int index, char open, char close)
+        private static int FindEnd(string text, int index, char open, char close)
         {
             int count = 0;
             do
