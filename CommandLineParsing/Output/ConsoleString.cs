@@ -10,11 +10,11 @@ namespace CommandLineParsing.Output
     /// </summary>
     public partial class ConsoleString
     {
-        private readonly Segment[] _content;
+        private readonly ConsoleStringSegment[] _content;
         private readonly Lazy<string> _text;
         private readonly Lazy<bool> _hasColors;
 
-        internal IEnumerable<Segment> GetSegments()
+        internal IEnumerable<ConsoleStringSegment> GetSegments()
         {
             foreach (var s in _content)
                 yield return s;
@@ -49,10 +49,10 @@ namespace CommandLineParsing.Output
                 return s1;
             else if (s1._content[s1._content.Length - 1].Color == s2._content[0].Color)
             {
-                var l = new List<Segment>();
+                var l = new List<ConsoleStringSegment>();
 
                 l.AddRange(s1._content.Take(s1._content.Length - 1));
-                l.Add(new Segment(s1._content[s1._content.Length - 1].Content + s2._content[0].Content, s2._content[0].Color));
+                l.Add(new ConsoleStringSegment(s1._content[s1._content.Length - 1].Content + s2._content[0].Content, s2._content[0].Color));
                 l.AddRange(s2._content.Skip(1));
 
                 return new ConsoleString(l);
@@ -122,7 +122,7 @@ namespace CommandLineParsing.Output
         /// </summary>
         public static ConsoleString Empty => new ConsoleString();
 
-        private ConsoleString(IEnumerable<Segment> segments)
+        private ConsoleString(IEnumerable<ConsoleStringSegment> segments)
         {
             _content = segments.ToArray();
             _text = new Lazy<string>(() => string.Concat(_content.Select(x => x.Content)));
@@ -132,7 +132,7 @@ namespace CommandLineParsing.Output
         /// Initializes a new instance of the <see cref="ConsoleString"/> class, representing an empty string.
         /// </summary>
         public ConsoleString()
-            : this(new Segment[0])
+            : this(new ConsoleStringSegment[0])
         {
         }
         /// <summary>
@@ -148,7 +148,7 @@ namespace CommandLineParsing.Output
         /// If <c>true</c> any escaped character (such as "\[") will remain in its escaped state, otherwise it will be converted into the unescaped version (such as "[").
         /// </param>
         public ConsoleString(string content, bool maintainEscape = false)
-            : this(Segment.Parse(content, maintainEscape))
+            : this(ConsoleStringSegment.Parse(content, maintainEscape))
         {
         }
 
@@ -223,7 +223,7 @@ namespace CommandLineParsing.Output
         /// <returns>A <see cref="ConsoleString"/> that has been stripped of coloring.</returns>
         public ConsoleString ClearColors()
         {
-            return new ConsoleString(new Segment[] { new Segment(string.Concat(_content.Select(x => x.Content)), null) });
+            return new ConsoleString(new ConsoleStringSegment[] { new ConsoleStringSegment(string.Concat(_content.Select(x => x.Content)), null) });
         }
         /// <summary>
         /// Returns a new <see cref="ConsoleString"/> where the currently parsed color-information is escaped.
@@ -231,7 +231,7 @@ namespace CommandLineParsing.Output
         /// <returns>A new <see cref="ConsoleString"/> where the currently parsed color-information is escaped.</returns>
         public ConsoleString EscapeColors()
         {
-            return new ConsoleString(new Segment[] { new Segment(string.Concat(_content.Select(x => $@"\[{x.Color}:{x.Content}\]")), null) });
+            return new ConsoleString(new ConsoleStringSegment[] { new ConsoleStringSegment(string.Concat(_content.Select(x => $@"\[{x.Color}:{x.Content}\]")), null) });
         }
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace CommandLineParsing.Output
 
                 var segments = str._content;
                 if (x.HasColor)
-                    segments = segments.Select(s => new Segment(s.Content, s.Color ?? x.Color)).ToArray();
+                    segments = segments.Select(s => new ConsoleStringSegment(s.Content, s.Color ?? x.Color)).ToArray();
 
                 return segments;
             }));
