@@ -24,13 +24,13 @@ namespace CommandLineParsing.Output
         /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="ConsoleString"/>.
         /// With this a format can be specified simply as a string when used as a parameter.
         /// </summary>
-        /// <param name="text">The text that is parsed to a <see cref="ConsoleString"/>. See <see cref="ConsoleString.ConsoleString(string, bool)"/>.</param>
+        /// <param name="text">The text that is parsed to a <see cref="ConsoleString"/>. See <see cref="ConsoleString.Parse(string, bool)"/>.</param>
         /// <returns>
         /// A new <see cref="ConsoleString"/> that represents the format found in <paramref name="text"/>.
         /// </returns>
         public static implicit operator ConsoleString(string text)
         {
-            return new ConsoleString(text, false);
+            return Parse(text, false);
         }
 
         /// <summary>
@@ -122,9 +122,121 @@ namespace CommandLineParsing.Output
         /// </summary>
         public static ConsoleString Empty => new ConsoleString();
 
-        private ConsoleString(IEnumerable<ConsoleStringSegment> segments)
+        /// <summary>
+        /// Parses a string using the color-encoding syntax.
+        /// </summary>
+        /// <param name="content">
+        /// The content that should be contained by the <see cref="ConsoleString"/>.
+        /// The string "[Color:Text]" will translate to a <see cref="ConsoleString"/> using Color as the foreground color.
+        /// Color translations are handled by <see cref="ColorTable"/>.
+        /// </param>
+        /// <param name="maintainEscape">
+        /// Determines if escaped characters should remain escaped when parsing <paramref name="content"/>.
+        /// If <c>true</c> any escaped character (such as "\[") will remain in its escaped state, otherwise it will be converted into the unescaped version (such as "[").
+        /// </param>
+        /// <returns>A <see cref="ConsoleString"/> representing the result of the parsed string.</returns>
+        public static ConsoleString Parse(string content, bool maintainEscape = false)
         {
-            _content = segments.ToArray();
+            var segments = ParseToSegments(content, maintainEscape, null);
+            segments = MergeSameColor(segments);
+
+            return new ConsoleString(segments);
+        }
+        private static IEnumerable<ConsoleStringSegment> MergeSameColor(IEnumerable<ConsoleStringSegment> segments)
+        {
+            var e = segments.Where(x => x.Content.Length > 0).GetEnumerator();
+            if (!e.MoveNext())
+                yield break;
+
+            var temp = e.Current;
+
+            while (e.MoveNext())
+                if (temp.Color == e.Current.Color)
+                    temp = new ConsoleStringSegment(temp.Content + e.Current.Content, temp.Color);
+                else
+                {
+                    yield return temp;
+                    temp = e.Current;
+                }
+
+            yield return temp;
+        }
+        private static IEnumerable<ConsoleStringSegment> ParseToSegments(string value, bool maintainEscape, string currentColor)
+        {
+            if (string.IsNullOrEmpty(value))
+                yield break;
+
+            int index = 0;
+
+            while (index < value.Length)
+                switch (value[index])
+                {
+                    case '[': // Coloring
+                        {
+                            int end = FindEnd(value, index, '[', ']');
+                            var block = value.Substring(index + 1, end - index - 1);
+                            int colon = block.IndexOf(':');
+                            if (colon > 0 && block[colon - 1] == '\\')
+                                colon = -1;
+
+                            if (colon == -1)
+                                yield return new ConsoleStringSegment($"[{block}]", currentColor);
+                            else
+                            {
+                                var color = block.Substring(0, colon);
+                                string content = block.Substring(colon + 1);
+
+                                foreach (var p in ParseToSegments(content, maintainEscape, color))
+                                    yield return p;
+                            }
+                            index += block.Length + 2;
+                        }
+                        break;
+
+                    case '\\':
+                        if (value.Length == index + 1)
+                            index++;
+                        else
+                        {
+                            if (maintainEscape)
+                                yield return new ConsoleStringSegment(value.Substring(index, 2), currentColor);
+                            else
+                                yield return new ConsoleStringSegment(value[index + 1].ToString(), currentColor);
+
+                            index += 2;
+                        }
+                        break;
+
+                    default: // Skip content
+                        int nIndex = value.IndexOfAny(new char[] { '[', '\\' }, index);
+                        if (nIndex < 0) nIndex = value.Length;
+                        yield return new ConsoleStringSegment(value.Substring(index, nIndex - index), currentColor);
+                        index = nIndex;
+                        break;
+                }
+        }
+        private static int FindEnd(string text, int index, char open, char close)
+        {
+            int count = 0;
+            do
+            {
+                if (text[index] == '\\') { index += 2; continue; }
+                if (text[index] == open) count++;
+                else if (text[index] == close) count--;
+                index++;
+            } while (count > 0 && index < text.Length);
+            if (count == 0) index--;
+
+            return index;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConsoleString"/> class.
+        /// </summary>
+        /// <param name="segments">The segments that should make up the console string.</param>
+        public ConsoleString(IEnumerable<ConsoleStringSegment> segments)
+        {
+            _content = MergeSameColor(segments).ToArray();
             _text = new Lazy<string>(() => string.Concat(_content.Select(x => x.Content)));
             _hasColors = new Lazy<bool>(() => _content.Any(x => x.HasColor));
         }
@@ -133,22 +245,6 @@ namespace CommandLineParsing.Output
         /// </summary>
         public ConsoleString()
             : this(new ConsoleStringSegment[0])
-        {
-        }
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConsoleString"/> class from a string.
-        /// Any color-encoding will be parsed by the constructor.
-        /// </summary>
-        /// <param name="content">
-        /// The content that should be contained by the <see cref="ConsoleString"/>.
-        /// The string "[Color:Text]" will translate to a <see cref="ConsoleString"/> using Color as the foreground color.
-        /// </param>
-        /// <param name="maintainEscape">
-        /// Determines if escaped characters should remain escaped when parsing <paramref name="content"/>.
-        /// If <c>true</c> any escaped character (such as "\[") will remain in its escaped state, otherwise it will be converted into the unescaped version (such as "[").
-        /// </param>
-        public ConsoleString(string content, bool maintainEscape = false)
-            : this(ConsoleStringSegment.Parse(content, maintainEscape))
         {
         }
 
@@ -246,7 +342,7 @@ namespace CommandLineParsing.Output
         {
             return new ConsoleString(_content.SelectMany(x =>
             {
-                var str = new ConsoleString(x.Content, maintainEscape);
+                var str = Parse(x.Content, maintainEscape);
 
                 var segments = str._content;
                 if (x.HasColor)

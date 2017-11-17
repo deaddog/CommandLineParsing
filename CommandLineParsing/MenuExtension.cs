@@ -146,7 +146,7 @@ namespace CommandLineParsing
                     if (text.HasColors)
                         return text.ClearColors();
                     else
-                        return new ConsoleString($"[DarkGray:{text.Content}]");
+                        return $"[DarkGray:{text.Content}]";
                 };
             if (selected == null)
                 selected = x => false;

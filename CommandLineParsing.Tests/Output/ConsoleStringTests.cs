@@ -9,8 +9,10 @@ namespace CommandLineParsing.Tests.Output
         [Test]
         public void ParseEmptyString()
         {
-            Assert.AreEqual(new ConsoleString(), new ConsoleString(string.Empty, true));
-            Assert.AreEqual(new ConsoleString(), new ConsoleString(string.Empty, false));
+            Assert.AreEqual(ConsoleString.Empty, new ConsoleString());
+            Assert.AreEqual(ConsoleString.Empty, ConsoleString.Parse(string.Empty, true));
+            Assert.AreEqual(ConsoleString.Empty, ConsoleString.Parse(string.Empty, false));
+            Assert.AreEqual(ConsoleString.Empty, new ConsoleString(new[] { new ConsoleStringSegment(string.Empty) }));
         }
     }
 }

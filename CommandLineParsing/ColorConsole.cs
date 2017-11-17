@@ -192,7 +192,7 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
         public static void WriteLine(ConsoleString value, bool allowcolor = true)
         {
-            Write(value + new ConsoleString("\n", false), allowcolor);
+            Write(value + ConsoleString.Parse("\n", false), allowcolor);
         }
 
         private static void write(string value)
@@ -211,7 +211,7 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="format"/> is disregarded.</param>
         public static void WriteFormat(string format, IFormatter formatter, bool allowcolor = true)
         {
-            Write(new ConsoleString(EvaluateFormat(format, formatter), false), allowcolor);
+            Write(ConsoleString.Parse(EvaluateFormat(format, formatter), false), allowcolor);
         }
         /// <summary>
         /// Evaluates <paramref name="format"/> using a <see cref="IFormatter"/> and writes the result, followed by the current line terminator, to the standard output stream.
@@ -221,7 +221,7 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="format"/> is disregarded.</param>
         public static void WriteFormatLine(string format, IFormatter formatter, bool allowcolor = true)
         {
-            WriteLine(new ConsoleString(EvaluateFormat(format, formatter), false), allowcolor);
+            WriteLine(ConsoleString.Parse(EvaluateFormat(format, formatter), false), allowcolor);
         }
 
         private const string NO_CONDITION_FORMAT = "[red:UNKNOWN CONDITION '{0}']";
@@ -362,7 +362,7 @@ namespace CommandLineParsing
                 }
             }
 
-            var consoleString = new ConsoleString(res, false);
+            var consoleString = ConsoleString.Parse(res, false);
             if (preserveColor)
                 consoleString = consoleString.EscapeColors();
 
@@ -423,7 +423,7 @@ namespace CommandLineParsing
         /// <returns>A new string, without any color information.</returns>
         public static string ClearColors(string input)
         {
-            return new ConsoleString(input, true).ClearColors().Content;
+            return ConsoleString.Parse(input, true).ClearColors().Content;
         }
         /// <summary>
         /// Determines whether the specified string includes coloring syntax.
@@ -432,7 +432,7 @@ namespace CommandLineParsing
         /// <returns><c>true</c>, if <paramref name="input"/> contains any "[Color:Text]" strings; otherwise, <c>false</c>.</returns>
         public static bool HasColors(string input)
         {
-            return new ConsoleString(input, false).HasColors;
+            return ConsoleString.Parse(input, false).HasColors;
         }
 
         private static ParserSettings GetParserSettings<T>()
