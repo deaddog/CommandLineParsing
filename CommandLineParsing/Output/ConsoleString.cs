@@ -10,13 +10,13 @@ namespace CommandLineParsing.Output
     /// </summary>
     public partial class ConsoleString
     {
-        private readonly Segment[] content;
-        private readonly Lazy<string> text;
-        private readonly Lazy<bool> hasColors;
+        private readonly Segment[] _content;
+        private readonly Lazy<string> _text;
+        private readonly Lazy<bool> _hasColors;
 
         internal IEnumerable<Segment> GetSegments()
         {
-            foreach (var s in content)
+            foreach (var s in _content)
                 yield return s;
         }
 
@@ -43,22 +43,22 @@ namespace CommandLineParsing.Output
         /// </returns>
         public static ConsoleString operator +(ConsoleString s1, ConsoleString s2)
         {
-            if (s1.content.Length == 0)
+            if (s1._content.Length == 0)
                 return s2;
-            else if (s2.content.Length == 0)
+            else if (s2._content.Length == 0)
                 return s1;
-            else if (s1.content[s1.content.Length - 1].Color == s2.content[0].Color)
+            else if (s1._content[s1._content.Length - 1].Color == s2._content[0].Color)
             {
                 var l = new List<Segment>();
 
-                l.AddRange(s1.content.Take(s1.content.Length - 1));
-                l.Add(new Segment(s1.content[s1.content.Length - 1].Content + s2.content[0].Content, s2.content[0].Color));
-                l.AddRange(s2.content.Skip(1));
+                l.AddRange(s1._content.Take(s1._content.Length - 1));
+                l.Add(new Segment(s1._content[s1._content.Length - 1].Content + s2._content[0].Content, s2._content[0].Color));
+                l.AddRange(s2._content.Skip(1));
 
                 return new ConsoleString(l);
             }
             else
-                return new ConsoleString(s1.content.Concat(s2.content));
+                return new ConsoleString(s1._content.Concat(s2._content));
         }
         /// <summary>
         /// Concatenates a string and a <see cref="ConsoleString"/>. Similar to <c>string + string</c>.
@@ -124,9 +124,9 @@ namespace CommandLineParsing.Output
 
         private ConsoleString(IEnumerable<Segment> segments)
         {
-            content = segments.ToArray();
-            text = new Lazy<string>(() => string.Concat(content.Select(x => x.Content)));
-            hasColors = new Lazy<bool>(() => content.Any(x => x.HasColor));
+            _content = segments.ToArray();
+            _text = new Lazy<string>(() => string.Concat(_content.Select(x => x.Content)));
+            _hasColors = new Lazy<bool>(() => _content.Any(x => x.HasColor));
         }
         /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleString"/> class, representing an empty string.
@@ -160,7 +160,7 @@ namespace CommandLineParsing.Output
         /// </returns>
         public override int GetHashCode()
         {
-            return text.Value.GetHashCode();
+            return _text.Value.GetHashCode();
         }
         /// <summary>
         /// Determines whether the specified <see cref="object"/>, is equal to this <see cref="ConsoleString"/>.
@@ -189,12 +189,12 @@ namespace CommandLineParsing.Output
                 return true;
             else if (obj.GetHashCode() != this.GetHashCode())
                 return false;
-            else if (obj.content.Length != this.content.Length)
+            else if (obj._content.Length != this._content.Length)
                 return false;
             else
             {
-                for (int i = 0; i < obj.content.Length; i++)
-                    if (obj.content[i].Color != this.content[i].Color || obj.content[i].Content != this.content[i].Content)
+                for (int i = 0; i < obj._content.Length; i++)
+                    if (obj._content[i].Color != this._content[i].Color || obj._content[i].Content != this._content[i].Content)
                         return false;
 
                 return true;
@@ -207,15 +207,15 @@ namespace CommandLineParsing.Output
         /// <remarks>
         /// Colors can be removed by calling <see cref="ClearColors"/>.
         /// </remarks>
-        public bool HasColors => hasColors.Value;
+        public bool HasColors => _hasColors.Value;
         /// <summary>
         /// Gets the text content of this <see cref="ConsoleString"/>, ignoring the color information.
         /// </summary>
-        public string Content => text.Value;
+        public string Content => _text.Value;
         /// <summary>
         /// Gets the number of characters in the <see cref="ConsoleString"/>.
         /// </summary>
-        public int Length => text.Value.Length;
+        public int Length => _text.Value.Length;
 
         /// <summary>
         /// Returns a new <see cref="ConsoleString"/> that has been stripped of coloring.
@@ -223,7 +223,7 @@ namespace CommandLineParsing.Output
         /// <returns>A <see cref="ConsoleString"/> that has been stripped of coloring.</returns>
         public ConsoleString ClearColors()
         {
-            return new ConsoleString(new Segment[] { new Segment(string.Concat(content.Select(x => x.Content)), null) });
+            return new ConsoleString(new Segment[] { new Segment(string.Concat(_content.Select(x => x.Content)), null) });
         }
         /// <summary>
         /// Returns a new <see cref="ConsoleString"/> where the currently parsed color-information is escaped.
@@ -231,7 +231,7 @@ namespace CommandLineParsing.Output
         /// <returns>A new <see cref="ConsoleString"/> where the currently parsed color-information is escaped.</returns>
         public ConsoleString EscapeColors()
         {
-            return new ConsoleString(new Segment[] { new Segment(string.Concat(content.Select(x => $@"\[{x.Color}:{x.Content}\]")), null) });
+            return new ConsoleString(new Segment[] { new Segment(string.Concat(_content.Select(x => $@"\[{x.Color}:{x.Content}\]")), null) });
         }
 
         /// <summary>
@@ -244,11 +244,11 @@ namespace CommandLineParsing.Output
         /// <returns>A new <see cref="ConsoleString"/> representing the parsed contents.</returns>
         public ConsoleString EvaluateSegments(bool maintainEscape = false)
         {
-            return new ConsoleString(content.SelectMany(x =>
+            return new ConsoleString(_content.SelectMany(x =>
             {
                 var str = new ConsoleString(x.Content, maintainEscape);
 
-                var segments = str.content;
+                var segments = str._content;
                 if (x.HasColor)
                     segments = segments.Select(s => new Segment(s.Content, s.Color ?? x.Color)).ToArray();
 
