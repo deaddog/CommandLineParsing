@@ -36,8 +36,10 @@ namespace CommandLineParsing.Output
         public ConsoleStringSegment(string content, string color)
         {
             Content = content ?? throw new ArgumentNullException(nameof(content));
-            Color = color;
-            HasColor = color != null;
+            Color = color?.Trim();
+            if (Color == string.Empty)
+                Color = null;
+            HasColor = Color != null;
         }
     }
 }
