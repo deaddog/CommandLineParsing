@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CommandLineParsing
+namespace CommandLineParsing.Output.Formatting
 {
     /// <summary>
     /// Uses a set of specialized collections to set up a custom formatter.

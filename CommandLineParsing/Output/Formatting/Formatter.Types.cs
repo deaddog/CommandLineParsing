@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace CommandLineParsing
+namespace CommandLineParsing.Output.Formatting
 {
     public partial class Formatter
     {

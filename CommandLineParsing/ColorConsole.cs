@@ -1,6 +1,7 @@
 ﻿using CommandLineParsing.Consoles;
 using CommandLineParsing.Input;
 using CommandLineParsing.Output;
+using CommandLineParsing.Output.Formatting;
 using CommandLineParsing.Parsing;
 using System;
 using System.Collections.Generic;

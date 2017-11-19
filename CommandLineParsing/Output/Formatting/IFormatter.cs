@@ -1,4 +1,4 @@
-﻿namespace CommandLineParsing
+﻿namespace CommandLineParsing.Output.Formatting
 {
     /// <summary>
     /// Defines methods for the implementation of a simple string format.
