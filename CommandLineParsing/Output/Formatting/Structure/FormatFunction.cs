@@ -8,7 +8,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
     /// <summary>
     /// Represents a function evaluation part of a format structure.
     /// </summary>
-    public class FormatFunction : FormatElement
+    public class FormatFunction : FormatElement, IEquatable<FormatFunction>
     {
         /// <summary>
         /// Gets the name of the function that should be evaluated.
@@ -32,5 +32,34 @@ namespace CommandLineParsing.Output.Formatting.Structure
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Arguments = new ReadOnlyCollection<FormatElement>(arguments.ToList());
         }
+
+#pragma warning disable CS1591
+        public override int GetHashCode()
+        {
+            return Name.GetHashCode() ^ Arguments.GetHashCode();
+        }
+
+        public bool Equals(FormatFunction other)
+        {
+            if (ReferenceEquals(other, null))
+                return false;
+            else if (ReferenceEquals(other, this))
+                return true;
+            else
+                return Name.Equals(other.Name) && Arguments.Count.Equals(other.Arguments.Count) &&
+                    Arguments.Zip(other.Arguments, (x, y) => x.Equals(y)).All(x => x);
+        }
+        public override bool Equals(FormatElement other)
+        {
+            if (ReferenceEquals(other, null))
+                return false;
+            else if (ReferenceEquals(other, this))
+                return true;
+            else if (other is FormatFunction func)
+                return Equals(func);
+            else
+                return false;
+        }
+#pragma warning restore CS1591
     }
 }

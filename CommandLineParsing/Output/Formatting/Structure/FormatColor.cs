@@ -5,7 +5,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
     /// <summary>
     /// Represents a color tag in a format structure.
     /// </summary>
-    public class FormatColor : FormatElement
+    public class FormatColor : FormatElement, IEquatable<FormatColor>
     {
         /// <summary>
         /// The color name that should be used when a variable (found in <see cref="FormatColor.Content"/>) should determine the final color.
@@ -31,5 +31,33 @@ namespace CommandLineParsing.Output.Formatting.Structure
             Color = color?.ToLowerInvariant() ?? throw new ArgumentNullException(nameof(color));
             Content = content ?? throw new ArgumentNullException(nameof(content));
         }
+
+#pragma warning disable CS1591
+        public override int GetHashCode()
+        {
+            return Color.GetHashCode() ^ Content.GetHashCode();
+        }
+
+        public bool Equals(FormatColor other)
+        {
+            if (ReferenceEquals(other, null))
+                return false;
+            else if (ReferenceEquals(other, this))
+                return true;
+            else
+                return Color.Equals(other.Color) && Content.Equals(other.Content);
+        }
+        public override bool Equals(FormatElement other)
+        {
+            if (ReferenceEquals(other, null))
+                return false;
+            else if (ReferenceEquals(other, this))
+                return true;
+            else if (other is FormatColor color)
+                return Equals(color);
+            else
+                return false;
+        }
+#pragma warning restore CS1591
     }
 }

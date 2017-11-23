@@ -6,8 +6,12 @@ namespace CommandLineParsing.Output.Formatting.Structure
     /// <summary>
     /// Represents part of a format syntax tree.
     /// </summary>
-    public abstract class FormatElement
+    public abstract class FormatElement : IEquatable<FormatElement>
     {
+#pragma warning disable CS1591
+        public abstract bool Equals(FormatElement other);
+#pragma warning restore CS1591
+
         public static FormatElement Parse(string format)
         {
             int index = 0;
