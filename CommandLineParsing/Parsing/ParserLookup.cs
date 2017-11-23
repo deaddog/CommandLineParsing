@@ -24,7 +24,7 @@ namespace CommandLineParsing.Parsing
             {
                 msg = TryParse<T>(parserSettings, text, out result);
             }
-            catch (MissingParserException mpe)
+            catch (MissingParserException)
             {
                 throw;
             }
@@ -47,7 +47,7 @@ namespace CommandLineParsing.Parsing
             {
                 msg = TryParse<T>(parserSettings, text, out result);
             }
-            catch (MissingParserException mpe)
+            catch (MissingParserException)
             {
                 throw;
             }
