@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace CommandLineParsing.Output.Formatting.Structure
 {
@@ -18,35 +18,61 @@ namespace CommandLineParsing.Output.Formatting.Structure
             return Parse(format, ref index);
         }
 
+        public static FormatElement operator +(FormatElement element1, FormatElement element2)
+        {
+            if (element1 is FormatNoContent)
+                return element2;
+            else if (element2 is FormatNoContent)
+                return element1;
+
+            if (element1 is FormatText text1 && element2 is FormatText text2)
+                return new FormatText(text1.Text + text2.Text);
+
+            if (element1 is FormatColor color1 && element2 is FormatColor color2 && color1.Color.Equals(color2.Color))
+                return new FormatColor(color1.Color, color1.Content + color2.Content);
+
+            if (element1 is FormatConcatenation c1)
+            {
+                if (element2 is FormatConcatenation c2)
+                    return new FormatConcatenation(c1.Elements.Concat(c2.Elements));
+                else
+                    return new FormatConcatenation(c1.Elements.Concat(new[] { element2 }));
+            }
+            else if (element2 is FormatConcatenation c2)
+                return new FormatConcatenation(new[] { element2 }.Concat(c2.Elements));
+
+            return new FormatConcatenation(new[] { element1, element2 });
+        }
+
         private static FormatElement Parse(string format, ref int index)
         {
-            var elements = new List<FormatElement>();
+            FormatElement element = FormatNoContent.Element;
 
             while (index < format.Length)
             {
                 switch (format[index])
                 {
                     case '[': // Coloring
-                        elements.Add(ParseColor(format, ref index));
+                        element += ParseColor(format, ref index);
                         break;
 
                     case '?': // Conditional
-                        elements.Add(ParseCondition(format, ref index));
+                        element += ParseCondition(format, ref index);
                         break;
 
                     case '@': // Listing/Function
-                        elements.Add(ParseFunction(format, ref index));
+                        element += ParseFunction(format, ref index);
                         break;
 
                     case '$': // Variable
-                        elements.Add(ParseVariable(format, ref index));
+                        element += ParseVariable(format, ref index);
                         break;
                     case '\\':
                         if (format.Length == index + 1)
                             index++;
                         else
                         {
-                            elements.Add(new FormatText(format.Substring(index + 1, 1)));
+                            element += new FormatText(format.Substring(index + 1, 1));
                             index++;
                         }
                         break;
@@ -54,26 +80,27 @@ namespace CommandLineParsing.Output.Formatting.Structure
                     default: // Skip content
                         var nextIndex = format.IndexOfAny(new char[] { '[', '?', '@', '$', '\\' }, index);
                         if (nextIndex < 0) nextIndex = format.Length;
-                        elements.Add(new FormatText(format.Substring(index, nextIndex - index)));
-                        index = nextIndex;
-                        break;
-                }
 
-                if (elements.Count > 1 &&
-                    elements[elements.Count - 1] is FormatText current &&
-                    elements[elements.Count - 2] is FormatText previous)
-                {
-                    elements.RemoveRange(elements.Count - 2, 2);
-                    elements.Add(new FormatText(previous.Text + current.Text));
+                        var stopatIndex = format.IndexOf(stopChar, index);
+                        if (stopatIndex < nextIndex && stopatIndex >= 0)
+                        {
+                            if (stopatIndex - index > 0)
+                            {
+                                element += new FormatText(format.Substring(index, stopatIndex - index));
+                                index = stopatIndex;
+                            }
+                            return element;
+                        }
+                        else
+                        {
+                            element += new FormatText(format.Substring(index, nextIndex - index));
+                            index = nextIndex;
+                        }
+                        break;
                 }
             }
 
-            if (elements.Count == 0)
-                return new FormatText(string.Empty);
-            else if (elements.Count == 1)
-                return elements[0];
-            else
-                return new FormatConcatenation(elements);
+            return element;
         }
 
         private static FormatElement ParseColor(string format, ref int index)
