@@ -9,7 +9,7 @@ namespace CommandLineParsing.Tests.Output
         [Test]
         public void ParseEmptyString()
         {
-            Assert.AreEqual(new FormatText(string.Empty), FormatElement.Parse(string.Empty));
+            Assert.AreEqual(FormatNoContent.Element, FormatElement.Parse(string.Empty));
         }
     }
 }
