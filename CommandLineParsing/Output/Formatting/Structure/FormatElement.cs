@@ -44,8 +44,9 @@ namespace CommandLineParsing.Output.Formatting.Structure
             return new FormatConcatenation(new[] { element1, element2 });
         }
 
-        private static FormatElement Parse(string format, ref int index)
+        private static FormatElement Parse(string format, ref int index, char? stopat = null)
         {
+            var stopChar = stopat ?? '\\';
             FormatElement element = FormatNoContent.Element;
 
             while (index < format.Length)
@@ -105,7 +106,24 @@ namespace CommandLineParsing.Output.Formatting.Structure
 
         private static FormatElement ParseColor(string format, ref int index)
         {
-            throw new NotImplementedException();
+            index++;
+
+            var colonIndex = format.IndexOf(':', index);
+            var color = "";
+            if (colonIndex >= 0)
+            {
+                color = format.Substring(index, colonIndex - index);
+                index = colonIndex + 1;
+            }
+
+            var content = Parse(format, ref index, ']');
+            if (format[index] == ']')
+                index++;
+            
+            if (string.IsNullOrWhiteSpace(color) || content is FormatNoContent)
+                return content;
+            else
+                return new FormatColor(color, content);
         }
         private static FormatElement ParseVariable(string format, ref int index)
         {
