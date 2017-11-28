@@ -74,7 +74,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
                         else
                         {
                             element += new FormatText(format.Substring(index + 1, 1));
-                            index++;
+                            index += 2;
                         }
                         break;
 
