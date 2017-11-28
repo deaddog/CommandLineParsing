@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace CommandLineParsing.Output.Formatting.Structure
 {
@@ -119,7 +120,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
             var content = Parse(format, ref index, ']');
             if (format[index] == ']')
                 index++;
-            
+
             if (string.IsNullOrWhiteSpace(color) || content is FormatNoContent)
                 return content;
             else
@@ -127,7 +128,20 @@ namespace CommandLineParsing.Output.Formatting.Structure
         }
         private static FormatElement ParseVariable(string format, ref int index)
         {
-            throw new NotImplementedException();
+            var match = Regex.Match(format.Substring(index), @"^\$(\+?\p{L}[\w-_]+\+?)", RegexOptions.IgnoreCase);
+
+            if (!match.Success)
+            {
+                index++;
+                return new FormatText("$");
+            }
+            else
+            {
+                index += match.Length;
+                var variableName = match.Groups[1].Value;
+
+                return new FormatVariable(variableName.Trim('+'), GetVariablePadding(variableName));
+            }
         }
         private static FormatElement ParseCondition(string format, ref int index)
         {
@@ -136,6 +150,24 @@ namespace CommandLineParsing.Output.Formatting.Structure
         private static FormatElement ParseFunction(string format, ref int index)
         {
             throw new NotImplementedException();
+        }
+
+        private static FormatPaddings GetVariablePadding(string variableWithPadding)
+        {
+            if (variableWithPadding[0] == '+')
+            {
+                if (variableWithPadding[variableWithPadding.Length - 1] == '+')
+                    return FormatPaddings.PadBoth;
+                else
+                    return FormatPaddings.PadLeft;
+            }
+            else
+            {
+                if (variableWithPadding[variableWithPadding.Length - 1] == '+')
+                    return FormatPaddings.PadRight;
+                else
+                    return FormatPaddings.None;
+            }
         }
     }
 }
