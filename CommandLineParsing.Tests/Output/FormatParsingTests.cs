@@ -115,5 +115,21 @@ namespace CommandLineParsing.Tests.Output
                 }),
                 FormatElement.Parse(@"text1$+variable+text2"));
         }
+
+        [Test]
+        public void ParseConditionString()
+        {
+            Assert.AreEqual(new FormatCondition("cond", false, FormatNoContent.Element), FormatElement.Parse("?cond{}"));
+            Assert.AreEqual(new FormatCondition("cond", true, FormatNoContent.Element), FormatElement.Parse("?!cond{}"));
+
+            Assert.AreEqual(new FormatCondition("cond", false, new FormatText("text")), FormatElement.Parse("?cond{text}"));
+            Assert.AreEqual(new FormatCondition("cond", true, new FormatText("text")), FormatElement.Parse("?!cond{text}"));
+
+            Assert.AreEqual(new FormatText("?1cond{}"), FormatElement.Parse("?1cond{}"));
+            Assert.AreEqual(new FormatText("?1cond{text}"), FormatElement.Parse("?1cond{text}"));
+
+            Assert.AreEqual(new FormatCondition("cond1", false, FormatNoContent.Element), FormatElement.Parse("?cond1{}"));
+            Assert.AreEqual(new FormatCondition("cond1", true, new FormatText("text")), FormatElement.Parse("?!cond1{text}"));
+        }
     }
 }
