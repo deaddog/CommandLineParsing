@@ -140,7 +140,24 @@ namespace CommandLineParsing.Output.Formatting.Structure
         }
         private static FormatElement ParseCondition(string format, ref int index)
         {
-            throw new NotImplementedException();
+            var match = Regex.Match(format.Substring(index), @"\?(!?)(\p{L}[\w-_]*)\{");
+
+            if (!match.Success)
+            {
+                index++;
+                return new FormatText("?");
+            }
+            else
+            {
+                index += match.Length;
+                var negate = match.Groups[1].Value == "!";
+                var variableName = match.Groups[2].Value;
+                var content = Parse(format, ref index, '}');
+                if (format[index] == '}')
+                    index++;
+
+                return new FormatCondition(variableName, negate, content);
+            }
         }
         private static FormatElement ParseFunction(string format, ref int index)
         {
