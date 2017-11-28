@@ -123,7 +123,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
         }
         private static FormatElement ParseVariable(string format, ref int index)
         {
-            var match = Regex.Match(format.Substring(index), @"^\$(\+?\p{L}[\w-_]+\+?)", RegexOptions.IgnoreCase);
+            var match = Regex.Match(format.Substring(index), @"^\$(\+?\p{L}[\w-_]*\+?)", RegexOptions.IgnoreCase);
 
             if (!match.Success)
             {

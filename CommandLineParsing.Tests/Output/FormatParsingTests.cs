@@ -68,6 +68,7 @@ namespace CommandLineParsing.Tests.Output
             Assert.AreEqual(new FormatVariable("variable", FormatPaddings.PadRight), FormatElement.Parse("$variable+"));
             Assert.AreEqual(new FormatVariable("variable", FormatPaddings.PadBoth), FormatElement.Parse("$+variable+"));
 
+            Assert.AreEqual(new FormatVariable("variable1", FormatPaddings.None), FormatElement.Parse("$variable1"));
             Assert.AreEqual(new FormatText("$1variable"), FormatElement.Parse("$1variable"));
 
             Assert.AreEqual(new FormatConcatenation(new FormatElement[]
