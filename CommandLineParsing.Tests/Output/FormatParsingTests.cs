@@ -59,5 +59,58 @@ namespace CommandLineParsing.Tests.Output
                 }),
                 FormatElement.Parse("text1[green:hello world]text2"));
         }
+
+        [Test]
+        public void ParseVariableString()
+        {
+            Assert.AreEqual(new FormatVariable("variable", FormatPaddings.None), FormatElement.Parse("$variable"));
+            Assert.AreEqual(new FormatVariable("variable", FormatPaddings.PadLeft), FormatElement.Parse("$+variable"));
+            Assert.AreEqual(new FormatVariable("variable", FormatPaddings.PadRight), FormatElement.Parse("$variable+"));
+            Assert.AreEqual(new FormatVariable("variable", FormatPaddings.PadBoth), FormatElement.Parse("$+variable+"));
+
+            Assert.AreEqual(new FormatConcatenation(new FormatElement[]
+                {
+                    new FormatText("text1"),
+                    new FormatVariable("variable", FormatPaddings.None),
+                    new FormatText("text2")
+                }),
+                FormatElement.Parse(@"text1$variable\text2"));
+            Assert.AreEqual(new FormatConcatenation(new FormatElement[]
+                {
+                    new FormatText("text1"),
+                    new FormatVariable("variable", FormatPaddings.PadLeft),
+                    new FormatText("text2")
+                }),
+                FormatElement.Parse(@"text1$+variable\text2"));
+            Assert.AreEqual(new FormatConcatenation(new FormatElement[]
+                {
+                    new FormatText("text1"),
+                    new FormatVariable("variable", FormatPaddings.PadRight),
+                    new FormatText("text2")
+                }),
+                FormatElement.Parse(@"text1$variable+\text2"));
+            Assert.AreEqual(new FormatConcatenation(new FormatElement[]
+                {
+                    new FormatText("text1"),
+                    new FormatVariable("variable", FormatPaddings.PadBoth),
+                    new FormatText("text2")
+                }),
+                FormatElement.Parse(@"text1$+variable+\text2"));
+
+            Assert.AreEqual(new FormatConcatenation(new FormatElement[]
+                {
+                    new FormatText("text1"),
+                    new FormatVariable("variable", FormatPaddings.PadRight),
+                    new FormatText("text2")
+                }),
+                FormatElement.Parse(@"text1$variable+text2"));
+            Assert.AreEqual(new FormatConcatenation(new FormatElement[]
+                {
+                    new FormatText("text1"),
+                    new FormatVariable("variable", FormatPaddings.PadBoth),
+                    new FormatText("text2")
+                }),
+                FormatElement.Parse(@"text1$+variable+text2"));
+        }
     }
 }
