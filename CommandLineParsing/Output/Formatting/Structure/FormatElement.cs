@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace CommandLineParsing.Output.Formatting.Structure
@@ -33,14 +32,10 @@ namespace CommandLineParsing.Output.Formatting.Structure
                 return new FormatColor(color1.Color, color1.Content + color2.Content);
 
             if (element1 is FormatConcatenation c1)
-            {
-                if (element2 is FormatConcatenation c2)
-                    return new FormatConcatenation(c1.Elements.Concat(c2.Elements));
-                else
-                    return new FormatConcatenation(c1.Elements.Concat(new[] { element2 }));
-            }
-            else if (element2 is FormatConcatenation c2)
-                return new FormatConcatenation(new[] { element2 }.Concat(c2.Elements));
+                return c1 + element2;
+
+            if (element2 is FormatConcatenation c2)
+                return element1 + c2;
 
             return new FormatConcatenation(new[] { element1, element2 });
         }

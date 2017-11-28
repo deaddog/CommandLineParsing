@@ -27,6 +27,38 @@ namespace CommandLineParsing.Output.Formatting.Structure
             Elements = new ReadOnlyCollection<FormatElement>(elements.ToList());
         }
 
+        public static FormatElement operator +(FormatConcatenation element1, FormatConcatenation element2)
+        {
+            int size = element1.Elements.Count;
+            var list = element1.Elements.Concat(element2.Elements).ToList();
+
+            var combined = list[size - 1] + list[size];
+            if (!(combined is FormatConcatenation))
+            {
+                list[size - 1] = combined;
+                list.RemoveAt(size);
+            }
+
+            if (list.Count == 1)
+                return list[0];
+            else
+                return new FormatConcatenation(list);
+        }
+        public static FormatElement operator +(FormatElement element1, FormatConcatenation element2)
+        {
+            if (element1 is FormatConcatenation con)
+                return con + element2;
+            else
+                return new FormatConcatenation(new[] { element1 }) + element2;
+        }
+        public static FormatElement operator +(FormatConcatenation element1, FormatElement element2)
+        {
+            if (element2 is FormatConcatenation con)
+                return element1 + con;
+            else
+                return element1 + new FormatConcatenation(new[] { element2 });
+        }
+
 #pragma warning disable CS1591
         public override int GetHashCode()
         {
