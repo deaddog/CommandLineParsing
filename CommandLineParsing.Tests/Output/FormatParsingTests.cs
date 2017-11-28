@@ -19,6 +19,19 @@ namespace CommandLineParsing.Tests.Output
         }
 
         [Test]
+        public void ParseEscapedString()
+        {
+            Assert.AreEqual(new FormatText("hello world"), FormatElement.Parse(@"hello \world"));
+            Assert.AreEqual(new FormatText("hello $world"), FormatElement.Parse(@"hello \$world"));
+            Assert.AreEqual(new FormatText("hello @world"), FormatElement.Parse(@"hello \@world"));
+            Assert.AreEqual(new FormatText("hello ?world"), FormatElement.Parse(@"hello \?world"));
+            Assert.AreEqual(new FormatText("hello [world]"), FormatElement.Parse(@"hello \[world]"));
+            Assert.AreEqual(new FormatText("hello [world]"), FormatElement.Parse(@"hello \[world\]"));
+            Assert.AreEqual(new FormatText("hello {world}"), FormatElement.Parse(@"hello \{world}"));
+            Assert.AreEqual(new FormatText("hello {world}"), FormatElement.Parse(@"hello \{world\}"));
+        }
+
+        [Test]
         public void ParseColorString()
         {
             Assert.AreEqual(FormatNoContent.Element, FormatElement.Parse("[green:]"));
