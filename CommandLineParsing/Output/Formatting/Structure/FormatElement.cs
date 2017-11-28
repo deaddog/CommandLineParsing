@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace CommandLineParsing.Output.Formatting.Structure
@@ -40,9 +41,8 @@ namespace CommandLineParsing.Output.Formatting.Structure
             return new FormatConcatenation(new[] { element1, element2 });
         }
 
-        private static FormatElement Parse(string format, ref int index, char? stopat = null)
+        private static FormatElement Parse(string format, ref int index, params char[] stopat)
         {
-            var stopChar = stopat ?? '\\';
             FormatElement element = FormatNoContent.Element;
 
             while (index < format.Length)
@@ -78,7 +78,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
                         var nextIndex = format.IndexOfAny(new char[] { '[', '?', '@', '$', '\\' }, index);
                         if (nextIndex < 0) nextIndex = format.Length;
 
-                        var stopatIndex = format.IndexOf(stopChar, index);
+                        var stopatIndex = format.IndexOfAny(stopat, index);
                         if (stopatIndex < nextIndex && stopatIndex >= 0)
                         {
                             if (stopatIndex - index > 0)
@@ -161,7 +161,27 @@ namespace CommandLineParsing.Output.Formatting.Structure
         }
         private static FormatElement ParseFunction(string format, ref int index)
         {
-            throw new NotImplementedException();
+            var match = Regex.Match(format.Substring(index), @"\@(\p{L}[\w-_]*)\{");
+
+            if (!match.Success)
+            {
+                index++;
+                return new FormatText("@");
+            }
+            else
+            {
+                index += match.Length;
+                var functionName = match.Groups[1].Value;
+
+                var arguments = new List<FormatElement>();
+                while (index < format.Length && format[index - 1] != '}')
+                {
+                    arguments.Add(Parse(format, ref index, '}', ','));
+                    index++;
+                }
+
+                return new FormatFunction(functionName, arguments);
+            }
         }
 
         private static FormatPaddings GetVariablePadding(string variableWithPadding)

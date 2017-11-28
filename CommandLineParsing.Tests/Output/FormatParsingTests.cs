@@ -131,5 +131,16 @@ namespace CommandLineParsing.Tests.Output
             Assert.AreEqual(new FormatCondition("cond1", false, FormatNoContent.Element), FormatElement.Parse("?cond1{}"));
             Assert.AreEqual(new FormatCondition("cond1", true, new FormatText("text")), FormatElement.Parse("?!cond1{text}"));
         }
+
+        [Test]
+        public void ParseFunctionString()
+        {
+            Assert.AreEqual(new FormatFunction("func", new[] { FormatNoContent.Element }), FormatElement.Parse("@func{}"));
+            Assert.AreEqual(new FormatFunction("func1", new[] { FormatNoContent.Element }), FormatElement.Parse("@func1{}"));
+            Assert.AreEqual(new FormatText("@1func{}"), FormatElement.Parse("@1func{}"));
+
+            Assert.AreEqual(new FormatFunction("func", new[] { new FormatText("arg1") }), FormatElement.Parse("@func{arg1}"));
+            Assert.AreEqual(new FormatFunction("func", new[] { new FormatText("arg1"), new FormatText("arg2") }), FormatElement.Parse("@func{arg1,arg2}"));
+        }
     }
 }
