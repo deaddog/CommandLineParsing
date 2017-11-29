@@ -113,7 +113,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
             }
 
             var content = Parse(format, ref index, ']');
-            if (format[index] == ']')
+            if (index < format.Length && format[index] == ']')
                 index++;
 
             if (string.IsNullOrWhiteSpace(color) || content is FormatNoContent)
@@ -153,7 +153,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
                 var negate = match.Groups[1].Value == "!";
                 var variableName = match.Groups[2].Value;
                 var content = Parse(format, ref index, '}');
-                if (format[index] == '}')
+                if (index < format.Length && format[index] == '}')
                     index++;
 
                 return new FormatCondition(variableName, negate, content);
@@ -179,6 +179,9 @@ namespace CommandLineParsing.Output.Formatting.Structure
                     arguments.Add(Parse(format, ref index, '}', ','));
                     index++;
                 }
+
+                if (arguments.Count == 0)
+                    arguments.Add(FormatNoContent.Element);
 
                 return new FormatFunction(functionName, arguments);
             }

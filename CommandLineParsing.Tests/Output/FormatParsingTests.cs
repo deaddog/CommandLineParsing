@@ -40,6 +40,8 @@ namespace CommandLineParsing.Tests.Output
             Assert.AreEqual(new FormatColor("green", new FormatText("hello world")), FormatElement.Parse("[green:hello world]"));
             Assert.AreEqual(new FormatColor("green", new FormatText("hello world")), FormatElement.Parse("[green:hello ][green:world]"));
 
+            Assert.AreEqual(new FormatColor("green", new FormatText("hello world")), FormatElement.Parse("[green:hello world"));
+
             Assert.AreEqual(new FormatConcatenation(new FormatElement[] {
                     new FormatText("text1"),
                     new FormatColor("green", new FormatText("hello world"))
@@ -125,6 +127,7 @@ namespace CommandLineParsing.Tests.Output
             Assert.AreEqual(new FormatCondition("cond", false, new FormatText("text")), FormatElement.Parse("?cond{text}"));
             Assert.AreEqual(new FormatCondition("cond", true, new FormatText("text")), FormatElement.Parse("?!cond{text}"));
 
+            Assert.AreEqual(new FormatCondition("cond", false, FormatNoContent.Element), FormatElement.Parse("?cond{"));
             Assert.AreEqual(new FormatText("?1cond{}"), FormatElement.Parse("?1cond{}"));
             Assert.AreEqual(new FormatText("?1cond{text}"), FormatElement.Parse("?1cond{text}"));
 
@@ -137,7 +140,9 @@ namespace CommandLineParsing.Tests.Output
         {
             Assert.AreEqual(new FormatFunction("func", new[] { FormatNoContent.Element }), FormatElement.Parse("@func{}"));
             Assert.AreEqual(new FormatFunction("func1", new[] { FormatNoContent.Element }), FormatElement.Parse("@func1{}"));
+
             Assert.AreEqual(new FormatText("@1func{}"), FormatElement.Parse("@1func{}"));
+            Assert.AreEqual(new FormatFunction("func", new[] { FormatNoContent.Element }), FormatElement.Parse("@func{"));
 
             Assert.AreEqual(new FormatFunction("func", new[] { new FormatText("arg1") }), FormatElement.Parse("@func{arg1}"));
             Assert.AreEqual(new FormatFunction("func", new[] { new FormatText("arg1"), new FormatText("arg2") }), FormatElement.Parse("@func{arg1,arg2}"));
