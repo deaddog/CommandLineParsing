@@ -12,13 +12,37 @@ namespace CommandLineParsing.Output.Formatting.Structure
 #pragma warning disable CS1591
         public abstract bool Equals(FormatElement other);
 #pragma warning restore CS1591
-
+        
+        /// <summary>
+        /// Parses a string format into a <see cref="FormatElement"/> structure.
+        /// The parsed structure can be evaluated and printed in the console using a <see cref="IFormatter"/>.
+        /// </summary>
+        /// <param name="format">The string format that should be parsed.</param>
+        /// <returns>A tree structure represented the parsed string.</returns>
+        /// <remarks>
+        /// Text in the <paramref name="format"/> string is represented literally with the following exceptions:
+        /// - <code>"$variable"</code> | Represents a variable, that can be replaced by text.
+        /// - <code>"$variable+"</code>, <code>"$+variable"</code> or <code>"$+variable+"</code> | Allows for padding of a variable. The location of the + indicates which end of the variable that is padded. $+variable+ indicates centering.
+        /// - <code>"[color:text]"</code> | Uses the same color-syntax as <see cref="ConsoleString"/>.
+        /// - <code>"[auto:text $variable text]"</code> | As the above, but uses <code>"variable"</code> to obtain the color used when rendering the string.
+        /// - <code>"?condition{content}"</code> | Represents a conditional format segment.
+        /// - <code>"@function{arg1,arg2,arg3...}</code> | Represents evaluation of a format function (such as for listing items).
+        /// All of the above elements allow for nesting within each other.
+        /// </remarks>
         public static FormatElement Parse(string format)
         {
             int index = 0;
             return Parse(format, ref index);
         }
 
+        /// <summary>
+        /// Combines two format elements, flattening when possible.
+        /// </summary>
+        /// <param name="element1">The first element.</param>
+        /// <param name="element2">The second element.</param>
+        /// <returns>
+        /// The combined format element; possibly a <see cref="FormatConcatenation"/>.
+        /// </returns>
         public static FormatElement operator +(FormatElement element1, FormatElement element2)
         {
             if (element1 is FormatNoContent)

@@ -27,6 +27,14 @@ namespace CommandLineParsing.Output.Formatting.Structure
             Elements = new ReadOnlyCollection<FormatElement>(elements.ToList());
         }
 
+        /// <summary>
+        /// Merges two <see cref="FormatConcatenation"/> elements by attemping to merge the last element in <paramref name="element1"/> and the first in <paramref name="element2"/>.
+        /// </summary>
+        /// <param name="element1">The first element.</param>
+        /// <param name="element2">The second element.</param>
+        /// <returns>
+        /// The combined format element; possibly a single element (not <see cref="FormatConcatenation"/>).
+        /// </returns>
         public static FormatElement operator +(FormatConcatenation element1, FormatConcatenation element2)
         {
             int size = element1.Elements.Count;
@@ -44,6 +52,14 @@ namespace CommandLineParsing.Output.Formatting.Structure
             else
                 return new FormatConcatenation(list);
         }
+        /// <summary>
+        /// Appends a <see cref="FormatConcatenation"/> onto a format element.
+        /// </summary>
+        /// <param name="element1">The first element.</param>
+        /// <param name="element2">The second element.</param>
+        /// <returns>
+        /// The combined format element; possibly a <see cref="FormatConcatenation"/>.
+        /// </returns>
         public static FormatElement operator +(FormatElement element1, FormatConcatenation element2)
         {
             if (element1 is FormatConcatenation con)
@@ -51,6 +67,14 @@ namespace CommandLineParsing.Output.Formatting.Structure
             else
                 return new FormatConcatenation(new[] { element1 }) + element2;
         }
+        /// <summary>
+        /// Appends a format element onto a <see cref="FormatConcatenation"/>.
+        /// </summary>
+        /// <param name="element1">The first element.</param>
+        /// <param name="element2">The second element.</param>
+        /// <returns>
+        /// The combined format element; possibly a <see cref="FormatConcatenation"/>.
+        /// </returns>
         public static FormatElement operator +(FormatConcatenation element1, FormatElement element2)
         {
             if (element2 is FormatConcatenation con)
