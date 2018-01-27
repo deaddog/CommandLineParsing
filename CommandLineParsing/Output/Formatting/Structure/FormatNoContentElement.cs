@@ -5,19 +5,19 @@ namespace CommandLineParsing.Output.Formatting.Structure
     /// <summary>
     /// Represents an empty format part.
     /// </summary>
-    public class FormatNoContent : FormatElement, IEquatable<FormatNoContent>
+    public class FormatNoContentElement : FormatElement, IEquatable<FormatNoContentElement>
     {
         /// <summary>
         /// Gets the singleton no content element.
         /// </summary>
-        public static FormatNoContent Element { get; } = new FormatNoContent();
+        public static FormatNoContentElement Element { get; } = new FormatNoContentElement();
 
-        private FormatNoContent()
+        private FormatNoContentElement()
         {
         }
 
 #pragma warning disable CS1591
-        public bool Equals(FormatNoContent other)
+        public bool Equals(FormatNoContentElement other)
         {
             if (ReferenceEquals(other, null))
                 return false;
@@ -30,7 +30,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
                 return false;
             else if (ReferenceEquals(other, this))
                 return true;
-            else if (other is FormatColor color)
+            else if (other is FormatColorElement color)
                 return true;
             else
                 return false;

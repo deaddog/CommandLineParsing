@@ -5,7 +5,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
     /// <summary>
     /// Represents a condition part of a format structure.
     /// </summary>
-    public class FormatCondition : FormatElement, IEquatable<FormatCondition>
+    public class FormatConditionElement : FormatElement, IEquatable<FormatConditionElement>
     {
         /// <summary>
         /// Gets the name of the condition that should be evaluated.
@@ -21,12 +21,12 @@ namespace CommandLineParsing.Output.Formatting.Structure
         public FormatElement Content { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FormatCondition"/> class.
+        /// Initializes a new instance of the <see cref="FormatConditionElement"/> class.
         /// </summary>
         /// <param name="name">The name of the condition.</param>
         /// <param name="isNegated"><c>true</c> if the format structure should represent a negated condition.</param>
         /// <param name="content">The content inserted based on condition evaluation.</param>
-        public FormatCondition(string name, bool isNegated, FormatElement content)
+        public FormatConditionElement(string name, bool isNegated, FormatElement content)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             IsNegated = isNegated;
@@ -42,7 +42,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
             return Name.GetHashCode() ^ IsNegated.GetHashCode() ^ Content.GetHashCode();
         }
 
-        public bool Equals(FormatCondition other)
+        public bool Equals(FormatConditionElement other)
         {
             if (ReferenceEquals(other, null))
                 return false;
@@ -57,7 +57,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
                 return false;
             else if (ReferenceEquals(other, this))
                 return true;
-            else if (other is FormatCondition cond)
+            else if (other is FormatConditionElement cond)
                 return Equals(cond);
             else
                 return false;

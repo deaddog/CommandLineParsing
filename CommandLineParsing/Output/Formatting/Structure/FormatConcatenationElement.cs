@@ -8,7 +8,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
     /// <summary>
     /// Represents a sequence of multiple format elements.
     /// </summary>
-    public class FormatConcatenation : FormatElement, IEquatable<FormatConcatenation>
+    public class FormatConcatenationElement : FormatElement, IEquatable<FormatConcatenationElement>
     {
         /// <summary>
         /// Gets the sequence of elements.
@@ -16,10 +16,10 @@ namespace CommandLineParsing.Output.Formatting.Structure
         public ReadOnlyCollection<FormatElement> Elements { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FormatConcatenation"/> class.
+        /// Initializes a new instance of the <see cref="FormatConcatenationElement"/> class.
         /// </summary>
         /// <param name="elements">A sequence of elements.</param>
-        public FormatConcatenation(IEnumerable<FormatElement> elements)
+        public FormatConcatenationElement(IEnumerable<FormatElement> elements)
         {
             if (elements == null)
                 throw new ArgumentNullException(nameof(elements));
@@ -28,20 +28,20 @@ namespace CommandLineParsing.Output.Formatting.Structure
         }
 
         /// <summary>
-        /// Merges two <see cref="FormatConcatenation"/> elements by attemping to merge the last element in <paramref name="element1"/> and the first in <paramref name="element2"/>.
+        /// Merges two <see cref="FormatConcatenationElement"/> elements by attemping to merge the last element in <paramref name="element1"/> and the first in <paramref name="element2"/>.
         /// </summary>
         /// <param name="element1">The first element.</param>
         /// <param name="element2">The second element.</param>
         /// <returns>
-        /// The combined format element; possibly a single element (not <see cref="FormatConcatenation"/>).
+        /// The combined format element; possibly a single element (not <see cref="FormatConcatenationElement"/>).
         /// </returns>
-        public static FormatElement operator +(FormatConcatenation element1, FormatConcatenation element2)
+        public static FormatElement operator +(FormatConcatenationElement element1, FormatConcatenationElement element2)
         {
             int size = element1.Elements.Count;
             var list = element1.Elements.Concat(element2.Elements).ToList();
 
             var combined = list[size - 1] + list[size];
-            if (!(combined is FormatConcatenation))
+            if (!(combined is FormatConcatenationElement))
             {
                 list[size - 1] = combined;
                 list.RemoveAt(size);
@@ -50,37 +50,37 @@ namespace CommandLineParsing.Output.Formatting.Structure
             if (list.Count == 1)
                 return list[0];
             else
-                return new FormatConcatenation(list);
+                return new FormatConcatenationElement(list);
         }
         /// <summary>
-        /// Appends a <see cref="FormatConcatenation"/> onto a format element.
+        /// Appends a <see cref="FormatConcatenationElement"/> onto a format element.
         /// </summary>
         /// <param name="element1">The first element.</param>
         /// <param name="element2">The second element.</param>
         /// <returns>
-        /// The combined format element; possibly a <see cref="FormatConcatenation"/>.
+        /// The combined format element; possibly a <see cref="FormatConcatenationElement"/>.
         /// </returns>
-        public static FormatElement operator +(FormatElement element1, FormatConcatenation element2)
+        public static FormatElement operator +(FormatElement element1, FormatConcatenationElement element2)
         {
-            if (element1 is FormatConcatenation con)
+            if (element1 is FormatConcatenationElement con)
                 return con + element2;
             else
-                return new FormatConcatenation(new[] { element1 }) + element2;
+                return new FormatConcatenationElement(new[] { element1 }) + element2;
         }
         /// <summary>
-        /// Appends a format element onto a <see cref="FormatConcatenation"/>.
+        /// Appends a format element onto a <see cref="FormatConcatenationElement"/>.
         /// </summary>
         /// <param name="element1">The first element.</param>
         /// <param name="element2">The second element.</param>
         /// <returns>
-        /// The combined format element; possibly a <see cref="FormatConcatenation"/>.
+        /// The combined format element; possibly a <see cref="FormatConcatenationElement"/>.
         /// </returns>
-        public static FormatElement operator +(FormatConcatenation element1, FormatElement element2)
+        public static FormatElement operator +(FormatConcatenationElement element1, FormatElement element2)
         {
-            if (element2 is FormatConcatenation con)
+            if (element2 is FormatConcatenationElement con)
                 return element1 + con;
             else
-                return element1 + new FormatConcatenation(new[] { element2 });
+                return element1 + new FormatConcatenationElement(new[] { element2 });
         }
 
 #pragma warning disable CS1591
@@ -89,7 +89,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
             return Elements.GetHashCode();
         }
 
-        public bool Equals(FormatConcatenation other)
+        public bool Equals(FormatConcatenationElement other)
         {
             if (ReferenceEquals(other, null))
                 return false;
@@ -105,7 +105,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
                 return false;
             else if (ReferenceEquals(other, this))
                 return true;
-            else if (other is FormatConcatenation con)
+            else if (other is FormatConcatenationElement con)
                 return Equals(con);
             else
                 return false;

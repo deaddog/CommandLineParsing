@@ -41,33 +41,33 @@ namespace CommandLineParsing.Output.Formatting.Structure
         /// <param name="element1">The first element.</param>
         /// <param name="element2">The second element.</param>
         /// <returns>
-        /// The combined format element; possibly a <see cref="FormatConcatenation"/>.
+        /// The combined format element; possibly a <see cref="FormatConcatenationElement"/>.
         /// </returns>
         public static FormatElement operator +(FormatElement element1, FormatElement element2)
         {
-            if (element1 is FormatNoContent)
+            if (element1 is FormatNoContentElement)
                 return element2;
-            else if (element2 is FormatNoContent)
+            else if (element2 is FormatNoContentElement)
                 return element1;
 
-            if (element1 is FormatText text1 && element2 is FormatText text2)
-                return new FormatText(text1.Text + text2.Text);
+            if (element1 is FormatTextElement text1 && element2 is FormatTextElement text2)
+                return new FormatTextElement(text1.Text + text2.Text);
 
-            if (element1 is FormatColor color1 && element2 is FormatColor color2 && color1.Color.Equals(color2.Color))
-                return new FormatColor(color1.Color, color1.Content + color2.Content);
+            if (element1 is FormatColorElement color1 && element2 is FormatColorElement color2 && color1.Color.Equals(color2.Color))
+                return new FormatColorElement(color1.Color, color1.Content + color2.Content);
 
-            if (element1 is FormatConcatenation c1)
+            if (element1 is FormatConcatenationElement c1)
                 return c1 + element2;
 
-            if (element2 is FormatConcatenation c2)
+            if (element2 is FormatConcatenationElement c2)
                 return element1 + c2;
 
-            return new FormatConcatenation(new[] { element1, element2 });
+            return new FormatConcatenationElement(new[] { element1, element2 });
         }
 
         private static FormatElement Parse(string format, ref int index, params char[] stopat)
         {
-            FormatElement element = FormatNoContent.Element;
+            FormatElement element = FormatNoContentElement.Element;
 
             while (index < format.Length)
             {
@@ -93,7 +93,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
                             index++;
                         else
                         {
-                            element += new FormatText(format.Substring(index + 1, 1));
+                            element += new FormatTextElement(format.Substring(index + 1, 1));
                             index += 2;
                         }
                         break;
@@ -107,14 +107,14 @@ namespace CommandLineParsing.Output.Formatting.Structure
                         {
                             if (stopatIndex - index > 0)
                             {
-                                element += new FormatText(format.Substring(index, stopatIndex - index));
+                                element += new FormatTextElement(format.Substring(index, stopatIndex - index));
                                 index = stopatIndex;
                             }
                             return element;
                         }
                         else
                         {
-                            element += new FormatText(format.Substring(index, nextIndex - index));
+                            element += new FormatTextElement(format.Substring(index, nextIndex - index));
                             index = nextIndex;
                         }
                         break;
@@ -140,10 +140,10 @@ namespace CommandLineParsing.Output.Formatting.Structure
             if (index < format.Length && format[index] == ']')
                 index++;
 
-            if (string.IsNullOrWhiteSpace(color) || content is FormatNoContent)
+            if (string.IsNullOrWhiteSpace(color) || content is FormatNoContentElement)
                 return content;
             else
-                return new FormatColor(color, content);
+                return new FormatColorElement(color, content);
         }
         private static FormatElement ParseVariable(string format, ref int index)
         {
@@ -152,14 +152,14 @@ namespace CommandLineParsing.Output.Formatting.Structure
             if (!match.Success)
             {
                 index++;
-                return new FormatText("$");
+                return new FormatTextElement("$");
             }
             else
             {
                 index += match.Length;
                 var variableName = match.Groups[1].Value;
 
-                return new FormatVariable(variableName.Trim('+'), GetVariablePadding(variableName));
+                return new FormatVariableElement(variableName.Trim('+'), GetVariablePadding(variableName));
             }
         }
         private static FormatElement ParseCondition(string format, ref int index)
@@ -169,7 +169,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
             if (!match.Success)
             {
                 index++;
-                return new FormatText("?");
+                return new FormatTextElement("?");
             }
             else
             {
@@ -180,7 +180,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
                 if (index < format.Length && format[index] == '}')
                     index++;
 
-                return new FormatCondition(variableName, negate, content);
+                return new FormatConditionElement(variableName, negate, content);
             }
         }
         private static FormatElement ParseFunction(string format, ref int index)
@@ -190,7 +190,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
             if (!match.Success)
             {
                 index++;
-                return new FormatText("@");
+                return new FormatTextElement("@");
             }
             else
             {
@@ -205,27 +205,27 @@ namespace CommandLineParsing.Output.Formatting.Structure
                 }
 
                 if (arguments.Count == 0)
-                    arguments.Add(FormatNoContent.Element);
+                    arguments.Add(FormatNoContentElement.Element);
 
-                return new FormatFunction(functionName, arguments);
+                return new FormatFunctionElement(functionName, arguments);
             }
         }
 
-        private static FormatPaddings GetVariablePadding(string variableWithPadding)
+        private static FormatVariablePaddings GetVariablePadding(string variableWithPadding)
         {
             if (variableWithPadding[0] == '+')
             {
                 if (variableWithPadding[variableWithPadding.Length - 1] == '+')
-                    return FormatPaddings.PadBoth;
+                    return FormatVariablePaddings.PadBoth;
                 else
-                    return FormatPaddings.PadLeft;
+                    return FormatVariablePaddings.PadLeft;
             }
             else
             {
                 if (variableWithPadding[variableWithPadding.Length - 1] == '+')
-                    return FormatPaddings.PadRight;
+                    return FormatVariablePaddings.PadRight;
                 else
-                    return FormatPaddings.None;
+                    return FormatVariablePaddings.None;
             }
         }
     }

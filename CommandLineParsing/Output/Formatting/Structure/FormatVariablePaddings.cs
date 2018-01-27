@@ -3,7 +3,7 @@
     /// <summary>
     /// Describes the different types of padding that can be applied to variables in a format structure.
     /// </summary>
-    public enum FormatPaddings
+    public enum FormatVariablePaddings
     {
         /// <summary>
         /// No padding should be applied to the variable.

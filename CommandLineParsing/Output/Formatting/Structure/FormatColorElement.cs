@@ -5,10 +5,10 @@ namespace CommandLineParsing.Output.Formatting.Structure
     /// <summary>
     /// Represents a color tag in a format structure.
     /// </summary>
-    public class FormatColor : FormatElement, IEquatable<FormatColor>
+    public class FormatColorElement : FormatElement, IEquatable<FormatColorElement>
     {
         /// <summary>
-        /// The color name that should be used when a variable (found in <see cref="FormatColor.Content"/>) should determine the final color.
+        /// The color name that should be used when a variable (found in <see cref="FormatColorElement.Content"/>) should determine the final color.
         /// </summary>
         public const string AutoColor = "auto";
 
@@ -22,11 +22,11 @@ namespace CommandLineParsing.Output.Formatting.Structure
         public FormatElement Content { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FormatColor"/> class.
+        /// Initializes a new instance of the <see cref="FormatColorElement"/> class.
         /// </summary>
         /// <param name="color">The color applied to content. Use <see cref="AutoColor"/> to have color applied based on a variable.</param>
         /// <param name="content">The content to which color should be applied.</param>
-        public FormatColor(string color, FormatElement content)
+        public FormatColorElement(string color, FormatElement content)
         {
             Color = color?.ToLowerInvariant() ?? throw new ArgumentNullException(nameof(color));
             Content = content ?? throw new ArgumentNullException(nameof(content));
@@ -38,7 +38,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
             return Color.GetHashCode() ^ Content.GetHashCode();
         }
 
-        public bool Equals(FormatColor other)
+        public bool Equals(FormatColorElement other)
         {
             if (ReferenceEquals(other, null))
                 return false;
@@ -53,7 +53,7 @@ namespace CommandLineParsing.Output.Formatting.Structure
                 return false;
             else if (ReferenceEquals(other, this))
                 return true;
-            else if (other is FormatColor color)
+            else if (other is FormatColorElement color)
                 return Equals(color);
             else
                 return false;
