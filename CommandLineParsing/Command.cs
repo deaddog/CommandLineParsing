@@ -34,7 +34,7 @@ namespace CommandLineParsing
             this.preValid = new CommandValidator();
             this.postValid = new CommandValidator();
 
-            this.description = this.GetType().GetCustomAttribute<Description>()?.description ?? string.Empty;
+            this.description = this.GetType().GetTypeInfo().GetCustomAttribute<Description>()?.description ?? string.Empty;
 
             this.initializeParameters();
         }
@@ -62,11 +62,8 @@ namespace CommandLineParsing
         {
             prefix = prefix?.Trim() ?? string.Empty;
             if (prefix == string.Empty)
-            {
-                prefix = System.Reflection.Assembly.GetEntryAssembly().CodeBase;
-                prefix = System.IO.Path.GetFileName(prefix);
-                prefix = System.IO.Path.ChangeExtension(prefix, null);
-            }
+                prefix = "consoleapp";
+
             if (prefix.Length > 0) prefix += " ";
 
             exit = exit?.Trim() ?? "exit";

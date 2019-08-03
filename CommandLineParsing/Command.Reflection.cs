@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -20,16 +21,19 @@ namespace CommandLineParsing
                 var ignAtt = f.GetCustomAttribute<IgnoreCase>();
                 var defAtt = f.GetCustomAttribute<Default>();
 
+                var fieldType = f.FieldType;
+                var fieldTypeInfo = fieldType.GetTypeInfo();
+
                 bool isFlag = f.FieldType == typeof(FlagParameter);
-                bool isTyped = f.FieldType.IsGenericType && f.FieldType.GetGenericTypeDefinition() == typeof(Parameter<>);
+                bool isTyped = fieldTypeInfo.IsGenericType && fieldTypeInfo.GetGenericTypeDefinition() == typeof(Parameter<>);
 
                 if (!isFlag && !isTyped)
                     throw new InvalidOperationException($"Unknown parameter type: {f.FieldType}");
 
-                var paramType = isTyped ? f.FieldType.GetGenericArguments()[0] : null;
+                var paramType = isTyped ? fieldTypeInfo.GenericTypeArguments[0] : null;
                 bool isArray = !isFlag && paramType.IsArray;
                 var elementType = isTyped ? (isArray ? paramType.GetElementType() : paramType) : null;
-                bool isEnum = isTyped && elementType.IsEnum;
+                bool isEnum = isTyped && elementType.GetTypeInfo().IsEnum;
 
                 if (ignAtt != null)
                 {
@@ -83,7 +87,7 @@ namespace CommandLineParsing
                     throw new InvalidOperationException($"Unknown parameter type: {f.FieldType}");
 
                 if (defAtt != null)
-                    f.FieldType.GetMethod("SetDefault").Invoke(par, new object[] { defaultValue });
+                    fieldTypeInfo.GetDeclaredMethod("SetDefault").Invoke(par, new object[] { defaultValue });
 
                 parameters.Add(par);
                 f.SetValue(this, par);
@@ -94,7 +98,7 @@ namespace CommandLineParsing
         {
             Type paramType = typeof(Parameter<>).MakeGenericType(type);
 
-            var ctr = paramType.GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0];
+            var ctr = paramType.GetTypeInfo().DeclaredConstructors.Single();
 
             return (Parameter)ctr.Invoke(new object[] { name, alternatives, description, requirementType, required, enumIgnore });
         }
@@ -122,7 +126,7 @@ namespace CommandLineParsing
         }
         private static FieldInfo[] getParameterFields(Type commandType)
         {
-            var fields = commandType.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+            var fields = commandType.GetTypeInfo().DeclaredFields.ToArray();
             var accepted = new List<FieldInfo>();
 
             for (int i = 0; i < fields.Length; i++)
@@ -139,8 +143,8 @@ namespace CommandLineParsing
                 accepted.Add(fields[i]);
             }
 
-            if (commandType.BaseType != typeof(Command))
-                accepted.AddRange(getParameterFields(commandType.BaseType));
+            if (commandType.GetTypeInfo().BaseType != typeof(Command))
+                accepted.AddRange(getParameterFields(commandType.GetTypeInfo().BaseType));
 
             return accepted.ToArray();
         }
@@ -148,7 +152,7 @@ namespace CommandLineParsing
         {
             if (fieldType == typeof(FlagParameter))
                 return true;
-            else if (fieldType.IsGenericType)
+            else if (fieldType.GetTypeInfo().IsGenericType)
                 return fieldType.GetGenericTypeDefinition() == typeof(Parameter<>);
             else
                 return false;

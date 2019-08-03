@@ -19,12 +19,11 @@ namespace CommandLineParsing.Tests.Input
         [Test]
         public void TopBottomPrefixAdding()
         {
-            Console.CursorVisible = false;
             var display = new MenuDisplay<MenuOption<string>>(10);
 
             display.PrefixesTop.SetKeys(new char[] { '0', '1' });
             display.PrefixesBottom.SetKeys(new char[] { 'a', 'b' });
-            
+
             Assert.AreEqual(0, console.BufferStrings.Length);
 
             display.Options.Add(new MenuOption<string>("first", "first"));
@@ -61,7 +60,6 @@ namespace CommandLineParsing.Tests.Input
         [Test]
         public void TopBottomPrefixRemoving()
         {
-            Console.CursorVisible = false;
             var display = new MenuDisplay<MenuOption<string>>(10);
 
             display.PrefixesTop.SetKeys(new char[] { '0', '1' });
@@ -101,7 +99,7 @@ namespace CommandLineParsing.Tests.Input
             display.Options.RemoveAt(1);
             Assert.AreEqual(1, console.BufferStrings.Length);
             console.BufferStrings.AssertLine(0, "  a: first");
-            
+
             display.Options.RemoveAt(0);
             Assert.AreEqual(0, console.BufferStrings.Length);
         }

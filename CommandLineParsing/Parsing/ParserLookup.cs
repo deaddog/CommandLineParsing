@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("CommandLineParsing.Tests")]
 namespace CommandLineParsing.Parsing
 {
     internal static class ParserLookup
@@ -9,8 +11,9 @@ namespace CommandLineParsing.Parsing
         static ParserLookup()
         {
             _enumParseMethodInfo = typeof(Enum)
-                .GetMethods()
-                .FirstOrDefault(m => m.Name == nameof(Enum.TryParse) && m.GetParameters().Length == 3 && m.IsGenericMethodDefinition);
+                .GetTypeInfo()
+                .GetDeclaredMethods(nameof(Enum.TryParse))
+                .FirstOrDefault(m => m.GetParameters().Length == 3 && m.IsGenericMethodDefinition);
         }
 
         private static MethodInfo _enumParseMethodInfo;
@@ -74,7 +77,8 @@ namespace CommandLineParsing.Parsing
                 var nullableType = Nullable.GetUnderlyingType(typeof(T));
 
                 var nullableMethod = typeof(ParserLookup)
-                    .GetMethod(nameof(TryParseNullable), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+                    .GetTypeInfo()
+                    .GetDeclaredMethod(nameof(TryParseNullable))
                     .MakeGenericMethod(nullableType);
 
                 var arrMethodArgs = new object[3];
@@ -85,7 +89,7 @@ namespace CommandLineParsing.Parsing
                 result = (T)arrMethodArgs[2];
                 return (Message)msg;
             }
-            else if (typeof(T).IsEnum)
+            else if (typeof(T).GetTypeInfo().IsEnum)
             {
                 var args = new object[] { text, parserSettings.EnumIgnoreCase, null };
                 bool parsed = (bool)_enumParseMethodInfo.MakeGenericMethod(typeof(T)).Invoke(null, args);
@@ -124,7 +128,8 @@ namespace CommandLineParsing.Parsing
                 var arrayType = typeof(T).GetElementType();
 
                 var arrMethod = typeof(ParserLookup)
-                    .GetMethod(nameof(TryParseArray), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)
+                    .GetTypeInfo()
+                    .GetDeclaredMethod(nameof(TryParseArray))
                     .MakeGenericMethod(arrayType);
 
                 var arrMethodArgs = new object[3];
@@ -185,11 +190,25 @@ namespace CommandLineParsing.Parsing
 
         private static bool TryGetMessageTryParse<T>(out MessageTryParse<T> parser)
         {
-            var types = new Type[] { typeof(string), typeof(T).MakeByRefType() };
+            var method = typeof(T).GetTypeInfo().GetDeclaredMethods(nameof(Parsing.MessageTryParse<string>)).FirstOrDefault(m =>
+            {
+                if (!m.IsStatic || !m.IsPublic)
+                    return false;
 
-            var method = typeof(T).GetMethod(nameof(Parsing.MessageTryParse<string>), BindingFlags.Static | BindingFlags.Public, null, types, null);
+                if (m.ReturnType != typeof(Message))
+                    return false;
 
-            if (method?.GetParameters()[1].ParameterType != typeof(T).MakeByRefType() || method?.ReturnType != typeof(Message))
+                var parameters = m.GetParameters();
+                if (parameters.Length != 2)
+                    return false;
+
+                if (parameters[0].ParameterType != typeof(string) || parameters[1].ParameterType != typeof(T).MakeByRefType())
+                    return false;
+
+                return true;
+            });
+
+            if (method is null)
             {
                 parser = null;
                 return false;
@@ -200,11 +219,25 @@ namespace CommandLineParsing.Parsing
         }
         private static bool TryGetTryParse<T>(out TryParse<T> parser)
         {
-            var types = new Type[] { typeof(string), typeof(T).MakeByRefType() };
+            var method = typeof(T).GetTypeInfo().GetDeclaredMethods(nameof(Parsing.TryParse<string>)).FirstOrDefault(m =>
+            {
+                if (!m.IsStatic || !m.IsPublic)
+                    return false;
 
-            var method = typeof(T).GetMethod(nameof(Parsing.TryParse<string>), BindingFlags.Static | BindingFlags.Public, null, types, null);
+                if (m.ReturnType != typeof(bool))
+                    return false;
 
-            if (method?.GetParameters()[1].ParameterType != typeof(T).MakeByRefType() || method?.ReturnType != typeof(bool))
+                var parameters = m.GetParameters();
+                if (parameters.Length != 2)
+                    return false;
+
+                if (parameters[0].ParameterType != typeof(string) || parameters[1].ParameterType != typeof(T).MakeByRefType())
+                    return false;
+
+                return true;
+            });
+
+            if (method is null)
             {
                 parser = null;
                 return false;
