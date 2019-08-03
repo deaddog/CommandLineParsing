@@ -62,11 +62,8 @@ namespace CommandLineParsing
         {
             prefix = prefix?.Trim() ?? string.Empty;
             if (prefix == string.Empty)
-            {
-                prefix = System.Reflection.Assembly.GetEntryAssembly().CodeBase;
-                prefix = System.IO.Path.GetFileName(prefix);
-                prefix = System.IO.Path.ChangeExtension(prefix, null);
-            }
+                prefix = "consoleapp";
+
             if (prefix.Length > 0) prefix += " ";
 
             exit = exit?.Trim() ?? "exit";
