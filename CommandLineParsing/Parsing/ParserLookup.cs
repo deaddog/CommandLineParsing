@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("CommandLineParsing.Tests")]
 namespace CommandLineParsing.Parsing
 {
     internal static class ParserLookup
