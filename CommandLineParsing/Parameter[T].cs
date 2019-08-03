@@ -3,6 +3,7 @@ using CommandLineParsing.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -79,7 +80,7 @@ namespace CommandLineParsing
         public void Prompt(string promptMessage)
         {
             T temp = default(T);
-            if (typeof(T).IsEnum)
+            if (typeof(T).GetTypeInfo().IsEnum)
             {
                 ColorConsole.Write(promptMessage);
                 var left = ColorConsole.ActiveConsole.CursorLeft;

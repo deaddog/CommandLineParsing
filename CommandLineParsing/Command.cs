@@ -34,7 +34,7 @@ namespace CommandLineParsing
             this.preValid = new CommandValidator();
             this.postValid = new CommandValidator();
 
-            this.description = this.GetType().GetCustomAttribute<Description>()?.description ?? string.Empty;
+            this.description = this.GetType().GetTypeInfo().GetCustomAttribute<Description>()?.description ?? string.Empty;
 
             this.initializeParameters();
         }

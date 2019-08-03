@@ -5,6 +5,7 @@ using CommandLineParsing.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -702,11 +703,13 @@ namespace CommandLineParsing
         /// <returns>The selected <typeparamref name="TEnum"/> value.</returns>
         public static TEnum MenuSelectEnum<TEnum>(Func<TEnum, ConsoleString> keySelector = null, MenuLabeling labeling = MenuLabeling.NumbersAndLetters, MenuCleanup cleanup = MenuCleanup.None, bool? allowflags = null)
         {
-            if (!typeof(TEnum).IsEnum)
+            var typeinfo = typeof(TEnum).GetTypeInfo();
+
+            if (!typeinfo.IsEnum)
                 throw new ArgumentException($"The {nameof(MenuSelectEnum)} method only support Enum types as type-parameter.");
 
             if (!allowflags.HasValue)
-                allowflags = typeof(TEnum).GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0;
+                allowflags = typeinfo.GetCustomAttribute<FlagsAttribute>(false) != null;
 
             var values = (TEnum[])Enum.GetValues(typeof(TEnum));
 
