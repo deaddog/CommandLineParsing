@@ -280,7 +280,7 @@ namespace CommandLineParsing.Tests.TestComponents
         {
             _bufferStrings = null;
 
-            if (CommandLineParsing.Input.ConsoleReader.IsInputCharacter(c))
+            if (CommandLineParsing.Input.Reading.ConsoleReader.IsInputCharacter(c))
             {
                 while (_cursorPosition.Top >= _content.Count)
                 {

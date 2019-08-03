@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace CommandLineParsing.Input
+namespace CommandLineParsing.Input.Reading
 {
     /// <summary>
     /// Provides methods for reading input from the console.

@@ -1,4 +1,4 @@
-﻿namespace CommandLineParsing.Input
+﻿namespace CommandLineParsing.Input.Reading
 {
     /// <summary>
     /// Represent the event handler that handles <see cref="ConsoleReader.TextChanged"/> events.
