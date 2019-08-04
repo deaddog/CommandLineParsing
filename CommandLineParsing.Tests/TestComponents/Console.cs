@@ -383,6 +383,8 @@ namespace CommandLineParsing.Tests.TestComponents
                     Enqueue(new ConsoleKeyInfo(key, ConsoleKey.A + key - 'a', false, false, false));
                 else if (key >= 'A' && key <= 'Z')
                     Enqueue(new ConsoleKeyInfo(key, ConsoleKey.A + key - 'A', false, false, false));
+                else if (key >= '0' && key <= '9')
+                    Enqueue(new ConsoleKeyInfo(key, ConsoleKey.D0 + key - '0', false, false, false));
                 else
                     switch (key)
                     {
