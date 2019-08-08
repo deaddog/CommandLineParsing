@@ -8,17 +8,11 @@ namespace CommandLineParsing.Output
     /// Represents a string with embedded color-information.
     /// A string is implicitly converted into a <see cref="ConsoleString"/>.
     /// </summary>
-    public partial class ConsoleString
+    public partial class ConsoleString : IEnumerable<ConsoleStringSegment>
     {
         private readonly ConsoleStringSegment[] _content;
         private readonly Lazy<string> _text;
         private readonly Lazy<bool> _hasColors;
-
-        internal IEnumerable<ConsoleStringSegment> GetSegments()
-        {
-            foreach (var s in _content)
-                yield return s;
-        }
 
         /// <summary>
         /// Performs an implicit conversion from <see cref="System.String"/> to <see cref="ConsoleString"/>.
@@ -248,11 +242,21 @@ namespace CommandLineParsing.Output
         {
         }
 
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            return _content.GetEnumerator();
+        }
+        IEnumerator<ConsoleStringSegment> IEnumerable<ConsoleStringSegment>.GetEnumerator()
+        {
+            foreach (var s in _content)
+                yield return s;
+        }
+
         /// <summary>
         /// Returns a hash code for this <see cref="ConsoleString"/>.
         /// </summary>
         /// <returns>
-        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+        /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
         /// </returns>
         public override int GetHashCode()
         {

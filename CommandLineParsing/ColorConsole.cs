@@ -171,7 +171,7 @@ namespace CommandLineParsing
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            foreach (var p in value.GetSegments())
+            foreach (var p in value)
             {
                 var color = p.HasColor ? colors[p.Color] : null;
                 if (allowcolor && color.HasValue)
