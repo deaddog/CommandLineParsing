@@ -225,6 +225,35 @@ namespace CommandLineParsing.Output
         }
 
         /// <summary>
+        /// Creates a new <see cref="ConsoleString"/> from a single segment.
+        /// </summary>
+        /// <param name="segment">The string segment.</param>
+        /// <returns>A new <see cref="ConsoleString"/> defined by the single element <paramref name="segment"/>.</returns>
+        public static ConsoleString Create(ConsoleStringSegment segment)
+        {
+            return new ConsoleString(new[] { segment });
+        }
+        /// <summary>
+        /// Creates a new <see cref="ConsoleString"/> with direct content.
+        /// </summary>
+        /// <param name="content">The content of the <see cref="ConsoleString"/>. No parsing is applied.</param>
+        /// <returns>A new <see cref="ConsoleString"/> defined by <paramref name="content"/>.</returns>
+        public static ConsoleString FromContent(string content)
+        {
+            return Create(new ConsoleStringSegment(content));
+        }
+        /// <summary>
+        /// Creates a new <see cref="ConsoleString"/> with direct content and color.
+        /// </summary>
+        /// <param name="content">The content of the <see cref="ConsoleString"/>. No parsing is applied.</param>
+        /// <param name="color">The color that should be applied to <paramref name="content"/>.</param>
+        /// <returns>A new <see cref="ConsoleString"/> defined by <paramref name="content"/> with color <paramref name="color"/>.</returns>
+        public static ConsoleString FromContent(string content, string color)
+        {
+            return Create(new ConsoleStringSegment(content, color));
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleString"/> class.
         /// </summary>
         /// <param name="segments">The segments that should make up the console string.</param>
