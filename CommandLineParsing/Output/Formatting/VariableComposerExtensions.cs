@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace CommandLineParsing.Output.Formatting
 {
@@ -38,6 +40,65 @@ namespace CommandLineParsing.Output.Formatting
         public static IVariableComposer<T> With<T, TValue>(this IFormatterComposer<T> composer, string name, Func<T, TValue> selector)
         {
             return With(composer, name, x => selector(x).ToString());
+        }
+
+        /// <summary>
+        /// Sets the variables padded length.
+        /// </summary>
+        /// <typeparam name="T">The type of elements the resulting formatter will support.</typeparam>
+        /// <param name="composer">The <see cref="IVariableComposer{T}"/> being extended.</param>
+        /// <param name="length">The variables padded length.</param>
+        /// <returns>A <see cref="IVariableComposer{T}"/> for further configuration.</returns>
+        public static IVariableComposer<T> WithPaddedLength<T>(this IVariableComposer<T> composer, int length)
+        {
+            return composer.With(new Variable<T>
+            (
+                name: composer.Variable.Name,
+                selector: composer.Variable.Selector,
+                paddedLength: length,
+                dynamicColors: composer.Variable.DynamicColors
+            ));
+        }
+        /// <summary>
+        /// Sets the variables padded length, as the max length in <paramref name="collection"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of elements the resulting formatter will support.</typeparam>
+        /// <param name="composer">The <see cref="IVariableComposer{T}"/> being extended.</param>
+        /// <param name="collection">A collection of items, where padding will match the element in the collection with the longest string representation.</param>
+        /// <returns>A <see cref="IVariableComposer{T}"/> for further configuration.</returns>
+        public static IVariableComposer<T> WithPaddedLengthFrom<T>(this IVariableComposer<T> composer, IEnumerable<T> collection)
+        {
+            return composer.WithPaddedLength(collection.Select(x => composer.Variable.Selector(x).Length).Concat(new[] { 0 }).Max());
+        }
+
+        /// <summary>
+        /// Sets handling of a dynamic color.
+        /// </summary>
+        /// <typeparam name="T">The type of elements the resulting formatter will support.</typeparam>
+        /// <param name="composer">The <see cref="IVariableComposer{T}"/> being extended.</param>
+        /// <param name="color">The dynamic color name that this rule should apply to.</param>
+        /// <param name="colorSelector">A function that determies the actual color to print when this dynamic color is used.</param>
+        /// <returns>A <see cref="IVariableComposer{T}"/> for further configuration.</returns>
+        public static IVariableComposer<T> WithDynamicColor<T>(this IVariableComposer<T> composer, string color, Func<T, string> colorSelector)
+        {
+            return composer.With(new Variable<T>
+            (
+                name: composer.Variable.Name,
+                selector: composer.Variable.Selector,
+                paddedLength: composer.Variable.PaddedLength,
+                dynamicColors: composer.Variable.DynamicColors.SetItem(color, colorSelector)
+            ));
+        }
+        /// <summary>
+        /// Sets handling of a dynamic color with the name "auto".
+        /// </summary>
+        /// <typeparam name="T">The type of elements the resulting formatter will support.</typeparam>
+        /// <param name="composer">The <see cref="IVariableComposer{T}"/> being extended.</param>
+        /// <param name="colorSelector">A function that determies the actual color to print when "auto" is used.</param>
+        /// <returns>A <see cref="IVariableComposer{T}"/> for further configuration.</returns>
+        public static IVariableComposer<T> WithAutoColor<T>(this IVariableComposer<T> composer, Func<T, string> colorSelector)
+        {
+            return composer.WithDynamicColor("auto", colorSelector);
         }
     }
 }
