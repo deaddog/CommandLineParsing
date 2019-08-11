@@ -12,10 +12,10 @@ namespace CommandLineParsing.Output.Formatting.Structure
 #pragma warning disable CS1591
         public abstract bool Equals(FormatElement other);
 #pragma warning restore CS1591
-        
+
         /// <summary>
         /// Parses a string format into a <see cref="FormatElement"/> structure.
-        /// The parsed structure can be evaluated and printed in the console using a <see cref="IFormatter"/>.
+        /// The parsed structure can be evaluated and printed in the console using a <see cref="IFormatter{T}"/>.
         /// </summary>
         /// <param name="format">The string format that should be parsed.</param>
         /// <returns>A tree structure represented the parsed string.</returns>

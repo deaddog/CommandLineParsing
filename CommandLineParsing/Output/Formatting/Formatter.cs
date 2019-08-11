@@ -1,263 +1,120 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CommandLineParsing.Output.Formatting.Helpers;
+using CommandLineParsing.Output.Formatting.Structure;
+using System;
+using System.Collections.Immutable;
+using System.Linq;
 
 namespace CommandLineParsing.Output.Formatting
 {
     /// <summary>
-    /// Uses a set of specialized collections to set up a custom formatter.
-    /// Setting up a <see cref="Formatter"/> is done with generic methods.
+    /// Converts a format into console output using variable, condition and function definitions.
     /// </summary>
-    public partial class Formatter : IFormatter
+    /// <typeparam name="T">The type of elements that this formatter applies to.</typeparam>
+    public class Formatter<T> : FormatVisitor<ConsoleString, T>, IFormatter<T>
     {
-        private VariableCollection variables;
-        private ConditionCollection conditions;
-        private FunctionCollection functions;
-
-        private Dictionary<Type, object> items;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Formatter"/> class.
-        /// </summary>
-        public Formatter()
+        private static ConsoleString GetErrorString(string error, string elementName)
         {
-            this.variables = new VariableCollection();
-            this.conditions = new ConditionCollection();
-            this.functions = new FunctionCollection(this);
-
-            this.items = new Dictionary<Type, object>();
-        }
-
-        /// <summary>
-        /// Gets the collection of variables associated with this <see cref="Formatter"/>.
-        /// </summary>
-        public VariableCollection Variables => variables;
-        /// <summary>
-        /// Gets the collection of conditions associated with this <see cref="Formatter"/>.
-        /// </summary>
-        public ConditionCollection Conditions => conditions;
-        /// <summary>
-        /// Gets the collection of functions associated with this <see cref="Formatter"/>.
-        /// </summary>
-        public FunctionCollection Functions => functions;
-
-        /// <summary>
-        /// Writes an item to the console using the rules defined in this <see cref="Formatter"/>.
-        /// </summary>
-        /// <typeparam name="T">The type of the item that should written to the console.</typeparam>
-        /// <param name="item">The item that should be written to console.</param>
-        /// <param name="format">The format applied by this <see cref="Formatter"/> when writing.
-        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
-        public void Write<T>(T item, string format)
-        {
-            ColorConsole.Write(EvaluateFormat(item, format));
-        }
-        /// <summary>
-        /// Writes an item to the console, followed by the current line terminator, using the rules defined in this <see cref="Formatter"/>.
-        /// </summary>
-        /// <typeparam name="T">The type of the item that should written to the console.</typeparam>
-        /// <param name="item">The item that should be written to console.</param>
-        /// <param name="format">The format applied by this <see cref="Formatter"/> when writing.
-        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
-        public void WriteLine<T>(T item, string format)
-        {
-            ColorConsole.WriteLine(EvaluateFormat(item, format));
-        }
-
-        /// <summary>
-        /// Writes each item in a collection to the console using the rules defined in this <see cref="Formatter"/>.
-        /// </summary>
-        /// <typeparam name="T">The type of the items that should be writen to console.</typeparam>
-        /// <param name="collection">The collection of items that should be writen to console.</param>
-        /// <param name="format">The format applied to each element in <paramref name="collection"/> by this <see cref="Formatter"/> when evaluating.
-        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
-        /// <param name="separator1">A string that is placed between the formatted items.</param>
-        public void Write<T>(IEnumerable<T> collection, string format, string separator1)
-        {
-            ColorConsole.Write(EvaluateFormat(collection, format, separator1));
-        }
-        /// <summary>
-        /// Writes each item in a collection to the console using the rules defined in this <see cref="Formatter"/>.
-        /// </summary>
-        /// <typeparam name="T">The type of the items that should be writen to console.</typeparam>
-        /// <param name="collection">The collection of items that should be writen to console.</param>
-        /// <param name="format">The format applied to each element in <paramref name="collection"/> by this <see cref="Formatter"/> when evaluating.
-        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
-        /// <param name="separator1">A string that is placed between the formatted items (except the final two).</param>
-        /// <param name="separator2">A string that is placed between the final two formatted items.</param>
-        public void Write<T>(IEnumerable<T> collection, string format, string separator1, string separator2)
-        {
-            ColorConsole.Write(EvaluateFormat(collection, format, separator1, separator2));
-        }
-        /// <summary>
-        /// Writes each item, followed by the current line terminator, in a collection to the console using the rules defined in this <see cref="Formatter"/>.
-        /// </summary>
-        /// <typeparam name="T">The type of the items that should be writen to console.</typeparam>
-        /// <param name="collection">The collection of items that should be writen to console.</param>
-        /// <param name="format">The format applied to each element in <paramref name="collection"/> by this <see cref="Formatter"/> when evaluating.
-        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
-        public void WriteLines<T>(IEnumerable<T> collection, string format)
-        {
-            foreach (var item in collection)
-                WriteLine(item, format);
-        }
-
-        /// <summary>
-        /// Evaluates a format given a specific item.
-        /// </summary>
-        /// <typeparam name="T">The type of the item that should formatted.</typeparam>
-        /// <param name="item">The item that should be formatted.</param>
-        /// <param name="format">The format applied by this <see cref="Formatter"/> when evaluating.
-        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
-        /// <returns>The result of the string translation.</returns>
-        public string EvaluateFormat<T>(T item, string format)
-        {
-            var type = typeof(T);
-            bool hasOld = items.ContainsKey(type);
-            object old = hasOld ? items[type] : null;
-
-            items[type] = item;
-            string res = ColorConsole.EvaluateFormat(format, this);
-
-            if (hasOld)
-                items[type] = old;
-            else
-                items.Remove(type);
-
-            return res;
-        }
-        /// <summary>
-        /// Evaluates a format of each item in a collection of items, joining them by a string.
-        /// </summary>
-        /// <typeparam name="T">The type of the items that should be formatted.</typeparam>
-        /// <param name="collection">The collection of items that should be formatted.</param>
-        /// <param name="format">The format applied to each element in <paramref name="collection"/> by this <see cref="Formatter"/> when evaluating.
-        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
-        /// <param name="separator1">A string that is placed between the formatted items.</param>
-        /// <returns>The result of the string translation of each item.</returns>
-        public string EvaluateFormat<T>(IEnumerable<T> collection, string format, string separator1)
-        {
-            using (var e = collection.GetEnumerator())
+            return new ConsoleString(new[]
             {
-                if (!e.MoveNext())
-                    return string.Empty;
-
-                string res = EvaluateFormat(e.Current, format);
-
-                while (e.MoveNext())
-                    res += separator1 + EvaluateFormat(e.Current, format);
-
-                return res;
-            }
+                new ConsoleStringSegment($"[{error}:", "darkred"),
+                new ConsoleStringSegment(elementName, "red"),
+                new ConsoleStringSegment("]", "darkred")
+            });
         }
+
+        private readonly VariablesExtractor _variablesExtractor;
+        private readonly IImmutableDictionary<string, Variable<T>> _variables;
+        private readonly IImmutableDictionary<string, Condition<T>> _conditions;
+        private readonly IImmutableDictionary<string, Function<T>> _functions;
+
         /// <summary>
-        /// Evaluates a format of each item in a collection of items, joining them by a string.
+        /// Initializes a new formatter.
         /// </summary>
-        /// <typeparam name="T">The type of the items that should be formatted.</typeparam>
-        /// <param name="collection">The collection of items that should be formatted.</param>
-        /// <param name="format">The format applied to each element in <paramref name="collection"/> by this <see cref="Formatter"/> when evaluating.
-        /// See <see cref="ColorConsole.EvaluateFormat(string, IFormatter)"/> for format defails.</param>
-        /// <param name="separator1">A string that is placed between the formatted items (except the final two).</param>
-        /// <param name="separator2">A string that is placed between the final two formatted items.</param>
-        /// <returns>The result of the string translation of each item.</returns>
-        public string EvaluateFormat<T>(IEnumerable<T> collection, string format, string separator1, string separator2)
+        /// <param name="variables">A variable dictionary in which <see cref="FormatVariableElement"/>s are looked up.</param>
+        /// <param name="conditions">A condition dictionary in which <see cref="FormatConditionElement"/>s are looked up.</param>
+        /// <param name="functions">A function dictionary in which <see cref="FormatFunctionElement"/>s are looked up.</param>
+        public Formatter(
+            IImmutableDictionary<string, Variable<T>> variables,
+            IImmutableDictionary<string, Condition<T>> conditions,
+            IImmutableDictionary<string, Function<T>> functions)
         {
-            using (var e = collection.GetEnumerator())
+            _variablesExtractor = new VariablesExtractor();
+            _variables = variables ?? throw new ArgumentNullException(nameof(variables));
+            _conditions = conditions ?? throw new ArgumentNullException(nameof(conditions));
+            _functions = functions ?? throw new ArgumentNullException(nameof(functions));
+        }
+
+        ConsoleString IFormatter<T>.Format(FormatElement format, T item) => Visit(format, item);
+
+#pragma warning disable CS1591 // Documentation of each Visit method is redundant
+
+        public override ConsoleString Visit(FormatVariableElement format, T item)
+        {
+            if (_variables.TryGetValue(format.Name, out var variable))
             {
+                var content = variable.Selector(item);
 
-                if (!e.MoveNext())
-                    return string.Empty;
+                int diff = (variable.PaddedLength ?? content.Length) - content.Length;
 
-                string res = EvaluateFormat(e.Current, format);
-
-                if (!e.MoveNext())
-                    return res;
-
-                var temp = e.Current;
-                while (e.MoveNext())
+                if (diff > 0)
                 {
-                    res += separator1 + EvaluateFormat(temp, format);
-                    temp = e.Current;
+                    switch (format.Padding)
+                    {
+                        case FormatVariablePaddings.PadLeft: return ConsoleString.FromContent(new string(' ', diff) + content);
+                        case FormatVariablePaddings.PadRight: return ConsoleString.FromContent(content + new string(' ', diff));
+                        case FormatVariablePaddings.PadBoth: return ConsoleString.FromContent(new string(' ', diff / 2) + content + new string(' ', diff - (diff / 2)));
+                    }
                 }
 
-                return res + separator2 + EvaluateFormat(temp, format);
+                return ConsoleString.FromContent(content);
             }
+            else
+                return GetErrorString("UNKNOWN VARIABLE", format.Name);
         }
-
-        string IFormatter.GetVariable(string variable)
+        public override ConsoleString Visit(FormatColorElement format, T item)
         {
-            Variable v;
-            if (!variables.TryGet(variable, out v))
-                return null;
+            var color = _variablesExtractor
+                .Visit(format.Content)
+                .Select(v => _variables.TryGetValue(v.Name, out var variable) && variable.DynamicColors.TryGetValue(format.Color, out var colorFunc) ? colorFunc : null)
+                .FirstOrDefault(x => !(x is null))
+                ?.Invoke(item) ?? format.Color;
 
-            object item;
-            if (!items.TryGetValue(v.Type, out item))
-                return null;
-
-            return v.Replace.Invoke(item);
+            var content = Visit(format.Content, item);
+            var segments = content.Select(x => x.HasColor ? x : new ConsoleStringSegment(x.Content, color));
+            return new ConsoleString(segments);
         }
-        bool IFormatter.GetPreserveColor(string variable)
+        public override ConsoleString Visit(FormatConcatenationElement format, T item)
         {
-            Variable v;
-            if (!variables.TryGet(variable, out v))
-                return false;
-
-            object item;
-            if (!items.TryGetValue(v.Type, out item))
-                return false;
-
-            return v.PreserveColor;
+            return format.Elements.Aggregate(seed: ConsoleString.Empty, (s, f) => s + Visit(f, item));
         }
-        string IFormatter.GetAutoColor(string variable)
+        public override ConsoleString Visit(FormatConditionElement format, T item)
         {
-            Variable v;
-            if (!variables.TryGet(variable, out v))
-                return null;
-
-            object item;
-            if (!items.TryGetValue(v.Type, out item))
-                return null;
-
-            return v.AutoColor?.Invoke(item);
-        }
-        int? IFormatter.GetAlignedLength(string variable)
-        {
-            Variable v;
-            if (!variables.TryGet(variable, out v))
-                return null;
-
-            return v.Padding;
-        }
-
-        bool? IFormatter.ValidateCondition(string condition)
-        {
-            Condition c;
-            if (!conditions.TryGet(condition, out c))
-                return null;
-
-            object item;
-            if (!items.TryGetValue(c.Type, out item))
-                return null;
-
-            return c.Check?.Invoke(item);
-        }
-        string IFormatter.EvaluateFunction(string function, string[] args)
-        {
-            Function[] f;
-            if (!functions.TryGet(function, out f))
-                return null;
-
-            for (int i = 0; i < f.Length; i++)
+            if (_conditions.TryGetValue(format.Name, out var condition))
             {
-                object item;
-                if (!items.TryGetValue(f[i].Type, out item))
-                    continue;
-
-                var res = f[i].Func(item, args);
-                if (res != null)
-                    return res;
+                if (condition.Predicate(item) != format.IsNegated)
+                    return Visit(format.Content, item);
+                else
+                    return ConsoleString.Empty;
             }
-
-            return null;
+            else
+                return GetErrorString("UNKNOWN CONDITION", format.Name);
         }
+        public override ConsoleString Visit(FormatFunctionElement format, T item)
+        {
+            if (_functions.TryGetValue(format.Name, out var function))
+                return function.Evaluator(item, format.Arguments.ToImmutableList());
+            else
+                return GetErrorString("UNKNOWN FUNCTION", format.Name);
+        }
+        public override ConsoleString Visit(FormatNoContentElement format, T item)
+        {
+            return ConsoleString.Empty;
+        }
+        public override ConsoleString Visit(FormatTextElement format, T item)
+        {
+            return ConsoleString.FromContent(format.Text);
+        }
+
+#pragma warning restore CS1591 // Documentation of each Visit method is redundant
     }
 }

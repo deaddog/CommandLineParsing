@@ -37,6 +37,16 @@ namespace CommandLineParsing.Output.Formatting
             Functions = functions ?? throw new ArgumentNullException(nameof(functions));
         }
 
+        public IFormatter<T> GetFormatter()
+        {
+            return new Formatter<T>
+            (
+                variables: Variables,
+                conditions: Conditions,
+                functions: Functions
+            );
+        }
+
         public IVariableComposer<T> With(Variable<T> variable)
         {
             return new VariableComposer<T>
