@@ -12,14 +12,16 @@ namespace CommandLineParsing.Output.Formatting
         /// Create a new composer for building a formatter.
         /// </summary>
         /// <typeparam name="T">The type of elements that the formatter should handle.</typeparam>
+        /// <param name="caseSensitive"><c>true</c> if variable, condition and function names should be case sensitive; otherwise <c>false</c>.</param>
         /// <returns>A new format composer.</returns>
-        public static FormatterComposer<T> Create<T>()
+        public static FormatterComposer<T> Create<T>(bool caseSensitive = false)
         {
+            var comparer = caseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
             return new FormatterComposer<T>
             (
-                ImmutableDictionary<string, Variable<T>>.Empty,
-                ImmutableDictionary<string, Condition<T>>.Empty,
-                ImmutableDictionary<string, Function<T>>.Empty
+                ImmutableDictionary<string, Variable<T>>.Empty.WithComparers(comparer),
+                ImmutableDictionary<string, Condition<T>>.Empty.WithComparers(comparer),
+                ImmutableDictionary<string, Function<T>>.Empty.WithComparers(comparer)
             );
         }
     }
