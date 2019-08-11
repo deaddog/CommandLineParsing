@@ -1,10 +1,30 @@
 ﻿using System;
 using System.Collections.Immutable;
 
-#pragma warning disable CS1591 // Interface documentation should be enough.
-
 namespace CommandLineParsing.Output.Formatting
 {
+    /// <summary>
+    /// Provides methods for generating format composers.
+    /// </summary>
+    public static class FormatterComposer
+    {
+        /// <summary>
+        /// Create a new composer for building a formatter.
+        /// </summary>
+        /// <typeparam name="T">The type of elements that the formatter should handle.</typeparam>
+        /// <returns>A new format composer.</returns>
+        public static FormatterComposer<T> Create<T>()
+        {
+            return new FormatterComposer<T>
+            (
+                ImmutableDictionary<string, Variable<T>>.Empty,
+                ImmutableDictionary<string, Condition<T>>.Empty,
+                ImmutableDictionary<string, Function<T>>.Empty
+            );
+        }
+    }
+
+#pragma warning disable CS1591 // Interface documentation should be enough.
     public class FormatterComposer<T> : IFormatterComposer<T>
     {
         public FormatterComposer(
@@ -52,6 +72,5 @@ namespace CommandLineParsing.Output.Formatting
         public IImmutableDictionary<string, Condition<T>> Conditions { get; }
         public IImmutableDictionary<string, Function<T>> Functions { get; }
     }
-}
-
 #pragma warning restore CS1591 // Interface documentation should be enough.
+}
