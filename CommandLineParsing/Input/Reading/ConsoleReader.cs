@@ -38,8 +38,6 @@ namespace CommandLineParsing.Input.Reading
         }
 
         private readonly IConsole _console;
-        private readonly ConsolePoint origin;
-        private readonly int position;
         private readonly StringBuilder sb;
         private Color _color;
 
@@ -49,10 +47,9 @@ namespace CommandLineParsing.Input.Reading
         /// <param name="console">The console used to read input.</param>
         public ConsoleReader(IConsole console)
         {
-            _console = console ?? throw new ArgumentNullException(nameof(console));
-            origin = _console.GetCursorPosition();
+           _console = console ?? throw new ArgumentNullException(nameof(console));
 
-            position = _console.CursorLeft;
+            Origin = _console.GetCursorPosition();
             sb = new StringBuilder();
             _color = Color.NoColor
                 .WithForeground(_console.ForegroundColor.ToString())
@@ -70,12 +67,12 @@ namespace CommandLineParsing.Input.Reading
                 int diff = Length - value.Length;
                 if (diff > 0)
                 {
-                    _console.CursorLeft = position + value.Length;
+                    Index = value.Length;
                     Write(value);
                     _console.Write(ConsoleString.FromContent(new string(' ', diff)));
                 }
 
-                _console.CursorLeft = position;
+                Index = 0;
                 sb.Clear();
                 Insert(value);
             }
@@ -97,10 +94,10 @@ namespace CommandLineParsing.Input.Reading
                 {
                     _color = value;
 
-                    var current = _console.CursorLeft;
-                    _console.CursorLeft = position;
+                    var current = Index;
+                    Index = 0;
                     Write(sb.ToString());
-                    _console.CursorLeft = current;
+                    Index = current;
                 }
             }
         }
@@ -116,26 +113,14 @@ namespace CommandLineParsing.Input.Reading
         /// </summary>
         public int Index
         {
-            get { return _console.CursorLeft - position; }
-            set
-            {
-                if (value > Index)
-                {
-                    if (value <= sb.Length)
-                        _console.CursorLeft = value + position;
-                }
-                else if (value < Index)
-                {
-                    if (value >= 0)
-                        _console.CursorLeft = value + position;
-                }
-            }
+            get { return _console.CursorLeft - Origin.Left; }
+            set { _console.SetCursorPosition(Origin.Left + value, Origin.Top); }
         }
 
         /// <summary>
         /// Gets the location where the readline is displayed. If a prompt was passed to the constructer, this points to the start of that prompt.
         /// </summary>
-        public ConsolePoint Origin => origin;
+        public ConsolePoint Origin { get; }
 
         /// <summary>
         /// Inserts the specified text at the cursors current position (<see cref="Index"/>).
@@ -145,19 +130,19 @@ namespace CommandLineParsing.Input.Reading
         {
             var old = Text;
 
-            if (_console.CursorLeft == position + sb.Length)
+            if (Index == sb.Length)
             {
                 Write(text);
                 sb.Append(text);
             }
             else
             {
-                int temp = _console.CursorLeft;
+                int temp = Index;
 
                 sb.Insert(Index, text);
                 Write(sb.ToString().Substring(Index));
 
-                _console.CursorLeft = temp + text.Length;
+                Index = temp + text.Length;
             }
 
             TextChanged?.Invoke(this, old);
@@ -177,12 +162,12 @@ namespace CommandLineParsing.Input.Reading
             }
             else
             {
-                int temp = _console.CursorLeft;
+                int temp = Index;
 
-                sb.Insert(_console.CursorLeft - position, info);
-                Write(sb.ToString().Substring(_console.CursorLeft - position));
+                sb.Insert(Index, info);
+                Write(sb.ToString().Substring(Index));
 
-                _console.CursorLeft = temp + 1;
+                Index = temp + 1;
             }
 
             TextChanged?.Invoke(this, old);
@@ -213,10 +198,10 @@ namespace CommandLineParsing.Input.Reading
                 if (Index != Length - length)
                     replace = sb.ToString().Substring(Index + length) + replace;
 
-                int temp = _console.CursorLeft;
-                _console.CursorLeft += length;
+                int temp = Index;
+                Index += length;
                 Write(replace);
-                _console.CursorLeft = temp + length;
+                Index = temp + length;
             }
             else if (length > 0)
             {
@@ -225,10 +210,10 @@ namespace CommandLineParsing.Input.Reading
                 if (Index + length > Length)
                     length = Length - Index;
 
-                int temp = _console.CursorLeft;
+                int temp = Index;
                 sb.Remove(Index, length);
                 Write(sb.ToString().Substring(Index) + new string(' ', length));
-                _console.CursorLeft = temp;
+                Index = temp;
             }
 
             TextChanged?.Invoke(this, old);
