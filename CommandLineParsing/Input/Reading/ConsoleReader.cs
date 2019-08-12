@@ -68,9 +68,26 @@ namespace CommandLineParsing.Input.Reading
         }
 
         /// <summary>
-        /// Gets the current text displayed by this <see cref="ConsoleReader"/>.
+        /// Gets or sets the current text displayed by this <see cref="ConsoleReader"/>.
         /// </summary>
-        public string Text => sb.ToString();
+        public string Text
+        {
+            get { return sb.ToString(); }
+            set
+            {
+                int diff = Length - value.Length;
+                if (diff > 0)
+                {
+                    _console.CursorLeft = position + value.Length;
+                    Write(value);
+                    _console.Write(ConsoleString.FromContent(new string(' ', diff)));
+                }
+
+                _console.CursorLeft = position;
+                sb.Clear();
+                Insert(value);
+            }
+        }
         /// <summary>
         /// Gets the length of the text displayed by this <see cref="ConsoleReader"/>.
         /// </summary>
