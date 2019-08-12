@@ -38,7 +38,7 @@ namespace CommandLineParsing.Input.Reading
         }
 
         private readonly IConsole _console;
-        private readonly StringBuilder sb;
+        private readonly StringBuilder _stringBuilder;
         private Color _color;
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace CommandLineParsing.Input.Reading
            _console = console ?? throw new ArgumentNullException(nameof(console));
 
             Origin = _console.GetCursorPosition();
-            sb = new StringBuilder();
+            _stringBuilder = new StringBuilder();
             _color = Color.NoColor
                 .WithForeground(_console.ForegroundColor.ToString())
                 .WithBackground(_console.BackgroundColor.ToString());
@@ -61,7 +61,7 @@ namespace CommandLineParsing.Input.Reading
         /// </summary>
         public string Text
         {
-            get { return sb.ToString(); }
+            get { return _stringBuilder.ToString(); }
             set
             {
                 int diff = Length - value.Length;
@@ -73,14 +73,14 @@ namespace CommandLineParsing.Input.Reading
                 }
 
                 Index = 0;
-                sb.Clear();
+                _stringBuilder.Clear();
                 Insert(value);
             }
         }
         /// <summary>
         /// Gets the length of the text displayed by this <see cref="ConsoleReader"/>.
         /// </summary>
-        public int Length => sb.Length;
+        public int Length => _stringBuilder.Length;
 
         /// <summary>
         /// Gets or sets the color used for the users text.
@@ -96,7 +96,7 @@ namespace CommandLineParsing.Input.Reading
 
                     var current = Index;
                     Index = 0;
-                    Write(sb.ToString());
+                    Write(_stringBuilder.ToString());
                     Index = current;
                 }
             }
@@ -130,17 +130,17 @@ namespace CommandLineParsing.Input.Reading
         {
             var old = Text;
 
-            if (Index == sb.Length)
+            if (Index == _stringBuilder.Length)
             {
                 Write(text);
-                sb.Append(text);
+                _stringBuilder.Append(text);
             }
             else
             {
                 int temp = Index;
 
-                sb.Insert(Index, text);
-                Write(sb.ToString().Substring(Index));
+                _stringBuilder.Insert(Index, text);
+                Write(_stringBuilder.ToString().Substring(Index));
 
                 Index = temp + text.Length;
             }
@@ -158,14 +158,14 @@ namespace CommandLineParsing.Input.Reading
             if (Index == Length)
             {
                 Write(info.ToString());
-                sb.Append(info);
+                _stringBuilder.Append(info);
             }
             else
             {
                 int temp = Index;
 
-                sb.Insert(Index, info);
-                Write(sb.ToString().Substring(Index));
+                _stringBuilder.Insert(Index, info);
+                Write(_stringBuilder.ToString().Substring(Index));
 
                 Index = temp + 1;
             }
@@ -192,11 +192,11 @@ namespace CommandLineParsing.Input.Reading
                 if (Index < -length)
                     length = -Index;
 
-                sb.Remove(Index + length, -length);
+                _stringBuilder.Remove(Index + length, -length);
 
                 var replace = new string(' ', -length);
                 if (Index != Length - length)
-                    replace = sb.ToString().Substring(Index + length) + replace;
+                    replace = _stringBuilder.ToString().Substring(Index + length) + replace;
 
                 int temp = Index;
                 Index += length;
@@ -211,8 +211,8 @@ namespace CommandLineParsing.Input.Reading
                     length = Length - Index;
 
                 int temp = Index;
-                sb.Remove(Index, length);
-                Write(sb.ToString().Substring(Index) + new string(' ', length));
+                _stringBuilder.Remove(Index, length);
+                Write(_stringBuilder.ToString().Substring(Index) + new string(' ', length));
                 Index = temp;
             }
 
