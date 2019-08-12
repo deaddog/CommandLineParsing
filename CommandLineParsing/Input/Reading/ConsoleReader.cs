@@ -42,6 +42,7 @@ namespace CommandLineParsing.Input.Reading
         private readonly ConsolePoint origin;
         private readonly int position;
         private readonly StringBuilder sb;
+        private Color _color;
 
         private bool isDisposed = false;
 
@@ -61,6 +62,9 @@ namespace CommandLineParsing.Input.Reading
 
             position = _console.CursorLeft;
             sb = new StringBuilder();
+            _color = Color.NoColor
+                .WithForeground(_console.ForegroundColor.ToString())
+                .WithBackground(_console.BackgroundColor.ToString());
         }
 
         /// <summary>
@@ -71,6 +75,26 @@ namespace CommandLineParsing.Input.Reading
         /// Gets the length of the text displayed by this <see cref="ConsoleReader"/>.
         /// </summary>
         public int Length => sb.Length;
+
+        /// <summary>
+        /// Gets or sets the color used for the users text.
+        /// </summary>
+        public Color Color
+        {
+            get { return _color; }
+            set
+            {
+                if (_color != value)
+                {
+                    _color = value;
+
+                    var current = _console.CursorLeft;
+                    _console.CursorLeft = position;
+                    Write(sb.ToString());
+                    _console.CursorLeft = current;
+                }
+            }
+        }
 
         /// <summary>
         /// Occurs when <see cref="Text"/> changes value.
@@ -244,7 +268,7 @@ namespace CommandLineParsing.Input.Reading
 
         private void Write(string content)
         {
-            _console.Write(ConsoleString.FromContent(content));
+            _console.Write(ConsoleString.FromContent(content, Color));
         }
 
         /// <summary>
