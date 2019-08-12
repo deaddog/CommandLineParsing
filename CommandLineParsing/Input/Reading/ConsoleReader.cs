@@ -38,7 +38,6 @@ namespace CommandLineParsing.Input.Reading
         }
 
         private readonly IConsole _console;
-        private readonly ConsoleString prompt;
         private readonly ConsolePoint origin;
         private readonly int position;
         private readonly StringBuilder sb;
@@ -48,15 +47,10 @@ namespace CommandLineParsing.Input.Reading
         /// Initializes a new instance of the <see cref="ConsoleReader"/> class.
         /// </summary>
         /// <param name="console">The console used to read input.</param>
-        /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
-        public ConsoleReader(IConsole console, ConsoleString prompt = null)
+        public ConsoleReader(IConsole console)
         {
             _console = console ?? throw new ArgumentNullException(nameof(console));
             origin = _console.GetCursorPosition();
-
-            this.prompt = prompt;
-            if (prompt != null)
-                console.Write(prompt);
 
             position = _console.CursorLeft;
             sb = new StringBuilder();
