@@ -119,7 +119,7 @@ namespace CommandLineParsing.Input.Reading
 
             if (_console.CursorLeft == position + sb.Length)
             {
-                _console.Render(text);
+                Write(text);
                 sb.Append(text);
             }
             else
@@ -127,7 +127,7 @@ namespace CommandLineParsing.Input.Reading
                 int temp = _console.CursorLeft;
 
                 sb.Insert(Index, text);
-                _console.Render(sb.ToString().Substring(Index));
+                Write(sb.ToString().Substring(Index));
 
                 _console.CursorLeft = temp + text.Length;
             }
@@ -145,7 +145,7 @@ namespace CommandLineParsing.Input.Reading
 
             if (Index == Length)
             {
-                _console.Render(info.ToString());
+                Write(info.ToString());
                 sb.Append(info);
             }
             else
@@ -153,7 +153,7 @@ namespace CommandLineParsing.Input.Reading
                 int temp = _console.CursorLeft;
 
                 sb.Insert(_console.CursorLeft - position, info);
-                _console.Render(sb.ToString().Substring(_console.CursorLeft - position));
+                Write(sb.ToString().Substring(_console.CursorLeft - position));
 
                 _console.CursorLeft = temp + 1;
             }
@@ -189,7 +189,7 @@ namespace CommandLineParsing.Input.Reading
 
                 int temp = _console.CursorLeft;
                 _console.CursorLeft += length;
-                _console.Render(replace);
+                Write(replace);
                 _console.CursorLeft = temp + length;
             }
             else if (length > 0)
@@ -201,7 +201,7 @@ namespace CommandLineParsing.Input.Reading
 
                 int temp = _console.CursorLeft;
                 sb.Remove(Index, length);
-                _console.Render(sb.ToString().Substring(Index) + new string(' ', length));
+                Write(sb.ToString().Substring(Index) + new string(' ', length));
                 _console.CursorLeft = temp;
             }
 
@@ -240,6 +240,11 @@ namespace CommandLineParsing.Input.Reading
             }
 
             return i;
+        }
+
+        private void Write(string content)
+        {
+            _console.Write(ConsoleString.FromContent(content));
         }
 
         /// <summary>
@@ -283,7 +288,7 @@ namespace CommandLineParsing.Input.Reading
                     break;
 
                 default:
-                    if (ConsoleReader.IsInputCharacter(key))
+                    if (IsInputCharacter(key))
                         Insert(key.KeyChar);
                     break;
             }
