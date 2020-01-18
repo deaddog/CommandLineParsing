@@ -25,7 +25,7 @@ namespace CommandLineParsing.Output.Formatting
                 name: name,
                 selector: selector,
                 paddedLength: null,
-                dynamicColors: ImmutableDictionary<string, Func<T, string>>.Empty
+                dynamicColors: ImmutableDictionary<string, Func<T, Color>>.Empty
             ));
         }
         /// <summary>
@@ -77,9 +77,21 @@ namespace CommandLineParsing.Output.Formatting
         /// <typeparam name="T">The type of elements the resulting formatter will support.</typeparam>
         /// <param name="composer">The <see cref="IVariableComposer{T}"/> being extended.</param>
         /// <param name="color">The dynamic color name that this rule should apply to.</param>
-        /// <param name="colorSelector">A function that determies the actual color to print when this dynamic color is used.</param>
+        /// <param name="colorSelector">A function that determies the actual color to print when this dynamic color is used. Color strings are parsed using <see cref="Color.Parse(string)"/>.</param>
         /// <returns>A <see cref="IVariableComposer{T}"/> for further configuration.</returns>
         public static IVariableComposer<T> WithDynamicColor<T>(this IVariableComposer<T> composer, string color, Func<T, string> colorSelector)
+        {
+            return WithDynamicColor(composer, color, x => Color.Parse(colorSelector(x)));
+        }
+        /// <summary>
+        /// Sets handling of a dynamic color.
+        /// </summary>
+        /// <typeparam name="T">The type of elements the resulting formatter will support.</typeparam>
+        /// <param name="composer">The <see cref="IVariableComposer{T}"/> being extended.</param>
+        /// <param name="color">The dynamic color name that this rule should apply to.</param>
+        /// <param name="colorSelector">A function that determies the actual color to print when this dynamic color is used.</param>
+        /// <returns>A <see cref="IVariableComposer{T}"/> for further configuration.</returns>
+        public static IVariableComposer<T> WithDynamicColor<T>(this IVariableComposer<T> composer, string color, Func<T, Color> colorSelector)
         {
             return composer.With(new Variable<T>
             (
@@ -94,9 +106,20 @@ namespace CommandLineParsing.Output.Formatting
         /// </summary>
         /// <typeparam name="T">The type of elements the resulting formatter will support.</typeparam>
         /// <param name="composer">The <see cref="IVariableComposer{T}"/> being extended.</param>
-        /// <param name="colorSelector">A function that determies the actual color to print when "auto" is used.</param>
+        /// <param name="colorSelector">A function that determies the actual color to print when "auto" is used. Color strings are parsed using <see cref="Color.Parse(string)"/>.</param>
         /// <returns>A <see cref="IVariableComposer{T}"/> for further configuration.</returns>
         public static IVariableComposer<T> WithAutoColor<T>(this IVariableComposer<T> composer, Func<T, string> colorSelector)
+        {
+            return WithAutoColor(composer, x => Color.Parse(colorSelector(x)));
+        }
+        /// <summary>
+        /// Sets handling of a dynamic color with the name "auto".
+        /// </summary>
+        /// <typeparam name="T">The type of elements the resulting formatter will support.</typeparam>
+        /// <param name="composer">The <see cref="IVariableComposer{T}"/> being extended.</param>
+        /// <param name="colorSelector">A function that determies the actual color to print when "auto" is used.</param>
+        /// <returns>A <see cref="IVariableComposer{T}"/> for further configuration.</returns>
+        public static IVariableComposer<T> WithAutoColor<T>(this IVariableComposer<T> composer, Func<T, Color> colorSelector)
         {
             return composer.WithDynamicColor("auto", colorSelector);
         }
