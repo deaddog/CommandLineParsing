@@ -13,6 +13,19 @@ namespace CommandLineParsing.Output
         public static Color NoColor { get; } = new Color();
 
         /// <summary>
+        /// Parses a <see cref="string"/> into a <see cref="Color"/>.
+        /// </summary>
+        /// <param name="color">The string that should represent the color.</param>
+        /// <returns>A <see cref="Color"/> that represents <paramref name="color"/>.</returns>
+        public static Color Parse(string color)
+        {
+            if (string.IsNullOrWhiteSpace(color))
+                return NoColor;
+
+            return new Color(color.Trim());
+        }
+
+        /// <summary>
         /// Initializes a new <see cref="Color"/> instance.
         /// </summary>
         /// <param name="name">The name used to describe the desired color.</param>
