@@ -119,6 +119,15 @@ namespace CommandLineParsing.Output
         public string Background { get; }
 
         /// <summary>
+        /// Gets a boolean indicating if this <see cref="Color"/> has a foreground color.
+        /// </summary>
+        public bool HasForeground => !(Foreground is null);
+        /// <summary>
+        /// Gets a boolean indicating if this <see cref="Color"/> has a background color.
+        /// </summary>
+        public bool HasBackground => !(Background is null);
+
+        /// <summary>
         /// Returns a <see cref="string" /> that represents this <see cref="Color"/>.
         /// </summary>
         /// <returns>
