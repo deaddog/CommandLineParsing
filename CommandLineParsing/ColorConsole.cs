@@ -171,7 +171,7 @@ namespace CommandLineParsing
 
             foreach (var p in value)
             {
-                var color = (p.HasColor ? colors[p.Color.Name] : null) ?? _activeConsole.ForegroundColor;
+                var color = (p.HasColor ? colors[p.Color.Foreground] : null) ?? _activeConsole.ForegroundColor;
                 if(allowcolor && color != _activeConsole.ForegroundColor)
                 {
                     ConsoleColor temp = _activeConsole.ForegroundColor;

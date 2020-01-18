@@ -22,16 +22,33 @@ namespace CommandLineParsing.Output
             if (string.IsNullOrWhiteSpace(color))
                 return NoColor;
 
-            return new Color(color.Trim());
+            var pipeIndex = color.IndexOf('|');
+
+            if (pipeIndex >= 0)
+                return new Color(color.Substring(0, pipeIndex).Trim(), color.Substring(pipeIndex + 1).Trim());
+            else
+                return new Color(color.Trim());
         }
 
         /// <summary>
         /// Initializes a new <see cref="Color"/> instance.
         /// </summary>
-        /// <param name="name">The name used to describe the desired color.</param>
-        public Color(string name)
+        /// <param name="foreground">The name used to describe the desired foreground color.</param>
+        public Color(string foreground)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Foreground = foreground ?? throw new ArgumentNullException(nameof(foreground));
+            Background = null;
+        }
+
+        /// <summary>
+        /// Initializes a new <see cref="Color"/> instance.
+        /// </summary>
+        /// <param name="foreground">The name used to describe the desired foreground color.</param>
+        /// <param name="background">The name used to describe the desired background color.</param>
+        public Color(string foreground, string background)
+        {
+            Foreground = foreground ?? throw new ArgumentNullException(nameof(foreground));
+            Background = background ?? throw new ArgumentNullException(nameof(background));
         }
 
         /// <summary>
@@ -66,7 +83,7 @@ namespace CommandLineParsing.Output
         /// </returns>
         public override int GetHashCode()
         {
-            return Name?.GetHashCode() ?? 0;
+            return (Foreground?.GetHashCode() ?? 0) ^ (Background?.GetHashCode() ?? 0);
         }
 
         /// <summary>
@@ -89,13 +106,17 @@ namespace CommandLineParsing.Output
         /// </returns>
         public bool Equals(Color other)
         {
-            return StringComparer.OrdinalIgnoreCase.Equals(Name, other.Name);
+            return StringComparer.OrdinalIgnoreCase.Equals(Foreground, other.Foreground) && StringComparer.OrdinalIgnoreCase.Equals(Background, other.Background);
         }
 
         /// <summary>
-        /// Gets the name used for the color.
+        /// Gets the name used for the foreground color.
         /// </summary>
-        public string Name { get; }
+        public string Foreground { get; }
+        /// <summary>
+        /// Gets the name used for the background color.
+        /// </summary>
+        public string Background { get; }
 
         /// <summary>
         /// Returns a <see cref="string" /> that represents this <see cref="Color"/>.
@@ -105,7 +126,10 @@ namespace CommandLineParsing.Output
         /// </returns>
         public override string ToString()
         {
-            return Name;
+            if (Background is null)
+                return Foreground;
+            else
+                return $"{Foreground}|{Background}";
         }
     }
 }
