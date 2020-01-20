@@ -14,9 +14,15 @@ namespace CommandLineParsing.Tests
             _console = console ?? throw new ArgumentNullException(nameof(console));
         }
 
-        public void Line(int lineIndex, string text, int startIndex = 0)
+        public void Line(int lineIndex, string text, int startIndex = 0, AssertStrings strings = AssertStrings.Buffer)
         {
-            var state = _console.BufferStrings;
+            var state = strings switch
+            {
+                AssertStrings.Buffer => _console.BufferStrings,
+                AssertStrings.Window => _console.WindowStrings,
+                _ => throw new ArgumentOutOfRangeException(nameof(strings))
+            };
+
             var str = state.FirstOrDefault(x => x.Position.Top == lineIndex);
 
             if (str == null)
