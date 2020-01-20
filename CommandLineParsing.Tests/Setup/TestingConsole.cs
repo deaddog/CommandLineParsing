@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace CommandLineParsing.Tests
+namespace CommandLineParsing.Tests.Setup
 {
     public class TestingConsole : IConsole
     {

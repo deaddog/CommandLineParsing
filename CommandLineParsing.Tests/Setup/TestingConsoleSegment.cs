@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CommandLineParsing.Tests
+namespace CommandLineParsing.Tests.Setup
 {
     public class TestingConsoleSegment
     {

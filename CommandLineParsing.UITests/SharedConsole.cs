@@ -5,12 +5,12 @@ namespace CommandLineParsing.UITests
 {
     public class SharedConsole : IConsole
     {
-        private readonly Tests.TestingConsole _testConsole;
+        private readonly Tests.Setup.TestingConsole _testConsole;
         private readonly IConsole _console;
 
         public SharedConsole()
         {
-            _testConsole = new Tests.TestingConsole();
+            _testConsole = new Tests.Setup.TestingConsole();
             _console = Consoles.SystemConsole.Instance;
 
             _testConsole.SetBufferSize(_console.BufferWidth, _console.BufferHeight);
@@ -19,8 +19,8 @@ namespace CommandLineParsing.UITests
             _testConsole.SetWindowPosition(_console.WindowLeft, _console.WindowTop);
         }
 
-        public Tests.TestingConsoleString[] BufferStrings => _testConsole.BufferStrings;
-        public Tests.TestingConsoleString[] WindowStrings => _testConsole.WindowStrings;
+        public Tests.Setup.TestingConsoleString[] BufferStrings => _testConsole.BufferStrings;
+        public Tests.Setup.TestingConsoleString[] WindowStrings => _testConsole.WindowStrings;
 
         public int BufferWidth
         {

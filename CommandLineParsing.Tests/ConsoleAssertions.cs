@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using CommandLineParsing.Tests.Setup;
+using NUnit.Framework;
 using System;
 using System.Linq;
 
