@@ -1,5 +1,4 @@
 ﻿using CommandLineParsing.Input;
-using CommandLineParsing.Tests.Setup;
 using NUnit.Framework;
 using System;
 

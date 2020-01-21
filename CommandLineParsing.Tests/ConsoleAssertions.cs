@@ -1,5 +1,4 @@
-﻿using CommandLineParsing.Tests.Setup;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Linq;
 
@@ -7,14 +6,14 @@ namespace CommandLineParsing.Tests
 {
     public class ConsoleAssertions
     {
-        private readonly TestingConsole _console;
+        private readonly TestComponents.TestingConsole _console;
 
-        public ConsoleAssertions(TestingConsole console)
+        public ConsoleAssertions(TestComponents.TestingConsole console)
         {
             _console = console ?? throw new ArgumentNullException(nameof(console));
         }
 
-        private TestingConsoleString[] GetState(AssertStrings strings)
+        private TestComponents.ConsoleString[] GetState(AssertStrings strings)
         {
             return strings switch
             {
@@ -40,13 +39,6 @@ namespace CommandLineParsing.Tests
                 Assert.Fail("The console did not contain line index {0}.", lineIndex);
             else
             {
-                var diff = text.Length - text.TrimStart(' ').Length;
-                if (diff != 0)
-                {
-                    text = text.Substring(diff);
-                    startIndex += diff;
-                }
-
                 Assert.AreEqual(startIndex, str.Position.Left);
                 Assert.AreEqual(text, str.Text);
             }
