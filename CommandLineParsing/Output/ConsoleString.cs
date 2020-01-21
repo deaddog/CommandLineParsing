@@ -8,7 +8,7 @@ namespace CommandLineParsing.Output
     /// Represents a string with embedded color-information.
     /// A string is implicitly converted into a <see cref="ConsoleString"/>.
     /// </summary>
-    public partial class ConsoleString : IEnumerable<ConsoleStringSegment>
+    public partial class ConsoleString : IEquatable<ConsoleString>, IEnumerable<ConsoleStringSegment>
     {
         private readonly ConsoleStringSegment[] _content;
         private readonly Lazy<string> _text;
