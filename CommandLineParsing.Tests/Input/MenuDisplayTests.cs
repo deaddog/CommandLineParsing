@@ -8,15 +8,6 @@ namespace CommandLineParsing.Tests.Input
     [TestFixture]
     public class MenuDisplayTests : ConsoleTestBase
     {
-        private TestingConsole console;
-
-        [SetUp]
-        public void CreateConsole()
-        {
-            console = new TestingConsole();
-            ColorConsole.ActiveConsole = console;
-        }
-
         [Test]
         public void TopBottomPrefixAdding()
         {
@@ -108,7 +99,7 @@ namespace CommandLineParsing.Tests.Input
         [Test]
         public void ScrollbackCleanUp()
         {
-            console.WindowHeight = 5;
+            Console.WindowHeight = 5;
 
             ColorConsole.WriteLine("Line 1");
             ColorConsole.WriteLine("Line 2");

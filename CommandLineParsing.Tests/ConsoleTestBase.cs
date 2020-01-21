@@ -1,4 +1,5 @@
-﻿using CommandLineParsing.Tests.Setup;
+﻿using CommandLineParsing.Consoles;
+using CommandLineParsing.Tests.Setup;
 using NUnit.Framework;
 
 namespace CommandLineParsing.Tests
@@ -16,6 +17,7 @@ namespace CommandLineParsing.Tests
             AssertConsole = new ConsoleAssertions(_console);
         }
 
+        public IConsole Console => _console;
         public ConsoleAssertions AssertConsole { get; private set; }
     }
 }
