@@ -75,8 +75,10 @@ namespace CommandLineParsing.Tests.Parsing
         [Test]
         public void ParseBasicTypes()
         {
-            Assert.AreEqual(5d, ParserLookup.Parse<double>(_settings, "5,0"));
-            Assert.AreEqual(5f, ParserLookup.Parse<float>(_settings, "5,0"));
+            System.Globalization.CultureInfo.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+
+            Assert.AreEqual(5d, ParserLookup.Parse<double>(_settings, "5.0"));
+            Assert.AreEqual(5f, ParserLookup.Parse<float>(_settings, "5.0"));
             Assert.AreEqual(14, ParserLookup.Parse<int>(_settings, "14"));
             Assert.AreEqual("hello", ParserLookup.Parse<string>(_settings, "hello"));
             Assert.AreEqual(new DateTime(2017, 11, 13), ParserLookup.Parse<DateTime>(_settings, "2017-11-13"));
