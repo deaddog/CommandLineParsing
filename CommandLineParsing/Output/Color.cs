@@ -34,25 +34,10 @@ namespace CommandLineParsing.Output
             return c;
         }
 
-        /// <summary>
-        /// Initializes a new <see cref="Color"/> instance.
-        /// </summary>
-        /// <param name="foreground">The name used to describe the desired foreground color.</param>
-        public Color(string foreground)
+        private Color(string foreground, string background)
         {
-            Foreground = foreground ?? throw new ArgumentNullException(nameof(foreground));
-            Background = null;
-        }
-
-        /// <summary>
-        /// Initializes a new <see cref="Color"/> instance.
-        /// </summary>
-        /// <param name="foreground">The name used to describe the desired foreground color.</param>
-        /// <param name="background">The name used to describe the desired background color.</param>
-        public Color(string foreground, string background)
-        {
-            Foreground = foreground ?? throw new ArgumentNullException(nameof(foreground));
-            Background = background ?? throw new ArgumentNullException(nameof(background));
+            Foreground = foreground;
+            Background = background;
         }
 
         /// <summary>
