@@ -19,15 +19,19 @@ namespace CommandLineParsing.Output
         /// <returns>A <see cref="Color"/> that represents <paramref name="color"/>.</returns>
         public static Color Parse(string color)
         {
-            if (string.IsNullOrWhiteSpace(color))
-                return NoColor;
-
+            var c = NoColor;
             var pipeIndex = color.IndexOf('|');
 
-            if (pipeIndex >= 0)
-                return new Color(color.Substring(0, pipeIndex).Trim(), color.Substring(pipeIndex + 1).Trim());
-            else
-                return new Color(color.Trim());
+            var foreground = pipeIndex >= 0 ? color.Substring(0, pipeIndex).Trim() : color.Trim();
+            var background = pipeIndex >= 0 ? color.Substring(pipeIndex + 1).Trim() : string.Empty;
+
+            if (foreground != string.Empty)
+                c = c.WithForeground(foreground);
+
+            if (background != string.Empty)
+                c = c.WithBackground(background);
+
+            return c;
         }
 
         /// <summary>
