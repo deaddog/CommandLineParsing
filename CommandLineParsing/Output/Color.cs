@@ -52,6 +52,58 @@ namespace CommandLineParsing.Output
         }
 
         /// <summary>
+        /// Constructs a new <see cref="Color"/> with the specified foreground color.
+        /// </summary>
+        /// <param name="foreground">The name used to describe the desired foreground color.</param>
+        /// <returns>A copy of this <see cref="Color"/> with the specified foreground color</returns>
+        public Color WithForeground(string foreground)
+        {
+            return new Color
+            (
+                foreground: foreground ?? throw new ArgumentNullException(nameof(foreground)),
+                background: Background
+            );
+        }
+        /// <summary>
+        /// Constructs a new <see cref="Color"/> with the specified background color.
+        /// </summary>
+        /// <param name="background">The name used to describe the desired background color.</param>
+        /// <returns>A copy of this <see cref="Color"/> with the specified background color</returns>
+        public Color WithBackground(string background)
+        {
+            return new Color
+            (
+                foreground: Foreground,
+                background: background ?? throw new ArgumentNullException(nameof(background))
+            );
+        }
+
+        /// <summary>
+        /// Constructs a new <see cref="Color"/> without a foreground color.
+        /// </summary>
+        /// <returns>A copy of this <see cref="Color"/> without a foreground color</returns>
+        public Color WithoutForeground()
+        {
+            return new Color
+            (
+                foreground: null,
+                background: Background
+            );
+        }
+        /// <summary>
+        /// Constructs a new <see cref="Color"/> without a background color.
+        /// </summary>
+        /// <returns>A copy of this <see cref="Color"/> without a background color</returns>
+        public Color WithoutBackground()
+        {
+            return new Color
+            (
+                foreground: Foreground,
+                background: null
+            );
+        }
+
+        /// <summary>
         /// Determines if the two colors are equal.
         /// </summary>
         /// <param name="c1">The first color to compare.</param>
