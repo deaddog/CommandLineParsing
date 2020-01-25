@@ -37,6 +37,10 @@ namespace CommandLineParsing.Output
         {
             Content = content ?? throw new ArgumentNullException(nameof(content));
             Color = color;
+
+            if (string.IsNullOrWhiteSpace(content))
+                Color = Color.WithoutForeground();
+
             HasColor = Color != Color.NoColor;
         }
     }
