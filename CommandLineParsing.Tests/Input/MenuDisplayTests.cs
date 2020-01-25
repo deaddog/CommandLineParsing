@@ -18,34 +18,44 @@ namespace CommandLineParsing.Tests.Input
             AssertConsole.LineCount(0);
 
             display.Options.Add(new MenuOption<string>("first", "first"));
-            AssertConsole.LineCount(1);
-            AssertConsole.Line(0, "  a: first");
+            AssertConsole.BufferAndWindowLines
+            (
+                "  a: first"
+            );
 
             display.Options.Add(new MenuOption<string>("second", "second"));
-            AssertConsole.LineCount(2);
-            AssertConsole.Line(0, "  b: first");
-            AssertConsole.Line(1, "  a: second");
+            AssertConsole.BufferAndWindowLines
+            (
+                "  b: first",
+                "  a: second"
+            );
 
             display.Options.Add(new MenuOption<string>("third", "third"));
-            AssertConsole.LineCount(3);
-            AssertConsole.Line(0, "  0: first");
-            AssertConsole.Line(1, "  b: second");
-            AssertConsole.Line(2, "  a: third");
+            AssertConsole.BufferAndWindowLines
+            (
+                "  0: first",
+                "  b: second",
+                "  a: third"
+            );
 
             display.Options.Add(new MenuOption<string>("fourth", "fourth"));
-            AssertConsole.LineCount(4);
-            AssertConsole.Line(0, "  0: first");
-            AssertConsole.Line(1, "  1: second");
-            AssertConsole.Line(2, "  b: third");
-            AssertConsole.Line(3, "  a: fourth");
+            AssertConsole.BufferAndWindowLines
+            (
+                "  0: first",
+                "  1: second",
+                "  b: third",
+                "  a: fourth"
+            );
 
             display.Options.Add(new MenuOption<string>("fifth", "fifth"));
-            AssertConsole.LineCount(5);
-            AssertConsole.Line(0, "  0: first");
-            AssertConsole.Line(1, "  1: second");
-            AssertConsole.Line(2, "     third");
-            AssertConsole.Line(3, "  b: fourth");
-            AssertConsole.Line(4, "  a: fifth");
+            AssertConsole.BufferAndWindowLines
+            (
+                "  0: first",
+                "  1: second",
+                "     third",
+                "  b: fourth",
+                "  a: fifth"
+            );
         }
 
         [Test]
@@ -62,37 +72,47 @@ namespace CommandLineParsing.Tests.Input
             display.Options.Add(new MenuOption<string>("fourth", "fourth"));
             display.Options.Add(new MenuOption<string>("fifth", "fifth"));
 
-            AssertConsole.LineCount(5);
-            AssertConsole.Line(0, "  0: first");
-            AssertConsole.Line(1, "  1: second");
-            AssertConsole.Line(2, "     third");
-            AssertConsole.Line(3, "  b: fourth");
-            AssertConsole.Line(4, "  a: fifth");
+            AssertConsole.BufferAndWindowLines
+            (
+                "  0: first",
+                "  1: second",
+                "     third",
+                "  b: fourth",
+                "  a: fifth"
+            );
 
             display.Options.RemoveAt(4);
-            AssertConsole.LineCount(4);
-            AssertConsole.Line(0, "  0: first");
-            AssertConsole.Line(1, "  1: second");
-            AssertConsole.Line(2, "  b: third");
-            AssertConsole.Line(3, "  a: fourth");
+            AssertConsole.BufferAndWindowLines
+            (
+                "  0: first",
+                "  1: second",
+                "  b: third",
+                "  a: fourth"
+            );
 
             display.Options.RemoveAt(3);
-            AssertConsole.LineCount(3);
-            AssertConsole.Line(0, "  0: first");
-            AssertConsole.Line(1, "  b: second");
-            AssertConsole.Line(2, "  a: third");
+            AssertConsole.BufferAndWindowLines
+            (
+                "  0: first",
+                "  b: second",
+                "  a: third"
+            );
 
             display.Options.RemoveAt(2);
-            AssertConsole.LineCount(2);
-            AssertConsole.Line(0, "  b: first");
-            AssertConsole.Line(1, "  a: second");
+            AssertConsole.BufferAndWindowLines
+            (
+                "  b: first",
+                "  a: second"
+            );
 
             display.Options.RemoveAt(1);
-            AssertConsole.LineCount(1);
-            AssertConsole.Line(0, "  a: first");
+            AssertConsole.BufferAndWindowLines
+            (
+                "  a: first"
+            );
 
             display.Options.RemoveAt(0);
-            AssertConsole.LineCount(0);
+            AssertConsole.BufferAndWindowLines();
         }
 
         [Test]
@@ -112,9 +132,11 @@ namespace CommandLineParsing.Tests.Input
             display.Options.Add(new MenuOption<string>("fifth", "fifth"));
             display.Dispose();
 
-            AssertConsole.LineCount(2, AssertStrings.Window);
-            AssertConsole.Line(0, "Line 1");
-            AssertConsole.Line(1, "Line 2");
+            AssertConsole.BufferAndWindowLines
+            (
+                "Line 1",
+                "Line 2"
+            );
         }
 
         [Test]
@@ -125,26 +147,34 @@ namespace CommandLineParsing.Tests.Input
             dis.Options.Add(new MenuOption<string>("second", "second"));
             dis.Options.Add(new MenuOption<string>("third", "third"));
 
-            AssertConsole.LineCount(2);
-            AssertConsole.Line(0, "  first");
-            AssertConsole.Line(1, "  second");
+            AssertConsole.BufferAndWindowLines
+            (
+                "  first",
+                "  second"
+            );
 
             dis.HandleKey(new ConsoleKeyInfo('\0', ConsoleKey.UpArrow, false, false, false));
 
-            AssertConsole.LineCount(2);
-            AssertConsole.Line(0, "  second");
-            AssertConsole.Line(1, "> third");
+            AssertConsole.BufferAndWindowLines
+            (
+                "  second",
+                "> third"
+            );
 
             dis.Options.RemoveAt(0);
 
-            AssertConsole.LineCount(2);
-            AssertConsole.Line(0, "  second");
-            AssertConsole.Line(1, "> third");
+            AssertConsole.BufferAndWindowLines
+            (
+                "  second",
+                "> third"
+            );
 
             dis.Options.RemoveAt(0);
 
-            AssertConsole.LineCount(1);
-            AssertConsole.Line(0, "> third");
+            AssertConsole.BufferAndWindowLines
+            (
+                "> third"
+            );
         }
 
         [Test]
@@ -157,17 +187,21 @@ namespace CommandLineParsing.Tests.Input
 
             dis.HandleKey(new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false));
 
-            AssertConsole.LineCount(3);
-            AssertConsole.Line(0, "> first");
-            AssertConsole.Line(1, "  second");
-            AssertConsole.Line(2, "  third");
+            AssertConsole.BufferAndWindowLines
+            (
+                "> first",
+                "  second",
+                "  third"
+            );
 
             dis.Prompt = ">> ";
 
-            AssertConsole.LineCount(3);
-            AssertConsole.Line(0, ">> first");
-            AssertConsole.Line(1, "   second");
-            AssertConsole.Line(2, "   third");
+            AssertConsole.BufferAndWindowLines
+            (
+                ">> first",
+                "   second",
+                "   third"
+            );
         }
 
         [Test]
@@ -180,17 +214,21 @@ namespace CommandLineParsing.Tests.Input
 
             dis.HandleKey(new ConsoleKeyInfo('\0', ConsoleKey.DownArrow, false, false, false));
 
-            AssertConsole.LineCount(3);
-            AssertConsole.Line(0, "> first");
-            AssertConsole.Line(1, "  second");
-            AssertConsole.Line(2, "  third");
+            AssertConsole.BufferAndWindowLines
+            (
+                "> first",
+                "  second",
+                "  third"
+            );
 
             dis.Prompt = ">";
 
-            AssertConsole.LineCount(3);
-            AssertConsole.Line(0, ">first");
-            AssertConsole.Line(1, " second");
-            AssertConsole.Line(2, " third");
+            AssertConsole.BufferAndWindowLines
+            (
+                ">first",
+                " second",
+                " third"
+            );
         }
     }
 }
