@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using CommandLineParsing.Output;
+using NUnit.Framework;
 using System;
 using System.Linq;
 
@@ -30,7 +31,7 @@ namespace CommandLineParsing.Tests
             Assert.AreEqual(expectedCount, state.Length, "Number of lines in console ({0}) did not match expected ({1}).", state.Length, expectedCount);
         }
 
-        public void Line(int lineIndex, string text, int startIndex = 0, AssertStrings strings = AssertStrings.Buffer)
+        public void Line(int lineIndex, ConsoleString expected, AssertStrings strings = AssertStrings.Buffer)
         {
             var state = GetState(strings);
             var str = state.FirstOrDefault(x => x.Position.Top == lineIndex);
@@ -39,8 +40,8 @@ namespace CommandLineParsing.Tests
                 Assert.Fail("The console did not contain line index {0}.", lineIndex);
             else
             {
-                Assert.AreEqual(startIndex, str.Position.Left);
-                Assert.AreEqual(text, str.Text);
+                Assert.AreEqual(0, str.Position.Left);
+                Assert.AreEqual(expected, str);
             }
         }
     }
