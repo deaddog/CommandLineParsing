@@ -131,7 +131,7 @@ namespace CommandLineParsing.Output
         /// <returns>A <see cref="ConsoleString"/> representing the result of the parsed string.</returns>
         public static ConsoleString Parse(string content, bool maintainEscape = false)
         {
-            var segments = ParseToSegments(content, maintainEscape, null);
+            var segments = ParseToSegments(content, maintainEscape, Color.NoColor);
             segments = MergeSameColor(segments);
 
             return new ConsoleString(segments);
@@ -155,7 +155,7 @@ namespace CommandLineParsing.Output
 
             yield return temp;
         }
-        private static IEnumerable<ConsoleStringSegment> ParseToSegments(string value, bool maintainEscape, string currentColor)
+        private static IEnumerable<ConsoleStringSegment> ParseToSegments(string value, bool maintainEscape, Color currentColor)
         {
             if (string.IsNullOrEmpty(value))
                 yield break;
@@ -177,7 +177,7 @@ namespace CommandLineParsing.Output
                                 yield return new ConsoleStringSegment($"[{block}]", currentColor);
                             else
                             {
-                                var color = block.Substring(0, colon);
+                                var color = Color.Parse(block.Substring(0, colon));
                                 string content = block.Substring(colon + 1);
 
                                 foreach (var p in ParseToSegments(content, maintainEscape, color))
@@ -248,7 +248,7 @@ namespace CommandLineParsing.Output
         /// <param name="content">The content of the <see cref="ConsoleString"/>. No parsing is applied.</param>
         /// <param name="color">The color that should be applied to <paramref name="content"/>.</param>
         /// <returns>A new <see cref="ConsoleString"/> defined by <paramref name="content"/> with color <paramref name="color"/>.</returns>
-        public static ConsoleString FromContent(string content, string color)
+        public static ConsoleString FromContent(string content, Color color)
         {
             return Create(new ConsoleStringSegment(content, color));
         }
@@ -352,7 +352,7 @@ namespace CommandLineParsing.Output
         /// <returns>A <see cref="ConsoleString"/> that has been stripped of coloring.</returns>
         public ConsoleString ClearColors()
         {
-            return new ConsoleString(new ConsoleStringSegment[] { new ConsoleStringSegment(string.Concat(_content.Select(x => x.Content)), null) });
+            return new ConsoleString(new ConsoleStringSegment[] { new ConsoleStringSegment(string.Concat(_content.Select(x => x.Content)), Color.NoColor) });
         }
         /// <summary>
         /// Returns a new <see cref="ConsoleString"/> where the currently parsed color-information is escaped.
@@ -360,7 +360,7 @@ namespace CommandLineParsing.Output
         /// <returns>A new <see cref="ConsoleString"/> where the currently parsed color-information is escaped.</returns>
         public ConsoleString EscapeColors()
         {
-            return new ConsoleString(new ConsoleStringSegment[] { new ConsoleStringSegment(string.Concat(_content.Select(x => $@"\[{x.Color}:{x.Content}\]")), null) });
+            return new ConsoleString(new ConsoleStringSegment[] { new ConsoleStringSegment(string.Concat(_content.Select(x => $@"\[{x.Color}:{x.Content}\]")), Color.NoColor) });
         }
 
         /// <summary>
@@ -379,7 +379,7 @@ namespace CommandLineParsing.Output
 
                 var segments = str._content;
                 if (x.HasColor)
-                    segments = segments.Select(s => new ConsoleStringSegment(s.Content, s.Color ?? x.Color)).ToArray();
+                    segments = segments.Select(s => new ConsoleStringSegment(s.Content, s.Color != Color.NoColor ? s.Color : x.Color)).ToArray();
 
                 return segments;
             }));

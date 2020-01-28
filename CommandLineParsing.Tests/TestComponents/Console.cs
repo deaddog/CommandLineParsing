@@ -1,12 +1,12 @@
-﻿using CommandLineParsing.Consoles;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 
-namespace CommandLineParsing.Tests
+namespace CommandLineParsing.Tests.TestComponents
 {
-    public class TestingConsole : IConsole
+    public class TestingConsole : Consoles.IConsole
     {
         private ConsoleSize _bufferSize;
         private ConsolePoint _cursorPosition;
@@ -40,14 +40,14 @@ namespace CommandLineParsing.Tests
 
         public InputCollection Input => _input;
 
-        private TestingConsoleString[] _bufferStrings;
-        public TestingConsoleString[] BufferStrings
+        private ConsoleString[] _bufferStrings;
+        public ConsoleString[] BufferStrings
         {
             get
             {
                 if (_bufferStrings == null)
                 {
-                    var strings = new List<TestingConsoleString>();
+                    var strings = new List<ConsoleString>();
 
                     for (int r = 0; r < _content.Count; r++)
                     {
@@ -55,26 +55,26 @@ namespace CommandLineParsing.Tests
                         var fg = _foreground[r];
                         var bg = _background[r];
 
-                        int start = GetFirstActive(row);
-                        if (start == -1)
+                        if (GetFirstActive(row) == -1)
                             continue;
+                        int start = 0;
                         int end = GetLastActive(row);
 
-                        var segments = new List<TestingConsoleSegment>();
+                        var segments = new List<ConsoleSegment>();
 
                         var text = row[start].ToString();
 
                         for (int i = start + 1; i <= end; i++)
                             if (fg[i] != fg[i - 1] || bg[i] != bg[i - 1])
                             {
-                                segments.Add(new TestingConsoleSegment(text, fg[i - 1], bg[i - 1]));
+                                segments.Add(new ConsoleSegment(text, fg[i - 1], bg[i - 1]));
                                 text = row[i].ToString();
                             }
                             else
                                 text += row[i];
 
-                        segments.Add(new TestingConsoleSegment(text, fg[end], bg[end]));
-                        strings.Add(new TestingConsoleString(new ConsolePoint(start, r), segments));
+                        segments.Add(new ConsoleSegment(text, fg[end], bg[end]));
+                        strings.Add(new ConsoleString(new ConsolePoint(start, r), segments));
                     }
                     _bufferStrings = strings.ToArray();
                 }
@@ -97,11 +97,11 @@ namespace CommandLineParsing.Tests
             return -1;
         }
 
-        public TestingConsoleString[] WindowStrings
+        public ConsoleString[] WindowStrings
         {
             get
             {
-                var strings = new List<TestingConsoleString>();
+                var strings = new List<ConsoleString>();
 
                 foreach (var str in BufferStrings)
                 {
@@ -112,7 +112,7 @@ namespace CommandLineParsing.Tests
                     var currentLeft = stringLeft;
                     var remaining = _windowSize.Width;
 
-                    var segments = str.GetSegments().Select(segment =>
+                    var segments = str.Segments.Select(segment =>
                     {
                         var text = segment.Text;
 
@@ -130,14 +130,14 @@ namespace CommandLineParsing.Tests
                         currentLeft += segment.Text.Length;
                         remaining -= text.Length;
 
-                        return new TestingConsoleSegment(text, segment.Foreground, segment.Background);
-                    }).Where(x => !string.IsNullOrEmpty(x.Text)).ToList();
+                        return new ConsoleSegment(text, segment.Foreground, segment.Background);
+                    }).Where(x => !string.IsNullOrEmpty(x.Text)).ToImmutableList();
 
                     if (segments.Count > 0)
                     {
                         var left = Math.Max(0, stringLeft);
                         var top = str.Position.Top - _windowPosition.Top;
-                        strings.Add(new TestingConsoleString(new ConsolePoint(left, top), segments));
+                        strings.Add(new ConsoleString(new ConsolePoint(left, top), segments));
                     }
                 }
 

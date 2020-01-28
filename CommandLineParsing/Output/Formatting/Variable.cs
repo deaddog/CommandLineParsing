@@ -16,7 +16,7 @@ namespace CommandLineParsing.Output.Formatting
         /// <param name="selector">A function that gets the variables content when used in a format.</param>
         /// <param name="paddedLength">The variables padded length, or <c>null</c> is padding should not be enabled.</param>
         /// <param name="dynamicColors">Describes dynamic color translation for the variable.</param>
-        public Variable(string name, Func<T, string> selector, int? paddedLength, IImmutableDictionary<string, Func<T, string>> dynamicColors)
+        public Variable(string name, Func<T, string> selector, int? paddedLength, IImmutableDictionary<string, Func<T, Color>> dynamicColors)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentException("Variable must have a name.", nameof(name));
@@ -50,6 +50,6 @@ namespace CommandLineParsing.Output.Formatting
         /// Gets a dictionary of dynamic colors.
         /// The key will work as the color name in a format, and the functions represent the method that defines the actual color.
         /// </summary>
-        public IImmutableDictionary<string, Func<T, string>> DynamicColors { get; }
+        public IImmutableDictionary<string, Func<T, Color>> DynamicColors { get; }
     }
 }

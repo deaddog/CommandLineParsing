@@ -16,9 +16,9 @@ namespace CommandLineParsing.Output.Formatting
         {
             return new ConsoleString(new[]
             {
-                new ConsoleStringSegment($"[{error}:", "darkred"),
-                new ConsoleStringSegment(elementName, "red"),
-                new ConsoleStringSegment("]", "darkred")
+                new ConsoleStringSegment($"[{error}:", Color.Parse("darkred")),
+                new ConsoleStringSegment(elementName, Color.Parse("red")),
+                new ConsoleStringSegment("]", Color.Parse("darkred"))
             });
         }
 
@@ -77,7 +77,7 @@ namespace CommandLineParsing.Output.Formatting
                 .Visit(format.Content)
                 .Select(v => _variables.TryGetValue(v.Name, out var variable) && variable.DynamicColors.TryGetValue(format.Color, out var colorFunc) ? colorFunc : null)
                 .FirstOrDefault(x => !(x is null))
-                ?.Invoke(item) ?? format.Color;
+                ?.Invoke(item) ?? Color.NoColor;
 
             var content = Visit(format.Content, item);
             var segments = content.Select(x => x.HasColor ? x : new ConsoleStringSegment(x.Content, color));

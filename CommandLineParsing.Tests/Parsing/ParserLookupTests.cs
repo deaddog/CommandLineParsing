@@ -5,9 +5,8 @@ using System;
 namespace CommandLineParsing.Tests.Parsing
 {
     [TestFixture]
-    public class ParserLookupTests
+    public class ParserLookupTests : ConsoleTestBase
     {
-        private TestingConsole _console;
         private ParserSettings _settings, _settingsIgnoreCase;
 
         #region Parsing Types
@@ -49,11 +48,8 @@ namespace CommandLineParsing.Tests.Parsing
         #endregion
 
         [SetUp]
-        public void CreateConsole()
+        public void InitializeSettings()
         {
-            _console = new TestingConsole();
-            ColorConsole.ActiveConsole = _console;
-
             _settings = new ParserSettings
             {
                 EnumIgnoreCase = false,
