@@ -17,13 +17,11 @@ namespace CommandLineParsing
     public static class ConsoleExtensions
     {
         private static readonly ColorTable colors;
-        private static ConsoleCache.Builder cacheBuilder;
         private static IConsole _activeConsole;
 
         static ConsoleExtensions()
         {
             colors = new ColorTable();
-            cacheBuilder = null;
             _activeConsole = SystemConsole.Instance;
         }
 
@@ -33,51 +31,6 @@ namespace CommandLineParsing
         public static ColorTable Colors
         {
             get { return colors; }
-        }
-
-        /// <summary>
-        /// Provides functionality for caching the console output.
-        /// Cached output can be printed one line at a time, supporting up/down movement.
-        /// </summary>
-        public static class Caching
-        {
-            /// <summary>
-            /// Starts caching the console output.
-            /// Any calls to write content using the <see cref="ColorConsole"/> will not be visible in the console, but stored in the cache.
-            /// Use <see cref="End"/> to retrieve the <see cref="ConsoleCache"/> constructed.
-            /// </summary>
-            public static void Start()
-            {
-                if (cacheBuilder != null)
-                    throw new InvalidOperationException($"Caching is already started. End with {nameof(End)} or use the {nameof(Enabled)} property to check.");
-
-                cacheBuilder = new ConsoleCache.Builder();
-            }
-            /// <summary>
-            /// Ends caching.
-            /// Anything that is printed when caching was enabled will be included in the resulting <see cref="ConsoleCache"/> object.
-            /// </summary>
-            /// <param name="write">If <c>true</c>, the cached result is written to the console using the default parameters for <see cref="ConsoleCache.Write(string, Action{ConsoleKeyInfo, ConsoleCache.DisplayChange})"/>.
-            /// If <c>false</c>, nothing is written.</param>
-            /// <returns>A <see cref="ConsoleCache"/> with all the lines that were captured by the caching.</returns>
-            public static ConsoleCache End(bool write = false)
-            {
-                if (cacheBuilder == null)
-                    throw new InvalidOperationException($"Caching must first be started, see {nameof(Start)}.");
-
-                var cache = cacheBuilder.ConstructCache();
-                cacheBuilder = null;
-                if (write)
-                    cache.Write();
-
-                return cache;
-            }
-
-            /// <summary>
-            /// Gets or sets a value indicating whether <see cref="Caching"/> is enabled.
-            /// If it is, it can be ended using the <see cref="End"/> method; otherwise it can be started using the <see cref="Start"/> method.
-            /// </summary>
-            public static bool Enabled => cacheBuilder != null;
         }
 
         /// <summary>
@@ -179,12 +132,12 @@ namespace CommandLineParsing
                     ConsoleColor tempBg = _activeConsole.BackgroundColor;
                     _activeConsole.ForegroundColor = fgColor;
                     _activeConsole.BackgroundColor = bgColor;
-                    write(p.Content);
+                    _activeConsole.Write(p.Content);
                     _activeConsole.ForegroundColor = tempFg;
                     _activeConsole.BackgroundColor = tempBg;
                 }
                 else
-                    write(p.Content);
+                    _activeConsole.Write(p.Content);
             }
         }
         /// <summary>
@@ -196,14 +149,6 @@ namespace CommandLineParsing
         public static void WriteLine(ConsoleString value, bool allowcolor = true)
         {
             Write(value + ConsoleString.Parse("\n", false), allowcolor);
-        }
-
-        private static void write(string value)
-        {
-            if (cacheBuilder != null)
-                cacheBuilder.WriteString(value);
-            else
-                _activeConsole.Write(value);
         }
 
         /// <summary>
@@ -290,9 +235,6 @@ namespace CommandLineParsing
 
         private static bool readLine<T>(ParameterTryParse<T> customParser, ParserSettings parserSettings, out T result, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup, Validator<T> validator)
         {
-            if (ColorConsole.Caching.Enabled)
-                throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
-
             var promptPosition = CursorPosition;
             if (prompt != null)
                 ColorConsole.Write(prompt);
@@ -396,9 +338,6 @@ namespace CommandLineParsing
         /// <returns>A <see cref="string"/> containing the password.</returns>
         public static string ReadPassword(ConsoleString prompt = null, char? passChar = '*', bool singleSymbol = true)
         {
-            if (ColorConsole.Caching.Enabled)
-                throw new InvalidOperationException("ReadPassword cannot be used while caching is enabled.");
-
             if (prompt != null)
                 ColorConsole.Write(prompt);
 
@@ -435,9 +374,6 @@ namespace CommandLineParsing
 
         private static bool readLine(out string result, bool allowEscape, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
         {
-            if (ColorConsole.Caching.Enabled)
-                throw new InvalidOperationException("ReadLine cannot be used while caching is enabled.");
-
             result = null;
             bool resultOk = false;
             ReadLineCleanup finalCleanup = ReadLineCleanup.None;
