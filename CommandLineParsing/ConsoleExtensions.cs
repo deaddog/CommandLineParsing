@@ -14,13 +14,13 @@ namespace CommandLineParsing
     /// Provides methods for outputting color-coded text to the console using a simple format.
     /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.
     /// </summary>
-    public static class ColorConsole
+    public static class ConsoleExtensions
     {
         private static readonly ColorTable colors;
         private static ConsoleCache.Builder cacheBuilder;
         private static IConsole _activeConsole;
 
-        static ColorConsole()
+        static ConsoleExtensions()
         {
             colors = new ColorTable();
             cacheBuilder = null;
