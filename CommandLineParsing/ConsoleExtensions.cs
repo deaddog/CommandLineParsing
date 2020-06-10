@@ -82,33 +82,35 @@ namespace CommandLineParsing
         public static void SetBufferSize(this IConsole console, ConsoleSize size) => console.SetBufferSize(size.Width, size.Height);
 
         /// <summary>
-        /// Executes an operation and then restores <see cref="CursorPosition"/> to where it was when this method was called.
+        /// Executes an operation and then restores the cursor position to where it was when this method was called.
         /// </summary>
+        /// <param name="console">The console on which the action is carried out.</param>
         /// <param name="action">The action to execute.</param>
         /// <param name="hideCursor">if set to <c>true</c> the cursor will be hidden while executing <paramref name="action"/>.</param>
-        public static void TemporaryShift(Action action, bool hideCursor = true)
+        public static void TemporaryShift(this IConsole console, Action action, bool hideCursor = true)
         {
-            bool wasVisible = _activeConsole.CursorVisible;
+            bool wasVisible = console.CursorVisible;
 
-            var temp = ColorConsole.CursorPosition;
+            var temp = console.GetCursorPosition();
             if (hideCursor && wasVisible)
-                _activeConsole.CursorVisible = false;
+                console.CursorVisible = false;
 
             action();
 
             if (hideCursor && wasVisible)
-                _activeConsole.CursorVisible = true;
-            ColorConsole.CursorPosition = temp;
+                console.CursorVisible = true;
+            console.SetCursorPosition(temp);
         }
         /// <summary>
-        /// Sets <see cref="CursorPosition"/> to <paramref name="point"/>, executes an operation and then restores <see cref="CursorPosition"/> to where it was when this method was called.
+        /// Sets the cursor position to <paramref name="point"/>, executes an operation, and then restores the cursor position to where it was when this method was called.
         /// </summary>
-        /// <param name="point">The point to which <see cref="CursorPosition"/> should be shifted temporarily.</param>
+        /// <param name="console">The console on which the action is carried out.</param>
+        /// <param name="point">The point to which the cursor position should be shifted temporarily.</param>
         /// <param name="action">The action to execute.</param>
         /// <param name="hideCursor">if set to <c>true</c> the cursor will be hidden while executing <paramref name="action"/>.</param>
-        public static void TemporaryShift(this ConsolePoint point, Action action, bool hideCursor = true)
+        public static void TemporaryShift(this IConsole console, ConsolePoint point, Action action, bool hideCursor = true)
         {
-            TemporaryShift(() => { CursorPosition = point; action(); }, hideCursor);
+            TemporaryShift(console, () => { console.SetCursorPosition(point); action(); }, hideCursor);
         }
 
         /// <summary>
