@@ -49,37 +49,37 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Gets or sets the position of the cursor within the buffer area.
+        /// Gets the position of the cursor within the buffer area.
         /// </summary>
-        public static ConsolePoint CursorPosition
-        {
-            get { return new ConsolePoint(_activeConsole.CursorLeft, _activeConsole.CursorTop); }
-            set { _activeConsole.SetCursorPosition(value.Left, value.Top); }
-        }
+        public static ConsolePoint GetCursorPosition(this IConsole console) => new ConsolePoint(console.CursorLeft, console.CursorTop);
         /// <summary>
-        /// Gets or sets the position of the window area, relative to the screen buffer.
+        /// sets the position of the cursor within the buffer area.
         /// </summary>
-        public static ConsolePoint WindowPosition
-        {
-            get { return new ConsolePoint(_activeConsole.WindowLeft, _activeConsole.WindowTop); }
-            set { _activeConsole.SetWindowPosition(value.Left, value.Top); }
-        }
+        public static void SetCursorPosition(this IConsole console, ConsolePoint position) => console.SetCursorPosition(position.Left, position.Top);
         /// <summary>
-        /// Gets or sets the size of the console window.
+        /// Gets the position of the window area, relative to the screen buffer.
         /// </summary>
-        public static ConsoleSize WindowSize
-        {
-            get { return new ConsoleSize(_activeConsole.WindowWidth, _activeConsole.WindowHeight); }
-            set { _activeConsole.SetWindowSize(value.Width, value.Height); }
-        }
+        public static ConsolePoint GetWindowPosition(this IConsole console) => new ConsolePoint(console.WindowLeft, console.WindowTop);
         /// <summary>
-        /// Gets or sets the size of the buffer area.
+        /// Sets the position of the window area, relative to the screen buffer.
         /// </summary>
-        public static ConsoleSize BufferSize
-        {
-            get { return new ConsoleSize(_activeConsole.BufferWidth, _activeConsole.BufferHeight); }
-            set { _activeConsole.SetBufferSize(value.Width, value.Height); }
-        }
+        public static void SetWindowPosition(this IConsole console, ConsolePoint position) => console.SetWindowPosition(position.Left, position.Top);
+        /// <summary>
+        /// Gets the size of the console window.
+        /// </summary>
+        public static ConsoleSize GetWindowSize(this IConsole console) => new ConsoleSize(console.WindowWidth, console.WindowHeight);
+        /// <summary>
+        /// Sets the size of the console window.
+        /// </summary>
+        public static void SetWindowSize(this IConsole console, ConsoleSize size) => console.SetWindowSize(size.Width, size.Height);
+        /// <summary>
+        /// Gets the size of the buffer area.
+        /// </summary>
+        public static ConsoleSize GetBufferSize(this IConsole console) => new ConsoleSize(console.BufferWidth, console.BufferHeight);
+        /// <summary>
+        /// Sets the size of the buffer area.
+        /// </summary>
+        public static void SetBufferSize(this IConsole console, ConsoleSize size) => console.SetBufferSize(size.Width, size.Height);
 
         /// <summary>
         /// Executes an operation and then restores <see cref="CursorPosition"/> to where it was when this method was called.
