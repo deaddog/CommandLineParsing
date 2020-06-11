@@ -389,7 +389,7 @@ namespace CommandLineParsing
 
             bool done = false;
 
-            using (var readline = new ConsoleReader(prompt))
+            using (var readline = new ConsoleReader(console, prompt))
             {
                 readline.Insert(defaultString);
 
