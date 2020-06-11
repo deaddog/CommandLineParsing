@@ -193,6 +193,7 @@ namespace CommandLineParsing
         /// Writes <paramref name="prompt"/> to <see cref="Console"/>, reads user input and returns a parsed value.
         /// </summary>
         /// <typeparam name="T">The type of input that the method should accept.</typeparam>
+        /// <param name="console">The console on which the action is carried out.</param>
         /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
         /// <param name="defaultString">A <see cref="string"/> that the inputtext is initialized to.
         /// The <see cref="string"/> can be edited in the <see cref="Console"/> and is part of the parsed <see cref="string"/> if not modified.
@@ -204,19 +205,20 @@ namespace CommandLineParsing
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <typeparamref name="T"/> element parsed from user input, that meets the requirements of <paramref name="validator"/>.</returns>
-        public static T ReadLine<T>(ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ParameterTryParse<T> parser = null, Validator<T> validator = null)
+        public static T ReadLine<T>(this IConsole console, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ParameterTryParse<T> parser = null, Validator<T> validator = null)
         {
-            return ReadLine<T>(parser, parser == null ? GetParserSettings<T>() : null, prompt, defaultString, cleanup, validator);
+            return ReadLine<T>(console, parser, parser == null ? GetParserSettings<T>() : null, prompt, defaultString, cleanup, validator);
         }
-        internal static T ReadLine<T>(ParameterTryParse<T> customParser, ParserSettings parserSettings, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, Validator<T> validator = null)
+        internal static T ReadLine<T>(this IConsole console, ParameterTryParse<T> customParser, ParserSettings parserSettings, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, Validator<T> validator = null)
         {
-            readLine(customParser, parserSettings, out var result, prompt, defaultString, cleanup, ReadLineCleanup.None, validator);
+            readLine(console, customParser, parserSettings, out var result, prompt, defaultString, cleanup, ReadLineCleanup.None, validator);
             return result;
         }
         /// <summary>
         /// Reads and parses user input from <see cref="Console"/>, allowing the user to cancel input by pressing escape.
         /// </summary>
         /// <typeparam name="T">The type of input that the method should accept.</typeparam>
+        /// <param name="console">The console on which the action is carried out.</param>
         /// <param name="result">The <typeparamref name="T"/> elememnt parsed from user input. If input could not be parsed on escape, this value is unknown.</param>
         /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
         /// <param name="defaultString">A <see cref="string"/> that the inputtext is initialized to.
@@ -228,22 +230,22 @@ namespace CommandLineParsing
         /// <param name="validator">The <see cref="Validator{T}"/> object that should be used to validate a parsed value.
         /// <c>null</c> indicates that no validation should be applied.</param>
         /// <returns>A <see cref="bool"/> indicating weather the call completed without the user pressing escape.</returns>
-        public static bool TryReadLine<T>(out T result, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, ParameterTryParse<T> parser = null, Validator<T> validator = null)
+        public static bool TryReadLine<T>(IConsole console, out T result, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, ParameterTryParse<T> parser = null, Validator<T> validator = null)
         {
-            return TryReadLine<T>(parser, parser == null ? GetParserSettings<T>() : null, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
+            return TryReadLine<T>(console, parser, parser == null ? GetParserSettings<T>() : null, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
         }
-        internal static bool TryReadLine<T>(ParameterTryParse<T> customParser, ParserSettings parserSettings, out T result, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, Validator<T> validator = null)
+        internal static bool TryReadLine<T>(IConsole console, ParameterTryParse<T> customParser, ParserSettings parserSettings, out T result, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None, ReadLineCleanup escapeCleanup = ReadLineCleanup.RemoveAll, Validator<T> validator = null)
         {
-            return readLine(customParser, parserSettings, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
+            return readLine(console, customParser, parserSettings, out result, prompt, defaultString, cleanup, escapeCleanup, validator);
         }
 
-        private static bool readLine<T>(ParameterTryParse<T> customParser, ParserSettings parserSettings, out T result, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup, Validator<T> validator)
+        private static bool readLine<T>(IConsole console, ParameterTryParse<T> customParser, ParserSettings parserSettings, out T result, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup, Validator<T> validator)
         {
-            var promptPosition = CursorPosition;
+            var promptPosition = console.GetCursorPosition();
             if (prompt != null)
-                ColorConsole.Write(prompt);
+                console.Write(prompt);
 
-            var valuePosition = CursorPosition;
+            var valuePosition = console.GetCursorPosition();
             bool cancelled = false;
             string input = "";
             result = default(T);
@@ -251,11 +253,11 @@ namespace CommandLineParsing
 
             do
             {
-                CursorPosition = valuePosition;
-                _activeConsole.Write(new string(' ', input.Length));
-                CursorPosition = valuePosition;
+                console.SetCursorPosition(valuePosition);
+                console.Write(new string(' ', input.Length));
+                console.SetCursorPosition(valuePosition);
 
-                cancelled = !ColorConsole.TryReadLine(out input, null, defaultString, ReadLineCleanup.None, ReadLineCleanup.None);
+                cancelled = !TryReadLine(console, out input, null, defaultString, ReadLineCleanup.None, ReadLineCleanup.None);
 
                 string[] parseData = typeof(T).IsArray ? Command.SimulateParse(input) : new string[] { input };
                 if (customParser != null)
@@ -271,33 +273,33 @@ namespace CommandLineParsing
 
                 if (msg.IsError)
                 {
-                    _activeConsole.CursorVisible = false;
-                    CursorPosition = valuePosition;
-                    _activeConsole.Write(new string(' ', input.Length));
+                    console.CursorVisible = false;
+                    console.SetCursorPosition(valuePosition);
+                    console.Write(new string(' ', input.Length));
 
                     input = msg.GetMessage();
-                    _activeConsole.ForegroundColor = ConsoleColor.Red;
-                    CursorPosition = valuePosition;
-                    _activeConsole.Write(input);
-                    _activeConsole.ResetColor();
+                    console.ForegroundColor = ConsoleColor.Red;
+                    console.SetCursorPosition(valuePosition);
+                    console.Write(input);
+                    console.ResetColor();
 
-                    _activeConsole.ReadKey(true);
-                    _activeConsole.CursorVisible = true;
+                    console.ReadKey(true);
+                    console.CursorVisible = true;
                 }
             } while (msg.IsError);
 
             var cl = cancelled ? escapeCleanup : cleanup;
             if (cl != ReadLineCleanup.None)
             {
-                CursorPosition = valuePosition;
-                _activeConsole.Write(new string(' ', input.Length));
+                console.SetCursorPosition(valuePosition);
+                console.Write(new string(' ', input.Length));
 
-                CursorPosition = promptPosition;
-                _activeConsole.Write(new string(' ', prompt.Length));
-                CursorPosition = promptPosition;
+                console.SetCursorPosition(promptPosition);
+                console.Write(new string(' ', prompt.Length));
+                console.SetCursorPosition(promptPosition);
 
                 if (cl == ReadLineCleanup.RemovePrompt)
-                    _activeConsole.WriteLine(input);
+                    console.WriteLine(input);
             }
 
             return !cancelled;
@@ -306,21 +308,23 @@ namespace CommandLineParsing
         /// <summary>
         /// Reads a <see cref="string"/> from <see cref="Console"/>.
         /// </summary>
+        /// <param name="console">The console on which the action is carried out.</param>
         /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
         /// <param name="defaultString">A <see cref="string"/> that the inputtext is initialized to.
         /// The <see cref="string"/> can be edited in the <see cref="Console"/> and is part of the returned <see cref="string"/> if not modified.
         /// <c>null</c> indicates that no initial value should be used.</param>
         /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
         /// <returns>A <see cref="string"/> containing the user input.</returns>
-        public static string ReadLine(ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
+        public static string ReadLine(this IConsole console, ConsoleString prompt = null, string defaultString = null, ReadLineCleanup cleanup = ReadLineCleanup.None)
         {
             string result;
-            readLine(out result, false, prompt, defaultString, cleanup, ReadLineCleanup.None);
+            readLine(console, out result, false, prompt, defaultString, cleanup, ReadLineCleanup.None);
             return result;
         }
         /// <summary>
         /// Reads a <see cref="string"/> from <see cref="Console"/>, allowing the user to cancel input by pressing escape.
         /// </summary>
+        /// <param name="console">The console on which the action is carried out.</param>
         /// <param name="result">The string that was read from <see cref="Console"/>. This value is the same regardless if input was cancelled.</param>
         /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
         /// <param name="defaultString">A <see cref="string"/> that the inputtext is initialized to.
@@ -329,39 +333,40 @@ namespace CommandLineParsing
         /// <param name="cleanup">Determines the type of cleanup that should be applied after the line read has completed.</param>
         /// <param name="escapeCleanup">Determines the type of cleanup that should be applied if the readline did not complete succesfully.</param>
         /// <returns>A <see cref="bool"/> indicating weather the call completed without the user pressing escape.</returns>
-        public static bool TryReadLine(out string result, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
+        public static bool TryReadLine(this IConsole console, out string result, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
         {
-            return readLine(out result, true, prompt, defaultString, cleanup, escapeCleanup);
+            return readLine(console, out result, true, prompt, defaultString, cleanup, escapeCleanup);
         }
         /// <summary>
         /// Reads a password from <see cref="Console"/> without printing the input characters.
         /// </summary>
+        /// <param name="console">The console on which the action is carried out.</param>
         /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
         /// <param name="passChar">An optional character to display in place of input symbols. <c>null</c> will display nothing to the user.</param>
         /// <param name="singleSymbol">if set to <c>true</c> <paramref name="passChar"/> will only be printed once, on input.</param>
         /// <returns>A <see cref="string"/> containing the password.</returns>
-        public static string ReadPassword(ConsoleString prompt = null, char? passChar = '*', bool singleSymbol = true)
+        public static string ReadPassword(this IConsole console, ConsoleString prompt = null, char? passChar = '*', bool singleSymbol = true)
         {
             if (prompt != null)
-                ColorConsole.Write(prompt);
+                console.Write(prompt);
 
-            int pos = _activeConsole.CursorLeft;
+            int pos = console.CursorLeft;
             ConsoleKeyInfo info;
 
             StringBuilder sb = new StringBuilder(string.Empty);
 
             while (true)
             {
-                info = _activeConsole.ReadKey(true);
+                info = console.ReadKey(true);
                 if (info.Key == ConsoleKey.Backspace)
                 {
-                    _activeConsole.CursorLeft = pos;
-                    _activeConsole.Write(new string(' ', (singleSymbol || !passChar.HasValue) ? 1 : sb.Length));
-                    _activeConsole.CursorLeft = pos;
+                    console.CursorLeft = pos;
+                    console.Write(new string(' ', (singleSymbol || !passChar.HasValue) ? 1 : sb.Length));
+                    console.CursorLeft = pos;
                     sb.Clear();
                 }
 
-                else if (info.Key == ConsoleKey.Enter) { _activeConsole.Write(Environment.NewLine); break; }
+                else if (info.Key == ConsoleKey.Enter) { console.Write(Environment.NewLine); break; }
 
                 else if (ConsoleReader.IsInputCharacter(info))
                 {
@@ -369,14 +374,14 @@ namespace CommandLineParsing
                     if (passChar.HasValue)
                     {
                         if (!singleSymbol || sb.Length == 1)
-                            _activeConsole.Write(passChar.Value);
+                            console.Write(passChar.Value);
                     }
                 }
             }
             return sb.ToString();
         }
 
-        private static bool readLine(out string result, bool allowEscape, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
+        private static bool readLine(IConsole console, out string result, bool allowEscape, ConsoleString prompt, string defaultString, ReadLineCleanup cleanup, ReadLineCleanup escapeCleanup)
         {
             result = null;
             bool resultOk = false;
@@ -390,7 +395,7 @@ namespace CommandLineParsing
 
                 while (!done)
                 {
-                    var info = _activeConsole.ReadKey(true);
+                    var info = console.ReadKey(true);
                     switch (info.Key)
                     {
                         case ConsoleKey.Escape:
@@ -416,7 +421,7 @@ namespace CommandLineParsing
             }
 
             if (finalCleanup == ReadLineCleanup.RemovePrompt)
-                _activeConsole.WriteLine(result);
+                console.WriteLine(result);
 
             return resultOk;
         }
@@ -425,6 +430,7 @@ namespace CommandLineParsing
         /// Displays a menu where a enumeration value of type <typeparamref name="TEnum"/> can be selected.
         /// </summary>
         /// <typeparam name="TEnum">The type of the enum.</typeparam>
+        /// <param name="console">The console on which the action is carried out.</param>
         /// <param name="keySelector">A function that gets the <see cref="ConsoleString"/> that should be displayed for each enum value.</param>
         /// <param name="labeling">The type of labeling (option prefix) that should be applied when displaying the menu.</param>
         /// <param name="cleanup">The cleanup applied after displaying the menu.</param>
@@ -432,7 +438,7 @@ namespace CommandLineParsing
         /// <c>null</c> indicates that multiple values can be selected if the type has the <see cref="FlagsAttribute"/>.
         /// </param>
         /// <returns>The selected <typeparamref name="TEnum"/> value.</returns>
-        public static TEnum MenuSelectEnum<TEnum>(Func<TEnum, ConsoleString> keySelector = null, MenuLabeling labeling = MenuLabeling.NumbersAndLetters, MenuCleanup cleanup = MenuCleanup.None, bool? allowflags = null)
+        public static TEnum MenuSelectEnum<TEnum>(this IConsole console, Func<TEnum, ConsoleString> keySelector = null, MenuLabeling labeling = MenuLabeling.NumbersAndLetters, MenuCleanup cleanup = MenuCleanup.None, bool? allowflags = null)
         {
             var typeinfo = typeof(TEnum).GetTypeInfo();
 
@@ -461,10 +467,10 @@ namespace CommandLineParsing
                 {
                     for (int i = 0; i < selection.Length; i++)
                     {
-                        if (i > 0) _activeConsole.Write(", ");
-                        ColorConsole.Write(selection[i].ToString());
+                        if (i > 0) console.Write(", ");
+                        console.Write(selection[i].ToString());
                     }
-                    _activeConsole.WriteLine();
+                    console.WriteLine();
                 }
 
                 long val = (long)Convert.ChangeType(selection[0], typeof(long));
