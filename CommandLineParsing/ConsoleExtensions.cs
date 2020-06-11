@@ -26,7 +26,7 @@ namespace CommandLineParsing
         }
 
         /// <summary>
-        /// Gets the <see cref="ColorTable"/> that handles the available colornames for the <see cref="ColorConsole"/>.
+        /// Gets the <see cref="ColorTable"/> that handles the available colornames for consoles/>.
         /// </summary>
         public static ColorTable Colors
         {
@@ -116,41 +116,43 @@ namespace CommandLineParsing
         /// <summary>
         /// Writes the specified string value to the standard output stream.
         /// </summary>
+        /// <param name="console">The console on which the action is carried out.</param>
         /// <param name="value">The string format to write, included color information.
         /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
-        public static void Write(ConsoleString value, bool allowcolor = true)
+        public static void Write(this IConsole console, ConsoleString value, bool allowcolor = true)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
             foreach (var p in value)
             {
-                var fgColor = (p.Color.HasForeground ? colors[p.Color.Foreground] : null) ?? _activeConsole.ForegroundColor;
-                var bgColor = (p.Color.HasBackground ? colors[p.Color.Background] : null) ?? _activeConsole.BackgroundColor;
-                if (allowcolor && (fgColor != _activeConsole.ForegroundColor || bgColor != _activeConsole.BackgroundColor))
+                var fgColor = (p.Color.HasForeground ? colors[p.Color.Foreground] : null) ?? console.ForegroundColor;
+                var bgColor = (p.Color.HasBackground ? colors[p.Color.Background] : null) ?? console.BackgroundColor;
+                if (allowcolor && (fgColor != console.ForegroundColor || bgColor != console.BackgroundColor))
                 {
-                    ConsoleColor tempFg = _activeConsole.ForegroundColor;
-                    ConsoleColor tempBg = _activeConsole.BackgroundColor;
-                    _activeConsole.ForegroundColor = fgColor;
-                    _activeConsole.BackgroundColor = bgColor;
-                    _activeConsole.Write(p.Content);
-                    _activeConsole.ForegroundColor = tempFg;
-                    _activeConsole.BackgroundColor = tempBg;
+                    ConsoleColor tempFg = console.ForegroundColor;
+                    ConsoleColor tempBg = console.BackgroundColor;
+                    console.ForegroundColor = fgColor;
+                    console.BackgroundColor = bgColor;
+                    console.Write(p.Content);
+                    console.ForegroundColor = tempFg;
+                    console.BackgroundColor = tempBg;
                 }
                 else
-                    _activeConsole.Write(p.Content);
+                    console.Write(p.Content);
             }
         }
         /// <summary>
         /// Writes the specified string value, followed by the current line terminator, to the standard output stream.
         /// </summary>
+        /// <param name="console">The console on which the action is carried out.</param>
         /// <param name="value">The string format to write, included color information.
         /// The string "[Color:Text]" will print Text to the console using Color as the foreground color.</param>
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
-        public static void WriteLine(ConsoleString value, bool allowcolor = true)
+        public static void WriteLine(this IConsole console, ConsoleString value, bool allowcolor = true)
         {
-            Write(value + ConsoleString.Parse("\n", false), allowcolor);
+            Write(console, value + ConsoleString.Parse("\n", false), allowcolor);
         }
 
         /// <summary>
