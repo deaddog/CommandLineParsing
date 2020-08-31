@@ -1,4 +1,5 @@
-﻿using CommandLineParsing.Output;
+﻿using CommandLineParsing.Consoles;
+using CommandLineParsing.Output;
 using System;
 using System.Collections.Generic;
 
@@ -10,10 +11,12 @@ namespace CommandLineParsing.Input
     /// <typeparam name="TOption">The type of the options selectable from the <see cref="MenuDisplay{TOption}"/>.</typeparam>
     public class MenuDisplay<TOption> : IConsoleInput where TOption : class, IMenuOption
     {
+        private readonly IConsole _console;
         private readonly ConsolePoint _windowOrigin;
         private readonly ConsolePoint _origin;
         private readonly MenuOptionCollection<TOption> _options;
         private readonly List<ConsoleString> _displayed;
+
         private int _index;
         private int _displayOffset;
 
@@ -28,8 +31,8 @@ namespace CommandLineParsing.Input
         /// Initializes a new instance of the <see cref="MenuDisplay{T}"/> class.
         /// The menu will be displayed at the current cursor position.
         /// </summary>
-        public MenuDisplay()
-            : this(ColorConsole.ActiveConsole.WindowHeight - ColorConsole.ActiveConsole.CursorTop + ColorConsole.ActiveConsole.WindowTop)
+        public MenuDisplay(IConsole console)
+            : this(console, console.WindowHeight - console.CursorTop + console.WindowTop)
         {
         }
         /// <summary>
@@ -40,8 +43,8 @@ namespace CommandLineParsing.Input
         /// The maximum number of console lines the menu display should use.
         /// The menu can display more options than this value.
         /// Values greater than the height of the console can result in odd effects.</param>
-        public MenuDisplay(int displayedLines)
-            : this(ColorConsole.CursorPosition, displayedLines)
+        public MenuDisplay(IConsole console, int displayedLines)
+            : this(console, console.GetCursorPosition(), displayedLines)
         {
         }
         /// <summary>
@@ -52,9 +55,10 @@ namespace CommandLineParsing.Input
         /// The maximum number of console lines the menu display should use.
         /// The menu can display more options than this value.
         /// Values greater than the height of the console can result in odd effects.</param>
-        public MenuDisplay(ConsolePoint point, int displayedLines)
+        public MenuDisplay(IConsole console, ConsolePoint point, int displayedLines)
         {
-            _windowOrigin = ColorConsole.WindowPosition;
+            _console = console ?? throw new ArgumentNullException(nameof(console));
+            _windowOrigin = _console.GetWindowPosition();
             _origin = point;
             _options = new MenuOptionCollection<TOption>();
             _options.CollectionChanged += OptionsCollectionChanged;
@@ -82,8 +86,8 @@ namespace CommandLineParsing.Input
         /// The maximum number of console lines the menu display should use.
         /// The menu can display more options than this value.
         /// Values greater than the height of the console can result in odd effects.</param>
-        public MenuDisplay(ConsoleSize offset, int displayedLines)
-            : this(ColorConsole.CursorPosition + offset, displayedLines)
+        public MenuDisplay(IConsole console, ConsoleSize offset, int displayedLines)
+            : this(console, console.GetCursorPosition() + offset, displayedLines)
         {
         }
 
@@ -110,11 +114,11 @@ namespace CommandLineParsing.Input
                 _prompt = value;
                 _noPrompt = new string(' ', _prompt.Length);
 
-                _origin.TemporaryShift(() =>
+                _console.TemporaryShift(_origin, () =>
                 {
                     for (int i = 0; i < _displayed.Count; i++)
                     {
-                        ColorConsole.WriteLine((i + _displayOffset == _index) ? _prompt : _noPrompt);
+                        _console.WriteLine((i + _displayOffset == _index) ? _prompt : _noPrompt);
                         if (lenDiff > 0)
                             _displayed[i] = ConsoleString.Empty;
                         else
@@ -173,7 +177,7 @@ namespace CommandLineParsing.Input
                     return;
 
                 if (_index != -1)
-                    (_origin + new ConsoleSize(0, _index - _displayOffset)).TemporaryShift(() => ColorConsole.Write(_noPrompt));
+                    _console.TemporaryShift(_origin + new ConsoleSize(0, _index - _displayOffset), () => _console.Write(_noPrompt));
 
                 _index = value;
 
@@ -197,13 +201,13 @@ namespace CommandLineParsing.Input
                             UpdateOption(i + _displayOffset);
                     }
 
-                    (_origin + new ConsoleSize(0, _index - _displayOffset)).TemporaryShift(() => ColorConsole.Write(_prompt));
+                    _console.TemporaryShift(_origin + new ConsoleSize(0, _index - _displayOffset), () => _console.Write(_prompt));
                 }
             }
         }
 
         /// <summary>
-        /// Gets the location where the readline is displayed. If 
+        /// Gets the location where the readline is displayed. If
         /// </summary>
         public ConsolePoint Origin => _origin;
 
@@ -383,10 +387,10 @@ namespace CommandLineParsing.Input
             var offset = new ConsoleSize(_prompt.Length, displayedIndex);
             int oldLen = _displayed[displayedIndex].Length;
 
-            ColorConsole.TemporaryShift(_origin + offset, () =>
+            _console.TemporaryShift(_origin + offset, () =>
             {
-                ColorConsole.Write(new string(' ', oldLen) + new string('\b', oldLen));
-                ColorConsole.Write(text);
+                _console.Write(new string(' ', oldLen) + new string('\b', oldLen));
+                _console.Write(text);
             });
 
             _displayed[displayedIndex] = text;
@@ -419,13 +423,13 @@ namespace CommandLineParsing.Input
             {
                 var prefixLength = GetPrefix(0).Length;
 
-                ColorConsole.TemporaryShift(_origin, () =>
+                _console.TemporaryShift(_origin, () =>
                 {
                     for (int i = 0; i < _displayed.Count; i++)
-                        ColorConsole.WriteLine(new string(' ', _displayed[i].Length + _prompt.Length + prefixLength));
+                        _console.WriteLine(new string(' ', _displayed[i].Length + _prompt.Length + prefixLength));
                 });
 
-                ColorConsole.WindowPosition = _windowOrigin;
+                _console.SetWindowPosition(_windowOrigin);
             }
         }
     }

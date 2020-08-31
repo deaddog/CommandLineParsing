@@ -82,17 +82,17 @@ namespace CommandLineParsing
             T temp = default(T);
             if (typeof(T).GetTypeInfo().IsEnum)
             {
-                ColorConsole.Write(promptMessage);
-                var left = ColorConsole.ActiveConsole.CursorLeft;
-                ColorConsole.ActiveConsole.WriteLine();
+                SystemConsole.Instance.Write(promptMessage);
+                var left = SystemConsole.Instance.CursorLeft;
+                SystemConsole.Instance.WriteLine();
 
-                temp = ColorConsole.MenuSelectEnum<T>(cleanup: MenuCleanup.RemoveMenu);
+                temp = SystemConsole.Instance.MenuSelectEnum<T>(cleanup: MenuCleanup.RemoveMenu);
 
-                ColorConsole.ActiveConsole.SetCursorPosition(left, ColorConsole.ActiveConsole.CursorTop - 1);
-                ColorConsole.ActiveConsole.WriteLine(temp);
+                SystemConsole.Instance.SetCursorPosition(left, SystemConsole.Instance.CursorTop - 1);
+                SystemConsole.Instance.WriteLine(temp);
             }
             else
-                temp = ColorConsole.ReadLine<T>(_parserCustom, _parserSettings, promptMessage, validator: validator);
+                temp = SystemConsole.Instance.ReadLine<T>(_parserCustom, _parserSettings, promptMessage, validator: validator);
             IsSet = true;
             value = temp;
             doCallback();

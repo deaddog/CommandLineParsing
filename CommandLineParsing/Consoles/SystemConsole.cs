@@ -16,73 +16,73 @@ namespace CommandLineParsing.Consoles
 
         private SystemConsole() { }
 
-        int IConsole.BufferWidth
+        public int BufferWidth
         {
             get { return Console.BufferWidth; }
             set { Console.BufferWidth = value; }
         }
-        int IConsole.BufferHeight
+        public int BufferHeight
         {
             get { return Console.BufferHeight; }
             set { Console.BufferHeight = value; }
         }
-        void IConsole.SetBufferSize(int width, int height) => Console.SetBufferSize(width, height);
+        public void SetBufferSize(int width, int height) => Console.SetBufferSize(width, height);
 
-        int IConsole.CursorLeft
+        public int CursorLeft
         {
             get { return Console.CursorLeft; }
             set { Console.CursorLeft = value; }
         }
-        int IConsole.CursorTop
+        public int CursorTop
         {
             get { return Console.CursorTop; }
             set { Console.CursorTop = value; }
         }
-        void IConsole.SetCursorPosition(int left, int top) => Console.SetCursorPosition(left, top);
+        public void SetCursorPosition(int left, int top) => Console.SetCursorPosition(left, top);
 
-        int IConsole.WindowWidth
+        public int WindowWidth
         {
             get { return Console.WindowWidth; }
             set { Console.WindowWidth = value; }
         }
-        int IConsole.WindowHeight
+        public int WindowHeight
         {
             get { return Console.WindowHeight; }
             set { Console.WindowHeight = value; }
         }
-        void IConsole.SetWindowSize(int width, int height) => Console.SetWindowSize(width, height);
+        public void SetWindowSize(int width, int height) => Console.SetWindowSize(width, height);
 
-        int IConsole.WindowLeft
+        public int WindowLeft
         {
             get { return Console.WindowLeft; }
             set { Console.WindowLeft = value; }
         }
-        int IConsole.WindowTop
+        public int WindowTop
         {
             get { return Console.WindowTop; }
             set { Console.WindowTop = value; }
         }
-        void IConsole.SetWindowPosition(int left, int top) => Console.SetWindowPosition(left, top);
+        public void SetWindowPosition(int left, int top) => Console.SetWindowPosition(left, top);
 
-        bool IConsole.CursorVisible
+        public bool CursorVisible
         {
             get { return Console.CursorVisible; }
             set { Console.CursorVisible = value; }
         }
-        ConsoleColor IConsole.ForegroundColor
+        public ConsoleColor ForegroundColor
         {
             get { return Console.ForegroundColor; }
             set { Console.ForegroundColor = value; }
         }
-        ConsoleColor IConsole.BackgroundColor
+        public ConsoleColor BackgroundColor
         {
             get { return Console.BackgroundColor; }
             set { Console.BackgroundColor = value; }
         }
-        void IConsole.ResetColor() => Console.ResetColor();
+        public void ResetColor() => Console.ResetColor();
 
-        void IConsole.Write(string value) => Console.Write(value);
-        void IConsole.WriteLine(string value) => Console.WriteLine(value);
-        ConsoleKeyInfo IConsole.ReadKey(bool intercept) => Console.ReadKey(intercept);
+        public void Write(string value) => Console.Write(value);
+        public void WriteLine(string value) => Console.WriteLine(value);
+        public ConsoleKeyInfo ReadKey(bool intercept) => Console.ReadKey(intercept);
     }
 }

@@ -461,7 +461,7 @@ namespace CommandLineParsing
 
             if (allowflags.Value)
             {
-                var selection = values.MenuSelectMultiple(isSelectionValid: x => x.Count() >= 1, onKeySelector: keySelector, labeling: labeling, cleanup: cleanup == MenuCleanup.RemoveMenuShowChoice ? MenuCleanup.RemoveMenu : cleanup);
+                var selection = console.MenuSelectMultiple(values, isSelectionValid: x => x.Count() >= 1, onKeySelector: keySelector, labeling: labeling, cleanup: cleanup == MenuCleanup.RemoveMenuShowChoice ? MenuCleanup.RemoveMenu : cleanup);
 
                 if (cleanup == MenuCleanup.RemoveMenuShowChoice)
                 {
@@ -481,7 +481,7 @@ namespace CommandLineParsing
             }
             else
             {
-                return values.MenuSelect(keySelector, labeling, cleanup);
+                return console.MenuSelect(values, keySelector, labeling, cleanup);
             }
         }
     }

@@ -1,4 +1,5 @@
-﻿using CommandLineParsing.Input;
+﻿using CommandLineParsing.Consoles;
+using CommandLineParsing.Input;
 using CommandLineParsing.Output;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace CommandLineParsing
         /// <paramref name="cancelValue"/> will be returned if this option is selected.</param>
         /// <param name="cancelValue">The value returned if <paramref name="cancelKey"/> is not <c>null</c>.</param>
         /// <returns>The element that was selected using the displayed menu.</returns>
-        public static T MenuSelect<T>(this IEnumerable<T> collection, Func<T, ConsoleString> keySelector = null, MenuLabeling labeling = MenuLabeling.NumbersAndLetters, MenuCleanup cleanup = MenuCleanup.None, ConsoleString cancelKey = null, T cancelValue = default(T))
+        public static T MenuSelect<T>(this IConsole console, IEnumerable<T> collection, Func<T, ConsoleString> keySelector = null, MenuLabeling labeling = MenuLabeling.NumbersAndLetters, MenuCleanup cleanup = MenuCleanup.None, ConsoleString cancelKey = null, T cancelValue = default(T))
         {
             if (collection == null)
                 throw new ArgumentNullException(nameof(collection));
@@ -35,9 +36,9 @@ namespace CommandLineParsing
 
             MenuOption<T> result = null;
 
-            ColorConsole.ActiveConsole.CursorVisible = false;
+            console.CursorVisible = false;
 
-            using (var display = new MenuDisplay<MenuOption<T>>())
+            using (var display = new MenuDisplay<MenuOption<T>>(console))
             {
                 display.Cleanup = cleanup == MenuCleanup.None ? InputCleanup.None : InputCleanup.Clean;
                 display.PrefixesTop.SetKeys(labeling);
@@ -59,7 +60,7 @@ namespace CommandLineParsing
                 ConsoleKeyInfo info;
                 do
                 {
-                    info = ColorConsole.ActiveConsole.ReadKey(true);
+                    info = console.ReadKey(true);
                     switch (info.Key)
                     {
                         case ConsoleKey.DownArrow:
@@ -85,13 +86,13 @@ namespace CommandLineParsing
                 } while (!done);
 
                 if (cleanup == MenuCleanup.None)
-                    ColorConsole.CursorPosition = display.Origin + new ConsoleSize(0, display.Options.Count);
+                    console.SetCursorPosition(display.Origin + new ConsoleSize(0, display.Options.Count));
             }
 
             if (cleanup == MenuCleanup.RemoveMenuShowChoice)
-                ColorConsole.WriteLine(result.Text);
+                console.WriteLine(result.Text);
 
-            ColorConsole.ActiveConsole.CursorVisible = true;
+            console.CursorVisible = true;
 
             return result.Value;
         }
@@ -108,9 +109,9 @@ namespace CommandLineParsing
         /// <paramref name="cancelValue"/> will be returned if this option is selected.</param>
         /// <param name="cancelValue">The value returned if <paramref name="cancelKey"/> is not <c>null</c>.</param>
         /// <returns>The element that was selected using the displayed menu.</returns>
-        public static TValue MenuSelect<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> collection, MenuLabeling labeling = MenuLabeling.NumbersAndLetters, MenuCleanup cleanup = MenuCleanup.None, ConsoleString cancelKey = null, TValue cancelValue = default(TValue))
+        public static TValue MenuSelect<TKey, TValue>(IConsole console, IEnumerable<KeyValuePair<TKey, TValue>> collection, MenuLabeling labeling = MenuLabeling.NumbersAndLetters, MenuCleanup cleanup = MenuCleanup.None, ConsoleString cancelKey = null, TValue cancelValue = default(TValue))
         {
-            return MenuSelect(collection, x => x.Key.ToString(), labeling, cleanup, cancelKey, new KeyValuePair<TKey, TValue>(default(TKey), cancelValue)).Value;
+            return MenuSelect(console, collection, x => x.Key.ToString(), labeling, cleanup, cancelKey, new KeyValuePair<TKey, TValue>(default(TKey), cancelValue)).Value;
         }
 
         /// <summary>
@@ -126,7 +127,7 @@ namespace CommandLineParsing
         /// <param name="cleanup">The cleanup applied after displaying the menu.</param>
         /// <param name="doneText">The <see cref="ConsoleString"/> that is displayed as the bottommost option in the menu. Selecting this option will cause the function to return.</param>
         /// <returns>The elements that were selected using the displayed menu.</returns>
-        public static T[] MenuSelectMultiple<T>(this IEnumerable<T> collection, Func<IEnumerable<T>, bool> isSelectionValid = null, Func<T, ConsoleString> onKeySelector = null, Func<T, ConsoleString> offKeySelector = null, Func<T, bool> selected = null, MenuLabeling labeling = MenuLabeling.NumbersAndLetters, MenuCleanup cleanup = MenuCleanup.None, ConsoleString doneText = null)
+        public static T[] MenuSelectMultiple<T>(this IConsole console, IEnumerable<T> collection, Func<IEnumerable<T>, bool> isSelectionValid = null, Func<T, ConsoleString> onKeySelector = null, Func<T, ConsoleString> offKeySelector = null, Func<T, bool> selected = null, MenuLabeling labeling = MenuLabeling.NumbersAndLetters, MenuCleanup cleanup = MenuCleanup.None, ConsoleString doneText = null)
         {
             if (collection == null)
                 throw new ArgumentNullException(nameof(collection));
@@ -153,9 +154,9 @@ namespace CommandLineParsing
 
             List<MenuOnOffOption<T>> result = null;
 
-            ColorConsole.ActiveConsole.CursorVisible = false;
+            console.CursorVisible = false;
 
-            using (var display = new MenuDisplay<MenuOnOffOption<T>>())
+            using (var display = new MenuDisplay<MenuOnOffOption<T>>(console))
             {
                 display.Cleanup = cleanup == MenuCleanup.None ? InputCleanup.None : InputCleanup.Clean;
                 display.PrefixesTop.SetKeys(labeling);
@@ -177,7 +178,7 @@ namespace CommandLineParsing
                 ConsoleKeyInfo info;
                 do
                 {
-                    info = ColorConsole.ActiveConsole.ReadKey(true);
+                    info = console.ReadKey(true);
                     switch (info.Key)
                     {
                         case ConsoleKey.DownArrow:
@@ -207,14 +208,14 @@ namespace CommandLineParsing
                 result = new List<MenuOnOffOption<T>>(display.Options.Where(x => x != doneOption && x.On));
 
                 if (cleanup == MenuCleanup.None)
-                    ColorConsole.CursorPosition = display.Origin + new ConsoleSize(0, display.Options.Count);
+                    console.SetCursorPosition(display.Origin + new ConsoleSize(0, display.Options.Count));
             }
 
             if (cleanup == MenuCleanup.RemoveMenuShowChoice)
                 foreach (var r in result)
-                    ColorConsole.WriteLine(r.Text);
+                    console.WriteLine(r.Text);
 
-            ColorConsole.ActiveConsole.CursorVisible = true;
+            console.CursorVisible = true;
 
             return result.Select(x => x.Value).ToArray();
         }
@@ -231,9 +232,9 @@ namespace CommandLineParsing
         /// <param name="cleanup">The cleanup applied after displaying the menu.</param>
         /// <param name="doneText">The <see cref="ConsoleString"/> that is displayed as the bottommost option in the menu. Selecting this option will cause the function to return.</param>
         /// <returns>The elements that were selected using the displayed menu.</returns>
-        public static TValue[] MenuSelectMultiple<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> collection, Func<IEnumerable<TValue>, bool> isSelectionValid = null, Func<KeyValuePair<TKey, TValue>, bool> selected = null, MenuLabeling labeling = MenuLabeling.NumbersAndLetters, MenuCleanup cleanup = MenuCleanup.None, ConsoleString doneText = null)
+        public static TValue[] MenuSelectMultiple<TKey, TValue>(this IConsole console, IEnumerable<KeyValuePair<TKey, TValue>> collection, Func<IEnumerable<TValue>, bool> isSelectionValid = null, Func<KeyValuePair<TKey, TValue>, bool> selected = null, MenuLabeling labeling = MenuLabeling.NumbersAndLetters, MenuCleanup cleanup = MenuCleanup.None, ConsoleString doneText = null)
         {
-            return MenuSelectMultiple(collection, selection => isSelectionValid(selection.Select(x => x.Value)), null, null, selected, labeling, cleanup, doneText).Select(x => x.Value).ToArray();
+            return MenuSelectMultiple(console, collection, selection => isSelectionValid(selection.Select(x => x.Value)), null, null, selected, labeling, cleanup, doneText).Select(x => x.Value).ToArray();
         }
     }
 }
