@@ -6,18 +6,16 @@ namespace CommandLineParsing.Tests
 {
     public abstract class ConsoleTestBase
     {
-        private TestingConsole _console;
-
         [SetUp]
         public void CreateConsole()
         {
-            _console = new TestingConsole();
-            ColorConsole.ActiveConsole = _console;
+            var console = new TestingConsole();
 
-            AssertConsole = new ConsoleAssertions(_console);
+            Console = console;
+            AssertConsole = new ConsoleAssertions(console);
         }
 
-        public IConsole Console => _console;
+        public IConsole Console { get; private set; }
         public ConsoleAssertions AssertConsole { get; private set; }
     }
 }
