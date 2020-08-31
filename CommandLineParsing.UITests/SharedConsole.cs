@@ -1,5 +1,4 @@
-﻿using CommandLineParsing.Consoles;
-using System;
+﻿using System;
 
 namespace CommandLineParsing.UITests
 {
@@ -11,7 +10,7 @@ namespace CommandLineParsing.UITests
         public SharedConsole()
         {
             _testConsole = new Tests.TestComponents.TestingConsole();
-            _console = Consoles.SystemConsole.Instance;
+            _console = Consoles.System;
 
             _testConsole.SetBufferSize(_console.BufferWidth, _console.BufferHeight);
             _testConsole.SetCursorPosition(_console.CursorLeft, _console.CursorTop);
@@ -151,15 +150,10 @@ namespace CommandLineParsing.UITests
             _testConsole.ResetColor();
         }
 
-        public void Write(string value)
+        public void Render(string value)
         {
-            _console.Write(value);
-            _testConsole.Write(value);
-        }
-        public void WriteLine(string value)
-        {
-            _console.WriteLine(value);
-            _testConsole.WriteLine(value);
+            _console.Render(value);
+            _testConsole.Render(value);
         }
 
         public ConsoleKeyInfo ReadKey(bool intercept)

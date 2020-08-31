@@ -10,7 +10,7 @@ namespace CommandLineParsing.Tests.Input
         [Test]
         public void TopBottomPrefixAdding()
         {
-            var display = new MenuDisplay<MenuOption<string>>(10);
+            var display = new MenuDisplay<MenuOption<string>>(Console, 10);
 
             display.PrefixesTop.SetKeys(new char[] { '0', '1' });
             display.PrefixesBottom.SetKeys(new char[] { 'a', 'b' });
@@ -61,7 +61,7 @@ namespace CommandLineParsing.Tests.Input
         [Test]
         public void TopBottomPrefixRemoving()
         {
-            var display = new MenuDisplay<MenuOption<string>>(10);
+            var display = new MenuDisplay<MenuOption<string>>(Console, 10);
 
             display.PrefixesTop.SetKeys(new char[] { '0', '1' });
             display.PrefixesBottom.SetKeys(new char[] { 'a', 'b' });
@@ -120,10 +120,10 @@ namespace CommandLineParsing.Tests.Input
         {
             Console.WindowHeight = 5;
 
-            ColorConsole.WriteLine("Line 1");
-            ColorConsole.WriteLine("Line 2");
+            Console.WriteLine("Line 1");
+            Console.WriteLine("Line 2");
 
-            var display = new MenuDisplay<MenuOption<string>>(5);
+            var display = new MenuDisplay<MenuOption<string>>(Console, 5);
             display.Cleanup = InputCleanup.Clean;
             display.Options.Add(new MenuOption<string>("first", "first"));
             display.Options.Add(new MenuOption<string>("second", "second"));
@@ -142,7 +142,7 @@ namespace CommandLineParsing.Tests.Input
         [Test]
         public void ReducedDisplayLines()
         {
-            var dis = new MenuDisplay<MenuOption<string>>(2);
+            var dis = new MenuDisplay<MenuOption<string>>(Console, 2);
             dis.Options.Add(new MenuOption<string>("first", "first"));
             dis.Options.Add(new MenuOption<string>("second", "second"));
             dis.Options.Add(new MenuOption<string>("third", "third"));
@@ -180,7 +180,7 @@ namespace CommandLineParsing.Tests.Input
         [Test]
         public void ChangeToLongerPrompt()
         {
-            var dis = new MenuDisplay<MenuOption<string>>(3);
+            var dis = new MenuDisplay<MenuOption<string>>(Console, 3);
             dis.Options.Add(new MenuOption<string>("first", "first"));
             dis.Options.Add(new MenuOption<string>("second", "second"));
             dis.Options.Add(new MenuOption<string>("third", "third"));
@@ -207,7 +207,7 @@ namespace CommandLineParsing.Tests.Input
         [Test]
         public void ChangeToShorterPrompt()
         {
-            var dis = new MenuDisplay<MenuOption<string>>(3);
+            var dis = new MenuDisplay<MenuOption<string>>(Console, 3);
             dis.Options.Add(new MenuOption<string>("first", "first"));
             dis.Options.Add(new MenuOption<string>("second", "second"));
             dis.Options.Add(new MenuOption<string>("third", "third"));

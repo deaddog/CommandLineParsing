@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace CommandLineParsing.Tests.TestComponents
 {
-    public class TestingConsole : Consoles.IConsole
+    public class TestingConsole : IConsole
     {
         private ConsoleSize _bufferSize;
         private ConsolePoint _cursorPosition;
@@ -268,7 +268,7 @@ namespace CommandLineParsing.Tests.TestComponents
             BackgroundColor = ConsoleColor.Black;
         }
 
-        public void Write(string value)
+        public void Render(string value)
         {
             if (value == null)
                 return;
@@ -276,7 +276,6 @@ namespace CommandLineParsing.Tests.TestComponents
             foreach (var c in value)
                 WriteChar(c);
         }
-        public void WriteLine(string value) => Write(value + "\n");
         private void WriteChar(char c)
         {
             _bufferStrings = null;

@@ -7,7 +7,7 @@
         static void Main(string[] args)
         {
             // Setting the active console to the shared one, use _console.BufferStrings and _console.WindowStrings to inspect the state.
-            ColorConsole.ActiveConsole = _console;
+            IConsole c = Consoles.System;
 
             // Do stuff using the console, by interacting with ColorConsole.
         }
