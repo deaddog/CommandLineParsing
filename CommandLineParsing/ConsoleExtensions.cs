@@ -1,5 +1,4 @@
-﻿using CommandLineParsing.Consoles;
-using CommandLineParsing.Input;
+﻿using CommandLineParsing.Input;
 using CommandLineParsing.Output;
 using CommandLineParsing.Parsing;
 using System;

@@ -1,5 +1,4 @@
-﻿using CommandLineParsing.Consoles;
-using CommandLineParsing.Tests.TestComponents;
+﻿using CommandLineParsing.Tests.TestComponents;
 using NUnit.Framework;
 
 namespace CommandLineParsing.Tests

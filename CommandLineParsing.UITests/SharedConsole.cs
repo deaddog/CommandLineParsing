@@ -1,5 +1,4 @@
-﻿using CommandLineParsing.Consoles;
-using System;
+﻿using System;
 
 namespace CommandLineParsing.UITests
 {
@@ -11,7 +10,7 @@ namespace CommandLineParsing.UITests
         public SharedConsole()
         {
             _testConsole = new Tests.TestComponents.TestingConsole();
-            _console = Consoles.SystemConsole.Instance;
+            _console = Consoles.System;
 
             _testConsole.SetBufferSize(_console.BufferWidth, _console.BufferHeight);
             _testConsole.SetCursorPosition(_console.CursorLeft, _console.CursorTop);

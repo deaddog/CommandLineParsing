@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CommandLineParsing.Consoles
+namespace CommandLineParsing
 {
     /// <summary>
     /// Provides methods and properties for interacting with the console.

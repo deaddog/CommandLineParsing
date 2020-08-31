@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace CommandLineParsing.Tests.TestComponents
 {
-    public class TestingConsole : Consoles.IConsole
+    public class TestingConsole : IConsole
     {
         private ConsoleSize _bufferSize;
         private ConsolePoint _cursorPosition;

@@ -1,5 +1,4 @@
-﻿using CommandLineParsing.Consoles;
-using CommandLineParsing.Parsing;
+﻿using CommandLineParsing.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -82,17 +81,17 @@ namespace CommandLineParsing
             T temp = default(T);
             if (typeof(T).GetTypeInfo().IsEnum)
             {
-                SystemConsole.Instance.Render(promptMessage);
-                var left = SystemConsole.Instance.CursorLeft;
-                SystemConsole.Instance.WriteLine();
+                Consoles.System.Render(promptMessage);
+                var left = Consoles.System.CursorLeft;
+                Consoles.System.WriteLine();
 
-                temp = SystemConsole.Instance.MenuSelectEnum<T>(cleanup: MenuCleanup.RemoveMenu);
+                temp = Consoles.System.MenuSelectEnum<T>(cleanup: MenuCleanup.RemoveMenu);
 
-                SystemConsole.Instance.SetCursorPosition(left, SystemConsole.Instance.CursorTop - 1);
-                SystemConsole.Instance.RenderLine(temp?.ToString() ?? string.Empty);
+                Consoles.System.SetCursorPosition(left, Consoles.System.CursorTop - 1);
+                Consoles.System.RenderLine(temp?.ToString() ?? string.Empty);
             }
             else
-                temp = SystemConsole.Instance.ReadLine<T>(_parserCustom, _parserSettings, promptMessage, validator: validator);
+                temp = Consoles.System.ReadLine<T>(_parserCustom, _parserSettings, promptMessage, validator: validator);
             IsSet = true;
             value = temp;
             doCallback();
