@@ -120,7 +120,7 @@ namespace CommandLineParsing.Input
 
             if (_console.CursorLeft == position + sb.Length)
             {
-                _console.Write(text);
+                _console.Render(text);
                 sb.Append(text);
             }
             else
@@ -128,7 +128,7 @@ namespace CommandLineParsing.Input
                 int temp = _console.CursorLeft;
 
                 sb.Insert(Index, text);
-                _console.Write(sb.ToString().Substring(Index));
+                _console.Render(sb.ToString().Substring(Index));
 
                 _console.CursorLeft = temp + text.Length;
             }
@@ -146,7 +146,7 @@ namespace CommandLineParsing.Input
 
             if (Index == Length)
             {
-                _console.Write(info.ToString());
+                _console.Render(info.ToString());
                 sb.Append(info);
             }
             else
@@ -154,7 +154,7 @@ namespace CommandLineParsing.Input
                 int temp = _console.CursorLeft;
 
                 sb.Insert(_console.CursorLeft - position, info);
-                _console.Write(sb.ToString().Substring(_console.CursorLeft - position));
+                _console.Render(sb.ToString().Substring(_console.CursorLeft - position));
 
                 _console.CursorLeft = temp + 1;
             }
@@ -190,7 +190,7 @@ namespace CommandLineParsing.Input
 
                 int temp = _console.CursorLeft;
                 _console.CursorLeft += length;
-                _console.Write(replace);
+                _console.Render(replace);
                 _console.CursorLeft = temp + length;
             }
             else if (length > 0)
@@ -202,7 +202,7 @@ namespace CommandLineParsing.Input
 
                 int temp = _console.CursorLeft;
                 sb.Remove(Index, length);
-                _console.Write(sb.ToString().Substring(Index) + new string(' ', length));
+                _console.Render(sb.ToString().Substring(Index) + new string(' ', length));
                 _console.CursorLeft = temp;
             }
 
@@ -301,7 +301,7 @@ namespace CommandLineParsing.Input
             switch (Cleanup)
             {
                 case InputCleanup.None:
-                    _console.Write(Environment.NewLine);
+                    _console.Render(Environment.NewLine);
                     break;
 
                 case InputCleanup.Clean:
@@ -314,7 +314,7 @@ namespace CommandLineParsing.Input
                         if (promptLength.HasValue)
                         {
                             _console.CursorLeft -= promptLength.Value;
-                            _console.Write(new string(' ', promptLength.Value));
+                            _console.Render(new string(' ', promptLength.Value));
                             _console.CursorLeft -= promptLength.Value;
                         }
                     }

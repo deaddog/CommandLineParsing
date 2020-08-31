@@ -70,11 +70,11 @@ namespace CommandLineParsing
             if (exit.Length == 0)
                 throw new ArgumentException("To end the REPL an exit command must be supplied.", nameof(exit));
 
-            SystemConsole.Instance.WriteLine($"Input command below (or \"{exit}\" to quit)");
+            SystemConsole.Instance.RenderLine($"Input command below (or \"{exit}\" to quit)");
 
             while (true)
             {
-                SystemConsole.Instance.Write(prefix);
+                SystemConsole.Instance.Render(prefix);
 
                 string input = SystemConsole.Instance.ReadLine();
 
@@ -272,7 +272,7 @@ namespace CommandLineParsing
             var msg = ParseAndExecute(args, help);
 
             if (msg.IsError)
-                SystemConsole.Instance.WriteLine(msg.GetMessage());
+                SystemConsole.Instance.RenderLine(msg.GetMessage());
         }
         /// <summary>
         /// Runs this <see cref="Command"/>, printing the resulting <see cref="Message"/> to standard output (<see cref="Console"/>).

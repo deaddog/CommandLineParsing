@@ -81,8 +81,7 @@ namespace CommandLineParsing.Consoles
         }
         public void ResetColor() => Console.ResetColor();
 
-        public void Write(string value) => Console.Write(value);
-        public void WriteLine(string value) => Console.WriteLine(value);
+        public void Render(string value) => Console.Write(value);
         public ConsoleKeyInfo ReadKey(bool intercept) => Console.ReadKey(intercept);
     }
 }

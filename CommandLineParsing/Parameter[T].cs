@@ -82,14 +82,14 @@ namespace CommandLineParsing
             T temp = default(T);
             if (typeof(T).GetTypeInfo().IsEnum)
             {
-                SystemConsole.Instance.Write(promptMessage);
+                SystemConsole.Instance.Render(promptMessage);
                 var left = SystemConsole.Instance.CursorLeft;
                 SystemConsole.Instance.WriteLine();
 
                 temp = SystemConsole.Instance.MenuSelectEnum<T>(cleanup: MenuCleanup.RemoveMenu);
 
                 SystemConsole.Instance.SetCursorPosition(left, SystemConsole.Instance.CursorTop - 1);
-                SystemConsole.Instance.WriteLine(temp?.ToString() ?? string.Empty);
+                SystemConsole.Instance.RenderLine(temp?.ToString() ?? string.Empty);
             }
             else
                 temp = SystemConsole.Instance.ReadLine<T>(_parserCustom, _parserSettings, promptMessage, validator: validator);

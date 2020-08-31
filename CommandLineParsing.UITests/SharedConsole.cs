@@ -151,15 +151,10 @@ namespace CommandLineParsing.UITests
             _testConsole.ResetColor();
         }
 
-        public void Write(string value)
+        public void Render(string value)
         {
-            _console.Write(value);
-            _testConsole.Write(value);
-        }
-        public void WriteLine(string value)
-        {
-            _console.WriteLine(value);
-            _testConsole.WriteLine(value);
+            _console.Render(value);
+            _testConsole.Render(value);
         }
 
         public ConsoleKeyInfo ReadKey(bool intercept)

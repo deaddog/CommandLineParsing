@@ -177,7 +177,7 @@ namespace CommandLineParsing.Input
                     return;
 
                 if (_index != -1)
-                    _console.TemporaryShift(_origin + new ConsoleSize(0, _index - _displayOffset), () => _console.Write(_noPrompt));
+                    _console.TemporaryShift(_origin + new ConsoleSize(0, _index - _displayOffset), () => _console.Render(_noPrompt));
 
                 _index = value;
 
@@ -389,7 +389,7 @@ namespace CommandLineParsing.Input
 
             _console.TemporaryShift(_origin + offset, () =>
             {
-                _console.Write(new string(' ', oldLen) + new string('\b', oldLen));
+                _console.Render(new string(' ', oldLen) + new string('\b', oldLen));
                 _console.Write(text);
             });
 
@@ -426,7 +426,7 @@ namespace CommandLineParsing.Input
                 _console.TemporaryShift(_origin, () =>
                 {
                     for (int i = 0; i < _displayed.Count; i++)
-                        _console.WriteLine(new string(' ', _displayed[i].Length + _prompt.Length + prefixLength));
+                        _console.RenderLine(new string(' ', _displayed[i].Length + _prompt.Length + prefixLength));
                 });
 
                 _console.SetWindowPosition(_windowOrigin);

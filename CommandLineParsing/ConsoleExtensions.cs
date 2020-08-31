@@ -97,6 +97,16 @@ namespace CommandLineParsing
         }
 
         /// <summary>
+        /// Writes the specified string value, followed by the current line terminator, to.
+        /// </summary>
+        /// <param name="console">The console on which the action is carried out.</param>
+        /// <param name="value">The value to write.</param>
+        public static void RenderLine(this IConsole console, string value)
+        {
+            console.Render(value + Environment.NewLine);
+        }
+
+        /// <summary>
         /// Writes the specified string value to the standard output stream.
         /// </summary>
         /// <param name="console">The console on which the action is carried out.</param>
@@ -118,12 +128,12 @@ namespace CommandLineParsing
                     ConsoleColor tempBg = console.BackgroundColor;
                     console.ForegroundColor = fgColor;
                     console.BackgroundColor = bgColor;
-                    console.Write(p.Content);
+                    console.Render(p.Content);
                     console.ForegroundColor = tempFg;
                     console.BackgroundColor = tempBg;
                 }
                 else
-                    console.Write(p.Content);
+                    console.Render(p.Content);
             }
         }
         /// <summary>
@@ -141,7 +151,7 @@ namespace CommandLineParsing
         /// Writes the current line terminator to <paramref name="console"/>.
         /// </summary>
         /// <param name="console">The console used for writing.</param>
-        public static void WriteLine(this IConsole console) => console.Write(Environment.NewLine);
+        public static void WriteLine(this IConsole console) => console.Render(Environment.NewLine);
 
         /// <summary>
         /// Removes color-coding information from a string.
@@ -242,7 +252,7 @@ namespace CommandLineParsing
             do
             {
                 console.SetCursorPosition(valuePosition);
-                console.Write(new string(' ', input.Length));
+                console.Render(new string(' ', input.Length));
                 console.SetCursorPosition(valuePosition);
 
                 cancelled = !TryReadLine(console, out input, null, defaultString, ReadLineCleanup.None, ReadLineCleanup.None);
@@ -263,12 +273,12 @@ namespace CommandLineParsing
                 {
                     console.CursorVisible = false;
                     console.SetCursorPosition(valuePosition);
-                    console.Write(new string(' ', input.Length));
+                    console.Render(new string(' ', input.Length));
 
                     input = msg.GetMessage();
                     console.ForegroundColor = ConsoleColor.Red;
                     console.SetCursorPosition(valuePosition);
-                    console.Write(input);
+                    console.Render(input);
                     console.ResetColor();
 
                     console.ReadKey(true);
@@ -280,14 +290,14 @@ namespace CommandLineParsing
             if (cl != ReadLineCleanup.None)
             {
                 console.SetCursorPosition(valuePosition);
-                console.Write(new string(' ', input.Length));
+                console.Render(new string(' ', input.Length));
 
                 console.SetCursorPosition(promptPosition);
-                console.Write(new string(' ', prompt.Length));
+                console.Render(new string(' ', prompt.Length));
                 console.SetCursorPosition(promptPosition);
 
                 if (cl == ReadLineCleanup.RemovePrompt)
-                    console.WriteLine(input);
+                    console.RenderLine(input);
             }
 
             return !cancelled;
@@ -349,12 +359,12 @@ namespace CommandLineParsing
                 if (info.Key == ConsoleKey.Backspace)
                 {
                     console.CursorLeft = pos;
-                    console.Write(new string(' ', (singleSymbol || !passChar.HasValue) ? 1 : sb.Length));
+                    console.Render(new string(' ', (singleSymbol || !passChar.HasValue) ? 1 : sb.Length));
                     console.CursorLeft = pos;
                     sb.Clear();
                 }
 
-                else if (info.Key == ConsoleKey.Enter) { console.Write(Environment.NewLine); break; }
+                else if (info.Key == ConsoleKey.Enter) { console.Render(Environment.NewLine); break; }
 
                 else if (ConsoleReader.IsInputCharacter(info))
                 {
@@ -362,7 +372,7 @@ namespace CommandLineParsing
                     if (passChar.HasValue)
                     {
                         if (!singleSymbol || sb.Length == 1)
-                            console.Write(passChar.Value.ToString());
+                            console.Render(passChar.Value.ToString());
                     }
                 }
             }
@@ -409,7 +419,7 @@ namespace CommandLineParsing
             }
 
             if (finalCleanup == ReadLineCleanup.RemovePrompt)
-                console.WriteLine(result);
+                console.RenderLine(result);
 
             return resultOk;
         }
@@ -455,8 +465,8 @@ namespace CommandLineParsing
                 {
                     for (int i = 0; i < selection.Length; i++)
                     {
-                        if (i > 0) console.Write(", ");
-                        console.Write(selection[i].ToString());
+                        if (i > 0) console.Render(", ");
+                        console.Render(selection[i].ToString());
                     }
                     console.WriteLine();
                 }

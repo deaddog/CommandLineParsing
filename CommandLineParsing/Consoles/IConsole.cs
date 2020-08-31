@@ -87,12 +87,7 @@ namespace CommandLineParsing.Consoles
         /// Writes the specified string value to the console.
         /// </summary>
         /// <param name="value">The value to write.</param>
-        void Write(string value);
-        /// <summary>
-        /// Writes the specified string value, followed by the current line terminator, to.
-        /// </summary>
-        /// <param name="value">The value to write.</param>
-        void WriteLine(string value);
+        void Render(string value);
         /// <summary>
         /// Obtains the next character or function key pressed by the user. The pressed key is optionally displayed in the console window.
         /// </summary>
