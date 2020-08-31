@@ -135,8 +135,13 @@ namespace CommandLineParsing
         /// <param name="allowcolor">if set to <c>false</c> any color information passed in <paramref name="value"/> is disregarded.</param>
         public static void WriteLine(this IConsole console, ConsoleString value, bool allowcolor = true)
         {
-            Write(console, value + ConsoleString.Parse("\n", false), allowcolor);
+            Write(console, value + Environment.NewLine, allowcolor);
         }
+        /// <summary>
+        /// Writes the current line terminator to <paramref name="console"/>.
+        /// </summary>
+        /// <param name="console">The console used for writing.</param>
+        public static void WriteLine(this IConsole console) => console.Write(Environment.NewLine);
 
         /// <summary>
         /// Removes color-coding information from a string.
@@ -357,7 +362,7 @@ namespace CommandLineParsing
                     if (passChar.HasValue)
                     {
                         if (!singleSymbol || sb.Length == 1)
-                            console.Write(passChar.Value);
+                            console.Write(passChar.Value.ToString());
                     }
                 }
             }

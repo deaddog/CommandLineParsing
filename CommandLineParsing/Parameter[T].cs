@@ -89,7 +89,7 @@ namespace CommandLineParsing
                 temp = SystemConsole.Instance.MenuSelectEnum<T>(cleanup: MenuCleanup.RemoveMenu);
 
                 SystemConsole.Instance.SetCursorPosition(left, SystemConsole.Instance.CursorTop - 1);
-                SystemConsole.Instance.WriteLine(temp);
+                SystemConsole.Instance.WriteLine(temp?.ToString() ?? string.Empty);
             }
             else
                 temp = SystemConsole.Instance.ReadLine<T>(_parserCustom, _parserSettings, promptMessage, validator: validator);

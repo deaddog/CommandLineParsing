@@ -146,7 +146,7 @@ namespace CommandLineParsing.Input
 
             if (Index == Length)
             {
-                _console.Write(info);
+                _console.Write(info.ToString());
                 sb.Append(info);
             }
             else
