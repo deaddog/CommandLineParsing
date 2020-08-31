@@ -17,12 +17,10 @@ namespace CommandLineParsing
     public static class ConsoleExtensions
     {
         private static readonly ColorTable colors;
-        private static IConsole _activeConsole;
 
         static ConsoleExtensions()
         {
             colors = new ColorTable();
-            _activeConsole = SystemConsole.Instance;
         }
 
         /// <summary>
@@ -31,21 +29,6 @@ namespace CommandLineParsing
         public static ColorTable Colors
         {
             get { return colors; }
-        }
-
-        /// <summary>
-        /// Gets or sets the implementation of <see cref="IConsole"/> used by <see cref="ColorConsole"/>.
-        /// This defaults to <see cref="SystemConsole.Instance"/>.
-        /// </summary>
-        public static IConsole ActiveConsole
-        {
-            get { return _activeConsole; }
-            set
-            {
-                if (value == null)
-                    throw new ArgumentNullException(nameof(value));
-                _activeConsole = value;
-            }
         }
 
         /// <summary>
