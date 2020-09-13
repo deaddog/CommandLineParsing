@@ -15,10 +15,12 @@ namespace CommandLineParsing
         /// </summary>
         public static Message NoError { get; } = new Message();
 
+        private readonly ConsoleString _content;
+
         private Message()
         {
             IsError = false;
-            Content = ConsoleString.Empty;
+            _content = default;
         }
 
         /// <summary>
@@ -28,9 +30,9 @@ namespace CommandLineParsing
         public Message(ConsoleString content)
         {
             IsError = true;
-            Content = content ?? throw new ArgumentNullException(nameof(content));
+            _content = content ?? throw new ArgumentNullException(nameof(content));
 
-            if (content.Length == 0)
+            if (_content.Length == 0)
                 throw new ArgumentException($"{nameof(Message)} cannot use an empty {nameof(ConsoleString)}.");
         }
 
@@ -62,7 +64,7 @@ namespace CommandLineParsing
         /// Gets the error associated with this <see cref="Message"/>.
         /// Will contain <see cref="ConsoleString.Empty"/> if <see cref="IsError"/> is false.
         /// </summary>
-        public ConsoleString Content { get; }
+        public ConsoleString Content => IsError ? _content : throw new InvalidOperationException($"Only error messages have {nameof(Content)}. Check {nameof(IsError)} before accessing.");
         /// <summary>
         /// Gets a value indicating whether this <see cref="Message"/> is an error message.
         /// Only the <see cref="NoError"/> message is not considered an error.
@@ -70,6 +72,35 @@ namespace CommandLineParsing
         /// <value>
         ///   <c>true</c> if this instance is error; otherwise, <c>false</c>.
         /// </value>
+        public bool IsError { get; }
+    }
+
+    public class Message<T>
+    {
+        public static Message<T> NoError { get; } = new Message<T>(default(T));
+
+        private readonly ConsoleString _content;
+        private readonly T _value;
+
+        public Message(T value)
+        {
+            IsError = false;
+            _content = default;
+            _value = value;
+        }
+        public Message(ConsoleString content)
+        {
+            IsError = true;
+            _content = content ?? throw new ArgumentNullException(nameof(content));
+            _value = default;
+
+            if (content.Length == 0)
+                throw new ArgumentException($"{nameof(Message)} cannot use an empty {nameof(ConsoleString)}.");
+        }
+
+        public ConsoleString Content => IsError ? _content : throw new InvalidOperationException($"Only error messages have {nameof(Content)}. Check {nameof(IsError)} before accessing.");
+        public T Value => IsError ? throw new InvalidOperationException($"Only succes messages have {nameof(Value)}. Check {nameof(IsError)} before accessing.") : _value;
+
         public bool IsError { get; }
     }
 }
