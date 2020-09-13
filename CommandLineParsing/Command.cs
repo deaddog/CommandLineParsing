@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLineParsing.Output;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -188,10 +189,10 @@ namespace CommandLineParsing
             var message = Message.NoError;
 
             if (subcommands.Any())
-                message += "Commands:" + GetSubCommandsMessage(2);
+                message += new Message("Commands:") + GetSubCommandsMessage(2);
 
             if (parameters.Any())
-                message += "Parameters:" + GetParametersMessage(2);
+                message += new Message("Parameters:") + GetParametersMessage(2);
 
             return message;
         }
@@ -210,11 +211,11 @@ namespace CommandLineParsing
 
             var commands = subcommands.ToArray();
             for (int i = 0; i < commands.Length - 1; i++)
-                sb.AppendLine(string.Format("{2}{0}  {1}", commands[i].Key.PadRight(len), commands[i].Value.Description, indent));
+                sb.AppendLine($"{indent}{commands[i].Key.PadRight(len)}  {commands[i].Value.Description}");
             if (commands.Length > 0)
-                sb.Append(string.Format("{2}{0}  {1}", commands[commands.Length - 1].Key.PadRight(len), commands[commands.Length - 1].Value.Description, indent));
+                sb.Append($"{indent}{commands[^1].Key.PadRight(len)}  {commands[^1].Value.Description}");
 
-            return sb.ToString();
+            return new Message(ConsoleString.FromContent(sb.ToString()));
         }
         /// <summary>
         /// Gets a <see cref="Message"/> containing lines with each parameter name, alternatives and description.
@@ -232,11 +233,11 @@ namespace CommandLineParsing
 
             int len = pars.Select(x => x.Item1.Length).Max();
             for (int i = 0; i < pars.Length - 1; i++)
-                sb.AppendLine(string.Format("{2}{0}  {1}", pars[i].Item1.PadRight(len), pars[i].Item2, indent));
+                sb.AppendLine($"{indent}{pars[i].Item1.PadRight(len)}  {pars[i].Item2}");
             if (pars.Length > 0)
-                sb.AppendLine(string.Format("{2}{0}  {1}", pars[pars.Length - 1].Item1.PadRight(len), pars[pars.Length - 1].Item2, indent));
+                sb.AppendLine($"{indent}{pars[^1].Item1.PadRight(len)}  {pars[^1].Item2}");
 
-            return sb.ToString();
+            return new Message(ConsoleString.FromContent(sb.ToString()));
         }
 
         /// <summary>
@@ -271,7 +272,7 @@ namespace CommandLineParsing
             var msg = ParseAndExecute(args, help);
 
             if (msg.IsError)
-                Consoles.System.RenderLine(msg.GetMessage());
+                Consoles.System.WriteLine(msg.Content);
         }
         /// <summary>
         /// Runs this <see cref="Command"/>, printing the resulting <see cref="Message"/> to standard output (<see cref="Console"/>).

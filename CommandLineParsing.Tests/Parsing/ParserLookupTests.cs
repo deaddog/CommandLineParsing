@@ -53,17 +53,17 @@ namespace CommandLineParsing.Tests.Parsing
             _settings = new ParserSettings
             {
                 EnumIgnoreCase = false,
-                MultipleValuesMessage = "MULTI",
-                NoValueMessage = "NO",
-                TypeErrorMessage = x => $"TYPE[{x}]",
+                MultipleValuesMessage = new Message("MULTI"),
+                NoValueMessage = new Message("NO"),
+                TypeErrorMessage = x => new Message($"TYPE[{x}]"),
                 UseParserMessage = false
             };
             _settingsIgnoreCase = new ParserSettings
             {
                 EnumIgnoreCase = true,
-                MultipleValuesMessage = "MULTI",
-                NoValueMessage = "NO",
-                TypeErrorMessage = x => $"TYPE[{x}]",
+                MultipleValuesMessage = new Message("MULTI"),
+                NoValueMessage = new Message("NO"),
+                TypeErrorMessage = x => new Message($"TYPE[{x}]"),
                 UseParserMessage = false
             };
         }

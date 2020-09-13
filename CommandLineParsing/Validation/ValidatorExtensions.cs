@@ -17,7 +17,7 @@ namespace CommandLineParsing.Validation
         /// <returns>A <typeparamref name="TReturn"/> that extends <paramref name="composer"/> with <paramref name="predicate"/>.</returns>
         public static TReturn Where<TReturn>(this IValidatorComposer<TReturn> composer, Func<bool> predicate)
         {
-            return Where(composer, predicate, "Validation failed.");
+            return Where(composer, predicate, new Message("Validation failed."));
         }
         /// <summary>
         /// Adds a predicate method to the validator composer, using <paramref name="errorMessage"/> when the predicate does not hold true.
@@ -53,7 +53,7 @@ namespace CommandLineParsing.Validation
         /// <returns>A <typeparamref name="TReturn"/> that extends <paramref name="composer"/> with <paramref name="predicate"/>.</returns>
         public static TReturn Where<T, TReturn>(this IValidatorComposer<T, TReturn> composer, Predicate<T> predicate)
         {
-            return Where(composer, predicate, x => $"[red:{x}] is not a valid value.");
+            return Where(composer, predicate, x => new Message($"[red:{x}] is not a valid value."));
         }
         /// <summary>
         /// Adds a predicate method to the validator composer, using <paramref name="errorMessage"/> when the predicate does not hold true.

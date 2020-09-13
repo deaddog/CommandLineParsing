@@ -180,8 +180,8 @@ namespace CommandLineParsing
             {
                 EnumIgnoreCase = true,
                 NoValueMessage = Message.NoError,
-                MultipleValuesMessage = "Only one value can be specified.",
-                TypeErrorMessage = x => $"{x} is not a {typename} value.",
+                MultipleValuesMessage = new Message("Only one value can be specified."),
+                TypeErrorMessage = x => new Message($"{x} is not a {typename} value."),
                 UseParserMessage = true
             };
         }
@@ -274,7 +274,7 @@ namespace CommandLineParsing
                     console.SetCursorPosition(valuePosition);
                     console.Render(new string(' ', input.Length));
 
-                    input = msg.GetMessage();
+                    input = msg.Content.Content;
                     console.ForegroundColor = ConsoleColor.Red;
                     console.SetCursorPosition(valuePosition);
                     console.Render(input);

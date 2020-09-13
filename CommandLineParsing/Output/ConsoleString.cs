@@ -346,6 +346,10 @@ namespace CommandLineParsing.Output
         /// </summary>
         public int Length => _text.Value.Length;
 
+        public ConsoleString WithColor(Color color)
+        {
+            return new ConsoleString(new[] { new ConsoleStringSegment(this.Content, color) });
+        }
         /// <summary>
         /// Returns a new <see cref="ConsoleString"/> that has been stripped of coloring.
         /// </summary>

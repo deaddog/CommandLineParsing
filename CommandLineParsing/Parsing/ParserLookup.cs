@@ -37,7 +37,7 @@ namespace CommandLineParsing.Parsing
             }
 
             if (msg.IsError)
-                throw new ParsingFailedException(typeof(T), msg.GetMessage());
+                throw new ParsingFailedException(typeof(T), msg.Content.Content);
             else
                 return result;
         }
@@ -60,7 +60,7 @@ namespace CommandLineParsing.Parsing
             }
 
             if (msg.IsError)
-                throw new ParsingFailedException(typeof(T), msg.GetMessage());
+                throw new ParsingFailedException(typeof(T), msg.Content.Content);
             else
                 return result;
         }
@@ -98,7 +98,7 @@ namespace CommandLineParsing.Parsing
                 if (parsed)
                     return Message.NoError;
                 else if (parserSettings.UseParserMessage)
-                    return $"The value {text} is not defined for the enum {typeof(T).Name}.";
+                    return new Message($"The value {text} is not defined for the enum {typeof(T).Name}.");
                 else
                     return parserSettings.TypeErrorMessage(text);
             }

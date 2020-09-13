@@ -1,4 +1,5 @@
-﻿using CommandLineParsing.Parsing;
+﻿using CommandLineParsing.Output;
+using CommandLineParsing.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,9 +25,9 @@ namespace CommandLineParsing
         private Message defaultTypeError(string input)
         {
             if (Name == null)
-                return $@"The ""{input}"" argument could not be parsed to a value of type {typeof(T).Name}.";
+                return new Message($@"The ""{input}"" argument could not be parsed to a value of type {typeof(T).Name}.");
             else
-                return $@"The ""{input}"" argument for the parameter ""{Name}"", could not be parsed to a value of type {typeof(T).Name}.";
+                return new Message($@"The ""{input}"" argument for the parameter ""{Name}"", could not be parsed to a value of type {typeof(T).Name}.");
         }
 
         internal Parameter(string name, string[] alternatives, string description, RequirementType? requirementType, Message required, bool enumIgnore)
@@ -43,8 +44,8 @@ namespace CommandLineParsing
             _parserSettings = new ParserSettings
             {
                 EnumIgnoreCase = enumIgnore,
-                NoValueMessage = $"No value provided for argument \"{name}\".",
-                MultipleValuesMessage = $"Only one value can be provided for argument \"{name}\".",
+                NoValueMessage = new Message($"No value provided for argument \"{name}\"."),
+                MultipleValuesMessage = new Message($"Only one value can be provided for argument \"{name}\"."),
                 TypeErrorMessage = defaultTypeError,
                 UseParserMessage = true
             };
@@ -64,7 +65,7 @@ namespace CommandLineParsing
             get
             {
                 if (!IsSet && RequirementType == CommandLineParsing.RequirementType.PromptWhenUsed)
-                    Prompt(RequiredMessage.GetMessage());
+                    Prompt(RequiredMessage.Content);
 
                 return value;
             }
@@ -76,12 +77,12 @@ namespace CommandLineParsing
         /// Existing value (if any) will be overwritten.
         /// </summary>
         /// <param name="promptMessage">The prompt message.</param>
-        public void Prompt(string promptMessage)
+        public override void Prompt(ConsoleString promptMessage)
         {
             T temp = default(T);
             if (typeof(T).GetTypeInfo().IsEnum)
             {
-                Consoles.System.Render(promptMessage);
+                Consoles.System.Write(promptMessage);
                 var left = Consoles.System.CursorLeft;
                 Consoles.System.WriteLine();
 
@@ -95,10 +96,6 @@ namespace CommandLineParsing
             IsSet = true;
             value = temp;
             doCallback();
-        }
-        internal override void prompt(string promptMessage)
-        {
-            Prompt(promptMessage);
         }
 
         /// <summary>

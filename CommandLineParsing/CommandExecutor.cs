@@ -70,7 +70,7 @@ namespace CommandLineParsing
             }
         }
 
-        private static Message NoUnnamed(string value) => $@"You must specify which parameter the value '{value}' is associated with (eg. [Example:--parameter-name {value}]).";
+        private static Message NoUnnamed(string value) => new Message($@"You must specify which parameter the value '{value}' is associated with (eg. [Example:--parameter-name {value}]).");
 
         private static Message parseArguments(Command command, ArgumentQueue arguments)
         {
@@ -109,7 +109,7 @@ namespace CommandLineParsing
                 return msg;
 
             foreach (var p in command.Parameters.Where(x => !x.IsSet && x.RequirementType == RequirementType.Prompt))
-                p.prompt(p.RequiredMessage.GetMessage());
+                p.Prompt(p.RequiredMessage.Content);
 
             string[] nonameArgs = arguments.PopSkipped();
             if (nonameArgs.Length > 0)
