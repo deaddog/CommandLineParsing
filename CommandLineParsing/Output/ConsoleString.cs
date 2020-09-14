@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace CommandLineParsing.Output
@@ -269,6 +270,65 @@ namespace CommandLineParsing.Output
         public ConsoleString()
             : this(new ConsoleStringSegment[0])
         {
+        }
+
+        public ConsoleString this[Index index]
+        {
+            get
+            {
+                var offset = index.GetOffset(Length);
+
+                for (int i = 0; i < _content.Length; i++)
+                {
+                    if (_content[i].Content.Length <= offset)
+                        offset -= _content[i].Content.Length;
+                    else
+                        return new ConsoleString(new[] { new ConsoleStringSegment
+                        (
+                            content: _content[i].Content.Substring(offset, 1),
+                            color: _content[i].Color
+                        )});
+                }
+
+                throw new ArgumentOutOfRangeException(nameof(index), $"Index and length must refer to a location within the {nameof(ConsoleString)}.");
+            }
+        }
+        public ConsoleString this[Range range]
+        {
+            get
+            {
+                var (offset, length) = range.GetOffsetAndLength(Length);
+
+                var segments = ImmutableList<ConsoleStringSegment>.Empty;
+
+                for (int index = 0; length > 0; index++)
+                {
+                    if (index >= _content.Length)
+                        throw new ArgumentOutOfRangeException(nameof(range), $"Index and length must refer to a location within the {nameof(ConsoleString)}.");
+
+                    if (_content[index].Content.Length <= offset)
+                        offset -= _content[index].Content.Length;
+                    else
+                    {
+                        var segment = new ConsoleStringSegment
+                        (
+                            _content[index].Content.Substring
+                            (
+                                offset,
+                                Math.Min(_content[index].Content.Length, length) - offset
+                            ),
+                            _content[index].Color
+                        );
+
+                        segments = segments.Add(segment);
+
+                        offset = 0;
+                        length -= segment.Content.Length;
+                    }
+                }
+
+                return new ConsoleString(segments);
+            }
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
