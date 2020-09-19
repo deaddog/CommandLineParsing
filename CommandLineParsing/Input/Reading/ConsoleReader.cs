@@ -37,7 +37,6 @@ namespace CommandLineParsing.Input.Reading
                 char.IsSeparator(character);
         }
 
-        private readonly IConsole _console;
         private readonly StringBuilder _stringBuilder;
         private Color _color;
 
@@ -47,14 +46,16 @@ namespace CommandLineParsing.Input.Reading
         /// <param name="console">The console used to read input.</param>
         public ConsoleReader(IConsole console)
         {
-           _console = console ?? throw new ArgumentNullException(nameof(console));
+           Console = console ?? throw new ArgumentNullException(nameof(console));
 
-            Origin = _console.GetCursorPosition();
+            Origin = Console.GetCursorPosition();
             _stringBuilder = new StringBuilder();
             _color = Color.NoColor
-                .WithForeground(_console.ForegroundColor.ToString())
-                .WithBackground(_console.BackgroundColor.ToString());
+                .WithForeground(Console.ForegroundColor.ToString())
+                .WithBackground(Console.BackgroundColor.ToString());
         }
+
+        public IConsole Console { get; }
 
         /// <summary>
         /// Gets or sets the current text displayed by this <see cref="ConsoleReader"/>.
@@ -69,7 +70,7 @@ namespace CommandLineParsing.Input.Reading
                 {
                     Index = value.Length;
                     Write(value);
-                    _console.Write(ConsoleString.FromContent(new string(' ', diff)));
+                    Console.Write(ConsoleString.FromContent(new string(' ', diff)));
                 }
 
                 Index = 0;
@@ -113,8 +114,8 @@ namespace CommandLineParsing.Input.Reading
         /// </summary>
         public int Index
         {
-            get { return _console.CursorLeft - Origin.Left; }
-            set { _console.SetCursorPosition(Origin.Left + value, Origin.Top); }
+            get { return Console.CursorLeft - Origin.Left; }
+            set { Console.SetCursorPosition(Origin.Left + value, Origin.Top); }
         }
 
         /// <summary>
@@ -254,7 +255,7 @@ namespace CommandLineParsing.Input.Reading
 
         private void Write(string content)
         {
-            _console.Write(ConsoleString.FromContent(content, Color));
+            Console.Write(ConsoleString.FromContent(content, Color));
         }
 
         /// <summary>
