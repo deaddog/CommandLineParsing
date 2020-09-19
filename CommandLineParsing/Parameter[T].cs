@@ -1,11 +1,7 @@
 ﻿using CommandLineParsing.Output;
 using CommandLineParsing.Parsing;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
@@ -92,7 +88,9 @@ namespace CommandLineParsing
                 Consoles.System.RenderLine(temp?.ToString() ?? string.Empty);
             }
             else
-                temp = Consoles.System.ReadLine<T>(_parserCustom, _parserSettings, promptMessage, validator: validator);
+                throw new NotSupportedException("Prompt is not supported in this intermediate state");
+                //temp = Consoles.System.ReadLine<T>(_parserCustom, _parserSettings, promptMessage, validator: validator);
+
             IsSet = true;
             value = temp;
             doCallback();
