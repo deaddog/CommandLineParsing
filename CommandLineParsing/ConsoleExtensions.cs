@@ -173,20 +173,6 @@ namespace CommandLineParsing
             return ConsoleString.Parse(input, false).HasColors;
         }
 
-        private static ParserSettings GetParserSettings<T>()
-        {
-            string typename = typeof(T).Name;
-
-            return new ParserSettings()
-            {
-                EnumIgnoreCase = true,
-                NoValueMessage = Message.NoError,
-                MultipleValuesMessage = new Message("Only one value can be specified."),
-                TypeErrorMessage = x => new Message($"{x} is not a {typename} value."),
-                UseParserMessage = true
-            };
-        }
-
         public static string ReadLine(this IConsole console) => new ConsoleReader(console).ReadLine();
         public static bool ReadLineOrCancel(this IConsole console, out string value) => new ConsoleReader(console).ReadLineOrCancel(out value);
 

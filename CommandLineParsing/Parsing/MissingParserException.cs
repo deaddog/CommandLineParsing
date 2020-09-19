@@ -9,7 +9,7 @@ namespace CommandLineParsing.Parsing
     {
         private static string GetMessage(Type parsedType)
         {
-            return $"The type { parsedType.Name } is not supported. A {nameof(TryParse<string>)} or {nameof(MessageTryParse<string>)} method must be defined in {parsedType.Name}. " +
+            return $"The type { parsedType.Name } is not supported. A {ReflectedParser<int>.TryParseName} method must be defined in {parsedType.Name}. " +
                 $"Alternatively a custom parser can be defined for the specific context.";
         }
 

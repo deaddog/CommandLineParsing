@@ -23,7 +23,7 @@ namespace CommandLineParsing.Tests.Parsing
                 Text = text;
             }
 
-            public static Message MessageTryParse(string text, out HasMessageParser result)
+            public static Message TryParse(string text, out HasMessageParser result)
             {
                 result = new HasMessageParser(text);
                 return Message.NoError;

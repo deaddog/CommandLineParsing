@@ -6,6 +6,11 @@ namespace CommandLineParsing.Parsing
 {
     public class ReflectedParser<T> : IParser<T>
     {
+        public const string TryParseName = "TryParse";
+
+        private delegate bool TryParser<TParse>(string s, out TParse result);
+        private delegate Message MessageTryParser<TParse>(string s, out TParse result);
+
         private readonly ReflectedParserSettings _parserSettings;
 
         public ReflectedParser(ReflectedParserSettings parserSettings)
@@ -157,9 +162,9 @@ namespace CommandLineParsing.Parsing
             return msg;
         }
 
-        private bool TryGetMessageTryParse<TParse>(out MessageTryParse<TParse> parser)
+        private bool TryGetMessageTryParse<TParse>(out MessageTryParser<TParse> parser)
         {
-            var method = typeof(TParse).GetTypeInfo().GetDeclaredMethods(nameof(Parsing.MessageTryParse<string>)).FirstOrDefault(m =>
+            var method = typeof(TParse).GetTypeInfo().GetDeclaredMethods(TryParseName).FirstOrDefault(m =>
             {
                 if (!m.IsStatic || !m.IsPublic)
                     return false;
@@ -183,12 +188,12 @@ namespace CommandLineParsing.Parsing
                 return false;
             }
 
-            parser = (MessageTryParse<TParse>)method.CreateDelegate(typeof(MessageTryParse<>).MakeGenericType(typeof(TParse)));
+            parser = (MessageTryParser<TParse>)method.CreateDelegate(typeof(ReflectedParser<T>.MessageTryParser<TParse>));
             return true;
         }
-        private bool TryGetTryParse<TParse>(out TryParse<TParse> parser)
+        private bool TryGetTryParse<TParse>(out TryParser<TParse> parser)
         {
-            var method = typeof(TParse).GetTypeInfo().GetDeclaredMethods(nameof(Parsing.TryParse<string>)).FirstOrDefault(m =>
+            var method = typeof(TParse).GetTypeInfo().GetDeclaredMethods(TryParseName).FirstOrDefault(m =>
             {
                 if (!m.IsStatic || !m.IsPublic)
                     return false;
@@ -212,7 +217,7 @@ namespace CommandLineParsing.Parsing
                 return false;
             }
 
-            parser = (TryParse<TParse>)method.CreateDelegate(typeof(TryParse<>).MakeGenericType(typeof(TParse)));
+            parser = (TryParser<TParse>)method.CreateDelegate(typeof(ReflectedParser<T>.TryParser<TParse>));
             return true;
         }
     }
