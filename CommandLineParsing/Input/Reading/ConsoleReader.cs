@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Text;
 
-namespace CommandLineParsing.Input
+namespace CommandLineParsing.Input.Reading
 {
     /// <summary>
     /// Provides methods for reading input from the console.
@@ -37,40 +37,71 @@ namespace CommandLineParsing.Input
                 char.IsSeparator(character);
         }
 
-        private readonly IConsole _console;
-        private readonly ConsoleString prompt;
-        private readonly ConsolePoint origin;
-        private readonly int position;
-        private readonly StringBuilder sb;
-
-        private bool isDisposed = false;
+        private readonly StringBuilder _stringBuilder;
+        private Color _color;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConsoleReader"/> class.
         /// </summary>
         /// <param name="console">The console used to read input.</param>
-        /// <param name="prompt">A prompt message to display to the user before input. <c>null</c> indicates that no prompt message should be displayed.</param>
-        public ConsoleReader(IConsole console, ConsoleString prompt = null)
+        public ConsoleReader(IConsole console)
         {
-            _console = console ?? throw new ArgumentNullException(nameof(console));
-            origin = _console.GetCursorPosition();
+           Console = console ?? throw new ArgumentNullException(nameof(console));
 
-            this.prompt = prompt;
-            if (prompt != null)
-                console.Write(prompt);
-
-            position = _console.CursorLeft;
-            sb = new StringBuilder();
+            Origin = Console.GetCursorPosition();
+            _stringBuilder = new StringBuilder();
+            _color = Color.NoColor
+                .WithForeground(Console.ForegroundColor.ToString())
+                .WithBackground(Console.BackgroundColor.ToString());
         }
 
+        public IConsole Console { get; }
+
         /// <summary>
-        /// Gets the current text displayed by this <see cref="ConsoleReader"/>.
+        /// Gets or sets the current text displayed by this <see cref="ConsoleReader"/>.
         /// </summary>
-        public string Text => sb.ToString();
+        public string Text
+        {
+            get { return _stringBuilder.ToString(); }
+            set
+            {
+                int diff = Length - value.Length;
+                if (diff > 0)
+                {
+                    Index = value.Length;
+                    Write(value);
+                    Console.Write(ConsoleString.FromContent(new string(' ', diff)));
+                }
+
+                Index = 0;
+                _stringBuilder.Clear();
+                Insert(value);
+            }
+        }
         /// <summary>
         /// Gets the length of the text displayed by this <see cref="ConsoleReader"/>.
         /// </summary>
-        public int Length => sb.Length;
+        public int Length => _stringBuilder.Length;
+
+        /// <summary>
+        /// Gets or sets the color used for the users text.
+        /// </summary>
+        public Color Color
+        {
+            get { return _color; }
+            set
+            {
+                if (_color != value)
+                {
+                    _color = value;
+
+                    var current = Index;
+                    Index = 0;
+                    Write(_stringBuilder.ToString());
+                    Index = current;
+                }
+            }
+        }
 
         /// <summary>
         /// Occurs when <see cref="Text"/> changes value.
@@ -83,31 +114,14 @@ namespace CommandLineParsing.Input
         /// </summary>
         public int Index
         {
-            get { return _console.CursorLeft - position; }
-            set
-            {
-                if (value > Index)
-                {
-                    if (value <= sb.Length)
-                        _console.CursorLeft = value + position;
-                }
-                else if (value < Index)
-                {
-                    if (value >= 0)
-                        _console.CursorLeft = value + position;
-                }
-            }
+            get { return Console.CursorLeft - Origin.Left; }
+            set { Console.SetCursorPosition(Origin.Left + value, Origin.Top); }
         }
 
         /// <summary>
         /// Gets the location where the readline is displayed. If a prompt was passed to the constructer, this points to the start of that prompt.
         /// </summary>
-        public ConsolePoint Origin => origin;
-
-        /// <summary>
-        /// Gets or sets the type of cleanup that should be applied when disposing the <see cref="ConsoleReader" />.
-        /// </summary>
-        public InputCleanup Cleanup { get; set; }
+        public ConsolePoint Origin { get; }
 
         /// <summary>
         /// Inserts the specified text at the cursors current position (<see cref="Index"/>).
@@ -117,23 +131,22 @@ namespace CommandLineParsing.Input
         {
             var old = Text;
 
-            if (_console.CursorLeft == position + sb.Length)
+            if (Index == _stringBuilder.Length)
             {
-                _console.Render(text);
-                sb.Append(text);
+                Write(text);
+                _stringBuilder.Append(text);
             }
             else
             {
-                int temp = _console.CursorLeft;
+                int temp = Index;
 
-                sb.Insert(Index, text);
-                _console.Render(sb.ToString().Substring(Index));
+                _stringBuilder.Insert(Index, text);
+                Write(_stringBuilder.ToString().Substring(Index));
 
-                _console.CursorLeft = temp + text.Length;
+                Index = temp + text.Length;
             }
 
-            if (!isDisposed)
-                TextChanged?.Invoke(this, old);
+            TextChanged?.Invoke(this, old);
         }
         /// <summary>
         /// Inserts the specified character at the cursors current position (<see cref="Index"/>).
@@ -145,21 +158,20 @@ namespace CommandLineParsing.Input
 
             if (Index == Length)
             {
-                _console.Render(info.ToString());
-                sb.Append(info);
+                Write(info.ToString());
+                _stringBuilder.Append(info);
             }
             else
             {
-                int temp = _console.CursorLeft;
+                int temp = Index;
 
-                sb.Insert(_console.CursorLeft - position, info);
-                _console.Render(sb.ToString().Substring(_console.CursorLeft - position));
+                _stringBuilder.Insert(Index, info);
+                Write(_stringBuilder.ToString().Substring(Index));
 
-                _console.CursorLeft = temp + 1;
+                Index = temp + 1;
             }
 
-            if (!isDisposed)
-                TextChanged?.Invoke(this, old);
+            TextChanged?.Invoke(this, old);
         }
 
         /// <summary>
@@ -181,16 +193,16 @@ namespace CommandLineParsing.Input
                 if (Index < -length)
                     length = -Index;
 
-                sb.Remove(Index + length, -length);
+                _stringBuilder.Remove(Index + length, -length);
 
                 var replace = new string(' ', -length);
                 if (Index != Length - length)
-                    replace = sb.ToString().Substring(Index + length) + replace;
+                    replace = _stringBuilder.ToString().Substring(Index + length) + replace;
 
-                int temp = _console.CursorLeft;
-                _console.CursorLeft += length;
-                _console.Render(replace);
-                _console.CursorLeft = temp + length;
+                int temp = Index;
+                Index += length;
+                Write(replace);
+                Index = temp + length;
             }
             else if (length > 0)
             {
@@ -199,14 +211,13 @@ namespace CommandLineParsing.Input
                 if (Index + length > Length)
                     length = Length - Index;
 
-                int temp = _console.CursorLeft;
-                sb.Remove(Index, length);
-                _console.Render(sb.ToString().Substring(Index) + new string(' ', length));
-                _console.CursorLeft = temp;
+                int temp = Index;
+                _stringBuilder.Remove(Index, length);
+                Write(_stringBuilder.ToString().Substring(Index) + new string(' ', length));
+                Index = temp;
             }
 
-            if (!isDisposed)
-                TextChanged?.Invoke(this, old);
+            TextChanged?.Invoke(this, old);
         }
 
         private int IndexOfPrevious(params char[] chars)
@@ -240,6 +251,11 @@ namespace CommandLineParsing.Input
             }
 
             return i;
+        }
+
+        private void Write(string content)
+        {
+            Console.Write(ConsoleString.FromContent(content, Color));
         }
 
         /// <summary>
@@ -283,44 +299,9 @@ namespace CommandLineParsing.Input
                     break;
 
                 default:
-                    if (ConsoleReader.IsInputCharacter(key))
+                    if (IsInputCharacter(key))
                         Insert(key.KeyChar);
                     break;
-            }
-        }
-
-        /// <summary>
-        /// Performs cleanup of the reader as specified by <see cref="Cleanup"/>.
-        /// </summary>
-        public void Dispose()
-        {
-            isDisposed = true;
-            int? promptLength = prompt?.Length;
-
-            switch (Cleanup)
-            {
-                case InputCleanup.None:
-                    _console.Render(Environment.NewLine);
-                    break;
-
-                case InputCleanup.Clean:
-                    {
-                        var value = Text;
-
-                        Index = 0;
-                        Delete(value.Length);
-
-                        if (promptLength.HasValue)
-                        {
-                            _console.CursorLeft -= promptLength.Value;
-                            _console.Render(new string(' ', promptLength.Value));
-                            _console.CursorLeft -= promptLength.Value;
-                        }
-                    }
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(Cleanup));
             }
         }
     }

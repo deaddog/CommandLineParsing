@@ -60,9 +60,9 @@ namespace CommandLineParsing
                             if (first == null)
                                 first = parameters[i];
                             else
-                                return string.Format("The {0} {1} cannot be used with the {2} {3}.",
+                                return new Message(string.Format("The {0} {1} cannot be used with the {2} {3}.",
                                     first.Name, first is FlagParameter ? "flag" : "parameter",
-                                    parameters[i].Name, parameters[i] is FlagParameter ? "flag" : "parameter");
+                                    parameters[i].Name, parameters[i] is FlagParameter ? "flag" : "parameter"));
                         }
 
                     return Message.NoError;
@@ -86,9 +86,9 @@ namespace CommandLineParsing
 
                     for (int i = 0; i < parameters.Length; i++)
                         if (parameters[i].IsSet)
-                            return string.Format("The {0} {1} cannot be used with the {2} {3}.",
+                            return new Message(string.Format("The {0} {1} cannot be used with the {2} {3}.",
                                 first.Name, first is FlagParameter ? "flag" : "parameter",
-                                parameters[i].Name, parameters[i] is FlagParameter ? "flag" : "parameter");
+                                parameters[i].Name, parameters[i] is FlagParameter ? "flag" : "parameter"));
 
                     return Message.NoError;
                 });

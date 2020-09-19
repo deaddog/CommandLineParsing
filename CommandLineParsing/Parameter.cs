@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLineParsing.Output;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -97,7 +98,7 @@ namespace CommandLineParsing
             get { return required; }
         }
 
-        internal abstract void prompt(string promptMessage);
+        public abstract void Prompt(ConsoleString promptMessage);
 
         /// <summary>
         /// Gets a value indicating whether this <see cref="Parameter"/> has been used when executing its containing <see cref="Command"/>.

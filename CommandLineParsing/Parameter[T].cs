@@ -1,10 +1,8 @@
-﻿using CommandLineParsing.Parsing;
+﻿using CommandLineParsing.Output;
+using CommandLineParsing.Parsing;
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CommandLineParsing
 {
@@ -17,16 +15,16 @@ namespace CommandLineParsing
     public class Parameter<T> : Parameter
     {
         private T value;
-        private ParameterTryParse<T> _parserCustom;
-        private readonly ParserSettings _parserSettings;
+        private IParser<T> _parserCustom;
+        private ReflectedParserSettings _parserSettings;
         private readonly Validator<T> validator;
 
         private Message defaultTypeError(string input)
         {
             if (Name == null)
-                return $@"The ""{input}"" argument could not be parsed to a value of type {typeof(T).Name}.";
+                return new Message($@"The ""{input}"" argument could not be parsed to a value of type {typeof(T).Name}.");
             else
-                return $@"The ""{input}"" argument for the parameter ""{Name}"", could not be parsed to a value of type {typeof(T).Name}.";
+                return new Message($@"The ""{input}"" argument for the parameter ""{Name}"", could not be parsed to a value of type {typeof(T).Name}.");
         }
 
         internal Parameter(string name, string[] alternatives, string description, RequirementType? requirementType, Message required, bool enumIgnore)
@@ -40,14 +38,14 @@ namespace CommandLineParsing
             }
 
             _parserCustom = null;
-            _parserSettings = new ParserSettings
-            {
-                EnumIgnoreCase = enumIgnore,
-                NoValueMessage = $"No value provided for argument \"{name}\".",
-                MultipleValuesMessage = $"Only one value can be provided for argument \"{name}\".",
-                TypeErrorMessage = defaultTypeError,
-                UseParserMessage = true
-            };
+            _parserSettings = new ReflectedParserSettings
+            (
+                enumIgnoreCase: enumIgnore,
+                noValueMessage: new Message($"No value provided for argument \"{name}\"."),
+                multipleValuesMessage: new Message($"Only one value can be provided for argument \"{name}\"."),
+                typeErrorMessage: defaultTypeError,
+                useParserMessage: true
+            );
 
             this.validator = new Validator<T>();
         }
@@ -64,7 +62,7 @@ namespace CommandLineParsing
             get
             {
                 if (!IsSet && RequirementType == CommandLineParsing.RequirementType.PromptWhenUsed)
-                    Prompt(RequiredMessage.GetMessage());
+                    Prompt(RequiredMessage.Content);
 
                 return value;
             }
@@ -76,12 +74,12 @@ namespace CommandLineParsing
         /// Existing value (if any) will be overwritten.
         /// </summary>
         /// <param name="promptMessage">The prompt message.</param>
-        public void Prompt(string promptMessage)
+        public override void Prompt(ConsoleString promptMessage)
         {
             T temp = default(T);
             if (typeof(T).GetTypeInfo().IsEnum)
             {
-                Consoles.System.Render(promptMessage);
+                Consoles.System.Write(promptMessage);
                 var left = Consoles.System.CursorLeft;
                 Consoles.System.WriteLine();
 
@@ -91,14 +89,12 @@ namespace CommandLineParsing
                 Consoles.System.RenderLine(temp?.ToString() ?? string.Empty);
             }
             else
-                temp = Consoles.System.ReadLine<T>(_parserCustom, _parserSettings, promptMessage, validator: validator);
+                throw new NotSupportedException("Prompt is not supported in this intermediate state");
+            //temp = Consoles.System.ReadLine<T>(_parserCustom, _parserSettings, promptMessage, validator: validator);
+
             IsSet = true;
             value = temp;
             doCallback();
-        }
-        internal override void prompt(string promptMessage)
-        {
-            Prompt(promptMessage);
         }
 
         /// <summary>
@@ -120,7 +116,7 @@ namespace CommandLineParsing
         /// Sets the parser used by the <see cref="Parameter{T}"/>.
         /// </summary>
         /// <param name="parser">The new parser.</param>
-        public void SetParser(ParameterTryParse<T> parser) => _parserCustom = parser;
+        public void SetParser(IParser<T> parser) => _parserCustom = parser;
 
         /// <summary>
         /// Gets or sets the function that is used to generate type error messages for this <see cref="Parameter{T}"/>.
@@ -135,8 +131,14 @@ namespace CommandLineParsing
             get { return _parserSettings.TypeErrorMessage; }
             set
             {
-                _parserSettings.TypeErrorMessage = value ?? throw new ArgumentNullException("value");
-                _parserSettings.UseParserMessage = false;
+                _parserSettings = new ReflectedParserSettings
+                (
+                    enumIgnoreCase: _parserSettings.EnumIgnoreCase,
+                    noValueMessage: _parserSettings.NoValueMessage,
+                    multipleValuesMessage: _parserSettings.MultipleValuesMessage,
+                    typeErrorMessage: value,
+                    useParserMessage: value is null
+                );
             }
         }
         /// <summary>
@@ -156,7 +158,14 @@ namespace CommandLineParsing
                 if (!value.IsError)
                     throw new ArgumentException("An error message cannot be the NoError message.", "value");
 
-                _parserSettings.NoValueMessage = value;
+                _parserSettings = new ReflectedParserSettings
+                (
+                    enumIgnoreCase: _parserSettings.EnumIgnoreCase,
+                    noValueMessage: value,
+                    multipleValuesMessage: _parserSettings.MultipleValuesMessage,
+                    typeErrorMessage: _parserSettings.TypeErrorMessage,
+                    useParserMessage: _parserSettings.UseParserMessage
+                );
             }
         }
         /// <summary>
@@ -176,7 +185,14 @@ namespace CommandLineParsing
                 if (!value.IsError)
                     throw new ArgumentException("An error message cannot be the NoError message.", "value");
 
-                _parserSettings.MultipleValuesMessage = value;
+                _parserSettings = new ReflectedParserSettings
+                (
+                    enumIgnoreCase: _parserSettings.EnumIgnoreCase,
+                    noValueMessage: _parserSettings.NoValueMessage,
+                    multipleValuesMessage: value,
+                    typeErrorMessage: _parserSettings.TypeErrorMessage,
+                    useParserMessage: _parserSettings.UseParserMessage
+                );
             }
         }
 
@@ -190,23 +206,29 @@ namespace CommandLineParsing
 
         internal override Message Handle(string[] values)
         {
-            T temp;
+            var parser = _parserCustom;
 
-            Message msg;
-            if (_parserCustom != null)
-                msg = _parserCustom(values, out temp);
-            else
-                msg = ParserLookup.TryParse(_parserSettings, values, out temp);
+            if (parser is null)
+                new ReflectedParser<T>(new ReflectedParserSettings
+                (
+                    enumIgnoreCase: _parserSettings.EnumIgnoreCase,
+                    noValueMessage: _parserSettings.NoValueMessage,
+                    multipleValuesMessage: _parserSettings.MultipleValuesMessage,
+                    typeErrorMessage: _parserSettings.TypeErrorMessage,
+                    useParserMessage: _parserSettings.UseParserMessage
+                ));
 
-            if (msg.IsError)
-                return msg;
+            var result = parser.Parse(values);
 
-            msg = validator.Validate(temp);
+            if (result.IsError)
+                return new Message(result.Content);
+
+            var msg = validator.Validate(result.Value);
             if (msg.IsError)
                 return msg;
 
             IsSet = true;
-            value = temp;
+            value = result.Value;
             doCallback();
 
             return Message.NoError;

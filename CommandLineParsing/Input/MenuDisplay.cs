@@ -8,7 +8,7 @@ namespace CommandLineParsing.Input
     /// Provides methods for managing a menu in the console.
     /// </summary>
     /// <typeparam name="TOption">The type of the options selectable from the <see cref="MenuDisplay{TOption}"/>.</typeparam>
-    public class MenuDisplay<TOption> : IConsoleInput where TOption : class, IMenuOption
+    public class MenuDisplay<TOption> : IConsoleInput, IDisposable where TOption : class, IMenuOption
     {
         private readonly IConsole _console;
         private readonly ConsolePoint _windowOrigin;

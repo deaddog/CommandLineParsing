@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using CommandLineParsing.Output;
+using System;
 
 namespace CommandLineParsing
 {
@@ -16,10 +13,10 @@ namespace CommandLineParsing
         internal FlagParameter(string name, string[] alternatives, string description)
             : base(name, alternatives, description, null, Message.NoError)
         {
-            hasValueMessage = name + " is a flag argument, it does not support values.";
+            hasValueMessage = new Message(name + " is a flag argument, it does not support values.");
         }
 
-        internal override void prompt(string promptMessage)
+        public override void Prompt(ConsoleString promptMessage)
         {
             throw new InvalidOperationException($"{nameof(FlagParameter)} does not support prompting. It's either there or it's not.");
         }

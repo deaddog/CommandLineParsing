@@ -125,7 +125,7 @@ namespace CommandLineParsing
         }
         public static void AddRegex(this Validator<string> validatorElement, Regex regex)
         {
-            validatorElement.Add(x => regex.IsMatch(x) ? Message.NoError : "The string \"" + x + "\" does not match the regex: [Cyan:" + regex + "]");
+            validatorElement.Add(x => regex.IsMatch(x) ? Message.NoError : new Message("The string \"" + x + "\" does not match the regex: [Cyan:" + regex + "]"));
         }
     }
 }

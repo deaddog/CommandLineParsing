@@ -1,121 +1,78 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CommandLineParsing.Output;
+using System;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace CommandLineParsing
 {
-    /// <summary>
-    /// Represents a message displaying a list of alternatives when an unknown argument is found.
-    /// Alternatives are automatically sorted according to their edit distance.
-    /// </summary>
-    public class UnknownArgumentMessage : Message
+    public static class UnknownArgumentMessage
     {
-        /// <summary>
-        /// An enumeration of the different types of interpretations of arguments.
-        /// </summary>
-        public enum ArgumentType
+        private enum ArgumentType
         {
-            /// <summary>
-            /// Indicates that the unknown argument should be a sub command.
-            /// </summary>
             SubCommand,
-            /// <summary>
-            /// Indicates that the unknown argument should be a parameter.
-            /// </summary>
             Parameter
         }
-        private static string argumentTypeString(ArgumentType arg)
+
+        private static Func<string, string, uint> _editDistance = EditDistance.GetEditDistanceMethod(1, 4, 100, 1);
+
+        public static Message FromSubcommands(Command command, string argument)
         {
-            switch (arg)
+            return new Message(GetMessageContent
+            (
+                argument: argument,
+                argumentType: ArgumentType.SubCommand,
+                alternativeArguments: command.SubCommands.ToImmutableDictionary
+                (
+                    keySelector: c => c.Key,
+                    elementSelector: c => c.Value.Description
+                )
+            ));
+        }
+        public static Message FromParameters(Command command, string argument)
+        {
+            return new Message(GetMessageContent
+            (
+                argument: argument,
+                argumentType: ArgumentType.Parameter,
+                alternativeArguments: command.Parameters.ToImmutableDictionary
+                (
+                    keySelector: p => GetParameterBestMatch(p, argument),
+                    elementSelector: p => p.Description
+                )
+            ));
+        }
+
+        private static string GetParameterBestMatch(Parameter parameter, string argument)
+        {
+            return EditDistance.OrderByDistance
+            (
+                collection: parameter.GetNames(true),
+                origin: argument,
+                editdistance: _editDistance
+            ).First().Item1;
+        }
+        private static string ArgumentTypeString(ArgumentType arg)
+        {
+            return arg switch
             {
-                case ArgumentType.SubCommand: return "subcommand";
-                case ArgumentType.Parameter: return "parameter";
-                default:
-                    throw new ArgumentOutOfRangeException("arg");
-            }
+                ArgumentType.SubCommand => "subcommand",
+                ArgumentType.Parameter => "parameter",
+
+                _ => throw new ArgumentOutOfRangeException("arg"),
+            };
         }
 
-        private static Func<string, string, uint> editDistance = EditDistance.GetEditDistanceMethod(1, 4, 100, 1);
-
-        private string argument;
-        private ArgumentType argumentType;
-        private Dictionary<string, string> alternativeArguments;
-
-        internal static UnknownArgumentMessage FromType(Command command, ArgumentType type, string argument)
-        {
-            switch (type)
-            {
-                case ArgumentType.SubCommand: return FromSubcommands(command, argument);
-                case ArgumentType.Parameter: return FromParameters(command, argument);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), $"No such {nameof(ArgumentType)}; \"{type}\".");
-            }
-        }
-
-        internal static UnknownArgumentMessage FromSubcommands(Command command, string argument)
-        {
-            UnknownArgumentMessage unknown = new UnknownArgumentMessage(argument, UnknownArgumentMessage.ArgumentType.SubCommand);
-            foreach (var n in command.SubCommands)
-                unknown.AddAlternative(n.Key, n.Value.Description);
-            return unknown;
-        }
-        internal static UnknownArgumentMessage FromParameters(Command command, string argument)
-        {
-            UnknownArgumentMessage unknown = new UnknownArgumentMessage(argument, UnknownArgumentMessage.ArgumentType.Parameter);
-            foreach (var par in command.Parameters)
-                unknown.AddAlternative(par.GetNames(true).ToArray(), par.Description);
-            return unknown;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="UnknownArgumentMessage"/> class.
-        /// </summary>
-        /// <param name="argument">The argument that could not be handled.</param>
-        /// <param name="argumentType">The type that was expected from the argument. This will affect the displayed message.</param>
-        public UnknownArgumentMessage(string argument, ArgumentType argumentType)
-        {
-            this.argument = argument;
-            this.argumentType = argumentType;
-            this.alternativeArguments = new Dictionary<string, string>();
-        }
-
-        /// <summary>
-        /// Adds an alternative to the <see cref="UnknownArgumentMessage"/> along with a description.
-        /// </summary>
-        /// <param name="alternative">The alternative.</param>
-        /// <param name="description">The associated description.</param>
-        public void AddAlternative(string alternative, string description)
-        {
-            if (!this.alternativeArguments.ContainsKey(alternative))
-                this.alternativeArguments.Add(alternative, description);
-        }
-
-        /// <summary>
-        /// Adds a set of alternatives to the <see cref="UnknownArgumentMessage"/> along with a description.
-        /// Only a single string from <paramref name="alternatives"/> is listed (the one with the lowest edit-distance).
-        /// </summary>
-        /// <param name="alternatives">The set of alternatives.</param>
-        /// <param name="description">The associated description.</param>
-        public void AddAlternative(string[] alternatives, string description)
-        {
-            AddAlternative(EditDistance.OrderByDistance(alternatives, argument, editDistance).First().Item1, description);
-        }
-
-        /// <summary>
-        /// Gets a string representing this <see cref="UnknownArgumentMessage" />.
-        /// </summary>
-        /// <returns>A message containing an initial message and a list of alternatives for the unknown command.</returns>
-        public override string GetMessage()
+        private static ConsoleString GetMessageContent(string argument, ArgumentType argumentType, IImmutableDictionary<string, string> alternativeArguments)
         {
             if (alternativeArguments.Count == 0)
                 switch (argumentType)
                 {
-                    case ArgumentType.SubCommand: return string.Format("The executed command does not support any sub-commands. [Yellow:{0}] is invalid.", argument);
-                    case ArgumentType.Parameter: return string.Format("The executed command does not support any parameters. [Yellow:{0}] is invalid.", argument);
+                    case ArgumentType.SubCommand: return "The executed command does not support any sub-commands. " + ConsoleString.FromContent(argument, Color.NoColor.WithForeground("Yellow")) + " is invalid.";
+                    case ArgumentType.Parameter: return $"The executed command does not support any parameters. " + ConsoleString.FromContent(argument, Color.NoColor.WithForeground("Yellow")) + " is invalid.";
                 }
 
-            string message = string.Format("{0} [Yellow:{1}] was not recognized. Did you mean any of the following:", argumentTypeString(argumentType), argument);
-            var list = EditDistance.OrderByDistance(alternativeArguments.Keys, argument, editDistance).TakeWhile((arg, i) => i == 0 || arg.Item2 < 5).Select(x => x.Item1).ToArray();
+            string message = $"{ArgumentTypeString(argumentType)} [Yellow:{argument}] was not recognized. Did you mean any of the following:";
+            var list = EditDistance.OrderByDistance(alternativeArguments.Keys, argument, _editDistance).TakeWhile((arg, i) => i == 0 || arg.Item2 < 5).Select(x => x.Item1).ToArray();
             var strLen = list.Max(x => x.Length);
 
             foreach (var a in list)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CommandLineParsing.Output;
+using System;
 
 namespace CommandLineParsing
 {
@@ -31,7 +32,7 @@ namespace CommandLineParsing
             if (message == null)
                 throw new ArgumentNullException("message");
 
-            this.message = message;
+            this.message = new Message(ConsoleString.FromContent(message));
             this.requirementType = requirementType;
         }
 
@@ -40,10 +41,10 @@ namespace CommandLineParsing
             switch (requirementType)
             {
                 case RequirementType.Error:
-                    return $"No value specified for the required parameter \"{name}\"";
+                    return new Message($"No value specified for the required parameter \"{name}\"");
                 case RequirementType.Prompt:
                 case RequirementType.PromptWhenUsed:
-                    return $"Specify a value for the \"{name}\" parameter: ";
+                    return new Message($"Specify a value for the \"{name}\" parameter: ");
 
                 default:
                     throw new ArgumentException($"Invalid {nameof(RequirementType)} value.", nameof(requirementType));

@@ -8,13 +8,11 @@ namespace CommandLineParsing.Tests
         [SetUp]
         public void CreateConsole()
         {
-            var console = new TestingConsole();
-
-            Console = console;
-            AssertConsole = new ConsoleAssertions(console);
+            Console = new TestingConsole();
+            AssertConsole = new ConsoleAssertions(Console);
         }
 
-        public IConsole Console { get; private set; }
+        public TestingConsole Console { get; private set; }
         public ConsoleAssertions AssertConsole { get; private set; }
     }
 }
