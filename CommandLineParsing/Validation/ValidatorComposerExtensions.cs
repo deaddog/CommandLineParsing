@@ -6,7 +6,7 @@ namespace CommandLineParsing.Validation
     /// <summary>
     /// Defines extension methods for composing validators.
     /// </summary>
-    public static class ValidatorExtensions
+    public static class ValidatorComposerExtensions
     {
         /// <summary>
         /// Adds a predicate method to the validator composer, with a generic message when the predicate does not hold true.
