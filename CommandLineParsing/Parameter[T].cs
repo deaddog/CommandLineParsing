@@ -1,6 +1,7 @@
 ﻿using CommandLineParsing.Output;
 using CommandLineParsing.Parsing;
 using System;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace CommandLineParsing
@@ -191,7 +192,29 @@ namespace CommandLineParsing
             if (_parserCustom != null)
                 msg = _parserCustom(values, out temp);
             else
-                msg = ParserLookup.TryParse(_parserSettings, values, out temp);
+            {
+                var parser = new ReflectedParser<T>(new ReflectedParserSettings
+                (
+                    enumIgnoreCase: _parserSettings.EnumIgnoreCase,
+                    noValueMessage: _parserSettings.NoValueMessage,
+                    multipleValuesMessage: _parserSettings.MultipleValuesMessage,
+                    typeErrorMessage: _parserSettings.TypeErrorMessage,
+                    useParserMessage: _parserSettings.UseParserMessage
+                ));
+
+                var result = parser.Parse(values);
+
+                if(result.IsError)
+                {
+                    msg = new Message(result.Content);
+                    temp = default;
+                }
+                else
+                {
+                    msg = Message.NoError;
+                    temp = result.Value;
+                }
+            }
 
             if (msg.IsError)
                 return msg;
