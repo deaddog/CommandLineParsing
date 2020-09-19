@@ -47,4 +47,37 @@ namespace CommandLineParsing.Input.Reading
             );
         }
     }
+
+    public static class ReadlineConfiguration
+    {
+        private static ReflectedParserSettings GetParserSettings<T>()
+        {
+            string typename = typeof(T).Name;
+
+            return new ReflectedParserSettings
+            (
+                enumIgnoreCase: true,
+                noValueMessage: Message.NoError,
+                multipleValuesMessage: new Message("Only one value can be specified."),
+                typeErrorMessage: x => new Message($"{x} is not a {typename} value."),
+                useParserMessage: true
+            );
+        }
+
+        public static ReadlineConfiguration<T> Create<T>()
+        {
+            return new ReadlineConfiguration<T>
+            (
+                prompt: ConsoleString.Empty,
+                @default: string.Empty,
+                cleanup: new ReadlineCleanupConfiguration
+                (
+                    success: ReadLineCleanup.None,
+                    cancel: ReadLineCleanup.None
+                ),
+                parser: new ReflectedParser<T>(GetParserSettings<T>()),
+                validator: Validation.Validator<T>.NoRules
+            );
+        }
+    }
 }

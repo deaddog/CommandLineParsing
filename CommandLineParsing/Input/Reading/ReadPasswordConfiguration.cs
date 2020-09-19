@@ -5,6 +5,16 @@ namespace CommandLineParsing.Input.Reading
 {
     public class ReadPasswordConfiguration
     {
+        public static ReadPasswordConfiguration Create()
+        {
+            return new ReadPasswordConfiguration
+            (
+                prompt: ConsoleString.Empty,
+                renderAs: "*",
+                repeatRender: true
+            );
+        }
+
         public ReadPasswordConfiguration(ConsoleString prompt, ConsoleString renderAs, bool repeatRender)
         {
             Prompt = prompt ?? throw new ArgumentNullException(nameof(prompt));
