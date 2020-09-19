@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using CommandLineParsing.Input.Reading;
+using NUnit.Framework;
 using System;
 
 namespace CommandLineParsing.Tests.Input
@@ -12,7 +13,10 @@ namespace CommandLineParsing.Tests.Input
             Console.Input.Enqueue("12");
             Console.Input.Enqueue(ConsoleKey.Enter);
 
-            var value = Console.ReadLine<int>("My prompt: ", cleanup: ReadLineCleanup.None);
+            var value = ReadlineConfiguration.Create<int>()
+                    .WithPrompt("My prompt: ")
+                    .WithCleanup(cleanup: ReadLineCleanup.None)
+                    .Read(Console);
 
             Assert.AreEqual(12, value);
             Assert.AreEqual(new ConsolePoint(0, 1), Console.GetCursorPosition());
@@ -26,7 +30,10 @@ namespace CommandLineParsing.Tests.Input
             Console.Input.Enqueue("12");
             Console.Input.Enqueue(ConsoleKey.Enter);
 
-            var value = Console.ReadLine<int>("My prompt: ", cleanup: ReadLineCleanup.RemovePrompt);
+            var value = ReadlineConfiguration.Create<int>()
+                    .WithPrompt("My prompt: ")
+                    .WithCleanup(cleanup: ReadLineCleanup.RemovePrompt)
+                    .Read(Console);
 
             Assert.AreEqual(12, value);
             Assert.AreEqual(new ConsolePoint(0, 1), Console.GetCursorPosition());
@@ -40,7 +47,10 @@ namespace CommandLineParsing.Tests.Input
             Console.Input.Enqueue("12");
             Console.Input.Enqueue(ConsoleKey.Enter);
 
-            var value = Console.ReadLine<int>("My prompt: ", cleanup: ReadLineCleanup.RemoveAll);
+            var value = ReadlineConfiguration.Create<int>()
+                    .WithPrompt("My prompt: ")
+                    .WithCleanup(cleanup: ReadLineCleanup.RemoveAll)
+                    .Read(Console);
 
             Assert.AreEqual(12, value);
             Assert.AreEqual(new ConsolePoint(0, 0), Console.GetCursorPosition());
