@@ -173,8 +173,18 @@ namespace CommandLineParsing
             return ConsoleString.Parse(input, false).HasColors;
         }
 
-        public static string ReadLine(this IConsole console) => new ConsoleReader(console).ReadLine();
-        public static bool ReadLineOrCancel(this IConsole console, out string value) => new ConsoleReader(console).ReadLineOrCancel(out value);
+        public static string ReadLine(this IConsole console)
+        {
+            var value = new ConsoleReader(console).ReadLine();
+            console.WriteLine();
+            return value;
+        }
+        public static bool ReadLineOrCancel(this IConsole console, out string value)
+        {
+            var result = new ConsoleReader(console).ReadLineOrCancel(out value);
+            console.WriteLine();
+            return result;
+        }
 
         /// <summary>
         /// Displays a menu where a enumeration value of type <typeparamref name="TEnum"/> can be selected.
