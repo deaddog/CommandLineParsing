@@ -209,7 +209,7 @@ namespace CommandLineParsing
             var parser = _parserCustom;
 
             if (parser is null)
-                new ReflectedParser<T>(new ReflectedParserSettings
+                parser = new ReflectedParser<T>(new ReflectedParserSettings
                 (
                     enumIgnoreCase: _parserSettings.EnumIgnoreCase,
                     noValueMessage: _parserSettings.NoValueMessage,
