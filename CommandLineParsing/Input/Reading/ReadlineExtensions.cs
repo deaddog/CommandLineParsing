@@ -96,15 +96,15 @@ namespace CommandLineParsing.Input.Reading
 
             reader.Text = text;
         }
-        private static void ApplyCleanup(ConsoleString prompt, IConsole console, ConsolePoint start, ConsoleReader reader, ReadLineCleanup cleanup)
+        private static void ApplyCleanup(ConsoleString prompt, IConsole console, ConsolePoint start, ConsoleReader reader, ReadlineCleanup cleanup)
         {
             switch (cleanup)
             {
-                case ReadLineCleanup.None:
+                case ReadlineCleanup.None:
                     console.WriteLine();
                     break;
 
-                case ReadLineCleanup.RemovePrompt:
+                case ReadlineCleanup.RemovePrompt:
                     var text = reader.Text;
                     reader.Text = string.Empty;
                     console.SetCursorPosition(start);
@@ -113,7 +113,7 @@ namespace CommandLineParsing.Input.Reading
                     console.WriteLine(text);
                     break;
 
-                case ReadLineCleanup.RemoveAll:
+                case ReadlineCleanup.RemoveAll:
                     reader.Text = string.Empty;
                     console.SetCursorPosition(start);
                     console.Write(new string(' ', prompt.Length));

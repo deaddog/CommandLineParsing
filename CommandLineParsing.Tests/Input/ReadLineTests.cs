@@ -15,7 +15,7 @@ namespace CommandLineParsing.Tests.Input
 
             var value = ReadlineConfiguration.Create<int>()
                     .WithPrompt("My prompt: ")
-                    .WithCleanup(cleanup: ReadLineCleanup.None)
+                    .WithCleanup(cleanup: ReadlineCleanup.None)
                     .Read(Console);
 
             Assert.AreEqual(12, value);
@@ -32,7 +32,7 @@ namespace CommandLineParsing.Tests.Input
 
             var value = ReadlineConfiguration.Create<int>()
                     .WithPrompt("My prompt: ")
-                    .WithCleanup(cleanup: ReadLineCleanup.RemovePrompt)
+                    .WithCleanup(cleanup: ReadlineCleanup.RemovePrompt)
                     .Read(Console);
 
             Assert.AreEqual(12, value);
@@ -49,7 +49,7 @@ namespace CommandLineParsing.Tests.Input
 
             var value = ReadlineConfiguration.Create<int>()
                     .WithPrompt("My prompt: ")
-                    .WithCleanup(cleanup: ReadLineCleanup.RemoveAll)
+                    .WithCleanup(cleanup: ReadlineCleanup.RemoveAll)
                     .Read(Console);
 
             Assert.AreEqual(12, value);

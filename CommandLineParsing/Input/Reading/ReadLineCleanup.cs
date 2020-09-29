@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CommandLineParsing
+namespace CommandLineParsing.Input.Reading
 {
     /// <summary>
     /// Defines what type of console cleanup should be applied after completing a readline.
     /// </summary>
-    public enum ReadLineCleanup
+    public enum ReadlineCleanup
     {
         /// <summary>
         /// No cleanup is applied.

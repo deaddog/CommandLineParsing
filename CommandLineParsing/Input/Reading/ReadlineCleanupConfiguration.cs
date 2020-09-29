@@ -2,13 +2,13 @@
 {
     public class ReadlineCleanupConfiguration
     {
-        public ReadlineCleanupConfiguration(ReadLineCleanup success, ReadLineCleanup cancel)
+        public ReadlineCleanupConfiguration(ReadlineCleanup success, ReadlineCleanup cancel)
         {
             Success = success;
             Cancel = cancel;
         }
 
-        public ReadLineCleanup Success { get; }
-        public ReadLineCleanup Cancel { get; }
+        public ReadlineCleanup Success { get; }
+        public ReadlineCleanup Cancel { get; }
     }
 }

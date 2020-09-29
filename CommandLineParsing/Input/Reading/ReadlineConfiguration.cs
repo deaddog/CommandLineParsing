@@ -72,8 +72,8 @@ namespace CommandLineParsing.Input.Reading
                 @default: string.Empty,
                 cleanup: new ReadlineCleanupConfiguration
                 (
-                    success: ReadLineCleanup.None,
-                    cancel: ReadLineCleanup.None
+                    success: ReadlineCleanup.None,
+                    cancel: ReadlineCleanup.None
                 ),
                 parser: new ReflectedParser<T>(GetParserSettings<T>()),
                 validator: Validation.Validator<T>.NoRules
