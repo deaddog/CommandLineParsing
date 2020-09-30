@@ -30,11 +30,11 @@ namespace CommandLineParsing.Input.Reading
         }
         public static ReadlineConfiguration<T> WithoutDefault<T>(this ReadlineConfiguration<T> composer) => composer.WithDefault(string.Empty);
 
-        public static ReadlineConfiguration<T> WithCleanup<T>(this ReadlineConfiguration<T> composer, ReadLineCleanup cleanup = ReadLineCleanup.RemoveAll)
+        public static ReadlineConfiguration<T> WithCleanup<T>(this ReadlineConfiguration<T> composer, ReadlineCleanup cleanup = ReadlineCleanup.RemoveAll)
         {
             return composer.WithCleanup(cleanup, cleanup);
         }
-        public static ReadlineConfiguration<T> WithCleanup<T>(this ReadlineConfiguration<T> composer, ReadLineCleanup success, ReadLineCleanup cancel)
+        public static ReadlineConfiguration<T> WithCleanup<T>(this ReadlineConfiguration<T> composer, ReadlineCleanup success, ReadlineCleanup cancel)
         {
             return new ReadlineConfiguration<T>
             (
@@ -49,6 +49,6 @@ namespace CommandLineParsing.Input.Reading
                 validator: composer.Validator
             );
         }
-        public static ReadlineConfiguration<T> WithoutCleanup<T>(this ReadlineConfiguration<T> composer) => composer.WithCleanup(ReadLineCleanup.None);
+        public static ReadlineConfiguration<T> WithoutCleanup<T>(this ReadlineConfiguration<T> composer) => composer.WithCleanup(ReadlineCleanup.None);
     }
 }
