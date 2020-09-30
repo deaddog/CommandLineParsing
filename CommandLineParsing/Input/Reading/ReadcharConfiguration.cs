@@ -15,4 +15,16 @@ namespace CommandLineParsing.Input.Reading
         public ConsoleString Prompt { get; }
         public IImmutableDictionary<char, T> Options { get; }
     }
+
+    public static class ReadcharConfiguration
+    {
+        public static ReadcharConfiguration<T> Create<T>()
+        {
+            return new ReadcharConfiguration<T>
+            (
+                prompt: ConsoleString.Empty,
+                options: ImmutableDictionary<char, T>.Empty
+            );
+        }
+    }
 }
