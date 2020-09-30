@@ -57,5 +57,44 @@ namespace CommandLineParsing.Tests.Input
 
             AssertConsole.BufferAndWindowLines();
         }
+
+        [Test]
+        public void BarelyOverflow()
+        {
+            var width = Console.WindowWidth;
+            var word = "abcde";
+            var line = string.Join("", System.Linq.Enumerable.Repeat(word, width / word.Length + 1)).Substring(0, width);
+
+            Console.Input.Enqueue(line);
+            Console.Input.Enqueue(ConsoleKey.Enter);
+
+            var value = ReadlineConfiguration.Create<string>()
+                    .Read(Console);
+
+            AssertConsole.BufferAndWindowLines
+            (
+                line
+            );
+        }
+
+        [Test]
+        public void Overflow()
+        {
+            var width = Console.WindowWidth;
+            var word = "abcde";
+            var line = string.Join("", System.Linq.Enumerable.Repeat(word, width / word.Length + 1)).Substring(0, width);
+
+            Console.Input.Enqueue(line + "123");
+            Console.Input.Enqueue(ConsoleKey.Enter);
+
+            var value = ReadlineConfiguration.Create<string>()
+                    .Read(Console);
+
+            AssertConsole.BufferAndWindowLines
+            (
+                line,
+                "123"
+            );
+        }
     }
 }
