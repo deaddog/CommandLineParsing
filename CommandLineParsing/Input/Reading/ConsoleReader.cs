@@ -46,7 +46,7 @@ namespace CommandLineParsing.Input.Reading
         /// <param name="console">The console used to read input.</param>
         public ConsoleReader(IConsole console)
         {
-           Console = console ?? throw new ArgumentNullException(nameof(console));
+            Console = console ?? throw new ArgumentNullException(nameof(console));
 
             Origin = Console.GetCursorPosition();
             _stringBuilder = new StringBuilder();
@@ -114,8 +114,16 @@ namespace CommandLineParsing.Input.Reading
         /// </summary>
         public int Index
         {
-            get { return Console.CursorLeft - Origin.Left; }
-            set { Console.SetCursorPosition(Origin.Left + value, Origin.Top); }
+            get { return Console.CursorLeft - Origin.Left + (Console.CursorTop - Origin.Top) * Console.BufferWidth; }
+            set
+            {
+                var position = new ConsolePoint(Origin.Left + value, Origin.Top);
+
+                while (position.Left >= Console.BufferWidth)
+                    position += new ConsoleSize(-Console.BufferWidth, 1);
+
+                Console.SetCursorPosition(position);
+            }
         }
 
         /// <summary>
