@@ -89,10 +89,10 @@ namespace CommandLineParsing.Input.Reading
             var red = Color.NoColor.WithForeground("red");
 
             var message = new ConsoleString(msg.Select(s => new ConsoleStringSegment(s.Content, s.HasColor ? s.Color : red)));
-            console.TemporaryShift(() => console.Write(message));
+            console.TemporaryShift(c => c.Write(message));
 
-            console.TemporaryShift(() => console.ReadKey(true));
-            console.TemporaryShift(() => console.Write(new string(' ', message.Length)));
+            console.TemporaryShift(c => c.ReadKey(true));
+            console.TemporaryShift(c => c.Write(new string(' ', message.Length)));
 
             reader.Text = text;
         }

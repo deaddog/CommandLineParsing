@@ -113,11 +113,11 @@ namespace CommandLineParsing.Input
                 _prompt = value;
                 _noPrompt = new string(' ', _prompt.Length);
 
-                _console.TemporaryShift(_origin, () =>
+                _console.TemporaryShift(_origin, c =>
                 {
                     for (int i = 0; i < _displayed.Count; i++)
                     {
-                        _console.WriteLine((i + _displayOffset == _index) ? _prompt : _noPrompt);
+                        c.WriteLine((i + _displayOffset == _index) ? _prompt : _noPrompt);
                         if (lenDiff > 0)
                             _displayed[i] = ConsoleString.Empty;
                         else
@@ -176,7 +176,7 @@ namespace CommandLineParsing.Input
                     return;
 
                 if (_index != -1)
-                    _console.TemporaryShift(_origin + new ConsoleSize(0, _index - _displayOffset), () => _console.Render(_noPrompt));
+                    _console.TemporaryShift(_origin + new ConsoleSize(0, _index - _displayOffset), c => c.Render(_noPrompt));
 
                 _index = value;
 
@@ -200,7 +200,7 @@ namespace CommandLineParsing.Input
                             UpdateOption(i + _displayOffset);
                     }
 
-                    _console.TemporaryShift(_origin + new ConsoleSize(0, _index - _displayOffset), () => _console.Write(_prompt));
+                    _console.TemporaryShift(_origin + new ConsoleSize(0, _index - _displayOffset), c => c.Write(_prompt));
                 }
             }
         }
@@ -386,10 +386,10 @@ namespace CommandLineParsing.Input
             var offset = new ConsoleSize(_prompt.Length, displayedIndex);
             int oldLen = _displayed[displayedIndex].Length;
 
-            _console.TemporaryShift(_origin + offset, () =>
+            _console.TemporaryShift(_origin + offset, c =>
             {
-                _console.Render(new string(' ', oldLen) + new string('\b', oldLen));
-                _console.Write(text);
+                c.Render(new string(' ', oldLen) + new string('\b', oldLen));
+                c.Write(text);
             });
 
             _displayed[displayedIndex] = text;
@@ -422,10 +422,10 @@ namespace CommandLineParsing.Input
             {
                 var prefixLength = GetPrefix(0).Length;
 
-                _console.TemporaryShift(_origin, () =>
+                _console.TemporaryShift(_origin, c =>
                 {
                     for (int i = 0; i < _displayed.Count; i++)
-                        _console.RenderLine(new string(' ', _displayed[i].Length + _prompt.Length + prefixLength));
+                        c.RenderLine(new string(' ', _displayed[i].Length + _prompt.Length + prefixLength));
                 });
 
                 _console.SetWindowPosition(_windowOrigin);

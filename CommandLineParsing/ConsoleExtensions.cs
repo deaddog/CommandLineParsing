@@ -70,7 +70,7 @@ namespace CommandLineParsing
         /// <param name="console">The console on which the action is carried out.</param>
         /// <param name="action">The action to execute.</param>
         /// <param name="hideCursor">if set to <c>true</c> the cursor will be hidden while executing <paramref name="action"/>.</param>
-        public static void TemporaryShift(this IConsole console, Action action, bool hideCursor = true)
+        public static void TemporaryShift(this IConsole console, Action<IConsole> action, bool hideCursor = true)
         {
             bool wasVisible = console.CursorVisible;
 
@@ -78,7 +78,7 @@ namespace CommandLineParsing
             if (hideCursor && wasVisible)
                 console.CursorVisible = false;
 
-            action();
+            action(console);
 
             if (hideCursor && wasVisible)
                 console.CursorVisible = true;
@@ -91,9 +91,9 @@ namespace CommandLineParsing
         /// <param name="point">The point to which the cursor position should be shifted temporarily.</param>
         /// <param name="action">The action to execute.</param>
         /// <param name="hideCursor">if set to <c>true</c> the cursor will be hidden while executing <paramref name="action"/>.</param>
-        public static void TemporaryShift(this IConsole console, ConsolePoint point, Action action, bool hideCursor = true)
+        public static void TemporaryShift(this IConsole console, ConsolePoint point, Action<IConsole> action, bool hideCursor = true)
         {
-            TemporaryShift(console, () => { console.SetCursorPosition(point); action(); }, hideCursor);
+            TemporaryShift(console, c => { c.SetCursorPosition(point); action(c); }, hideCursor);
         }
 
         /// <summary>
