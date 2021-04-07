@@ -1,4 +1,7 @@
-﻿using CommandLineParsing.Parsing;
+﻿using CommandLineParsing.Input.Reading;
+using CommandLineParsing.Output.Formatting;
+using CommandLineParsing.Output.Formatting.Structure;
+using CommandLineParsing.Parsing;
 using CommandLineParsing.Validation;
 using System;
 using System.Collections.Immutable;
@@ -17,6 +20,12 @@ namespace CommandLineParsing.UITests
             // Setting the active console to the shared one, use _console.BufferStrings and _console.WindowStrings to inspect the state.
             IConsole c = Consoles.System;
 
+            // gh issues 1 2 3 --list -f '$name'
+
+            // null > [issues 1 2 3]
+            // list > []
+            // f    > ['$name']
+
             // Do stuff using the console, by interacting with ColorConsole.
 
             var cmd = Command.Create()
@@ -24,6 +33,7 @@ namespace CommandLineParsing.UITests
                     .Where(x => x.Length > 20)
                     /*.Required()*/)
                 .WithParameter<int>("age", out var age)
+                .WithParameter<int>("age2", out _)
                 .OnExecute(args =>
                 {
                     var myName = args.Get(name);
@@ -42,7 +52,14 @@ namespace CommandLineParsing.UITests
 
     public class Command
     {
-        public static Command Create() { return null; }
+        public static Command Create()
+        {
+            return new Command
+            (
+                parameters: ImmutableDictionary<string, IParameter>.Empty,
+                execution: (args, ct) => Task.CompletedTask
+            );
+        }
 
         public Command(IImmutableDictionary<string, IParameter> parameters, Func<IArgumentSet, CancellationToken, Task> execution)
         {
@@ -56,7 +73,7 @@ namespace CommandLineParsing.UITests
 
     public static class CommandExtensions
     {
-        public static Command WithParameter<T>(this Command command, string name, IParameter<T> parameter)
+        public static Command WithParameter<T>(this Command command, string name, Parameter<T> parameter)
         {
             return new Command
             (
@@ -65,11 +82,11 @@ namespace CommandLineParsing.UITests
             );
         }
 
-        public static Command WithParameter<T>(this Command command, string name, out IParameter<T> parameter)
+        public static Command WithParameter<T>(this Command command, string name, out Parameter<T> parameter)
         {
             return WithParameter(command, name, out parameter, p => p);
         }
-        public static Command WithParameter<T>(this Command command, string name, out IParameter<T> parameter, Func<Parameter<T>, Parameter<T>> builder)
+        public static Command WithParameter<T>(this Command command, string name, out Parameter<T> parameter, Func<Parameter<T>, Parameter<T>> builder)
         {
             return WithParameter(command, name, parameter = builder(Parameter.Create<T>()));
         }
@@ -100,73 +117,43 @@ namespace CommandLineParsing.UITests
         }
     }
 
-    public static class ALDSJL
-    {
-        public static ICommand<ValueTuple<T1, T2>> WOOT<T1, T2>(this ICommand<ValueTuple<T1>> command, IParameter<T2> l)
-        {
-            throw new NotImplementedException();
-        }
-        public static ICommand<ValueTuple<T1, T2, T3>> WOOT<T1, T2, T3>(this ICommand<ValueTuple<T1, T2>> command, IParameter<T3> l)
-        {
-            throw new NotImplementedException();
-        }
-    }
-
     public static class Parameter
     {
         public static Parameter<T> Create<T>() => null;
     }
 
-    public class Parameter<T> : IParameter<T>, IValidatorComposer<T, Parameter<T>>, IParserComposer<T, Parameter<T>>
+    public class Parameter<T> : IParameter, IValidatorComposer<T, Parameter<T>>, IParserComposer<T, Parameter<T>>
     {
         public IValidator<T> Validator => throw new NotImplementedException();
-
         public IParser<T> Parser => throw new NotImplementedException();
-
-        public IArgument<T> Resolve(ImmutableArray<string> args)
-        {
-            throw new NotImplementedException();
-        }
 
         public Parameter<T> WithParser(IParser<T> parser)
         {
             throw new NotImplementedException();
         }
-
         public Parameter<T> WithValidator(IValidator<T> validator)
         {
             throw new NotImplementedException();
         }
 
+        public IArgument<T> Resolve(ImmutableArray<string> args)
+        {
+            throw new NotImplementedException();
+        }
         IArgument IParameter.Resolve(ImmutableArray<string> args)
         {
             throw new NotImplementedException();
         }
     }
 
-    public class Parameters
-    {
-        public IParameter<int> Number { get; }
-        public IParameter<string> Name { get; }
-    }
-
-    public class Arguments
-    {
-        public IArgument<int> Number { get; }
-        public IArgument<string> Name { get; }
-    }
-
     public interface IParameter
     {
         IArgument Resolve(ImmutableArray<string> args);
     }
-    public interface IParameter<T> : IParameter
-    {
-        new IArgument<T> Resolve(ImmutableArray<string> args);
-    }
 
     public interface IArgument
     {
+        IParameter Parameter { get; }
     }
     public interface IArgument<T> : IArgument
     {
@@ -180,9 +167,19 @@ namespace CommandLineParsing.UITests
         IArgument<T> GetByName<T>(string name);
     }
 
+    public interface IArgumentsParser
+    {
+        (Command Command, IImmutableDictionary<string, IArgument> Arguments) Parse(Command command, ImmutableArray<string> arguments);
+    }
+
     public static class ArgumentSetExtensions
     {
-        public static IArgument<T> Get<T>(this IArgumentSet set, IParameter<T> parameter)
+        public static IArgument Get(this IArgumentSet set, IParameter parameter)
+        {
+            return null;
+            //return set.GetByName<T>(null);
+        }
+        public static IArgument<T> Get<T>(this IArgumentSet set, Parameter<T> parameter)
         {
             return set.GetByName<T>(null);
         }
@@ -203,36 +200,5 @@ namespace CommandLineParsing.UITests
 
         public IImmutableDictionary<string, CommandConfiguration> Commands { get; }
         public ImmutableArray<IParameter> Parameters { get; }
-    }
-
-    public interface ICommand
-    {
-        Func<Task<Message>> Construct(ImmutableArray<string> arguments);
-    }
-    public interface ICommand<TArgs>
-    {
-        Func<TArgs, Task<Message>> Construct(ImmutableArray<string> arguments);
-    }
-
-    public class MySpecificArgs
-    {
-        public MySpecificArgs(IArgument<string> name, IArgument<int> age)
-        {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            Age = age ?? throw new ArgumentNullException(nameof(age));
-        }
-
-        public IArgument<string> Name { get; }
-        public IArgument<int> Age { get; }
-
-        public IArgument<T> GetByName<T>(string name)
-        {
-            return name switch
-            {
-                nameof(Name) => (IArgument<T>)Name,
-                nameof(Age) => (IArgument<T>)Age,
-                _ => throw new ArgumentOutOfRangeException(nameof(name))
-            };
-        }
     }
 }
