@@ -56,18 +56,18 @@ namespace CommandLineParsing.Execution
         {
             return new Command
             (
-                parameters: ImmutableDictionary<string, IParameter>.Empty,
+                parameters: ImmutableArray<IParameter>.Empty,
                 execution: SequentialExecution.Create()
             );
         }
 
-        public Command(IImmutableDictionary<string, IParameter> parameters, IExecution execution)
+        public Command(ImmutableArray<IParameter> parameters, IExecution execution)
         {
-            Parameters = parameters ?? throw new ArgumentNullException(nameof(parameters));
+            Parameters = parameters;
             Execution = execution ?? throw new ArgumentNullException(nameof(execution));
         }
 
-        public IImmutableDictionary<string, IParameter> Parameters { get; }
+        public ImmutableArray<IParameter> Parameters { get; }
         public IExecution Execution { get; }
     }
 
@@ -179,11 +179,7 @@ namespace CommandLineParsing.Execution
         {
             return new Command
             (
-                parameters: command.Parameters.Add
-                (
-                    key: name,
-                    value: parameter = builder(ParameterComposer.Create<T>()).GetParameter()
-                ),
+                parameters: command.Parameters.Add(parameter = builder(ParameterComposer.Create<T>(name)).GetParameter()),
                 execution: command.Execution
             );
         }
@@ -216,6 +212,8 @@ namespace CommandLineParsing.Execution
         {
             return new ParameterComposer<T>
             (
+                names: parameter.Names,
+                description: parameter.Description,
                 parser: parameter.Parser,
                 validator: parameter.Validator,
                 environmentVariable: environmentVariable,
@@ -227,6 +225,8 @@ namespace CommandLineParsing.Execution
         {
             return new ParameterComposer<T>
             (
+                names: parameter.Names,
+                description: parameter.Description,
                 parser: parameter.Parser,
                 validator: parameter.Validator,
                 environmentVariable: parameter.EnvironmentVariable,

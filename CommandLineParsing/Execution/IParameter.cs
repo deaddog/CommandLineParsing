@@ -4,6 +4,6 @@ namespace CommandLineParsing.Execution
 {
     public interface IParameter
     {
-        ArgumentSet Resolve(ArgumentSet arguments, ImmutableArray<string> args);
+        ArgumentSet Resolve(ArgumentSet arguments, string name, ImmutableArray<string> args);
     }
 }
