@@ -4,7 +4,7 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace CommandLineParsing.Execution
+namespace CommandLineParsing.Applications
 {
     public class Parameter<T> : IParameter
     {
@@ -28,16 +28,17 @@ namespace CommandLineParsing.Execution
 
         public ArgumentSet Resolve(ArgumentSet arguments, string name, ImmutableArray<string> args)
         {
-            var message = Parser.Parse(args.ToArray());
+            var parsed = Parser.Parse(args.ToArray());
+            var validated = Validator.Validate(parsed);
 
-            message = Validator.Validate(message);
+            var value = validated.GetValueOrThrow();
 
             return arguments.With(new Argument<T>
             (
                 parameter: this,
                 name: name,
                 args: args,
-                message: message
+                value: value
             ));
         }
     }

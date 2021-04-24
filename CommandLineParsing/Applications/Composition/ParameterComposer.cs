@@ -3,7 +3,7 @@ using CommandLineParsing.Validation;
 using System;
 using System.Collections.Immutable;
 
-namespace CommandLineParsing.Execution
+namespace CommandLineParsing.Applications.Composition
 {
     public static class ParameterComposer
     {
@@ -49,10 +49,11 @@ namespace CommandLineParsing.Execution
 
         public ImmutableArray<string> Names { get; }
         public string Description { get; }
-        public IParser<T> Parser { get; }
-        public IValidator<T> Validator { get; }
         public string EnvironmentVariable { get; }
         public Usage Usage { get; }
+
+        public IParser<T> Parser { get; }
+        public IValidator<T> Validator { get; }
 
         public ParameterComposer<T> WithParser(IParser<T> parser)
         {

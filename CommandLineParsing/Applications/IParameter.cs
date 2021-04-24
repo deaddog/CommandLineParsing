@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace CommandLineParsing.Execution
+namespace CommandLineParsing.Applications
 {
     public interface IParameter
     {

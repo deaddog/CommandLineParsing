@@ -1,4 +1,4 @@
-﻿namespace CommandLineParsing.Execution
+﻿namespace CommandLineParsing.Applications
 {
     public enum Usage
     {

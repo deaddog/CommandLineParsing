@@ -20,7 +20,7 @@ namespace CommandLineParsing.UITests
             // Setting the active console to the shared one, use _console.BufferStrings and _console.WindowStrings to inspect the state.
             IConsole c = Consoles.System;
 
-            CommandLineParsing.Execution.Testing.MainTest(args);
+            CommandLineParsing.Applications.Testing.MainTest(args);
         }
 
     }
