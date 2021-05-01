@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ConsoleTools
+namespace ConsoleTools.Colors
 {
     public struct Color : IEquatable<Color>
     {

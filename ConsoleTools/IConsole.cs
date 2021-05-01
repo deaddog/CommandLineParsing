@@ -1,3 +1,4 @@
+using ConsoleTools.Colors;
 using System;
 
 namespace ConsoleTools
@@ -10,6 +11,7 @@ namespace ConsoleTools
         Vector WindowSize { get; }
         Vector WindowPosition { get; }
 
+        IColorTable ColorTable {get;}
         ConsoleColor ForegroundColor { get; set; }
         ConsoleColor BackgroundColor { get; set; }
         void ResetColor();
