@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace ConsoleTools.Validation
 {
@@ -44,6 +45,30 @@ namespace ConsoleTools.Validation
                     validator
                 )
             );
+        }
+
+        public static TReturn WhereAll<T, TItem, TReturn>(this IValidatorComposer<T, TReturn> composer, Func<T, IEnumerable<TItem>> itemsSelector, Func<ValidatorComposer<TItem>, ValidatorComposer<TItem>> compose)
+        {
+            return WhereAll
+            (
+                composer: composer,
+                itemsSelector: itemsSelector,
+                itemValidator: compose(new ValidatorComposer<TItem>(Validator<TItem>.NoRules)).Validator
+            );
+        }
+        public static TReturn WhereAll<T, TItem, TReturn>(this IValidatorComposer<T, TReturn> composer, Func<T, IEnumerable<TItem>> itemsSelector, IValidator<TItem> itemValidator)
+        {
+            return Where(composer, Validator<T>.Create(x =>
+            {
+                using (var e = itemsSelector(x).GetEnumerator())
+                {
+                    var m = itemValidator.Validate(e.Current);
+                    if (m.IsError)
+                        return m;
+                }
+
+                return Message.NoError;
+            }));
         }
     }
 }
