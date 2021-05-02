@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ConsoleTools.Colors
+namespace ConsoleTools.Coloring
 {
     public interface IColorTable
     {

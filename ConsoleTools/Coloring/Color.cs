@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ConsoleTools.Colors
+namespace ConsoleTools.Coloring
 {
     public struct Color : IEquatable<Color>
     {
@@ -8,7 +8,6 @@ namespace ConsoleTools.Colors
 
         public static Color Parse(string color)
         {
-            var c = NoColor;
             var pipeIndex = color.IndexOf('|');
 
             var foreground = pipeIndex >= 0 ? color.Substring(0, pipeIndex).Trim() : color.Trim();
@@ -92,7 +91,7 @@ namespace ConsoleTools.Colors
         public override string ToString()
         {
             if (Background is null)
-                return Foreground;
+                return Foreground ?? "";
             else
                 return $"{Foreground}|{Background}";
         }

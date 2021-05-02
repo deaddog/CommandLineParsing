@@ -1,4 +1,4 @@
-using ConsoleTools.Colors;
+using ConsoleTools.Coloring;
 using System;
 
 namespace ConsoleTools
