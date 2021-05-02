@@ -6,7 +6,19 @@ namespace ConsoleTools.Parsing
     public class ParserRegistry
     {
         public static ParserRegistry Empty { get; } = new ParserRegistry(ImmutableDictionary<Type, object>.Empty);
-        public static ParserRegistry Default { get; } = Empty;
+        public static ParserRegistry Default { get; } = Empty
+            .With(new StringParser())
+            .With(new BooleanParser())
+            .With(new TryParser<byte>(byte.TryParse, "a byte"))
+            .With(new TryParser<sbyte>(sbyte.TryParse, "a signed byte"))
+            .With(new TryParser<short>(short.TryParse, "an integer"))
+            .With(new TryParser<ushort>(ushort.TryParse, "an integer"))
+            .With(new TryParser<int>(int.TryParse, "an integer"))
+            .With(new TryParser<uint>(uint.TryParse, "an integer"))
+            .With(new TryParser<long>(long.TryParse, "an integer"))
+            .With(new TryParser<ulong>(ulong.TryParse, "an integer"))
+            .With(new TryParser<float>(float.TryParse, "a numeric value"))
+            .With(new TryParser<double>(double.TryParse, "a numeric value"));
 
         private readonly IImmutableDictionary<Type, object> _parsers;
 

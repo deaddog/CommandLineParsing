@@ -18,6 +18,7 @@ namespace ConsoleTools
 
         public static ConsoleString Create(Segment segment) => new ConsoleString(ImmutableList.Create(segment));
         public static ConsoleString Create(IEnumerable<Segment> segments) => new ConsoleString(segments.ToImmutableList());
+        public static ConsoleString Create(params Segment[] segments) => new ConsoleString(segments.ToImmutableList());
 
         public static ConsoleString FromContent(string content) => FromContent(content, Color.NoColor);
         public static ConsoleString FromContent(string content, Color color) => Create(new Segment(content, color));
