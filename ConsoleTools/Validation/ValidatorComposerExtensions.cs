@@ -11,12 +11,21 @@ namespace ConsoleTools.Validation
             (
                 composer: composer,
                 predicate: predicate,
-                onError: value => new Message(ConsoleString.Create
+                onError: value => ConsoleString.Create
                 (
                     new ConsoleString.Segment("'", Coloring.Colors.ErrorMessage),
                     new ConsoleString.Segment(value?.ToString() ?? "", Coloring.Colors.ErrorValue),
                     new ConsoleString.Segment($"' is not a valid value", Coloring.Colors.ErrorMessage)
-                ))
+                )
+            );
+        }
+        public static TReturn Where<T, TReturn>(this IValidatorComposer<T, TReturn> composer, Predicate<T> predicate, ConsoleString errorMessage)
+        {
+            return Where
+            (
+                composer: composer,
+                predicate: predicate,
+                errorMessage: new Message(errorMessage)
             );
         }
         public static TReturn Where<T, TReturn>(this IValidatorComposer<T, TReturn> composer, Predicate<T> predicate, Message errorMessage)
@@ -25,6 +34,15 @@ namespace ConsoleTools.Validation
             (
                 composer: composer,
                 validator: Validator<T>.Create(value => predicate(value) ? Message.NoError : errorMessage)
+            );
+        }
+        public static TReturn Where<T, TReturn>(this IValidatorComposer<T, TReturn> composer, Predicate<T> predicate, Func<T, ConsoleString> onError)
+        {
+            return Where
+            (
+                composer: composer,
+                predicate: predicate,
+                onError: x => new Message(onError(x))
             );
         }
         public static TReturn Where<T, TReturn>(this IValidatorComposer<T, TReturn> composer, Predicate<T> predicate, Func<T, Message> onError)
