@@ -17,5 +17,9 @@ namespace ConsoleTools.Coloring
 
         public static Color ErrorMessage { get; } = FromName(nameof(ErrorMessage));
         public static Color ErrorValue { get; } = FromName(nameof(ErrorValue));
+
+        public static Color UnknownFormatVariable { get; } = FromName(nameof(UnknownFormatVariable));
+        public static Color UnknownFormatCondition { get; } = FromName(nameof(UnknownFormatCondition));
+        public static Color UnknownFormatFunction { get; } = FromName(nameof(UnknownFormatFunction));
     }
 }

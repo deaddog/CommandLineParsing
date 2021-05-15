@@ -20,7 +20,11 @@ namespace ConsoleTools.Coloring
             );
         public static ColorTable Default { get; } = System
             .With(Colors.ErrorMessage, foreground: Gray, background: null)
-            .With(Colors.ErrorValue, foreground: White, background: null);
+            .With(Colors.ErrorValue, foreground: White, background: null)
+            .With(Colors.UnknownFormatVariable, foreground: Black, background: DarkYellow)
+            .With(Colors.UnknownFormatCondition, foreground: Black, background: DarkYellow)
+            .With(Colors.UnknownFormatFunction, foreground: Black, background: DarkYellow)
+            ;
 
         private readonly IImmutableDictionary<string, ConsoleColor> _colors;
 
