@@ -13,6 +13,13 @@ namespace ConsoleTools.Formatting
         private readonly IImmutableDictionary<string, Predicate<T>> _conditions;
         private readonly IImmutableDictionary<string, IFunction<T>> _functions;
 
+        public static Formatter<T> Empty { get; } = new Formatter<T>
+        (
+            variables: ImmutableDictionary<string, Variable<T>>.Empty,
+            conditions: ImmutableDictionary<string, Predicate<T>>.Empty,
+            functions: ImmutableDictionary<string, IFunction<T>>.Empty
+        );
+
         public Formatter(
             IImmutableDictionary<string, Variable<T>> variables,
             IImmutableDictionary<string, Predicate<T>> conditions,
@@ -45,6 +52,34 @@ namespace ConsoleTools.Formatting
                 if (!f.Key.Equals(f.Key.Trim(), StringComparison.OrdinalIgnoreCase))
                     throw new ArgumentException($"Function name '{f.Key}' is padded.", nameof(functions));
             };
+        }
+
+        public Formatter<T> WithVariable(string name, Variable<T> variable)
+        {
+            return new Formatter<T>
+            (
+                variables: _variables.SetItem(name, variable),
+                conditions: _conditions,
+                functions: _functions
+            );
+        }
+        public Formatter<T> WithCondition(string name, Predicate<T> condition)
+        {
+            return new Formatter<T>
+            (
+                variables: _variables,
+                conditions: _conditions.SetItem(name, condition),
+                functions: _functions
+            );
+        }
+        public Formatter<T> WithFunction(string name, IFunction<T> function)
+        {
+            return new Formatter<T>
+            (
+                variables: _variables,
+                conditions: _conditions,
+                functions: _functions.SetItem(name, function)
+            );
         }
 
         public ConsoleString Format(Format format, T item) => Visit(format, item);
