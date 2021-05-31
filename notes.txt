@@ -1,0 +1,28 @@
+Root
+✓   String
+    FlexString???
+✓   Console
+✓   Point/Size
+✓   Message
+✓   MessageException
+    EditDistance
+
+    Applications
+        Command
+        Parameter
+        Execution
+        Argument
+    
+✓   Reading
+✓       ReadLine
+✓   Formatting
+✓       Format
+
+✓   Parsing
+✓       Parser
+    
+✓   Validation
+✓       Validator
+
+ConsoleTools.Menu
+ConsoleTools.Configuration
